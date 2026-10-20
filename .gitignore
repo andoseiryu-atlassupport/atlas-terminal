@@ -1,0 +1,22 @@
+# Dependencies and generated output
+node_modules/
+coverage/
+dist/
+build/
+*.log
+
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.codex/auth.json
+
+# Local workspace files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+.local/
+work/
