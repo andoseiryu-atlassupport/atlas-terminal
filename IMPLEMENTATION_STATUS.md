@@ -6,20 +6,20 @@
 
 **オフライン試験 87 件合格。ライブ試験 2 件は対象外。** SEC live、実 Base Sepolia 送金、Windows の実行は未検証です。
 
-| 項目                     | 状態              | 確認範囲                                                                             |
-| ------------------------ | ----------------- | ------------------------------------------------------------------------------------ |
-| Offline data / CLI / SDK | PASS              | 原 fixture の正規化、完全/部分期待値との一致、出典 hash/pointer                      |
-| SEC connector            | PASS（mock HTTP） | rate/cache/etag、archive、403/429、有限 retry、bytes/time 上限                       |
-| MCP subprocess           | PASS              | 公式 client で initialize/list/call、6 tools、structured content                     |
-| HTTP / off / mock        | PASS              | quote、固定 snapshot、policy、原子的予算予約、認証付き再取得                         |
-| 決済の競合・障害         | PASS（offline）   | 同じ proof の settle 一回、nonce/ID 重複拒否、UNKNOWN 保留、再署名禁止               |
-| Official x402 SDK        | PASS（offline）   | V2 headers、exact EIP-3009 ローカル署名・署名回復、facilitator HTTP、汎用公式 client |
-| 新規 wheel install       | PASS              | 別 venv・checkout 外 cwd で demo、MCP、loopback HTTP mock 購入・再起動回復           |
-| Package / quality        | PASS              | sdist/wheel、fixture bytes、py.typed、ruff、mypy、Prettier                           |
-| Credential pattern scan  | PASS（限定検査）  | 公開ファイルと到達可能な Git blobs。完全な秘密検出保証ではない                       |
-| SEC live                 | NOT RUN           | 利用者による接続設定と live 検証が必要                                               |
-| Real testnet E2E         | NOT RUN           | 専用 wallet、token、Facilitator の設定と明示実行が必要                               |
-| GitHub Actions           | NOT RUN           | workflow をローカル点検。remote run の成功は未確認                                   |
+| 項目                     | 状態              | 確認範囲                                                                                                                                                                         |
+| ------------------------ | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Offline data / CLI / SDK | PASS              | 原 fixture の正規化、完全/部分期待値との一致、出典 hash/pointer                                                                                                                  |
+| SEC connector            | PASS（mock HTTP） | rate/cache/etag、archive、403/429、有限 retry、bytes/time 上限                                                                                                                   |
+| MCP subprocess           | PASS              | 公式 client で initialize/list/call、6 tools、structured content                                                                                                                 |
+| HTTP / off / mock        | PASS              | quote、固定 snapshot、policy、原子的予算予約、認証付き再取得                                                                                                                     |
+| 決済の競合・障害         | PASS（offline）   | 同じ proof の settle 一回、nonce/ID 重複拒否、UNKNOWN 保留、再署名禁止                                                                                                           |
+| Official x402 SDK        | PASS（offline）   | V2 headers、exact EIP-3009 ローカル署名・署名回復、facilitator HTTP、汎用公式 client                                                                                             |
+| 新規 wheel install       | PASS              | 別 venv・checkout 外 cwd で demo、MCP、loopback HTTP mock 購入・再起動回復                                                                                                       |
+| Package / quality        | PASS              | sdist/wheel、fixture bytes、py.typed、ruff、mypy、Prettier                                                                                                                       |
+| Credential pattern scan  | PASS（限定検査）  | 公開ファイルと到達可能な Git blobs。完全な秘密検出保証ではない                                                                                                                   |
+| SEC live                 | NOT RUN           | 利用者による接続設定と live 検証が必要                                                                                                                                           |
+| Real testnet E2E         | NOT RUN           | 専用 wallet、token、Facilitator の設定と明示実行が必要                                                                                                                           |
+| GitHub Actions           | PASS              | [CI run #2](https://github.com/andoseiryu-atlassupport/atlas-terminal/actions/runs/39422982457) で依存導入・整形・型検査・87件のoffline試験・秘密情報検査・デモ・配布buildが成功 |
 
 ## 実行したコマンド
 

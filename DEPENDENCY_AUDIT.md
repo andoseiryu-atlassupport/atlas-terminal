@@ -67,4 +67,4 @@ Facilitator 固有の AuthProvider、実接続の可否、real Base Sepolia 送�
 
 コードのライセンスは Apache-2.0。正式な原文は [Apache 公式 GitHub](https://github.com/apache/.github/blob/main/LICENSE) から取得し、ルートの [LICENSE](LICENSE) に同梱した。README、Python・npm のパッケージ設定に同じ SPDX 識別子を記載する。原データと依存パッケージの条件は別扱い。
 
-新規追加の `actions/setup-python` v6 は `git ls-remote` で `ece7cb06caefa5fff74198d8649806c4678c61a1` を確認して固定した。既存 checkout/setup-node の SHA を維持する。workflow はローカルで点検するが、GitHub Actions の実 run は NOT RUN。
+新規追加の `actions/setup-python` v6 は `git ls-remote` で `ece7cb06caefa5fff74198d8649806c4678c61a1` を確認して固定した。既存 checkout/setup-node の SHA を維持する。[GitHub Actions の CI run #2](https://github.com/andoseiryu-atlassupport/atlas-terminal/actions/runs/39422982457) で依存導入・品質チェック・offline 試験・デモ・配布 build の成功を確認した。
