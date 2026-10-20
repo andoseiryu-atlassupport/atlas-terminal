@@ -20,13 +20,13 @@
 - Fiscal Data: [API documentation](https://fiscaldata.treasury.gov/api-documentation/)、[about](https://fiscaldata.treasury.gov/about-us/)。
 - Federal Reserve: [feeds](https://www.federalreserve.gov/feeds/feeds.htm)、[disclaimer](https://www.federalreserve.gov/disclaimer.htm)。
 
-**確認範囲:** 固定 endpoint、データ形状、条件付き cache、上限、欠損・単位・出典をオフラインの fixture / HTTP mock で試験しています。この開発環境からの実接続、公式ページの最新状態、個別の再配布条件の最終確認は未実施です。参照リンクは利用条件の保証や個別のライセンス許諾ではありません。実運用では原サイトの最新条件・制限に従ってください。
+**確認範囲:** 固定 endpoint、データ形状、条件付き cache、上限、欠損・単位・出典をオフラインの fixture / HTTP mock で試験しています。ソースへの実接続、公式ページの最新状態、個別の再配布条件の最終確認は未実施です。参照リンクは利用条件の保証や個別のライセンス許諾ではありません。実運用では原サイトの最新条件・制限に従ってください。[検証範囲](docs/verification.md)に試験内容を記載しています。
 
 ## 取得と加工の範囲
 
 任意 URL や mirror を受け付けず、redirect を追いません。期限切れ cache の更新に失敗しても、古い値を最新値として返したり、有料 provider に切り替えたりしません。HTTP は共有 rate limiter と最大3試行、原 bytes の時間・サイズ上限を使います。BLS の日次試行数も永続化します。
 
-`statements` は年次・四半期・YTD、37の US-GAAP 指標をタグと単位を明示して正規化します。旧 `financials` は年次5指標の契約を維持します。元の taxonomy / unit / context を読む `company_facts`、計算式と入力を残す `ratios`、提出一覧だけの discovery datasets を区別します。[選択方法](docs/methodology.md)と[調査仕様](docs/research.md)を参照してください。
+`statements` は年次・四半期・YTD、37の US-GAAP 指標をタグと単位を明示して正規化します。`financials` は年次5指標の snapshot を返します。元の taxonomy / unit / context を読む `company_facts`、計算式と入力を残す `ratios`、提出一覧だけの discovery datasets を区別します。[選択方法](docs/methodology.md)と[調査仕様](docs/research.md)を参照してください。
 
 無料閲覧と再配布許諾は異なります。Yahoo Finance 等の非公開 API、再配布条件が確認できない無料日足、取引所の有料相場、コンセンサス予想、通信社記事、決算電話全文は統合していません。株価・板・全銘柄の調整係数・PIT を取得できるとは表示しません。
 

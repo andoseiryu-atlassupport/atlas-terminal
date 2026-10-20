@@ -13,7 +13,7 @@ uv run --offline python -m build --no-isolation
 npm run check
 ```
 
-作業ブランチで変更し、[確定スコープ](docs/project-brief.md)と [実装状況](IMPLEMENTATION_STATUS.md) を確認してください。実際に実行した検証と未実施の試験を PR に記録します。
+作業ブランチで変更し、[対応範囲](docs/project-brief.md)、[機能一覧](IMPLEMENTATION_STATUS.md)、[検証範囲](docs/verification.md)を確認してください。実際に実行した検証と未実施の試験を PR に記録します。
 
 財務の不具合には CIK、accession、taxonomy/tag、実際の対象期間、期待する値、原資料参照を添付します。個人情報を含む User-Agent や原購入 DB は添付しません。期間選択・欠損・署名再利用・クラッシュ回復の挙動を保護する試験を優先します。
 

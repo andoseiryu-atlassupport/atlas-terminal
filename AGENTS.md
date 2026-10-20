@@ -24,7 +24,7 @@ Read `README.md`, `docs/project-brief.md`, `CONTRIBUTING.md` and `IMPLEMENTATION
 - Run `uv run --offline ruff check .`, `uv run --offline ruff format --check .`, `uv run --offline mypy`, `uv run --offline pytest`, `uv run --offline python -m build --no-isolation`, `npm run check`.
 - Default tests must remain offline. Live SEC and testnet require explicit opt-in flags and private settings. Never convert mock PASS into real testnet PASS.
 - Source fixtures are byte-exact: do not reformat `resources/sec_like`, `tests/fixtures`, or schema examples without deliberately regenerating provenance expectations.
-- Update status with actual commands, results and limitations. CI runs, local checks and cloud-environment setup are different evidence.
+- Describe current product capabilities in IMPLEMENTATION_STATUS.md. Record actual commands, results and limitations in docs/verification.md. Local checks and CI runs are separate evidence.
 - Keep actions pinned to verified commit SHAs, use `pull_request` for external contributions, and grant read-only CI permissions.
 - Publication, deployment and real transfers require an explicit operator instruction. The project code is licensed under Apache-2.0; keep LICENSE, README and package metadata consistent. Source-data and dependency licenses remain separate.
 

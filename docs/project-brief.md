@@ -9,7 +9,7 @@ Atlas Terminal は無料の公開一次ソースから米株調査用データ�
 - Form 3/4/5 と13F の1提出ごとの XML 明細。大量保有、投信、企業イベントは提出資料の発見メタデータ。
 - 数値の単位・期間・出典 hash・取得時刻を一緒に返す。欠損を埋めず、履歴上限や部分結果を明示する。
 - 調査取得にデータ購読・API キー・wallet・LLM は不要。SEC の実連絡先を含む UA は private 設定で与える。
-- 既存の年次5指標と任意の x402 snapshot API は別契約を維持。決済既定 off、mainnet 拒否、testnet は Base Sepolia USDC に限定。
+- 年次5指標の不変 snapshot と任意の x402 API。決済既定 off、mainnet 拒否、testnet は Base Sepolia USDC に限定。
 
 ## 技術構成
 
@@ -19,4 +19,4 @@ Python 3.12 以上、uv、Pydantic、httpx、Typer、FastAPI、公式 MCP / x402
 
 統合株価・板・オプション・市場予想・通信社記事・決算電話全文・完全な corporate actions / security master・PIT・売買・内蔵 LLM 分析は未提供です。無料アクセスと第三者コンテンツの再配布許諾を混同しません。
 
-各調査データセットは架空 fixture で検証し、HTTP connector は mock で試験します。実ソース・最新の公式条件・実 testnet 送金は未検証です。[調査仕様](research.md)、[実装状況](../IMPLEMENTATION_STATUS.md)、[出典と条件](../DATA_SOURCES.md)を参照してください。
+提供データの種類・取得方法・上限は[調査仕様](research.md)、全体の機能は[機能一覧](../IMPLEMENTATION_STATUS.md)、原データの条件は[出典と条件](../DATA_SOURCES.md)に記載しています。試験と未検証の範囲は[検証範囲](verification.md)を参照してください。

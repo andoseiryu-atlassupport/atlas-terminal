@@ -16,6 +16,8 @@ uv run atlas serve --provider fixture --payments off --host 127.0.0.1 --port 800
 | ------ | -------------------------------------------- | ---------------------------------------- |
 | GET    | /healthz                                     | 秘密設定を含まない稼働状態               |
 | GET    | /v1/catalog                                  | 対応指標・期間・価格モード               |
+| GET    | /v1/research/catalog                         | 調査データセット・引数・単位・上限       |
+| POST   | /v1/research                                 | 見積もり・支払いなしの調査取得           |
 | GET    | /v1/companies/resolve?query=ATLASDEMO        | 無料照合                                 |
 | GET    | /v1/filings?cik=9999999999&form=10-K&limit=3 | 無料メタデータ                           |
 | POST   | /v1/quotes                                   | データ準備・不変成果物保存・無料見積もり |
@@ -44,4 +46,4 @@ quote は 5 分、準備はサービス全体で 30 件/分、保存中 quote �
 
 SEC は一つの SQLite rate/cache を共用し、既定 2 req/s、burst 1、同時 2、HTTP timeout と bytes/時間上限、有限 retry、etag/last-modified を使います。ticker は 24 時間、submissions は 15 分、companyfacts は 1 時間の cache 目安です。期限切れの更新に失敗しても、古い値を最新として返しません。
 
-実運用へ公開する場合の認証、TLS termination、周辺のアクセス制御、運用監視、商用価格、複数 replica、SLA は今回未整備です。loopback API の `/docs` や reverse proxy の設定変更をもって本番対応済みとはしません。
+外部公開用の認証、TLS termination、アクセス制御、運用監視、商用価格、複数 replica、SLA は提供しません。API は単一プロセス・loopback 接続向けです。

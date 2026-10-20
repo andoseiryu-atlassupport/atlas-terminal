@@ -15,7 +15,7 @@
 
 private state はディレクトリ 0700、DB 0600 で作成します。WAL/SHM も含めて保護し、共有ディレクトリに実購入 DB を置かないでください。MCP ツールから policy ファイルや wallet を変更する操作は公開していません。
 
-**同じ OS ユーザー権限で shell を実行できる主体は、環境・policy・DB を読んだり書き換えたりできます。ローカル設定は hardware signer や OS sandbox による隔離ではありません。** 複数端末・複数 volume・分散予算・預かり wallet・mainnet 金融安全性・SLA は今回対象外です。
+**同じ OS ユーザー権限で shell を実行できる主体は、環境・policy・DB を読んだり書き換えたりできます。ローカル設定は hardware signer や OS sandbox による隔離ではありません。** 複数端末・複数 volume・分散予算・預かり wallet・mainnet 金融安全性・SLA は対象外です。
 
 ## 報告
 

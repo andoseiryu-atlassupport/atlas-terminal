@@ -32,6 +32,6 @@
 
 原 bytes の hash と JSON pointer で値を追跡できます。サーバーは元データの更新と独立した canonical FinancialResult bytes を quote 時に固定します。canonical JSON は UTF-8、キー昇順、`,` / `:` 区切り、ASCII への変換なし、非有限数なしです。
 
-## 拡張調査の財務契約
+## 調査データの財務契約
 
-この文書の年次5指標は既存の `financials` / snapshot 契約を説明します。調査の `statements` は37指標と年次・明示四半期・YTDを、`ratios` は出典入力を保持する6比率を扱います。期間・単位・欠損・Q4 の扱いは[調査仕様](research.md)を参照してください。元の文脈を返す `company_facts` と正規化値を混同しません。
+この文書の年次5指標は `financials` / snapshot 契約を説明します。調査の `statements` は37指標と年次・明示四半期・YTDを、`ratios` は出典入力を保持する6比率を扱います。期間・単位・欠損・Q4 の扱いは[調査仕様](research.md)を参照してください。元の文脈を返す `company_facts` と正規化値を混同しません。

@@ -2,7 +2,7 @@
 
 `atlas research`、`Atlas.get_research`、MCP の `atlas_get_research`、HTTP の `POST /v1/research` は同じサービスを呼びます。データ取得元は無料の政府一次ソースだけです。API キー、データ契約、モデル、ウォレットは必要ありません。SEC のみ、利用者自身の実連絡先を含む private な `SEC_USER_AGENT` が必要です。
 
-この版は株価フィードや商用端末の完全な代替ではありません。実装と検証の範囲、欠損、期間、利用条件を結果と一緒に返します。API の一覧は `atlas research catalog --json`、HTTP では `GET /v1/research/catalog` です。
+各結果に欠損、対象期間、取得範囲、利用条件を付けます。API の一覧は `atlas research catalog --json`、HTTP では `GET /v1/research/catalog` です。
 
 ## データセット
 
@@ -112,4 +112,4 @@ BLS の `series` は `cpi`、`cpi_sa`、`core_cpi`、`unemployment`、`participa
 
 年・観測日を指定して過去の値を得ることと、その当時に利用できた値であることは異なります。`as_of` / `pit` 等は拒否します。比較する企業の最新決算日は一致するとは限りません。
 
-統合株価、日足と調整係数、板、オプション、コンセンサス予想、網羅的ニュース・文字起こし、完全な証券マスター、PIT は未提供です。無料サイトの非公開 API や利用条件の不明なスクレイピングで埋めません。利用条件・出典は [DATA_SOURCES](../DATA_SOURCES.md)、実行した検証は [実装状況](../IMPLEMENTATION_STATUS.md) を参照してください。カタログの `live_verified=false` はオフライン検証と実接続を区別しています。
+統合株価、日足と調整係数、板、オプション、コンセンサス予想、網羅的ニュース・文字起こし、完全な証券マスター、PIT は未提供です。無料サイトの非公開 API や利用条件の不明なスクレイピングで埋めません。利用条件・出典は [DATA_SOURCES](../DATA_SOURCES.md)、試験結果は [検証範囲](verification.md) を参照してください。カタログの `live_verified=false` はオフライン検証と実接続を区別しています。
