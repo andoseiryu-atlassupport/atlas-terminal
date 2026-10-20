@@ -1,0 +1,10 @@
+{
+  "identifier": "ATLASDEMO",
+  "metrics": [
+    "revenue",
+    "net_income"
+  ],
+  "period": "annual",
+  "count": 3,
+  "allow_partial": false
+}

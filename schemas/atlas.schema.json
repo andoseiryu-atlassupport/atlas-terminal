@@ -1,0 +1,620 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.atlas.invalid/atlas-0.1.schema.json",
+  "title": "Atlas application contract — design specification, not x402 wire schema",
+  "$defs": {
+    "FinancialQuery": {
+      "type": "object",
+      "properties": {
+        "identifier": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "metrics": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "revenue",
+              "net_income",
+              "assets",
+              "liabilities",
+              "operating_cash_flow"
+            ]
+          },
+          "minItems": 1,
+          "maxItems": 5,
+          "uniqueItems": true
+        },
+        "period": {
+          "const": "annual"
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20
+        },
+        "allow_partial": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "required": ["identifier", "metrics", "period", "count", "allow_partial"],
+      "additionalProperties": false
+    },
+    "Company": {
+      "type": "object",
+      "properties": {
+        "cik": {
+          "type": "string",
+          "pattern": "^[0-9]{10}$"
+        },
+        "name": {
+          "type": "string"
+        },
+        "tickers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": ["cik", "name", "tickers"],
+      "additionalProperties": false
+    },
+    "Source": {
+      "type": "object",
+      "properties": {
+        "accession": {
+          "type": "string",
+          "pattern": "^[0-9]{10}-[0-9]{2}-[0-9]{6}$"
+        },
+        "form": {
+          "enum": ["10-K", "10-K/A"]
+        },
+        "filed_on": {
+          "type": "string",
+          "format": "date"
+        },
+        "accepted_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "taxonomy": {
+          "const": "us-gaap"
+        },
+        "tag": {
+          "type": "string"
+        },
+        "source_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "raw_source_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "json_pointer": {
+          "type": "string"
+        },
+        "raw_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "retrieved_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "accession",
+        "form",
+        "filed_on",
+        "accepted_at",
+        "taxonomy",
+        "tag",
+        "source_url",
+        "raw_source_url",
+        "json_pointer",
+        "raw_sha256",
+        "retrieved_at"
+      ],
+      "additionalProperties": false
+    },
+    "Period": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": ["duration", "instant"]
+        },
+        "start": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "end": {
+          "type": "string",
+          "format": "date"
+        }
+      },
+      "required": ["kind", "start", "end"],
+      "additionalProperties": false
+    },
+    "Fact": {
+      "type": "object",
+      "properties": {
+        "metric": {
+          "enum": [
+            "revenue",
+            "net_income",
+            "assets",
+            "liabilities",
+            "operating_cash_flow"
+          ]
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "enum": ["reported", "unavailable", "ambiguous"]
+        },
+        "unit": {
+          "const": "USD"
+        },
+        "period": {
+          "$ref": "#/$defs/Period"
+        },
+        "reason": {
+          "type": ["string", "null"]
+        },
+        "source": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Source"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "metric",
+        "value",
+        "status",
+        "unit",
+        "period",
+        "reason",
+        "source"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "reported"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "string",
+                "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+              },
+              "source": {
+                "$ref": "#/$defs/Source"
+              },
+              "reason": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "value": {
+                "type": "null"
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "Coverage": {
+      "type": "object",
+      "properties": {
+        "requested_periods": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "available_periods": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "requested_cells": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "reported_cells": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "requested_periods",
+        "available_periods",
+        "requested_cells",
+        "reported_cells"
+      ],
+      "additionalProperties": false
+    },
+    "Warning": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "required": ["code", "message"],
+      "additionalProperties": false
+    },
+    "FinancialResult": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "kind": {
+          "const": "financials"
+        },
+        "company": {
+          "$ref": "#/$defs/Company"
+        },
+        "query": {
+          "$ref": "#/$defs/FinancialQuery"
+        },
+        "provider": {
+          "enum": ["fixture", "sec"]
+        },
+        "selection_policy": {
+          "const": "latest_primary_filing_per_fact_v1"
+        },
+        "period_ends": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "date"
+          },
+          "uniqueItems": true
+        },
+        "facts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Fact"
+          }
+        },
+        "coverage": {
+          "$ref": "#/$defs/Coverage"
+        },
+        "partial": {
+          "type": "boolean"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Warning"
+          }
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "retrieved_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "is_synthetic": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "schema_version",
+        "kind",
+        "company",
+        "query",
+        "provider",
+        "selection_policy",
+        "period_ends",
+        "facts",
+        "coverage",
+        "partial",
+        "warnings",
+        "limitations",
+        "retrieved_at",
+        "is_synthetic"
+      ],
+      "additionalProperties": false
+    },
+    "Pricing": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "enum": ["off", "mock", "testnet"]
+        },
+        "scheme": {
+          "enum": ["none", "exact"]
+        },
+        "network": {
+          "type": "string"
+        },
+        "asset": {
+          "type": "string"
+        },
+        "pay_to": {
+          "type": "string"
+        },
+        "symbol": {
+          "type": "string"
+        },
+        "decimals": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 18
+        },
+        "amount_atomic": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "display_amount": {
+          "type": "string",
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+        }
+      },
+      "required": [
+        "mode",
+        "scheme",
+        "network",
+        "asset",
+        "pay_to",
+        "symbol",
+        "decimals",
+        "amount_atomic",
+        "display_amount"
+      ],
+      "additionalProperties": false
+    },
+    "Quote": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "quote_id": {
+          "type": "string"
+        },
+        "query": {
+          "$ref": "#/$defs/FinancialQuery"
+        },
+        "company": {
+          "$ref": "#/$defs/Company"
+        },
+        "snapshot_id": {
+          "type": "string"
+        },
+        "result_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "period_ends": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "date"
+          }
+        },
+        "coverage": {
+          "$ref": "#/$defs/Coverage"
+        },
+        "partial": {
+          "type": "boolean"
+        },
+        "missing": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "metric": {
+                "type": "string"
+              },
+              "period_end": {
+                "type": "string",
+                "format": "date"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": ["metric", "period_end", "reason"],
+            "additionalProperties": false
+          }
+        },
+        "pricing": {
+          "$ref": "#/$defs/Pricing"
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "resource_path": {
+          "type": "string",
+          "pattern": "^/v1/quotes/[^/]+/result$"
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "is_synthetic": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "schema_version",
+        "quote_id",
+        "query",
+        "company",
+        "snapshot_id",
+        "result_sha256",
+        "period_ends",
+        "coverage",
+        "partial",
+        "missing",
+        "pricing",
+        "expires_at",
+        "resource_path",
+        "limitations",
+        "is_synthetic"
+      ],
+      "additionalProperties": false
+    },
+    "Receipt": {
+      "type": "object",
+      "properties": {
+        "quote_id": {
+          "type": "string"
+        },
+        "mode": {
+          "enum": ["off", "mock", "testnet"]
+        },
+        "simulated": {
+          "type": "boolean"
+        },
+        "status": {
+          "enum": ["NOT_REQUIRED", "SETTLED"]
+        },
+        "network": {
+          "type": "string"
+        },
+        "asset": {
+          "type": "string"
+        },
+        "amount_atomic": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "transaction": {
+          "type": ["string", "null"]
+        },
+        "settled_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "result_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "retained_until": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "quote_id",
+        "mode",
+        "simulated",
+        "status",
+        "network",
+        "asset",
+        "amount_atomic",
+        "transaction",
+        "settled_at",
+        "result_sha256",
+        "retained_until"
+      ],
+      "additionalProperties": false
+    },
+    "PurchaseResult": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/$defs/FinancialResult"
+        },
+        "receipt": {
+          "$ref": "#/$defs/Receipt"
+        }
+      },
+      "required": ["data", "receipt"],
+      "additionalProperties": false
+    },
+    "Error": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            },
+            "retryable": {
+              "type": "boolean"
+            },
+            "details": {
+              "type": "object"
+            },
+            "request_id": {
+              "type": "string"
+            }
+          },
+          "required": ["code", "message", "retryable", "details", "request_id"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["error"],
+      "additionalProperties": false
+    }
+  }
+}

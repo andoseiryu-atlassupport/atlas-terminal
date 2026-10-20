@@ -1,0 +1,12 @@
+{
+  "error": {
+    "code": "INCOMPLETE_COVERAGE",
+    "message": "The requested data has a missing liabilities fact. No paid quote was created.",
+    "retryable": false,
+    "details": {
+      "metric": "liabilities",
+      "period_end": "2024-12-31"
+    },
+    "request_id": "req_demo_missing"
+  }
+}

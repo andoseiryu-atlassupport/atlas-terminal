@@ -1,28 +1,22 @@
 # 開発への参加
 
-## 準備
-
-Git と Node.js 24 を用意し、次のコマンドを実行します。
+Python 3.12 以上、uv、Node.js 24 を用意します。
 
 ```sh
+uv sync --locked --all-extras --dev
 npm ci
+uv run --offline ruff check .
+uv run --offline ruff format --check .
+uv run --offline mypy
+uv run --offline pytest
+uv run --offline python -m build --no-isolation
 npm run check
 ```
 
-依存関係は `package-lock.json` に記録します。Windows では必要に応じて `npm.cmd` を使ってください。
+作業ブランチで変更し、[確定スコープ](docs/project-brief.md)と [実装状況](IMPLEMENTATION_STATUS.md) を確認してください。実際に実行した検証と未実施の試験を PR に記録します。
 
-## 変更の進め方
+財務の不具合には CIK、accession、taxonomy/tag、実際の対象期間、期待する値、原資料参照を添付します。個人情報を含む User-Agent や原購入 DB は添付しません。期間選択・欠損・署名再利用・クラッシュ回復の挙動を保護する試験を優先します。
 
-1. [プロジェクト資料](docs/project-brief.md)で現在の確定事項を確認する。
-2. 作業用ブランチを作り、ひとつの目的に絞って変更する。
-3. `npm run check` と、その変更に必要な検証を実行する。
-4. 変更の目的、確認結果、未確認の事項を記載して Pull Request を作る。
-5. 差分と CI の結果をレビューしてから `main` に取り込む。
+fixture は架空データで、bytes の hash を出典に使います。Prettier 対象外の原資料・期待値を無断で再整形しないでください。公開文書は日本語、README は英語・日本語の両方を保ちます。
 
-現時点でアプリケーション用のフレームワークや外部サービスは選定していません。
-実装を追加するときは、起動・ビルド・テストの手順と CI も更新してください。
-
-## 公開する情報
-
-このリポジトリの内容は公開されます。認証情報や本番データは含めず、必要な例示には明記した合成データを使います。
-ライセンスは権利者が決定する予定です。
+既定の試験は通信と送金を行いません。live 試験は [決済手順](docs/payments.md) と明示 opt-in を必要とし、外部 PR の CI には追加しません。コードのライセンスは [Apache-2.0](LICENSE) です。
