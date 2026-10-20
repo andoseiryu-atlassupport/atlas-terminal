@@ -73,6 +73,8 @@ uv run --offline atlas mcp serve --provider fixture
 
 Eight MCP tools expose the research catalog and datasets, company resolution, annual snapshots, filings, quotes, purchases and purchase status. Use `atlas_research_catalog` to discover datasets, then `atlas_get_research` with a `query` object. [MCP setup](docs/quickstart.md).
 
+The hosted MCP provider adds native x402 purchases through standard payment metadata and read-only chain reconciliation. Its external-wallet path uses the caller's spending controls. [MCP payment setup](docs/payments.md#standard-http-and-native-mcp-clients).
+
 Start the local HTTP API with:
 
 ```sh
@@ -85,7 +87,7 @@ uv run atlas serve --provider fixture --payments off --host 127.0.0.1 --port 800
 
 `financials get` and `Atlas.get_financials` provide annual US-GAAP USD snapshots for `revenue`, `net_income`, `assets`, `liabilities` and `operating_cash_flow`. Use `research get statements` for the full metric set and quarterly or YTD periods.
 
-The HTTP API also supports immutable annual snapshots with explicit quote, purchase and recovery steps. Payment modes are `off`, `mock` and `testnet`; payments default to off. Testnet uses x402 V2 exact/EIP-3009 with Base Sepolia USDC. Mainnet is unsupported. Research retrieval does not purchase snapshots. [Payment configuration](docs/payments.md).
+The HTTP API also supports immutable annual snapshots with explicit quote, purchase and recovery steps. Payment modes are `off`, `mock` and `testnet`; payments default to off. Testnet uses x402 V2 exact/EIP-3009 with Base Sepolia USDC. Optional finalized-chain reconciliation recovers unknown orders without signing or settling again. Mainnet is unsupported. Research retrieval does not purchase snapshots. [Payment configuration](docs/payments.md).
 
 ## Sources and coverage
 

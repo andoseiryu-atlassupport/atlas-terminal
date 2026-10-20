@@ -146,6 +146,15 @@ class TestnetAdapter:
             nonce = authorization["nonce"]
             if not re.fullmatch(r"0x[0-9a-fA-F]{64}", nonce):
                 raise ValueError("EIP-3009 nonce required")
+            deadline = authorization.get("validBefore")
+            if (
+                isinstance(deadline, bool)
+                or not re.fullmatch(r"[0-9]{1,78}", str(deadline))
+                or not 0 < int(deadline) < 2**256
+                or str(authorization.get("to", "")).lower() != quote.pricing.pay_to.lower()
+                or str(authorization.get("value")) != quote.pricing.amount_atomic
+            ):
+                raise ValueError("Authorization terms differ from the quote")
             # Official low-level verifier. No middleware or implicit settle-on-verify.
             verified = self.facilitator.verify(payload, req)
             if (
@@ -155,7 +164,12 @@ class TestnetAdapter:
             ):
                 raise ValueError("Verification failed")
             return VerifiedPayment(
-                payment_id, verified.payer.lower(), nonce.lower(), digest(proof.encode()), payload
+                payment_id,
+                verified.payer.lower(),
+                nonce.lower(),
+                digest(proof.encode()),
+                payload,
+                valid_before=int(deadline),
             )
         except AtlasError:
             raise

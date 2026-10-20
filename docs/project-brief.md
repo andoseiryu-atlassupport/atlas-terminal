@@ -11,6 +11,7 @@ Atlas Terminal retrieves US equity research from free public primary sources. Th
 - Values include units, periods, source hashes and retrieval times. Missing data, archive limits and partial coverage remain explicit.
 - Research requires no data subscription, API key, wallet or LLM. SEC requests use a private, operator-supplied User-Agent with an actual contact email.
 - Immutable snapshots of five annual metrics and an optional x402 API. Payments default to off; testnet is restricted to Base Sepolia USDC, and mainnet is rejected.
+- On-demand reconciliation reads finalized chain evidence without signing or settling again. Hosted MCP supports external-wallet payment metadata; official Python and TypeScript clients have offline interoperability checks.
 
 ## Stack
 

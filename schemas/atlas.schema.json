@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.atlas.invalid/atlas-0.1.schema.json",
-  "title": "Atlas application contract — design specification, not x402 wire schema",
+  "title": "Atlas application contract \u2014 design specification, not x402 wire schema",
   "$defs": {
     "FinancialQuery": {
       "type": "object",
@@ -615,6 +615,93 @@
       },
       "required": ["error"],
       "additionalProperties": false
+    },
+    "ReconcileRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "transaction": {
+          "anyOf": [
+            {
+              "pattern": "^0x[0-9a-fA-F]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Transaction"
+        }
+      },
+      "title": "ReconcileRequest",
+      "type": "object"
+    },
+    "ReconciliationResult": {
+      "additionalProperties": false,
+      "properties": {
+        "quote_id": {
+          "title": "Quote Id",
+          "type": "string"
+        },
+        "state": {
+          "enum": [
+            "QUOTED",
+            "EXPIRED",
+            "SETTLED",
+            "NOT_REQUIRED",
+            "FAILED",
+            "SETTLEMENT_UNKNOWN"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "outcome": {
+          "enum": [
+            "settled",
+            "failed",
+            "pending",
+            "not_started",
+            "not_required"
+          ],
+          "title": "Outcome",
+          "type": "string"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        },
+        "checked_at": {
+          "title": "Checked At",
+          "type": "string"
+        },
+        "evidence_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Evidence Sha256"
+        },
+        "receipt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Receipt"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": ["quote_id", "state", "outcome", "reason", "checked_at"],
+      "title": "ReconciliationResult",
+      "type": "object"
     }
   }
 }

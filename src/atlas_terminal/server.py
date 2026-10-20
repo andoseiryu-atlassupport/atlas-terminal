@@ -13,7 +13,15 @@ from fastapi.responses import JSONResponse
 
 from atlas_terminal.client import Atlas, catalog
 from atlas_terminal.errors import AtlasError
-from atlas_terminal.models import Company, FinancialQuery, PurchaseResult, Quote, parse_query
+from atlas_terminal.models import (
+    Company,
+    FinancialQuery,
+    PurchaseResult,
+    Quote,
+    ReconcileRequest,
+    ReconciliationResult,
+    parse_query,
+)
 from atlas_terminal.payments.common import (
     ASSET,
     NETWORK,
@@ -24,6 +32,7 @@ from atlas_terminal.payments.common import (
 )
 from atlas_terminal.payments.mock import MockAdapter
 from atlas_terminal.payments.orders import OrderService
+from atlas_terminal.payments.reconciliation import BaseSepoliaReconciler, SettlementReconciler
 from atlas_terminal.research_models import ResearchQuery
 from atlas_terminal.util import state_dir
 
@@ -37,6 +46,7 @@ def create_app(
     adapter: PaymentAdapter | None = None,
     amount: str = "10000",
     pay_to: str | None = None,
+    reconciler: SettlementReconciler | None = None,
 ) -> FastAPI:
     if (
         os.environ.get("WEB_CONCURRENCY", "1") != "1"
@@ -75,12 +85,19 @@ def create_app(
         recipient = "fixture:merchant"
     elif payments != "off":
         raise AtlasError("CONFIG_REQUIRED", "Payment mode must be off, mock or testnet.")
+    if reconciler is not None and payments != "testnet":
+        raise AtlasError("CONFIG_REQUIRED", "Chain reconciliation is testnet-only.")
+    if payments == "testnet" and reconciler is None:
+        rpc_url = os.environ.get("ATLAS_TESTNET_RPC_URL")
+        if rpc_url:
+            reconciler = BaseSepoliaReconciler(rpc_url)
     orders = OrderService(
         Atlas(provider),
         (directory or state_dir()) / "server-orders.sqlite3",
         make_pricing(payments, amount, recipient),
         base_origin=base_origin,
         adapter=adapter,
+        reconciler=reconciler,
     )
 
     @asynccontextmanager
@@ -186,6 +203,12 @@ def create_app(
     @app.get("/v1/quotes/{quote_id}/status")
     def purchase_status(quote_id: str, request: Request) -> dict[str, Any]:
         return orders.status(quote_id, bearer(request))
+
+    @app.post("/v1/quotes/{quote_id}/reconcile", response_model=ReconciliationResult)
+    def reconcile_purchase(
+        quote_id: str, request: Request, body: ReconcileRequest
+    ) -> ReconciliationResult:
+        return orders.reconcile(quote_id, bearer(request), body.transaction)
 
     @app.get(
         "/v1/quotes/{quote_id}/result",

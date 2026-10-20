@@ -23,6 +23,7 @@ For SEC retrieval, use `--provider sec` and a private `SEC_USER_AGENT`. Set `ATL
 | POST   | /v1/quotes                                   | Prepare data, save an immutable artifact and return a free quote |
 | GET    | /v1/quotes/{quote_id}/result                 | Authenticated delivery; positive-price modes require settlement  |
 | GET    | /v1/quotes/{quote_id}/status                 | Authenticated status recovery                                    |
+| POST   | /v1/quotes/{quote_id}/reconcile              | Authenticated finalized-chain reconciliation without payment     |
 
 Example body for `POST /v1/quotes`:
 
@@ -38,7 +39,9 @@ Example body for `POST /v1/quotes`:
 
 `Atlas-Recovery-Token` is returned once in a response header, never in JSON, MCP output or logs. Use it as `Authorization: Bearer` to retrieve status and purchased results. A quote ID alone does not grant access. The token does not authorize a new purchase or bypass payment for an unpaid result.
 
-`/openapi.json` exposes the generated FastAPI specification. Domain contracts use [annual snapshot JSON Schema](../schemas/atlas.schema.json) and [research JSON Schema](../schemas/research.schema.json). Official SDK models define x402 wire payloads.
+`/openapi.json` exposes the generated FastAPI specification. Domain contracts use [annual snapshot and reconciliation JSON Schema](../schemas/atlas.schema.json) and [research JSON Schema](../schemas/research.schema.json). Official SDK models define x402 wire payloads.
+
+Optional server-only `ATLAS_TESTNET_RPC_URL` enables capability-authenticated reconciliation against canonical finalized Base Sepolia state. Requests use `{}` or an optional `transaction` hash hint. No payment is signed or submitted. See [reconciliation rules](payments.md#finalized-chain-reconciliation) for required RPC methods, outcomes, bounded discovery and unresolved cases.
 
 ## Limits and retention
 

@@ -45,17 +45,19 @@ The server supports initialize, tools/list and tools/call with the official MCP 
 
 Configure `SEC_USER_AGENT` privately for SEC requests. The `hosted` provider uses `ATLAS_HOSTED_ORIGIN`, a private `ATLAS_STATE_DIR` and, for paid purchases, `ATLAS_POLICY_FILE`. Never put real keys in examples or model inputs. MCP arguments cannot change providers, URLs, policies or wallets.
 
-| Tool                   | Behavior                                                            |
-| ---------------------- | ------------------------------------------------------------------- |
-| atlas_resolve_company  | Resolve a current issuer                                            |
-| atlas_get_financials   | Retrieve fixture/SEC annual data; hosted returns QUOTE_REQUIRED     |
-| atlas_list_filings     | Return filing metadata and source references                        |
-| atlas_quote            | Save an immutable artifact and price without authorizing payment    |
-| atlas_purchase         | Spend within the operator's delegated policy and budget             |
-| atlas_purchase_status  | Recover status using a private capability without paying            |
-| atlas_research_catalog | List 17 free datasets, units, query schemas and coverage gaps       |
-| atlas_get_research     | Retrieve research using a `query` object without a quote or payment |
+| Tool                     | Behavior                                                            |
+| ------------------------ | ------------------------------------------------------------------- |
+| atlas_resolve_company    | Resolve a current issuer                                            |
+| atlas_get_financials     | Retrieve fixture/SEC annual data; hosted returns QUOTE_REQUIRED     |
+| atlas_list_filings       | Return filing metadata and source references                        |
+| atlas_quote              | Save an immutable artifact and price without authorizing payment    |
+| atlas_purchase           | Spend within the operator's delegated policy and budget             |
+| atlas_purchase_status    | Recover status using a private capability without paying            |
+| atlas_research_catalog   | List 17 free datasets, units, query schemas and coverage gaps       |
+| atlas_get_research       | Retrieve research using a `query` object without a quote or payment |
+| atlas_purchase_x402      | Hosted only: external-wallet purchase via standard MCP metadata     |
+| atlas_purchase_reconcile | Hosted only: reconcile an existing order without signing or paying  |
 
-For example, call `atlas_get_research` with `{"query":{"dataset":"economics","series":"cpi"}}`. Use `--provider public` for direct government sources. SEC contact settings are checked only when accessing SEC. The `hosted` provider does not proxy research. Only `atlas_purchase` spends funds. See the [research guide](research.md) for dataset queries.
+For example, call `atlas_get_research` with `{"query":{"dataset":"economics","series":"cpi"}}`. Use `--provider public` for direct government sources. SEC contact settings are checked only when accessing SEC. The `hosted` provider does not proxy research. `atlas_purchase` spends delegated local-wallet funds; `atlas_purchase_x402` receives payment from the external MCP wallet, whose own policy controls spending. Reconciliation never pays. See the [research guide](research.md) and [native MCP payment setup](payments.md#standard-http-and-native-mcp-clients).
 
 Startup failures go to stderr. Once running, stdout belongs exclusively to the official MCP protocol. Windows execution has not been verified.

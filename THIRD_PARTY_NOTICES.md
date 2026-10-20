@@ -93,3 +93,40 @@ Recorded on 2026-10-20 from installed metadata for dependencies resolved by uv.l
 | websockets                | 17.3         | BSD-3-Clause                                                    |
 | x402                      | 2.25.0       | MIT                                                             |
 | yarl                      | 1.25.1       | Apache-2.0                                                      |
+
+## JavaScript development dependencies
+
+Installed npm lockfile metadata for documentation tools and offline interoperability tests. These packages are not bundled in the Python wheel; each package's LICENSE/NOTICE governs its terms.
+
+| Package                         | Version | Declared license |
+| ------------------------------- | ------- | ---------------- |
+| @adraffy/ens-normalize          | 1.11.1  | MIT              |
+| @noble/ciphers                  | 1.3.0   | MIT              |
+| @noble/curves                   | 1.9.1   | MIT              |
+| @noble/hashes                   | 1.8.0   | MIT              |
+| @scure/base                     | 1.2.6   | MIT              |
+| @scure/bip32                    | 1.7.0   | MIT              |
+| @scure/bip39                    | 1.6.0   | MIT              |
+| @signinwithethereum/siwe        | 4.2.1   | Apache-2.0       |
+| @signinwithethereum/siwe-parser | 4.2.1   | Apache-2.0       |
+| @x402/core                      | 2.25.0  | Apache-2.0       |
+| @x402/evm                       | 2.25.0  | Apache-2.0       |
+| @x402/extensions                | 2.25.0  | Apache-2.0       |
+| @x402/fetch                     | 2.25.0  | Apache-2.0       |
+| abitype                         | 1.2.3   | MIT              |
+| ajv                             | 8.20.0  | MIT              |
+| apg-js                          | 4.4.0   | BSD-2-Clause     |
+| eventemitter3                   | 5.0.1   | MIT              |
+| fast-deep-equal                 | 3.1.3   | MIT              |
+| fast-uri                        | 3.1.9   | BSD-3-Clause     |
+| isows                           | 1.0.7   | MIT              |
+| jose                            | 5.10.0  | MIT              |
+| json-schema-traverse            | 1.0.0   | MIT              |
+| ox                              | 0.14.20 | MIT              |
+| prettier                        | 3.9.10  | MIT              |
+| require-from-string             | 2.0.2   | MIT              |
+| tweetnacl                       | 1.0.3   | Unlicense        |
+| viem                            | 2.48.11 | MIT              |
+| ws                              | 8.18.3  | MIT              |
+| ws                              | 8.21.0  | MIT              |
+| zod                             | 3.25.76 | MIT              |

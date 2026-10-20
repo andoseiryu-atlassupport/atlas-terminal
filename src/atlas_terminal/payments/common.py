@@ -97,6 +97,7 @@ class VerifiedPayment:
     nonce: str
     proof_digest: str
     payload: Any
+    valid_before: int | None = None
 
 
 @dataclass(frozen=True)

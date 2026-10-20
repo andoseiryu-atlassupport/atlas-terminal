@@ -1,6 +1,6 @@
 # Dependency and specification audit
 
-Recorded on 2026-10-20 with Python 3.12.14, uv 0.12.23 and Node.js 24.19.0. Versions were checked against PyPI metadata, the resolver and installed distributions, then locked in `pyproject.toml` and `uv.lock`. Package-name availability and publication eligibility have not been checked.
+Recorded on 2026-10-21 with Python 3.12.14, uv 0.12.23 and Node.js 24.19.0. Python versions were checked against PyPI metadata, the resolver and installed distributions, then locked in `pyproject.toml` and `uv.lock`. TypeScript interoperability dependencies were checked against npm metadata and installed exports, and locked in `package-lock.json`. Package-name availability and publication eligibility have not been checked.
 
 ## Direct dependencies
 
@@ -60,6 +60,12 @@ A `payment_flows` annotation mismatch between `ExactEvmServerScheme` and the SDK
 The selected SDK's `mechanisms/evm/default_assets.py` defines USDC network `eip155:84532`, contract `0x036CbD53842c5426634e7929541eC2318f3dCF7e`, decimals 6, and EIP-712 name `USDC` / version `2`. The current [Circle reference](https://developers.circle.com/stablecoins/usdc-contract-addresses) has not been rechecked; final verification remains necessary before real transfers.
 
 Offline tests cover official 402 models, local EIP-3009 signing, eth-account signature recovery, Facilitator `/supported` / `/verify` / `/settle` wire handling and a generic official x402 client's purchase. They do not establish live Facilitator availability, authentication, chain inclusion or balances.
+
+The official Python `x402_httpx_transport` and TypeScript `wrapFetchWithPayment` wrappers are exercised through complete offline HTTP exchanges. Native MCP uses `x402/payment` and `x402/payment-response` metadata. The pinned x402 MCP client expects camelCase result attributes and timedelta timeouts; MCP 2.3.0 exposes snake_case and numeric seconds. `payments/mcp_client.py` adapts those transport details without replacing official payment creation or signing.
+
+Development-only npm packages `@x402/core`, `@x402/evm`, `@x402/extensions` and `@x402/fetch` are pinned to 2.25.0; `viem` is pinned to 2.48.11. These packages are not Python runtime dependencies. Their installed exports and licenses, plus transitive packages, are recorded in the notices inventory. The test bridge uses private pipes, no network fetches and ephemeral wallet keys.
+
+Reconciliation uses bounded read-only Ethereum JSON-RPC against a separately configured trusted Base Sepolia RPC. It verifies finalized canonical blocks, EIP-1898 authorization state and USDC transfer/authorization events. RPC compatibility and finality are verified with mock transports; a live RPC and real token transfer remain unverified. No Facilitator status endpoint is assumed.
 
 Service-specific AuthProvider integration, live connectivity, real Base Sepolia transfers and public transaction evidence remain unverified. Configuration failures do not fall back to mock mode. Explicit smoke opt-ins distinguish missing settings from actual execution.
 

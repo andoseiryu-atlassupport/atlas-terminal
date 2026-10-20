@@ -12,6 +12,7 @@ from atlas_terminal.models import (
     FinancialResult,
     PurchaseResult,
     Quote,
+    ReconciliationResult,
     parse_query,
 )
 from atlas_terminal.normalize import normalize
@@ -130,6 +131,16 @@ class Atlas:
         if not self._hosted:
             raise AtlasError("CONFIG_REQUIRED", "Status requires a configured hosted provider.")
         return self._hosted.status(quote_id)
+
+    def reconcile_purchase(
+        self, quote_id: str, *, transaction: str | None = None
+    ) -> ReconciliationResult:
+        """Read finalized chain evidence; never creates another payment authorization."""
+        if not self._hosted:
+            raise AtlasError(
+                "CONFIG_REQUIRED", "Reconciliation requires a configured hosted provider."
+            )
+        return self._hosted.reconcile(quote_id, transaction)
 
     def close(self) -> None:
         self._research.close()

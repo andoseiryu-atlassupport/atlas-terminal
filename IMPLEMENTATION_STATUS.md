@@ -26,7 +26,7 @@ Run `atlas research catalog --json` for identifiers, query fields, units and lim
 | ---------------- | ------------------------------------------------------------------------ |
 | CLI              | `atlas research catalog` / `atlas research get`                          |
 | Python SDK       | `Atlas.research_catalog()` / `Atlas.get_research(query)`                 |
-| MCP              | Eight tools, including `atlas_research_catalog` and `atlas_get_research` |
+| MCP              | Eight default tools; hosted adds native x402 purchase and reconciliation |
 | HTTP             | `GET /v1/research/catalog` / `POST /v1/research`                         |
 | Annual snapshots | `financials get` / `Atlas.get_financials`, covering five annual metrics  |
 
@@ -46,12 +46,14 @@ Research requires no data subscription, API key, wallet or LLM. SEC retrieval re
 
 ## Optional snapshot API
 
-Immutable snapshots of five annual metrics support explicit quotes, purchases and authenticated recovery. Payments default to off. `mock` uses fictional payments; `testnet` uses x402 V2 exact/EIP-3009 with Base Sepolia USDC. Policy checks, budget reservations before signing and authenticated recovery protect the payment path. Unknown settlement remains pending. Research endpoints do not charge for retrieval.
+Immutable snapshots of five annual metrics support explicit quotes, purchases and authenticated recovery. Payments default to off. `mock` uses fictional payments; `testnet` uses x402 V2 exact/EIP-3009 with Base Sepolia USDC. Policy checks, budget reservations before signing and authenticated recovery protect the payment path. A configured trusted RPC supports on-demand reconciliation: finalized matching USDC/nonce evidence recovers settled artifacts; finalized expiry plus an unused nonce establishes failure. Other evidence remains pending. Hashed audit records and terminal-state guards cover concurrent recovery. Research endpoints do not charge for retrieval.
+
+Official Python and TypeScript HTTP clients are exercised offline. Hosted MCP accepts standard payment metadata from an external wallet, with a transport compatibility adapter for the pinned Python SDKs. Its external-wallet path does not sign with the local Atlas wallet. Local/external purchase claims are durable and exclusive per quote.
 
 ## Coverage limits
 
 Consolidated equity prices, daily prices and adjustment factors, order books, options, analyst consensus, newswire articles, earnings-call transcripts, a complete security master or corporate-action history, PIT and trading are unavailable.
 
-The HTTP API supports one process, one private SQLite volume and loopback connections. Mainnet, distributed budgets, automatic settlement reconciliation and public-facing authentication or TLS are unsupported.
+The HTTP API supports one process, one private SQLite volume and loopback connections. Mainnet, distributed budgets, background reconciliation and public-facing authentication or TLS are unsupported. Reconciliation may remain unresolved for legacy deadlines, old nonce logs without a transaction hint, ambiguous batched receipts and pre-submission crashes. Live RPC/Facilitator behavior and real transfers remain unverified.
 
 [Quickstart](docs/quickstart.md) · [API configuration](docs/self-hosting.md) · [Payments](docs/payments.md) · [Apache-2.0](LICENSE)

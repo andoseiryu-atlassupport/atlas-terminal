@@ -2,7 +2,16 @@
 
 import logging
 
-PRIVATE_LIBRARIES = ("x402", "httpx", "httpcore", "httpx2", "httpcore2", "eth_account", "web3")
+PRIVATE_LIBRARIES = (
+    "x402",
+    "mcp",
+    "httpx",
+    "httpcore",
+    "httpx2",
+    "httpcore2",
+    "eth_account",
+    "web3",
+)
 
 
 class PrivateDiagnosticFilter(logging.Filter):

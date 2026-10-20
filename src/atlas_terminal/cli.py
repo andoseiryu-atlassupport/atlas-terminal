@@ -164,6 +164,17 @@ def purchase_status(quote_id: str, json_output: bool = typer.Option(False, "--js
         output(atlas.purchase_status(quote_id))
 
 
+@app.command("purchase-reconcile")
+def purchase_reconcile(
+    quote_id: str,
+    transaction: str | None = None,
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """Reconcile finalized testnet evidence; never signs or sends another payment."""
+    with Atlas("hosted") as atlas:
+        output(atlas.reconcile_purchase(quote_id, transaction=transaction))
+
+
 @mcp_app.command("serve")
 def serve_mcp(provider: str = "sec") -> None:
     from atlas_terminal.mcp_server import create_mcp

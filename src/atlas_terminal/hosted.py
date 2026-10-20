@@ -9,7 +9,14 @@ import httpx
 from pydantic import ValidationError
 
 from atlas_terminal.errors import AtlasError
-from atlas_terminal.models import Company, FinancialQuery, PurchaseResult, Quote
+from atlas_terminal.models import (
+    Company,
+    FinancialQuery,
+    PurchaseResult,
+    Quote,
+    ReconcileRequest,
+    ReconciliationResult,
+)
 from atlas_terminal.payments.common import fingerprint, origin
 from atlas_terminal.payments.mock import MockAdapter
 from atlas_terminal.payments.policy import BudgetLedger, SpendingPolicy
@@ -19,6 +26,9 @@ from atlas_terminal.util import Database, canonical, digest, state_dir
 CLIENT_SCHEMA = """
 CREATE TABLE IF NOT EXISTS saved_quotes (
  id TEXT PRIMARY KEY, origin TEXT NOT NULL, quote TEXT NOT NULL, recovery TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS client_payment_claims (
+ quote_id TEXT PRIMARY KEY, kind TEXT NOT NULL, proof_sha256 TEXT
 );
 """
 
@@ -232,8 +242,170 @@ class HostedClient:
             self.budgets.state(quote.quote_id, "SPENT")
         return result
 
+    def reconcile(self, quote_id: str, transaction: str | None = None) -> ReconciliationResult:
+        quote, token = self.saved(quote_id)
+        try:
+            request = ReconcileRequest(transaction=transaction)
+        except ValidationError:
+            raise AtlasError("INVALID_INPUT", "Invalid transaction hint.") from None
+        response = self.request(
+            "POST",
+            f"/v1/quotes/{quote_id}/reconcile",
+            headers={"Authorization": "Bearer " + token},
+            json=request.model_dump(mode="json"),
+        )
+        try:
+            result = ReconciliationResult.model_validate(self.body(response))
+            if result.quote_id != quote_id:
+                raise ValueError("Order mismatch")
+            if result.state == "SETTLED":
+                # Validate the immutable artifact before updating the spending ledger.
+                recovered = self.recover(quote, token)
+                if result.outcome != "settled" or result.receipt != recovered.receipt:
+                    raise ValueError("Receipt mismatch")
+            elif result.state == "FAILED":
+                if result.outcome != "failed" or not result.evidence_sha256 or result.receipt:
+                    raise ValueError("Failure evidence missing")
+                self.budgets.state(quote_id, "FAILED")
+            elif result.outcome not in {"pending", "not_started", "not_required"}:
+                raise ValueError("Outcome mismatch")
+            return result
+        except (ValueError, ValidationError):
+            raise AtlasError("SOURCE_UNAVAILABLE", "Invalid reconciliation response.") from None
+
+    def external_purchase(
+        self, quote_id: str, payment: dict[str, Any] | None = None
+    ) -> tuple[dict[str, Any], dict[str, Any] | None, bool]:
+        """Bridge MCP metadata to the bound HTTP resource without invoking a signer."""
+        from x402.http.utils import (
+            decode_payment_required_header,
+            decode_payment_response_header,
+            encode_payment_signature_header,
+        )
+        from x402.schemas import PaymentPayload, PaymentRequired
+
+        from atlas_terminal.payments.x402_testnet import requirements
+
+        quote, token = self.saved(quote_id)
+        if quote.pricing.mode != "testnet":
+            raise AtlasError("CONFIG_REQUIRED", "Native x402 MCP purchases require testnet mode.")
+        with self.db.connect() as conn:
+            prior = conn.execute(
+                "SELECT * FROM client_payment_claims WHERE quote_id=?", (quote_id,)
+            ).fetchone()
+        if prior or self.budgets.get(quote_id):
+            # A probe after an ambiguous transport failure must not request a new signature.
+            status = self.status(quote_id)
+            if status["state"] == "FAILED":
+                raise AtlasError(
+                    "PAYMENT_FAILED", "The bound payment definitively failed.", status=409
+                )
+            if status["state"] != "SETTLED":
+                raise AtlasError(
+                    "SETTLEMENT_UNKNOWN",
+                    "An existing payment remains bound; reconcile it before retrying.",
+                    status=202,
+                )
+            payment = None
+        headers = {"Authorization": "Bearer " + token}
+        if payment is not None:
+            try:
+                payload = PaymentPayload.model_validate(payment)
+                if (
+                    payload.x402_version != 2
+                    or payload.accepted != requirements(quote)
+                    or not payload.resource
+                    or payload.resource.url != self.origin + quote.resource_path
+                ):
+                    raise ValueError("Payload mismatch")
+                proof = encode_payment_signature_header(payload)
+                if len(proof) > 16384:
+                    raise ValueError("Oversized proof")
+            except (ValueError, ValidationError):
+                raise AtlasError(
+                    "PAYMENT_INVALID", "MCP payment does not match the saved quote."
+                ) from None
+            with self.db.connect(write=True) as conn:
+                changed = conn.execute(
+                    "INSERT OR IGNORE INTO client_payment_claims VALUES (?,'external',?)",
+                    (quote_id, digest(proof.encode())),
+                ).rowcount
+                if changed != 1:
+                    raise AtlasError(
+                        "SETTLEMENT_UNKNOWN",
+                        "Concurrent external payment already claimed this quote.",
+                        status=202,
+                    )
+            headers["PAYMENT-SIGNATURE"] = proof
+        response = self.request("GET", quote.resource_path, headers=headers)
+        if response.status_code == 402:
+            try:
+                required = decode_payment_required_header(
+                    response.headers.get("PAYMENT-REQUIRED", "")
+                )
+                if (
+                    not isinstance(required, PaymentRequired)
+                    or required.x402_version != 2
+                    or required.accepts != [requirements(quote)]
+                    or not required.resource
+                    or required.resource.url != self.origin + quote.resource_path
+                ):
+                    raise ValueError("Challenge mismatch")
+                if prior or payment is not None:
+                    raise AtlasError(
+                        "SETTLEMENT_UNKNOWN", "A prior payment cannot be signed again.", status=202
+                    )
+                return required.model_dump(mode="json", by_alias=True), None, True
+            except (ValueError, ValidationError):
+                raise AtlasError(
+                    "QUOTE_MISMATCH", "Invalid native MCP payment challenge."
+                ) from None
+        if response.status_code == 202:
+            raise AtlasError(
+                "SETTLEMENT_UNKNOWN",
+                "Payment remains unresolved; no new signature is requested.",
+                status=202,
+            )
+        result = self.validate_purchase(response, quote)
+        try:
+            settlement = decode_payment_response_header(
+                response.headers.get("PAYMENT-RESPONSE", "")
+            )
+            if (
+                not settlement.success
+                or settlement.network != quote.pricing.network
+                or settlement.transaction != result.receipt.transaction
+                or (
+                    settlement.amount is not None
+                    and settlement.amount != quote.pricing.amount_atomic
+                )
+            ):
+                raise ValueError("Settlement mismatch")
+        except (ValueError, ValidationError):
+            raise AtlasError(
+                "SOURCE_UNAVAILABLE", "Invalid native MCP settlement response."
+            ) from None
+        return (
+            result.model_dump(mode="json"),
+            settlement.model_dump(mode="json", by_alias=True),
+            False,
+        )
+
     def purchase(self, quote_id: str, *, max_cost: str | None = None) -> PurchaseResult:
         quote, token = self.saved(quote_id)
+        with self.db.connect() as conn:
+            external = conn.execute(
+                "SELECT 1 FROM client_payment_claims WHERE quote_id=? AND kind='external'",
+                (quote_id,),
+            ).fetchone()
+        if external:
+            if self.status(quote_id)["state"] == "SETTLED":
+                return self.recover(quote, token)
+            raise AtlasError(
+                "SETTLEMENT_UNKNOWN",
+                "An external payment is already bound to this quote.",
+                status=202,
+            )
         if quote.pricing.mode == "off":
             return self.recover(quote, token)
         existing = self.budgets.get(quote_id)
@@ -273,6 +445,19 @@ class HostedClient:
 
             signer = TestnetSigner()
             owner = signer.address
+        with self.db.connect(write=True) as conn:
+            conn.execute(
+                "INSERT OR IGNORE INTO client_payment_claims VALUES (?,'local',NULL)", (quote_id,)
+            )
+            claim = conn.execute(
+                "SELECT kind FROM client_payment_claims WHERE quote_id=?", (quote_id,)
+            ).fetchone()
+            if not claim or claim["kind"] != "local":
+                raise AtlasError(
+                    "SETTLEMENT_UNKNOWN",
+                    "An external wallet already claimed this quote.",
+                    status=202,
+                )
         if not self.budgets.reserve(
             quote, policy, self.origin, owner, self.session, max_cost=max_cost
         ):

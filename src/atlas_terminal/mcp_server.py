@@ -6,6 +6,7 @@ from typing import Any
 
 from mcp.server import MCPServer
 from mcp.server.context import CallNext, HandlerResult, ServerRequestContext
+from mcp.server.mcpserver.context import Context
 from mcp.types import CallToolResult, TextContent, ToolAnnotations
 from pydantic import BaseModel
 
@@ -15,8 +16,8 @@ from atlas_terminal.models import parse_query
 from atlas_terminal.research_models import parse_research
 
 
-def create_mcp(provider: str = "sec") -> MCPServer:
-    atlas = Atlas(provider)
+def create_mcp(provider: str = "sec", *, atlas_client: Atlas | None = None) -> MCPServer:
+    atlas = atlas_client or Atlas(provider)
 
     async def strict_tools(
         ctx: ServerRequestContext[Any, Any], call_next: CallNext
@@ -40,6 +41,8 @@ def create_mcp(provider: str = "sec") -> MCPServer:
                         "atlas_list_filings": {"identifier", "form", "limit"},
                         "atlas_purchase": {"quote_id"},
                         "atlas_purchase_status": {"quote_id"},
+                        "atlas_purchase_reconcile": {"quote_id", "transaction"},
+                        "atlas_purchase_x402": {"quote_id"},
                         "atlas_research_catalog": set(),
                     }.get(name)
                     if allowed is not None and set(arguments) - allowed:
@@ -174,4 +177,61 @@ def create_mcp(provider: str = "sec") -> MCPServer:
         """Recover order status using the private local capability. Never signs or pays."""
         return execute(lambda: atlas.purchase_status(quote_id))
 
+    if provider == "hosted":
+
+        @server.tool(
+            annotations=ToolAnnotations(
+                read_only_hint=False,
+                destructive_hint=False,
+                idempotent_hint=True,
+            )
+        )
+        def atlas_purchase_reconcile(
+            quote_id: str, transaction: str | None = None
+        ) -> CallToolResult:
+            """Reconcile an existing order using finalized chain evidence. Never signs or pays."""
+            return execute(lambda: atlas.reconcile_purchase(quote_id, transaction=transaction))
+
+        @server.tool(
+            annotations=ToolAnnotations(
+                read_only_hint=False,
+                destructive_hint=True,
+                idempotent_hint=True,
+            )
+        )
+        def atlas_purchase_x402(quote_id: str, ctx: Context[Any, Any]) -> CallToolResult:
+            """Buy a saved quote with an external wallet via standard x402 MCP metadata.
+
+            Returns PaymentRequired to the wallet client. Payment payloads belong
+            only in _meta['x402/payment'], never in tool arguments or model output.
+            """
+            try:
+                if not atlas._hosted:
+                    raise AtlasError("CONFIG_REQUIRED", "Configure a hosted provider.")
+                meta = ctx.request_context.meta
+                values = dict(meta) if meta is not None else {}
+                payment = values.get("x402/payment")
+                if payment is not None and not isinstance(payment, dict):
+                    raise AtlasError("PAYMENT_INVALID", "Invalid MCP payment metadata.")
+                data, settlement, required = atlas._hosted.external_purchase(quote_id, payment)
+                return CallToolResult(
+                    content=[TextContent(type="text", text=json.dumps(data))],
+                    structured_content=data,
+                    is_error=required,
+                    _meta={"x402/payment-response": settlement} if settlement else None,
+                )
+            except AtlasError as exc:
+                return error_result(exc)
+            except Exception:
+                return error_result(AtlasError("INTERNAL_ERROR", "Native MCP payment stopped."))
+
     return server
+
+
+def error_result(error: AtlasError) -> CallToolResult:
+    data = error.envelope()
+    return CallToolResult(
+        content=[TextContent(type="text", text=json.dumps(data))],
+        structured_content=data,
+        is_error=True,
+    )

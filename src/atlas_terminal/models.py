@@ -184,3 +184,17 @@ class Receipt(Model):
 class PurchaseResult(Model):
     data: FinancialResult
     receipt: Receipt
+
+
+class ReconcileRequest(Model):
+    transaction: str | None = Field(default=None, pattern=r"^0x[0-9a-fA-F]{64}$")
+
+
+class ReconciliationResult(Model):
+    quote_id: str
+    state: Literal["QUOTED", "EXPIRED", "SETTLED", "NOT_REQUIRED", "FAILED", "SETTLEMENT_UNKNOWN"]
+    outcome: Literal["settled", "failed", "pending", "not_started", "not_required"]
+    reason: str
+    checked_at: str
+    evidence_sha256: Hash | None = None
+    receipt: Receipt | None = None
