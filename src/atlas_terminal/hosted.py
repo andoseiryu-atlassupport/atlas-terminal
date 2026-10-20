@@ -8,7 +8,7 @@ from typing import Any
 import httpx
 from pydantic import ValidationError
 
-from atlas_terminal.errors import AtlasError
+from atlas_terminal.errors import AtlasError, NextAction
 from atlas_terminal.models import (
     Company,
     FinancialQuery,
@@ -80,6 +80,11 @@ class HostedClient:
                 "SOURCE_UNAVAILABLE",
                 "Hosted connection failed; signed purchases remain reserved.",
                 retryable=True,
+                next_action=(
+                    NextAction(action="check_purchase_status", tool="atlas_purchase_status")
+                    if path.endswith(("/result", "/reconcile"))
+                    else None
+                ),
             ) from None
         if 300 <= response.status_code < 400:
             raise AtlasError(

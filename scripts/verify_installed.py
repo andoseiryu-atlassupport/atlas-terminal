@@ -35,7 +35,7 @@ async def mcp_smoke(root):
         ClientSession(*streams, read_timeout_seconds=15) as session,
     ):
         await session.initialize()
-        assert len((await session.list_tools()).tools) == 8
+        assert len((await session.list_tools()).tools) == 9
         research = await session.call_tool(
             "atlas_get_research",
             {"query": {"dataset": "institutional_holdings", "identifier": "ATLASDEMO"}},
@@ -44,6 +44,21 @@ async def mcp_smoke(root):
             not research.is_error
             and research.structured_content["records"][0]["cusip"] == "999999AA1"
         )
+        agent_query = {
+            "dataset": "statements",
+            "identifier": "ATLASDEMO",
+            "metrics": ["revenue"],
+            "response": {"view": "compact", "page_size": 1},
+        }
+        compact = await session.call_tool("atlas_get_research", {"query": agent_query})
+        assert not compact.is_error
+        evidence_id = compact.structured_content["records"][0]["source"]["evidence_id"]
+        evidence = await session.call_tool("atlas_get_evidence", {"evidence_id": evidence_id})
+        assert not evidence.is_error
+        assert digest(canonical(evidence.structured_content["evidence"])) == evidence_id
+        agent_query["response"]["cursor"] = compact.structured_content["response"]["next_cursor"]
+        next_page = await session.call_tool("atlas_get_research", {"query": agent_query})
+        assert not next_page.is_error and next_page.structured_content["response"]["offset"] == 1
         data = await session.call_tool("atlas_get_financials", QUERY.model_dump(mode="json"))
         assert data.structured_content == expected
     return "PASS"
@@ -159,6 +174,20 @@ with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
                 research_http.status_code == 200
                 and research_http.json()["records"][0]["shares"] == "100.5"
             )
+            compact_http = probe.post(
+                base + "/v1/research",
+                json={
+                    "dataset": "statements",
+                    "identifier": "ATLASDEMO",
+                    "metrics": ["revenue"],
+                    "response": {"view": "compact", "page_size": 1},
+                },
+            )
+            assert compact_http.status_code == 200
+            evidence_id = compact_http.json()["records"][0]["source"]["evidence_id"]
+            evidence_http = probe.get(base + "/v1/research/evidence/" + evidence_id)
+            assert evidence_http.status_code == 200
+            assert digest(canonical(evidence_http.json()["evidence"])) == evidence_id
         client = HostedClient(
             base,
             directory=root / "client",
@@ -193,6 +222,7 @@ with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
                 "wheel_demo": "PASS",
                 "wheel_research_cli_mcp_http": "PASS",
                 "wheel_mcp_subprocess": mcp_status,
+                "wheel_agent_compact_paging_evidence": "PASS",
                 "real_loopback_http_mock_purchase": "PASS",
                 "server_restart_recovery": "PASS",
                 "result_sha256": q.result_sha256,

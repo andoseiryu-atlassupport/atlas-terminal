@@ -71,7 +71,9 @@ Start the MCP server with:
 uv run --offline atlas mcp serve --provider fixture
 ```
 
-Eight MCP tools expose the research catalog and datasets, company resolution, annual snapshots, filings, quotes, purchases and purchase status. Use `atlas_research_catalog` to discover datasets, then `atlas_get_research` with a `query` object. [MCP setup](docs/quickstart.md).
+Nine MCP tools expose research, saved evidence, company resolution, annual snapshots, filings, quotes, purchases and purchase status. `atlas_get_research` publishes dataset-specific input branches and a common output schema. Use `atlas_research_catalog` with an optional dataset filter and compact view to reduce discovery output. [MCP setup](docs/quickstart.md).
+
+Research accepts optional `response` settings for compact provenance references, field selection and snapshot pagination. `atlas_get_evidence` retrieves the original provenance by ID. Errors include a structured next action and a retry delay when known. The same contracts work through CLI, SDK and HTTP. [Agent usage](docs/agents.md).
 
 The hosted MCP provider adds native x402 purchases through standard payment metadata and read-only chain reconciliation. Its external-wallet path uses the caller's spending controls. [MCP payment setup](docs/payments.md#standard-http-and-native-mcp-clients).
 

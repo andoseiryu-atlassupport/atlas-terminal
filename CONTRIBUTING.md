@@ -19,4 +19,6 @@ For financial data issues, include the CIK, accession, taxonomy/tag, actual peri
 
 Fixtures are fictional, and source hashes depend on their exact bytes. Do not reformat raw sources or expected outputs excluded from Prettier. Keep public documentation and templates in English, with README.md as the canonical README.
 
+After research/error contract or HTTP route changes, run `uv run --offline python scripts/export_schemas.py`, then format the three files under `schemas/` with Prettier. This exporter makes no source requests or transfers and does not rewrite schema examples. The [agent guide](docs/agents.md) describes typed MCP, presentation and recovery contracts.
+
 Default tests make no external requests or transfers. Live checks require the explicit opt-ins described in [payments](docs/payments.md) and must not run in CI for external contributions. The code is licensed under [Apache-2.0](LICENSE).

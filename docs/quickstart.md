@@ -55,9 +55,12 @@ Configure `SEC_USER_AGENT` privately for SEC requests. The `hosted` provider use
 | atlas_purchase_status    | Recover status using a private capability without paying            |
 | atlas_research_catalog   | List 17 free datasets, units, query schemas and coverage gaps       |
 | atlas_get_research       | Retrieve research using a `query` object without a quote or payment |
+| atlas_get_evidence       | Resolve a compact research source ID to its saved provenance        |
 | atlas_purchase_x402      | Hosted only: external-wallet purchase via standard MCP metadata     |
 | atlas_purchase_reconcile | Hosted only: reconcile an existing order without signing or paying  |
 
 For example, call `atlas_get_research` with `{"query":{"dataset":"economics","series":"cpi"}}`. Use `--provider public` for direct government sources. SEC contact settings are checked only when accessing SEC. The `hosted` provider does not proxy research. `atlas_purchase` spends delegated local-wallet funds; `atlas_purchase_x402` receives payment from the external MCP wallet, whose own policy controls spending. Reconciliation never pays. See the [research guide](research.md) and [native MCP payment setup](payments.md#standard-http-and-native-mcp-clients).
+
+For smaller agent responses, add `"response":{"view":"compact","page_size":2}` inside the research query. Retrieve a returned `source.evidence_id` with `atlas_get_evidence`; repeat the original query/options with `response.cursor` to continue the saved result. `atlas_research_catalog` accepts `dataset` and `view="compact"`. See [agent contracts](agents.md) for field selection, common output schemas and machine-readable error recovery.
 
 Startup failures go to stderr. Once running, stdout belongs exclusively to the official MCP protocol. Windows execution has not been verified.

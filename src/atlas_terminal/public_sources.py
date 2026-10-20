@@ -166,6 +166,8 @@ class PublicTransport(CachedHTTPTransport):
                         "SOURCE_RATE_LIMITED",
                         "Local BLS daily quota reached; retry on a later UTC day.",
                         retryable=True,
+                        retry_after_seconds=86400 - int(self.clock()) % 86400,
+                        status=429,
                     )
                 conn.execute(
                     (

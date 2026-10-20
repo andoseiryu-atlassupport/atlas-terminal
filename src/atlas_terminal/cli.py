@@ -3,7 +3,7 @@
 import json
 import os
 import sys
-from typing import Any
+from typing import Any, Literal
 
 import typer
 from pydantic import BaseModel, ValidationError
@@ -12,6 +12,7 @@ from typer.exceptions import TyperException
 from atlas_terminal.client import Atlas
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.models import parse_query
+from atlas_terminal.research_models import Dataset
 
 app = typer.Typer(no_args_is_help=True, add_completion=False, pretty_exceptions_enable=False)
 company_app, financials_app, filings_app, quote_app, mcp_app = (typer.Typer() for _ in range(5))
@@ -50,9 +51,13 @@ def demo(json_output: bool = typer.Option(False, "--json")) -> None:
 
 
 @research_app.command("catalog")
-def research_catalog(json_output: bool = typer.Option(False, "--json")) -> None:
+def research_catalog(
+    dataset: Dataset | None = None,
+    view: Literal["full", "compact"] = "full",
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
     """List free sources, datasets, units, query schema and unavailable coverage."""
-    output(Atlas.research_catalog())
+    output(Atlas.research_catalog(dataset, view=view))
 
 
 @research_app.command("get")
@@ -72,6 +77,10 @@ def research_get(
     accession: str | None = None,
     series: str | None = None,
     year: int | None = None,
+    view: str = "full",
+    fields: str | None = None,
+    page_size: int | None = None,
+    cursor: str | None = None,
     provider: str = "public",
     json_output: bool = typer.Option(False, "--json"),
 ) -> None:
@@ -97,8 +106,28 @@ def research_get(
         data["identifiers"] = identifiers.split(",")
     if allow_partial:
         data["allow_partial"] = True
+    if view != "full" or fields is not None or page_size is not None or cursor is not None:
+        response: dict[str, Any] = {"view": view}
+        if fields is not None:
+            response["fields"] = fields.split(",")
+        if page_size is not None:
+            response["page_size"] = page_size
+        if cursor is not None:
+            response["cursor"] = cursor
+        data["response"] = response
     with Atlas(provider) as atlas:
         output(atlas.get_research(data))
+
+
+@research_app.command("evidence")
+def research_evidence(
+    evidence_id: str,
+    provider: str = "public",
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """Read saved provenance for a compact result; never fetches or pays."""
+    with Atlas(provider) as atlas:
+        output(atlas.get_evidence(evidence_id))
 
 
 @company_app.command("resolve")

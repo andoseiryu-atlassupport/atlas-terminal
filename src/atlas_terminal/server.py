@@ -4,7 +4,7 @@ import os
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 from urllib.parse import urlsplit
 
 from fastapi import FastAPI, Query, Request
@@ -12,7 +12,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from atlas_terminal.client import Atlas, catalog
-from atlas_terminal.errors import AtlasError
+from atlas_terminal.errors import AtlasError, ErrorEnvelope
 from atlas_terminal.models import (
     Company,
     FinancialQuery,
@@ -33,7 +33,8 @@ from atlas_terminal.payments.common import (
 from atlas_terminal.payments.mock import MockAdapter
 from atlas_terminal.payments.orders import OrderService
 from atlas_terminal.payments.reconciliation import BaseSepoliaReconciler, SettlementReconciler
-from atlas_terminal.research_models import ResearchQuery
+from atlas_terminal.research_models import Dataset, ResearchQuery
+from atlas_terminal.research_views import EvidenceResult, ResearchResult
 from atlas_terminal.util import state_dir
 
 
@@ -92,7 +93,7 @@ def create_app(
         if rpc_url:
             reconciler = BaseSepoliaReconciler(rpc_url)
     orders = OrderService(
-        Atlas(provider),
+        Atlas(provider, directory=directory),
         (directory or state_dir()) / "server-orders.sqlite3",
         make_pricing(payments, amount, recipient),
         base_origin=base_origin,
@@ -105,12 +106,25 @@ def create_app(
         yield
         orders.close()
 
-    app = FastAPI(title="Atlas Terminal reference API", version="0.2.0", lifespan=lifespan)
+    app = FastAPI(
+        title="Atlas Terminal reference API",
+        version="0.2.0",
+        lifespan=lifespan,
+        responses={
+            status: {"model": ErrorEnvelope}
+            for status in (400, 401, 403, 404, 409, 410, 413, 422, 429, 500, 502, 503)
+        },
+    )
     app.state.orders = orders
 
     @app.exception_handler(AtlasError)
     async def domain_error(request: Request, exc: AtlasError) -> JSONResponse:
-        return JSONResponse(exc.envelope(), status_code=exc.status)
+        headers = (
+            {"Retry-After": str(exc.retry_after_seconds)}
+            if exc.retry_after_seconds is not None
+            else None
+        )
+        return JSONResponse(exc.envelope(), status_code=exc.status, headers=headers)
 
     @app.exception_handler(RequestValidationError)
     async def invalid_request(request: Request, exc: RequestValidationError) -> JSONResponse:
@@ -157,11 +171,16 @@ def create_app(
         return catalog() | {"pricing": orders.pricing.model_dump(mode="json")}
 
     @app.get("/v1/research/catalog")
-    def get_research_catalog() -> dict[str, Any]:
-        return orders.atlas.research_catalog()
+    def get_research_catalog(
+        dataset: Dataset | None = None,
+        view: Literal["full", "compact"] = "full",
+    ) -> dict[str, Any]:
+        return orders.atlas.research_catalog(dataset, view=view)
 
     @app.post(
         "/v1/research",
+        response_model=ResearchResult,
+        response_model_exclude_unset=True,
         openapi_extra={
             "requestBody": {
                 "content": {"application/json": {"schema": ResearchQuery.model_json_schema()}},
@@ -171,6 +190,14 @@ def create_app(
     )
     def get_research(body: dict[str, Any]) -> dict[str, Any]:
         return orders.atlas.get_research(body)
+
+    @app.get(
+        "/v1/research/evidence/{evidence_id}",
+        response_model=EvidenceResult,
+        response_model_exclude_unset=True,
+    )
+    def get_evidence(evidence_id: str) -> dict[str, Any]:
+        return orders.atlas.get_evidence(evidence_id)
 
     @app.get("/v1/companies/resolve", response_model=Company)
     def resolve_company(query: str = Query(min_length=1, max_length=100)) -> Company:

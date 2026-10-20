@@ -7,7 +7,8 @@ from datetime import date
 from decimal import Decimal, InvalidOperation
 from email.utils import parsedate_to_datetime
 from importlib.resources import files
-from typing import Any
+from pathlib import Path
+from typing import Any, Literal
 from urllib.parse import urlsplit
 from xml.etree.ElementTree import Element
 
@@ -46,8 +47,15 @@ from atlas_terminal.research_financials import (
     reference,
     statement_data,
 )
-from atlas_terminal.research_models import FIELDS, ResearchQuery, dataset_required, parse_research
-from atlas_terminal.util import stamp
+from atlas_terminal.research_models import (
+    FIELDS,
+    Dataset,
+    ResearchQuery,
+    dataset_required,
+    parse_research,
+)
+from atlas_terminal.research_views import ResearchResult, ResearchViews
+from atlas_terminal.util import stamp, state_dir
 
 FAMILIES = {
     "ownership_filings": {
@@ -180,8 +188,19 @@ GAPS = {
 }
 
 
-def research_catalog() -> dict[str, Any]:
-    return {
+def research_catalog(
+    dataset: Dataset | None = None,
+    view: Literal["full", "compact"] = "full",
+) -> dict[str, Any]:
+    if (
+        dataset is not None and (not isinstance(dataset, str) or dataset not in DATASETS)
+    ) or view not in ("full", "compact"):
+        raise AtlasError(
+            "INVALID_INPUT",
+            "Choose a catalog dataset and full/compact view.",
+            fields=["dataset", "view"],
+        )
+    result: dict[str, Any] = {
         "schema_version": "0.2.0",
         "upstream_data_cost": "0",
         "requires_wallet": False,
@@ -197,6 +216,7 @@ def research_catalog() -> dict[str, Any]:
                 "live_verified": False,
                 "query_fields": sorted(FIELDS[name]),
                 "required_fields": dataset_required(name),
+                "response_options": ["view", "fields", "page_size", "cursor"],
             }
             for name, (title, source, kind) in DATASETS.items()
         ],
@@ -212,7 +232,40 @@ def research_catalog() -> dict[str, Any]:
         "not_available": GAPS,
         "point_in_time": False,
         "query_schema": ResearchQuery.model_json_schema(),
+        "response_schema": ResearchResult.model_json_schema(),
+        "presentation": {
+            "default_view": "full",
+            "compact_evidence_tool": "atlas_get_evidence",
+            "snapshot_ttl_seconds": 86400,
+            "page_size_max": 500,
+            "coverage_scope": "complete_selected_snapshot_not_response_page",
+            "point_in_time": False,
+        },
     }
+    if dataset is not None:
+        result["datasets"] = [item for item in result["datasets"] if item["id"] == dataset]
+        schema = result["query_schema"]
+        schema["oneOf"] = [
+            branch
+            for branch in schema["oneOf"]
+            if branch["properties"]["dataset"]["const"] == dataset
+        ]
+        schema["properties"] = schema["oneOf"][0]["properties"]
+        schema["required"] = schema["oneOf"][0]["required"]
+        result["sources"] = {DATASETS[dataset][1]: SOURCE_CATALOG[DATASETS[dataset][1]]}
+    if view == "compact":
+        result.pop("query_schema")
+        result.pop("response_schema")
+        result["sources"] = {
+            key: {"terms": source["terms"]} for key, source in result["sources"].items()
+        }
+        for key in ["statement_metrics", "analytics_metrics", "ratios", "economic_series"]:
+            result[key] = list(result[key])
+        result["not_available"] = list(result["not_available"])
+        result["schema_included"] = False
+    else:
+        result["schema_included"] = True
+    return result
 
 
 class ResearchSecFixtures(FixtureTransport):
@@ -289,10 +342,19 @@ class ResearchService:
         *,
         synthetic: bool = False,
         public: Transport | None = None,
+        directory: Path | None = None,
     ) -> None:
         self.sec_factory = sec
         self.synthetic = synthetic
         self.public = public
+        self._views: ResearchViews | None = None
+        self.view_path = (directory or state_dir()) / "research-responses.sqlite3"
+
+    @property
+    def views(self) -> ResearchViews:
+        if self._views is None:
+            self._views = ResearchViews(self.view_path, synthetic=self.synthetic)
+        return self._views
 
     def close(self) -> None:
         if self.public:
@@ -300,6 +362,8 @@ class ResearchService:
 
     def get(self, query: ResearchQuery | dict[str, Any]) -> dict[str, Any]:
         q = query if isinstance(query, ResearchQuery) else parse_research(query)
+        if q.response.cursor:
+            return self.views.render(q)
         if q.dataset in {"economics", "treasury_yields", "federal_debt", "policy_news"}:
             self.public = self.public or (PublicFixtures() if self.synthetic else PublicTransport())
             result = self.public_data(q)
@@ -343,10 +407,10 @@ class ResearchService:
         result.setdefault(
             "coverage", {"returned_records": len(result["records"]), "truncated": False}
         )
-        return {
+        result = {
             "schema_version": "0.2.0",
             "dataset": q.dataset,
-            "query": q.model_dump(exclude_unset=True),
+            "query": q.model_dump(exclude_unset=True, exclude={"response"}),
             "source_id": source_id,
             "source_terms_url": SOURCE_CATALOG[source_id]["terms"],
             "upstream_data_cost": "0",
@@ -357,6 +421,10 @@ class ResearchService:
             ),
             **result,
         }
+        ResearchResult.model_validate(result)
+        if q.response.view == "compact" or q.response.fields or q.response.page_size:
+            return self.views.render(q, result)
+        return result
 
     def companies(self, q: ResearchQuery) -> dict[str, Any]:
         source = self.sec_factory()

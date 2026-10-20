@@ -2,6 +2,8 @@
 
 `atlas research`, `Atlas.get_research`, MCP `atlas_get_research` and HTTP `POST /v1/research` use the same service. Sources are free government primary sources. No API key, data subscription, model or wallet is required. SEC alone requires a private `SEC_USER_AGENT` with the operator's actual contact details.
 
+Queries can include optional `response` settings for compact evidence references, field selection and snapshot-bound pages. The default response is unchanged. See [agent contracts](agents.md) for typed MCP schemas, evidence retrieval and structured recovery hints.
+
 Results include missing-data status, periods, coverage and source terms. Discover the API with `atlas research catalog --json` or `GET /v1/research/catalog`.
 
 ## Datasets

@@ -23,6 +23,126 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Gone",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request Entity Too Large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
           }
         }
       }
@@ -43,6 +163,126 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Gone",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request Entity Too Large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
           }
         }
       }
@@ -51,18 +291,186 @@
       "get": {
         "summary": "Get Research Catalog",
         "operationId": "get_research_catalog_v1_research_catalog_get",
+        "parameters": [
+          {
+            "name": "dataset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "companies",
+                    "profile",
+                    "statements",
+                    "ratios",
+                    "financial_analytics",
+                    "company_facts",
+                    "filings",
+                    "insider_transactions",
+                    "institutional_holdings",
+                    "ownership_filings",
+                    "fund_filings",
+                    "corporate_action_filings",
+                    "economics",
+                    "treasury_yields",
+                    "federal_debt",
+                    "policy_news",
+                    "compare"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Dataset"
+            }
+          },
+          {
+            "name": "view",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": ["full", "compact"],
+              "type": "string",
+              "default": "full",
+              "title": "View"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
                   "type": "object",
+                  "additionalProperties": true,
                   "title": "Response Get Research Catalog V1 Research Catalog Get"
                 }
               }
             }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Gone"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Request Entity Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
           }
         }
       }
@@ -75,288 +483,731 @@
           "content": {
             "application/json": {
               "schema": {
-                "allOf": [
-                  {
-                    "if": {
-                      "properties": {
-                        "dataset": {
-                          "const": "companies"
-                        }
+                "$defs": {
+                  "ResponseOptions": {
+                    "properties": {
+                      "view": {
+                        "type": "string",
+                        "enum": ["full", "compact"],
+                        "title": "View",
+                        "default": "full"
                       },
-                      "required": ["dataset"]
+                      "fields": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "maxItems": 40,
+                        "title": "Fields"
+                      },
+                      "page_size": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "maximum": 500.0,
+                            "minimum": 1.0
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "title": "Page Size"
+                      },
+                      "cursor": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "pattern": "^r1_[0-9a-f]{64}_[1-9][0-9]{0,5}$"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "title": "Cursor"
+                      }
                     },
-                    "then": {
-                      "propertyNames": {
-                        "enum": ["dataset", "identifier", "limit"]
+                    "additionalProperties": false,
+                    "type": "object",
+                    "title": "ResponseOptions",
+                    "description": "Presentation only: does not expand upstream retrieval or relax coverage."
+                  }
+                },
+                "oneOf": [
+                  {
+                    "properties": {
+                      "dataset": {
+                        "type": "string",
+                        "const": "companies"
                       },
-                      "required": []
-                    }
+                      "identifier": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "title": "Identifier"
+                      },
+                      "limit": {
+                        "type": "integer",
+                        "maximum": 500.0,
+                        "minimum": 1.0,
+                        "title": "Limit",
+                        "default": 100
+                      },
+                      "response": {
+                        "$ref": "#/$defs/ResponseOptions"
+                      }
+                    },
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": ["dataset"]
                   },
                   {
-                    "if": {
-                      "properties": {
-                        "dataset": {
-                          "const": "profile"
-                        }
+                    "properties": {
+                      "dataset": {
+                        "type": "string",
+                        "const": "profile"
                       },
-                      "required": ["dataset"]
+                      "identifier": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "minLength": 1
+                      },
+                      "response": {
+                        "$ref": "#/$defs/ResponseOptions"
+                      }
                     },
-                    "then": {
-                      "propertyNames": {
-                        "enum": ["dataset", "identifier"]
-                      },
-                      "required": ["identifier"]
-                    }
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": ["dataset", "identifier"]
                   },
                   {
-                    "if": {
-                      "properties": {
-                        "dataset": {
-                          "const": "statements"
-                        }
+                    "properties": {
+                      "dataset": {
+                        "type": "string",
+                        "const": "statements"
                       },
-                      "required": ["dataset"]
+                      "allow_partial": {
+                        "type": "boolean",
+                        "title": "Allow Partial",
+                        "default": false
+                      },
+                      "count": {
+                        "type": "integer",
+                        "maximum": 20.0,
+                        "minimum": 1.0,
+                        "title": "Count",
+                        "default": 3
+                      },
+                      "identifier": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "minLength": 1
+                      },
+                      "metrics": {
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "accounts_payable",
+                            "accounts_receivable",
+                            "assets",
+                            "capital_expenditure",
+                            "cash_and_equivalents",
+                            "cost_of_revenue",
+                            "current_assets",
+                            "current_liabilities",
+                            "depreciation_amortization",
+                            "dividends_paid",
+                            "dividends_per_share",
+                            "eps_basic",
+                            "eps_diluted",
+                            "financing_cash_flow",
+                            "goodwill",
+                            "gross_profit",
+                            "income_tax_expense",
+                            "interest_expense",
+                            "inventory",
+                            "investing_cash_flow",
+                            "liabilities",
+                            "long_term_debt_noncurrent",
+                            "net_income",
+                            "operating_cash_flow",
+                            "operating_income",
+                            "property_plant_equipment",
+                            "research_and_development",
+                            "retained_earnings",
+                            "revenue",
+                            "selling_general_administrative",
+                            "share_repurchases",
+                            "shares_outstanding",
+                            "short_term_investments",
+                            "stock_based_compensation",
+                            "stockholders_equity",
+                            "weighted_average_shares_basic",
+                            "weighted_average_shares_diluted"
+                          ]
+                        },
+                        "type": "array",
+                        "maxItems": 40,
+                        "title": "Metrics"
+                      },
+                      "period": {
+                        "type": "string",
+                        "enum": ["annual", "quarterly", "ytd"],
+                        "title": "Period",
+                        "default": "annual"
+                      },
+                      "response": {
+                        "$ref": "#/$defs/ResponseOptions"
+                      }
                     },
-                    "then": {
-                      "propertyNames": {
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": ["dataset", "identifier"]
+                  },
+                  {
+                    "properties": {
+                      "dataset": {
+                        "type": "string",
+                        "const": "ratios"
+                      },
+                      "allow_partial": {
+                        "type": "boolean",
+                        "title": "Allow Partial",
+                        "default": false
+                      },
+                      "count": {
+                        "type": "integer",
+                        "maximum": 20.0,
+                        "minimum": 1.0,
+                        "title": "Count",
+                        "default": 3
+                      },
+                      "identifier": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "minLength": 1
+                      },
+                      "period": {
+                        "type": "string",
+                        "enum": ["annual", "quarterly", "ytd"],
+                        "title": "Period",
+                        "default": "annual"
+                      },
+                      "response": {
+                        "$ref": "#/$defs/ResponseOptions"
+                      }
+                    },
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": ["dataset", "identifier"]
+                  },
+                  {
+                    "properties": {
+                      "dataset": {
+                        "type": "string",
+                        "const": "financial_analytics"
+                      },
+                      "allow_partial": {
+                        "type": "boolean",
+                        "title": "Allow Partial",
+                        "default": false
+                      },
+                      "count": {
+                        "type": "integer",
+                        "maximum": 20.0,
+                        "minimum": 1.0,
+                        "title": "Count",
+                        "default": 3
+                      },
+                      "identifier": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "minLength": 1
+                      },
+                      "metrics": {
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "eps_basic_growth_yoy",
+                            "eps_diluted_growth_yoy",
+                            "free_cash_flow",
+                            "free_cash_flow_margin",
+                            "net_income_growth_yoy",
+                            "operating_income_growth_yoy",
+                            "revenue_growth_yoy"
+                          ]
+                        },
+                        "type": "array",
+                        "maxItems": 40,
+                        "title": "Metrics"
+                      },
+                      "period": {
+                        "type": "string",
+                        "enum": ["annual", "quarterly", "ytd"],
+                        "title": "Period",
+                        "default": "annual"
+                      },
+                      "response": {
+                        "$ref": "#/$defs/ResponseOptions"
+                      }
+                    },
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": ["dataset", "identifier"]
+                  },
+                  {
+                    "properties": {
+                      "dataset": {
+                        "type": "string",
+                        "const": "company_facts"
+                      },
+                      "concept": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "pattern": "^[A-Za-z][A-Za-z0-9_]{0,199}$"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "title": "Concept"
+                      },
+                      "identifier": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "minLength": 1
+                      },
+                      "limit": {
+                        "type": "integer",
+                        "maximum": 500.0,
+                        "minimum": 1.0,
+                        "title": "Limit",
+                        "default": 100
+                      },
+                      "taxonomy": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,79}$",
+                        "title": "Taxonomy",
+                        "default": "us-gaap"
+                      },
+                      "unit": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "pattern": "^[A-Za-z][A-Za-z0-9_/-]{0,49}$"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "title": "Unit"
+                      },
+                      "response": {
+                        "$ref": "#/$defs/ResponseOptions"
+                      }
+                    },
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": ["dataset", "identifier"]
+                  },
+                  {
+                    "properties": {
+                      "dataset": {
+                        "type": "string",
+                        "const": "filings"
+                      },
+                      "form": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9 /-]{0,29}$",
+                        "title": "Form",
+                        "default": "all"
+                      },
+                      "identifier": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "minLength": 1
+                      },
+                      "limit": {
+                        "type": "integer",
+                        "maximum": 500.0,
+                        "minimum": 1.0,
+                        "title": "Limit",
+                        "default": 100
+                      },
+                      "response": {
+                        "$ref": "#/$defs/ResponseOptions"
+                      }
+                    },
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": ["dataset", "identifier"]
+                  },
+                  {
+                    "properties": {
+                      "dataset": {
+                        "type": "string",
+                        "const": "insider_transactions"
+                      },
+                      "accession": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "pattern": "^[0-9]{10}-[0-9]{2}-[0-9]{6}$"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "title": "Accession"
+                      },
+                      "identifier": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "minLength": 1
+                      },
+                      "limit": {
+                        "type": "integer",
+                        "maximum": 500.0,
+                        "minimum": 1.0,
+                        "title": "Limit",
+                        "default": 100
+                      },
+                      "response": {
+                        "$ref": "#/$defs/ResponseOptions"
+                      }
+                    },
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": ["dataset", "identifier"]
+                  },
+                  {
+                    "properties": {
+                      "dataset": {
+                        "type": "string",
+                        "const": "institutional_holdings"
+                      },
+                      "accession": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "pattern": "^[0-9]{10}-[0-9]{2}-[0-9]{6}$"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "title": "Accession"
+                      },
+                      "identifier": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "minLength": 1
+                      },
+                      "limit": {
+                        "type": "integer",
+                        "maximum": 500.0,
+                        "minimum": 1.0,
+                        "title": "Limit",
+                        "default": 100
+                      },
+                      "response": {
+                        "$ref": "#/$defs/ResponseOptions"
+                      }
+                    },
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": ["dataset", "identifier"]
+                  },
+                  {
+                    "properties": {
+                      "dataset": {
+                        "type": "string",
+                        "const": "ownership_filings"
+                      },
+                      "identifier": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "minLength": 1
+                      },
+                      "limit": {
+                        "type": "integer",
+                        "maximum": 500.0,
+                        "minimum": 1.0,
+                        "title": "Limit",
+                        "default": 100
+                      },
+                      "response": {
+                        "$ref": "#/$defs/ResponseOptions"
+                      }
+                    },
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": ["dataset", "identifier"]
+                  },
+                  {
+                    "properties": {
+                      "dataset": {
+                        "type": "string",
+                        "const": "fund_filings"
+                      },
+                      "identifier": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "minLength": 1
+                      },
+                      "limit": {
+                        "type": "integer",
+                        "maximum": 500.0,
+                        "minimum": 1.0,
+                        "title": "Limit",
+                        "default": 100
+                      },
+                      "response": {
+                        "$ref": "#/$defs/ResponseOptions"
+                      }
+                    },
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": ["dataset", "identifier"]
+                  },
+                  {
+                    "properties": {
+                      "dataset": {
+                        "type": "string",
+                        "const": "corporate_action_filings"
+                      },
+                      "identifier": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "minLength": 1
+                      },
+                      "limit": {
+                        "type": "integer",
+                        "maximum": 500.0,
+                        "minimum": 1.0,
+                        "title": "Limit",
+                        "default": 100
+                      },
+                      "response": {
+                        "$ref": "#/$defs/ResponseOptions"
+                      }
+                    },
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": ["dataset", "identifier"]
+                  },
+                  {
+                    "properties": {
+                      "dataset": {
+                        "type": "string",
+                        "const": "economics"
+                      },
+                      "limit": {
+                        "type": "integer",
+                        "maximum": 500.0,
+                        "minimum": 1.0,
+                        "title": "Limit",
+                        "default": 100
+                      },
+                      "series": {
+                        "type": "string",
                         "enum": [
-                          "dataset",
-                          "allow_partial",
-                          "count",
-                          "identifier",
-                          "metrics",
-                          "period"
-                        ]
+                          "CES0000000001",
+                          "CES0500000003",
+                          "CUSR0000SA0",
+                          "CUUR0000SA0",
+                          "CUUR0000SA0L1E",
+                          "JTS000000000000000JOL",
+                          "LNS11300000",
+                          "LNS14000000",
+                          "core_cpi",
+                          "cpi",
+                          "cpi_sa",
+                          "hourly_earnings",
+                          "job_openings",
+                          "participation",
+                          "payrolls",
+                          "unemployment"
+                        ],
+                        "maxLength": 100,
+                        "minLength": 1
                       },
-                      "required": ["identifier"]
-                    }
+                      "response": {
+                        "$ref": "#/$defs/ResponseOptions"
+                      }
+                    },
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": ["dataset", "series"]
                   },
                   {
-                    "if": {
-                      "properties": {
-                        "dataset": {
-                          "const": "ratios"
-                        }
+                    "properties": {
+                      "dataset": {
+                        "type": "string",
+                        "const": "treasury_yields"
                       },
-                      "required": ["dataset"]
+                      "limit": {
+                        "type": "integer",
+                        "maximum": 500.0,
+                        "minimum": 1.0,
+                        "title": "Limit",
+                        "default": 100
+                      },
+                      "year": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "maximum": 2100.0,
+                            "minimum": 1990.0
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "title": "Year"
+                      },
+                      "response": {
+                        "$ref": "#/$defs/ResponseOptions"
+                      }
                     },
-                    "then": {
-                      "propertyNames": {
-                        "enum": [
-                          "dataset",
-                          "allow_partial",
-                          "count",
-                          "identifier",
-                          "period"
-                        ]
-                      },
-                      "required": ["identifier"]
-                    }
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": ["dataset"]
                   },
                   {
-                    "if": {
-                      "properties": {
-                        "dataset": {
-                          "const": "company_facts"
-                        }
+                    "properties": {
+                      "dataset": {
+                        "type": "string",
+                        "const": "federal_debt"
                       },
-                      "required": ["dataset"]
+                      "limit": {
+                        "type": "integer",
+                        "maximum": 500.0,
+                        "minimum": 1.0,
+                        "title": "Limit",
+                        "default": 100
+                      },
+                      "response": {
+                        "$ref": "#/$defs/ResponseOptions"
+                      }
                     },
-                    "then": {
-                      "propertyNames": {
-                        "enum": [
-                          "dataset",
-                          "concept",
-                          "identifier",
-                          "limit",
-                          "taxonomy",
-                          "unit"
-                        ]
-                      },
-                      "required": ["identifier"]
-                    }
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": ["dataset"]
                   },
                   {
-                    "if": {
-                      "properties": {
-                        "dataset": {
-                          "const": "filings"
-                        }
+                    "properties": {
+                      "dataset": {
+                        "type": "string",
+                        "const": "policy_news"
                       },
-                      "required": ["dataset"]
+                      "limit": {
+                        "type": "integer",
+                        "maximum": 500.0,
+                        "minimum": 1.0,
+                        "title": "Limit",
+                        "default": 100
+                      },
+                      "response": {
+                        "$ref": "#/$defs/ResponseOptions"
+                      }
                     },
-                    "then": {
-                      "propertyNames": {
-                        "enum": ["dataset", "form", "identifier", "limit"]
-                      },
-                      "required": ["identifier"]
-                    }
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": ["dataset"]
                   },
                   {
-                    "if": {
-                      "properties": {
-                        "dataset": {
-                          "const": "insider_transactions"
-                        }
+                    "properties": {
+                      "dataset": {
+                        "type": "string",
+                        "const": "compare"
                       },
-                      "required": ["dataset"]
+                      "allow_partial": {
+                        "type": "boolean",
+                        "title": "Allow Partial",
+                        "default": false
+                      },
+                      "identifiers": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "maxItems": 10,
+                        "minItems": 1,
+                        "title": "Identifiers"
+                      },
+                      "metrics": {
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "accounts_payable",
+                            "accounts_receivable",
+                            "assets",
+                            "capital_expenditure",
+                            "cash_and_equivalents",
+                            "cost_of_revenue",
+                            "current_assets",
+                            "current_liabilities",
+                            "depreciation_amortization",
+                            "dividends_paid",
+                            "dividends_per_share",
+                            "eps_basic",
+                            "eps_basic_growth_yoy",
+                            "eps_diluted",
+                            "eps_diluted_growth_yoy",
+                            "financing_cash_flow",
+                            "free_cash_flow",
+                            "free_cash_flow_margin",
+                            "goodwill",
+                            "gross_profit",
+                            "income_tax_expense",
+                            "interest_expense",
+                            "inventory",
+                            "investing_cash_flow",
+                            "liabilities",
+                            "long_term_debt_noncurrent",
+                            "net_income",
+                            "net_income_growth_yoy",
+                            "operating_cash_flow",
+                            "operating_income",
+                            "operating_income_growth_yoy",
+                            "property_plant_equipment",
+                            "research_and_development",
+                            "retained_earnings",
+                            "revenue",
+                            "revenue_growth_yoy",
+                            "selling_general_administrative",
+                            "share_repurchases",
+                            "shares_outstanding",
+                            "short_term_investments",
+                            "stock_based_compensation",
+                            "stockholders_equity",
+                            "weighted_average_shares_basic",
+                            "weighted_average_shares_diluted"
+                          ]
+                        },
+                        "type": "array",
+                        "maxItems": 40,
+                        "title": "Metrics"
+                      },
+                      "period": {
+                        "type": "string",
+                        "enum": ["annual", "quarterly", "ytd"],
+                        "title": "Period",
+                        "default": "annual"
+                      },
+                      "response": {
+                        "$ref": "#/$defs/ResponseOptions"
+                      }
                     },
-                    "then": {
-                      "propertyNames": {
-                        "enum": ["dataset", "accession", "identifier", "limit"]
-                      },
-                      "required": ["identifier"]
-                    }
-                  },
-                  {
-                    "if": {
-                      "properties": {
-                        "dataset": {
-                          "const": "institutional_holdings"
-                        }
-                      },
-                      "required": ["dataset"]
-                    },
-                    "then": {
-                      "propertyNames": {
-                        "enum": ["dataset", "accession", "identifier", "limit"]
-                      },
-                      "required": ["identifier"]
-                    }
-                  },
-                  {
-                    "if": {
-                      "properties": {
-                        "dataset": {
-                          "const": "ownership_filings"
-                        }
-                      },
-                      "required": ["dataset"]
-                    },
-                    "then": {
-                      "propertyNames": {
-                        "enum": ["dataset", "identifier", "limit"]
-                      },
-                      "required": ["identifier"]
-                    }
-                  },
-                  {
-                    "if": {
-                      "properties": {
-                        "dataset": {
-                          "const": "fund_filings"
-                        }
-                      },
-                      "required": ["dataset"]
-                    },
-                    "then": {
-                      "propertyNames": {
-                        "enum": ["dataset", "identifier", "limit"]
-                      },
-                      "required": ["identifier"]
-                    }
-                  },
-                  {
-                    "if": {
-                      "properties": {
-                        "dataset": {
-                          "const": "corporate_action_filings"
-                        }
-                      },
-                      "required": ["dataset"]
-                    },
-                    "then": {
-                      "propertyNames": {
-                        "enum": ["dataset", "identifier", "limit"]
-                      },
-                      "required": ["identifier"]
-                    }
-                  },
-                  {
-                    "if": {
-                      "properties": {
-                        "dataset": {
-                          "const": "economics"
-                        }
-                      },
-                      "required": ["dataset"]
-                    },
-                    "then": {
-                      "propertyNames": {
-                        "enum": ["dataset", "limit", "series"]
-                      },
-                      "required": ["series"]
-                    }
-                  },
-                  {
-                    "if": {
-                      "properties": {
-                        "dataset": {
-                          "const": "treasury_yields"
-                        }
-                      },
-                      "required": ["dataset"]
-                    },
-                    "then": {
-                      "propertyNames": {
-                        "enum": ["dataset", "limit", "year"]
-                      },
-                      "required": []
-                    }
-                  },
-                  {
-                    "if": {
-                      "properties": {
-                        "dataset": {
-                          "const": "federal_debt"
-                        }
-                      },
-                      "required": ["dataset"]
-                    },
-                    "then": {
-                      "propertyNames": {
-                        "enum": ["dataset", "limit"]
-                      },
-                      "required": []
-                    }
-                  },
-                  {
-                    "if": {
-                      "properties": {
-                        "dataset": {
-                          "const": "policy_news"
-                        }
-                      },
-                      "required": ["dataset"]
-                    },
-                    "then": {
-                      "propertyNames": {
-                        "enum": ["dataset", "limit"]
-                      },
-                      "required": []
-                    }
-                  },
-                  {
-                    "if": {
-                      "properties": {
-                        "dataset": {
-                          "const": "compare"
-                        }
-                      },
-                      "required": ["dataset"]
-                    },
-                    "then": {
-                      "propertyNames": {
-                        "enum": [
-                          "dataset",
-                          "allow_partial",
-                          "identifiers",
-                          "metrics",
-                          "period"
-                        ]
-                      },
-                      "required": ["identifiers"]
-                    }
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": ["dataset", "identifiers"]
                   }
                 ],
                 "properties": {
@@ -367,6 +1218,7 @@
                       "profile",
                       "statements",
                       "ratios",
+                      "financial_analytics",
                       "company_facts",
                       "filings",
                       "insider_transactions",
@@ -506,6 +1358,9 @@
                       }
                     ],
                     "title": "Year"
+                  },
+                  "response": {
+                    "$ref": "#/$defs/ResponseOptions"
                   }
                 },
                 "additionalProperties": false,
@@ -523,22 +1378,279 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "type": "object",
-                  "title": "Response Get Research V1 Research Post"
+                  "$ref": "#/components/schemas/ResearchResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Gone",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request Entity Too Large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
                 }
               }
             }
           },
           "422": {
-            "description": "Validation Error",
+            "description": "Unprocessable Entity",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorEnvelope"
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/research/evidence/{evidence_id}": {
+      "get": {
+        "summary": "Get Evidence",
+        "operationId": "get_evidence_v1_research_evidence__evidence_id__get",
+        "parameters": [
+          {
+            "name": "evidence_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Evidence Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvidenceResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Gone"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Request Entity Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
           }
         }
       }
@@ -571,15 +1683,125 @@
               }
             }
           },
-          "422": {
-            "description": "Validation Error",
+          "400": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorEnvelope"
                 }
               }
-            }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Gone"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Request Entity Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
           }
         }
       }
@@ -635,15 +1857,125 @@
               }
             }
           },
-          "422": {
-            "description": "Validation Error",
+          "400": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorEnvelope"
                 }
               }
-            }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Gone"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Request Entity Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
           }
         }
       }
@@ -718,12 +2050,122 @@
               }
             }
           },
-          "422": {
-            "description": "Validation Error",
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Gone",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request Entity Too Large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
                 }
               }
             }
@@ -759,15 +2201,284 @@
               }
             }
           },
-          "422": {
-            "description": "Validation Error",
+          "400": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Gone"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Request Entity Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/v1/quotes/{quote_id}/reconcile": {
+      "post": {
+        "summary": "Reconcile Purchase",
+        "operationId": "reconcile_purchase_v1_quotes__quote_id__reconcile_post",
+        "parameters": [
+          {
+            "name": "quote_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Quote Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReconcileRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReconciliationResult"
                 }
               }
             }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Gone"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Request Entity Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
           }
         }
       }
@@ -798,24 +2509,124 @@
               }
             }
           },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Recovery capability or matching proof required"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Gone"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Request Entity Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
           "202": {
             "description": "Settlement unknown; do not sign again"
           },
           "402": {
             "description": "Official x402 challenge, or explicit mock challenge"
-          },
-          "401": {
-            "description": "Recovery capability or matching proof required"
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
           }
         }
       }
@@ -875,6 +2686,114 @@
           "reported_cells"
         ],
         "title": "Coverage"
+      },
+      "ErrorEnvelope": {
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ErrorPayload"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["error"],
+        "title": "ErrorEnvelope"
+      },
+      "ErrorPayload": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "retryable": {
+            "type": "boolean",
+            "title": "Retryable"
+          },
+          "details": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Details"
+          },
+          "request_id": {
+            "type": "string",
+            "title": "Request Id"
+          },
+          "next_action": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/NextAction"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "retry_after_seconds": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 86400.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retry After Seconds"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["code", "message", "retryable", "details", "request_id"],
+        "title": "ErrorPayload"
+      },
+      "EvidenceReference": {
+        "properties": {
+          "evidence_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Evidence Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["evidence_id"],
+        "title": "EvidenceReference"
+      },
+      "EvidenceResult": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "0.2.0",
+            "title": "Schema Version",
+            "default": "0.2.0"
+          },
+          "evidence_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Evidence Id"
+          },
+          "evidence": {
+            "$ref": "#/components/schemas/SourceEvidence"
+          },
+          "expires_at": {
+            "type": "string",
+            "title": "Expires At"
+          },
+          "source_text_is_untrusted": {
+            "type": "boolean",
+            "const": true,
+            "title": "Source Text Is Untrusted",
+            "default": true
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["evidence_id", "evidence", "expires_at"],
+        "title": "EvidenceResult"
       },
       "Fact": {
         "properties": {
@@ -1081,19 +3000,6 @@
         ],
         "title": "FinancialResult"
       },
-      "HTTPValidationError": {
-        "properties": {
-          "detail": {
-            "items": {
-              "$ref": "#/components/schemas/ValidationError"
-            },
-            "type": "array",
-            "title": "Detail"
-          }
-        },
-        "type": "object",
-        "title": "HTTPValidationError"
-      },
       "Missing": {
         "properties": {
           "metric": {
@@ -1113,6 +3019,54 @@
         "type": "object",
         "required": ["metric", "period_end", "reason"],
         "title": "Missing"
+      },
+      "NextAction": {
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "fix_query",
+              "inspect_catalog",
+              "resolve_company",
+              "review_coverage",
+              "retry_read",
+              "request_quote",
+              "wait",
+              "check_purchase_status",
+              "contact_operator",
+              "restart_query",
+              "stop"
+            ],
+            "title": "Action"
+          },
+          "tool": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tool"
+          },
+          "fields": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Fields"
+          },
+          "automatic": {
+            "type": "boolean",
+            "title": "Automatic",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["action"],
+        "title": "NextAction"
       },
       "Period": {
         "properties": {
@@ -1390,6 +3344,303 @@
         ],
         "title": "Receipt"
       },
+      "ReconcileRequest": {
+        "properties": {
+          "transaction": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^0x[0-9a-fA-F]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transaction"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ReconcileRequest"
+      },
+      "ReconciliationResult": {
+        "properties": {
+          "quote_id": {
+            "type": "string",
+            "title": "Quote Id"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "QUOTED",
+              "EXPIRED",
+              "SETTLED",
+              "NOT_REQUIRED",
+              "FAILED",
+              "SETTLEMENT_UNKNOWN"
+            ],
+            "title": "State"
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "settled",
+              "failed",
+              "pending",
+              "not_started",
+              "not_required"
+            ],
+            "title": "Outcome"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "checked_at": {
+            "type": "string",
+            "title": "Checked At"
+          },
+          "evidence_sha256": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence Sha256"
+          },
+          "receipt": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Receipt"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["quote_id", "state", "outcome", "reason", "checked_at"],
+        "title": "ReconciliationResult"
+      },
+      "ResearchResult": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "title": "Schema Version"
+          },
+          "dataset": {
+            "type": "string",
+            "enum": [
+              "companies",
+              "profile",
+              "statements",
+              "ratios",
+              "financial_analytics",
+              "company_facts",
+              "filings",
+              "insider_transactions",
+              "institutional_holdings",
+              "ownership_filings",
+              "fund_filings",
+              "corporate_action_filings",
+              "economics",
+              "treasury_yields",
+              "federal_debt",
+              "policy_news",
+              "compare"
+            ],
+            "title": "Dataset"
+          },
+          "query": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Query"
+          },
+          "source_id": {
+            "type": "string",
+            "title": "Source Id"
+          },
+          "source_terms_url": {
+            "type": "string",
+            "title": "Source Terms Url"
+          },
+          "upstream_data_cost": {
+            "type": "string",
+            "const": "0",
+            "title": "Upstream Data Cost"
+          },
+          "is_synthetic": {
+            "type": "boolean",
+            "title": "Is Synthetic"
+          },
+          "source_text_is_untrusted": {
+            "type": "boolean",
+            "const": true,
+            "title": "Source Text Is Untrusted"
+          },
+          "retrieved_at": {
+            "type": "string",
+            "title": "Retrieved At"
+          },
+          "records": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Records"
+          },
+          "sources": {
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/SourceEvidence"
+                },
+                {
+                  "$ref": "#/components/schemas/EvidenceReference"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Sources"
+          },
+          "coverage": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Coverage"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations"
+          },
+          "response": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ResponseMetadata"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "schema_version",
+          "dataset",
+          "query",
+          "source_id",
+          "source_terms_url",
+          "upstream_data_cost",
+          "is_synthetic",
+          "source_text_is_untrusted",
+          "retrieved_at",
+          "records",
+          "sources",
+          "coverage",
+          "limitations"
+        ],
+        "title": "ResearchResult",
+        "description": "Common envelope; dataset-specific records and metadata remain extensible."
+      },
+      "ResponseMetadata": {
+        "properties": {
+          "view": {
+            "type": "string",
+            "enum": ["full", "compact"],
+            "title": "View"
+          },
+          "fields": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Fields"
+          },
+          "snapshot_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Snapshot Id"
+          },
+          "result_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Result Sha256"
+          },
+          "expires_at": {
+            "type": "string",
+            "title": "Expires At"
+          },
+          "total_records": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total Records"
+          },
+          "returned_records": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Returned Records"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Offset"
+          },
+          "page_size": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page Size"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "evidence_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Evidence Count"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "view",
+          "fields",
+          "snapshot_id",
+          "result_sha256",
+          "expires_at",
+          "total_records",
+          "returned_records",
+          "offset",
+          "page_size",
+          "next_cursor",
+          "evidence_count"
+        ],
+        "title": "ResponseMetadata"
+      },
       "Source": {
         "properties": {
           "accession": {
@@ -1465,41 +3716,68 @@
         ],
         "title": "Source"
       },
-      "ValidationError": {
-        "properties": {
-          "loc": {
-            "items": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "integer"
-                }
-              ]
+      "SourceEvidence": {
+        "anyOf": [
+          {
+            "properties": {
+              "json_pointer": {
+                "type": "string"
+              }
             },
-            "type": "array",
-            "title": "Location"
+            "required": ["json_pointer"]
           },
-          "msg": {
+          {
+            "properties": {
+              "xml_local_path": {
+                "type": "string"
+              }
+            },
+            "required": ["xml_local_path"]
+          }
+        ],
+        "properties": {
+          "raw_source_url": {
             "type": "string",
-            "title": "Message"
+            "format": "uri",
+            "title": "Raw Source Url"
           },
-          "type": {
+          "raw_sha256": {
             "type": "string",
-            "title": "Error Type"
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Raw Sha256"
           },
-          "input": {
-            "title": "Input"
+          "retrieved_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Retrieved At"
           },
-          "ctx": {
-            "type": "object",
-            "title": "Context"
+          "json_pointer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Json Pointer"
+          },
+          "xml_local_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Xml Local Path"
           }
         },
+        "additionalProperties": true,
         "type": "object",
-        "required": ["loc", "msg", "type"],
-        "title": "ValidationError"
+        "required": ["raw_source_url", "raw_sha256", "retrieved_at"],
+        "title": "SourceEvidence"
       },
       "Warning": {
         "properties": {

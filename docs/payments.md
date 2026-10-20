@@ -63,7 +63,7 @@ The hosted SDK validates the recovered immutable artifact before marking its bud
 
 Official Python `x402_httpx_transport` and TypeScript `wrapFetchWithPayment` clients can buy a prepared quote's HTTP result resource. Atlas requires the standard `payment-identifier` extension, so configure the official client hook to attach an identifier before creating payment. Save the quote and recovery bearer privately for status/reconciliation; do not create a new authorization for an unknown existing order.
 
-With `atlas mcp serve --provider hosted`, two additional tools extend the eight default tools:
+With `atlas mcp serve --provider hosted`, two additional tools extend the nine default tools:
 
 - `atlas_purchase_x402(quote_id)` returns V2 `PaymentRequired` in both structured content and JSON text. The wallet retries with `_meta["x402/payment"]`; successful settlement is returned in `_meta["x402/payment-response"]`.
 - `atlas_purchase_reconcile(quote_id, transaction=None)` performs the same capability-authenticated reconciliation without signing or paying.

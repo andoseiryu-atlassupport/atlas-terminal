@@ -1,315 +1,741 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.atlas.invalid/research-0.2.schema.json",
-  "title": "Atlas free research query and common result envelope; dataset fields documented in the catalog",
+  "title": "Atlas free research queries, presentation, provenance and common result contracts",
   "$defs": {
+    "ResponseOptions": {
+      "additionalProperties": false,
+      "description": "Presentation only: does not expand upstream retrieval or relax coverage.",
+      "properties": {
+        "view": {
+          "default": "full",
+          "enum": ["full", "compact"],
+          "title": "View",
+          "type": "string"
+        },
+        "fields": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 40,
+          "title": "Fields",
+          "type": "array"
+        },
+        "page_size": {
+          "anyOf": [
+            {
+              "maximum": 500,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Page Size"
+        },
+        "cursor": {
+          "anyOf": [
+            {
+              "pattern": "^r1_[0-9a-f]{64}_[1-9][0-9]{0,5}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cursor"
+        }
+      },
+      "title": "ResponseOptions",
+      "type": "object"
+    },
     "ResearchQuery": {
       "additionalProperties": false,
-      "allOf": [
+      "oneOf": [
         {
-          "if": {
-            "properties": {
-              "dataset": {
-                "const": "companies"
-              }
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "companies",
+              "type": "string"
             },
-            "required": ["dataset"]
+            "identifier": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Identifier"
+            },
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            }
           },
-          "then": {
-            "propertyNames": {
-              "enum": ["dataset", "identifier", "limit"]
-            },
-            "required": []
-          }
+          "required": ["dataset"],
+          "type": "object"
         },
         {
-          "if": {
-            "properties": {
-              "dataset": {
-                "const": "profile"
-              }
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "profile",
+              "type": "string"
             },
-            "required": ["dataset"]
+            "identifier": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            }
           },
-          "then": {
-            "propertyNames": {
-              "enum": ["dataset", "identifier"]
-            },
-            "required": ["identifier"]
-          }
+          "required": ["dataset", "identifier"],
+          "type": "object"
         },
         {
-          "if": {
-            "properties": {
-              "dataset": {
-                "const": "statements"
-              }
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "statements",
+              "type": "string"
             },
-            "required": ["dataset"]
+            "allow_partial": {
+              "default": false,
+              "title": "Allow Partial",
+              "type": "boolean"
+            },
+            "count": {
+              "default": 3,
+              "maximum": 20,
+              "minimum": 1,
+              "title": "Count",
+              "type": "integer"
+            },
+            "identifier": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            "metrics": {
+              "items": {
+                "enum": [
+                  "accounts_payable",
+                  "accounts_receivable",
+                  "assets",
+                  "capital_expenditure",
+                  "cash_and_equivalents",
+                  "cost_of_revenue",
+                  "current_assets",
+                  "current_liabilities",
+                  "depreciation_amortization",
+                  "dividends_paid",
+                  "dividends_per_share",
+                  "eps_basic",
+                  "eps_diluted",
+                  "financing_cash_flow",
+                  "goodwill",
+                  "gross_profit",
+                  "income_tax_expense",
+                  "interest_expense",
+                  "inventory",
+                  "investing_cash_flow",
+                  "liabilities",
+                  "long_term_debt_noncurrent",
+                  "net_income",
+                  "operating_cash_flow",
+                  "operating_income",
+                  "property_plant_equipment",
+                  "research_and_development",
+                  "retained_earnings",
+                  "revenue",
+                  "selling_general_administrative",
+                  "share_repurchases",
+                  "shares_outstanding",
+                  "short_term_investments",
+                  "stock_based_compensation",
+                  "stockholders_equity",
+                  "weighted_average_shares_basic",
+                  "weighted_average_shares_diluted"
+                ],
+                "type": "string"
+              },
+              "maxItems": 40,
+              "title": "Metrics",
+              "type": "array"
+            },
+            "period": {
+              "default": "annual",
+              "enum": ["annual", "quarterly", "ytd"],
+              "title": "Period",
+              "type": "string"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            }
           },
-          "then": {
-            "propertyNames": {
+          "required": ["dataset", "identifier"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "ratios",
+              "type": "string"
+            },
+            "allow_partial": {
+              "default": false,
+              "title": "Allow Partial",
+              "type": "boolean"
+            },
+            "count": {
+              "default": 3,
+              "maximum": 20,
+              "minimum": 1,
+              "title": "Count",
+              "type": "integer"
+            },
+            "identifier": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            "period": {
+              "default": "annual",
+              "enum": ["annual", "quarterly", "ytd"],
+              "title": "Period",
+              "type": "string"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            }
+          },
+          "required": ["dataset", "identifier"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "financial_analytics",
+              "type": "string"
+            },
+            "allow_partial": {
+              "default": false,
+              "title": "Allow Partial",
+              "type": "boolean"
+            },
+            "count": {
+              "default": 3,
+              "maximum": 20,
+              "minimum": 1,
+              "title": "Count",
+              "type": "integer"
+            },
+            "identifier": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            "metrics": {
+              "items": {
+                "enum": [
+                  "eps_basic_growth_yoy",
+                  "eps_diluted_growth_yoy",
+                  "free_cash_flow",
+                  "free_cash_flow_margin",
+                  "net_income_growth_yoy",
+                  "operating_income_growth_yoy",
+                  "revenue_growth_yoy"
+                ],
+                "type": "string"
+              },
+              "maxItems": 40,
+              "title": "Metrics",
+              "type": "array"
+            },
+            "period": {
+              "default": "annual",
+              "enum": ["annual", "quarterly", "ytd"],
+              "title": "Period",
+              "type": "string"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            }
+          },
+          "required": ["dataset", "identifier"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "company_facts",
+              "type": "string"
+            },
+            "concept": {
+              "anyOf": [
+                {
+                  "pattern": "^[A-Za-z][A-Za-z0-9_]{0,199}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Concept"
+            },
+            "identifier": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "taxonomy": {
+              "default": "us-gaap",
+              "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,79}$",
+              "title": "Taxonomy",
+              "type": "string"
+            },
+            "unit": {
+              "anyOf": [
+                {
+                  "pattern": "^[A-Za-z][A-Za-z0-9_/-]{0,49}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Unit"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            }
+          },
+          "required": ["dataset", "identifier"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "filings",
+              "type": "string"
+            },
+            "form": {
+              "default": "all",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9 /-]{0,29}$",
+              "title": "Form",
+              "type": "string"
+            },
+            "identifier": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            }
+          },
+          "required": ["dataset", "identifier"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "insider_transactions",
+              "type": "string"
+            },
+            "accession": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{10}-[0-9]{2}-[0-9]{6}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Accession"
+            },
+            "identifier": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            }
+          },
+          "required": ["dataset", "identifier"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "institutional_holdings",
+              "type": "string"
+            },
+            "accession": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{10}-[0-9]{2}-[0-9]{6}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Accession"
+            },
+            "identifier": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            }
+          },
+          "required": ["dataset", "identifier"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "ownership_filings",
+              "type": "string"
+            },
+            "identifier": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            }
+          },
+          "required": ["dataset", "identifier"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "fund_filings",
+              "type": "string"
+            },
+            "identifier": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            }
+          },
+          "required": ["dataset", "identifier"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "corporate_action_filings",
+              "type": "string"
+            },
+            "identifier": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            }
+          },
+          "required": ["dataset", "identifier"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "economics",
+              "type": "string"
+            },
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "series": {
               "enum": [
-                "dataset",
-                "allow_partial",
-                "count",
-                "identifier",
-                "metrics",
-                "period"
-              ]
+                "CES0000000001",
+                "CES0500000003",
+                "CUSR0000SA0",
+                "CUUR0000SA0",
+                "CUUR0000SA0L1E",
+                "JTS000000000000000JOL",
+                "LNS11300000",
+                "LNS14000000",
+                "core_cpi",
+                "cpi",
+                "cpi_sa",
+                "hourly_earnings",
+                "job_openings",
+                "participation",
+                "payrolls",
+                "unemployment"
+              ],
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
             },
-            "required": ["identifier"]
-          }
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            }
+          },
+          "required": ["dataset", "series"],
+          "type": "object"
         },
         {
-          "if": {
-            "properties": {
-              "dataset": {
-                "const": "ratios"
-              }
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "treasury_yields",
+              "type": "string"
             },
-            "required": ["dataset"]
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "year": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 1990,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Year"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            }
           },
-          "then": {
-            "propertyNames": {
-              "enum": [
-                "dataset",
-                "allow_partial",
-                "count",
-                "identifier",
-                "period"
-              ]
-            },
-            "required": ["identifier"]
-          }
+          "required": ["dataset"],
+          "type": "object"
         },
         {
-          "if": {
-            "properties": {
-              "dataset": {
-                "const": "financial_analytics"
-              }
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "federal_debt",
+              "type": "string"
             },
-            "required": ["dataset"]
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            }
           },
-          "then": {
-            "propertyNames": {
-              "enum": [
-                "dataset",
-                "allow_partial",
-                "count",
-                "identifier",
-                "metrics",
-                "period"
-              ]
-            },
-            "required": ["identifier"]
-          }
+          "required": ["dataset"],
+          "type": "object"
         },
         {
-          "if": {
-            "properties": {
-              "dataset": {
-                "const": "company_facts"
-              }
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "policy_news",
+              "type": "string"
             },
-            "required": ["dataset"]
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            }
           },
-          "then": {
-            "propertyNames": {
-              "enum": [
-                "dataset",
-                "concept",
-                "identifier",
-                "limit",
-                "taxonomy",
-                "unit"
-              ]
-            },
-            "required": ["identifier"]
-          }
+          "required": ["dataset"],
+          "type": "object"
         },
         {
-          "if": {
-            "properties": {
-              "dataset": {
-                "const": "filings"
-              }
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "compare",
+              "type": "string"
             },
-            "required": ["dataset"]
+            "allow_partial": {
+              "default": false,
+              "title": "Allow Partial",
+              "type": "boolean"
+            },
+            "identifiers": {
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 10,
+              "minItems": 1,
+              "title": "Identifiers",
+              "type": "array"
+            },
+            "metrics": {
+              "items": {
+                "enum": [
+                  "accounts_payable",
+                  "accounts_receivable",
+                  "assets",
+                  "capital_expenditure",
+                  "cash_and_equivalents",
+                  "cost_of_revenue",
+                  "current_assets",
+                  "current_liabilities",
+                  "depreciation_amortization",
+                  "dividends_paid",
+                  "dividends_per_share",
+                  "eps_basic",
+                  "eps_basic_growth_yoy",
+                  "eps_diluted",
+                  "eps_diluted_growth_yoy",
+                  "financing_cash_flow",
+                  "free_cash_flow",
+                  "free_cash_flow_margin",
+                  "goodwill",
+                  "gross_profit",
+                  "income_tax_expense",
+                  "interest_expense",
+                  "inventory",
+                  "investing_cash_flow",
+                  "liabilities",
+                  "long_term_debt_noncurrent",
+                  "net_income",
+                  "net_income_growth_yoy",
+                  "operating_cash_flow",
+                  "operating_income",
+                  "operating_income_growth_yoy",
+                  "property_plant_equipment",
+                  "research_and_development",
+                  "retained_earnings",
+                  "revenue",
+                  "revenue_growth_yoy",
+                  "selling_general_administrative",
+                  "share_repurchases",
+                  "shares_outstanding",
+                  "short_term_investments",
+                  "stock_based_compensation",
+                  "stockholders_equity",
+                  "weighted_average_shares_basic",
+                  "weighted_average_shares_diluted"
+                ],
+                "type": "string"
+              },
+              "maxItems": 40,
+              "title": "Metrics",
+              "type": "array"
+            },
+            "period": {
+              "default": "annual",
+              "enum": ["annual", "quarterly", "ytd"],
+              "title": "Period",
+              "type": "string"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            }
           },
-          "then": {
-            "propertyNames": {
-              "enum": ["dataset", "form", "identifier", "limit"]
-            },
-            "required": ["identifier"]
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "dataset": {
-                "const": "insider_transactions"
-              }
-            },
-            "required": ["dataset"]
-          },
-          "then": {
-            "propertyNames": {
-              "enum": ["dataset", "accession", "identifier", "limit"]
-            },
-            "required": ["identifier"]
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "dataset": {
-                "const": "institutional_holdings"
-              }
-            },
-            "required": ["dataset"]
-          },
-          "then": {
-            "propertyNames": {
-              "enum": ["dataset", "accession", "identifier", "limit"]
-            },
-            "required": ["identifier"]
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "dataset": {
-                "const": "ownership_filings"
-              }
-            },
-            "required": ["dataset"]
-          },
-          "then": {
-            "propertyNames": {
-              "enum": ["dataset", "identifier", "limit"]
-            },
-            "required": ["identifier"]
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "dataset": {
-                "const": "fund_filings"
-              }
-            },
-            "required": ["dataset"]
-          },
-          "then": {
-            "propertyNames": {
-              "enum": ["dataset", "identifier", "limit"]
-            },
-            "required": ["identifier"]
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "dataset": {
-                "const": "corporate_action_filings"
-              }
-            },
-            "required": ["dataset"]
-          },
-          "then": {
-            "propertyNames": {
-              "enum": ["dataset", "identifier", "limit"]
-            },
-            "required": ["identifier"]
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "dataset": {
-                "const": "economics"
-              }
-            },
-            "required": ["dataset"]
-          },
-          "then": {
-            "propertyNames": {
-              "enum": ["dataset", "limit", "series"]
-            },
-            "required": ["series"]
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "dataset": {
-                "const": "treasury_yields"
-              }
-            },
-            "required": ["dataset"]
-          },
-          "then": {
-            "propertyNames": {
-              "enum": ["dataset", "limit", "year"]
-            },
-            "required": []
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "dataset": {
-                "const": "federal_debt"
-              }
-            },
-            "required": ["dataset"]
-          },
-          "then": {
-            "propertyNames": {
-              "enum": ["dataset", "limit"]
-            },
-            "required": []
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "dataset": {
-                "const": "policy_news"
-              }
-            },
-            "required": ["dataset"]
-          },
-          "then": {
-            "propertyNames": {
-              "enum": ["dataset", "limit"]
-            },
-            "required": []
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "dataset": {
-                "const": "compare"
-              }
-            },
-            "required": ["dataset"]
-          },
-          "then": {
-            "propertyNames": {
-              "enum": [
-                "dataset",
-                "allow_partial",
-                "identifiers",
-                "metrics",
-                "period"
-              ]
-            },
-            "required": ["identifiers"]
-          }
+          "required": ["dataset", "identifiers"],
+          "type": "object"
         }
       ],
       "properties": {
@@ -466,6 +892,9 @@
           ],
           "default": null,
           "title": "Year"
+        },
+        "response": {
+          "$ref": "#/$defs/ResponseOptions"
         }
       },
       "required": ["dataset"],
@@ -473,43 +902,243 @@
       "type": "object"
     },
     "ResearchSource": {
-      "type": "object",
-      "properties": {
-        "raw_source_url": {
-          "type": "string",
-          "format": "uri"
-        },
-        "raw_sha256": {
-          "type": "string",
-          "pattern": "^[0-9a-f]{64}$"
-        },
-        "retrieved_at": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "json_pointer": {
-          "type": "string"
-        },
-        "xml_local_path": {
-          "type": "string"
-        }
-      },
-      "required": ["raw_source_url", "raw_sha256", "retrieved_at"],
+      "additionalProperties": true,
       "anyOf": [
         {
+          "properties": {
+            "json_pointer": {
+              "type": "string"
+            }
+          },
           "required": ["json_pointer"]
         },
         {
+          "properties": {
+            "xml_local_path": {
+              "type": "string"
+            }
+          },
           "required": ["xml_local_path"]
         }
       ],
-      "additionalProperties": true
+      "properties": {
+        "raw_source_url": {
+          "format": "uri",
+          "title": "Raw Source Url",
+          "type": "string"
+        },
+        "raw_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Raw Sha256",
+          "type": "string"
+        },
+        "retrieved_at": {
+          "format": "date-time",
+          "title": "Retrieved At",
+          "type": "string"
+        },
+        "json_pointer": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Json Pointer"
+        },
+        "xml_local_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Xml Local Path"
+        }
+      },
+      "required": ["raw_source_url", "raw_sha256", "retrieved_at"],
+      "title": "SourceEvidence",
+      "type": "object"
+    },
+    "EvidenceReference": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Evidence Id",
+          "type": "string"
+        }
+      },
+      "required": ["evidence_id"],
+      "title": "EvidenceReference",
+      "type": "object"
+    },
+    "ResponseMetadata": {
+      "additionalProperties": false,
+      "properties": {
+        "view": {
+          "enum": ["full", "compact"],
+          "title": "View",
+          "type": "string"
+        },
+        "fields": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Fields",
+          "type": "array"
+        },
+        "snapshot_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Snapshot Id",
+          "type": "string"
+        },
+        "result_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Result Sha256",
+          "type": "string"
+        },
+        "expires_at": {
+          "title": "Expires At",
+          "type": "string"
+        },
+        "total_records": {
+          "minimum": 0,
+          "title": "Total Records",
+          "type": "integer"
+        },
+        "returned_records": {
+          "minimum": 0,
+          "title": "Returned Records",
+          "type": "integer"
+        },
+        "offset": {
+          "minimum": 0,
+          "title": "Offset",
+          "type": "integer"
+        },
+        "page_size": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Page Size"
+        },
+        "next_cursor": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Next Cursor"
+        },
+        "evidence_count": {
+          "minimum": 0,
+          "title": "Evidence Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "view",
+        "fields",
+        "snapshot_id",
+        "result_sha256",
+        "expires_at",
+        "total_records",
+        "returned_records",
+        "offset",
+        "page_size",
+        "next_cursor",
+        "evidence_count"
+      ],
+      "title": "ResponseMetadata",
+      "type": "object"
+    },
+    "SourceEvidence": {
+      "additionalProperties": true,
+      "anyOf": [
+        {
+          "properties": {
+            "json_pointer": {
+              "type": "string"
+            }
+          },
+          "required": ["json_pointer"]
+        },
+        {
+          "properties": {
+            "xml_local_path": {
+              "type": "string"
+            }
+          },
+          "required": ["xml_local_path"]
+        }
+      ],
+      "properties": {
+        "raw_source_url": {
+          "format": "uri",
+          "title": "Raw Source Url",
+          "type": "string"
+        },
+        "raw_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Raw Sha256",
+          "type": "string"
+        },
+        "retrieved_at": {
+          "format": "date-time",
+          "title": "Retrieved At",
+          "type": "string"
+        },
+        "json_pointer": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Json Pointer"
+        },
+        "xml_local_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Xml Local Path"
+        }
+      },
+      "required": ["raw_source_url", "raw_sha256", "retrieved_at"],
+      "title": "SourceEvidence",
+      "type": "object"
     },
     "ResearchResult": {
-      "type": "object",
+      "additionalProperties": true,
+      "description": "Common envelope; dataset-specific records and metadata remain extensible.",
       "properties": {
         "schema_version": {
-          "const": "0.2.0"
+          "title": "Schema Version",
+          "type": "string"
         },
         "dataset": {
           "enum": [
@@ -530,54 +1159,87 @@
             "federal_debt",
             "policy_news",
             "compare"
-          ]
+          ],
+          "title": "Dataset",
+          "type": "string"
         },
         "query": {
-          "$ref": "#/$defs/ResearchQuery"
+          "additionalProperties": true,
+          "title": "Query",
+          "type": "object"
         },
         "source_id": {
-          "enum": ["sec", "bls", "treasury", "fiscaldata", "federal_reserve"]
+          "title": "Source Id",
+          "type": "string"
         },
         "source_terms_url": {
-          "type": "string",
-          "format": "uri"
+          "title": "Source Terms Url",
+          "type": "string"
         },
         "upstream_data_cost": {
-          "const": "0"
+          "const": "0",
+          "title": "Upstream Data Cost",
+          "type": "string"
         },
         "is_synthetic": {
+          "title": "Is Synthetic",
           "type": "boolean"
         },
         "source_text_is_untrusted": {
-          "const": true
+          "const": true,
+          "title": "Source Text Is Untrusted",
+          "type": "boolean"
         },
         "retrieved_at": {
-          "type": "string",
-          "format": "date-time"
+          "title": "Retrieved At",
+          "type": "string"
         },
         "records": {
-          "type": "array",
           "items": {
+            "additionalProperties": true,
             "type": "object"
-          }
+          },
+          "title": "Records",
+          "type": "array"
         },
         "sources": {
-          "type": "array",
           "items": {
-            "$ref": "#/$defs/ResearchSource"
-          }
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SourceEvidence"
+              },
+              {
+                "$ref": "#/$defs/EvidenceReference"
+              }
+            ]
+          },
+          "title": "Sources",
+          "type": "array"
         },
         "coverage": {
+          "additionalProperties": true,
+          "title": "Coverage",
           "type": "object"
         },
         "limitations": {
-          "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "title": "Limitations",
+          "type": "array"
+        },
+        "response": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ResponseMetadata"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
-      "additionalProperties": true,
       "required": [
         "schema_version",
         "dataset",
@@ -592,7 +1254,41 @@
         "sources",
         "coverage",
         "limitations"
-      ]
+      ],
+      "title": "ResearchResult",
+      "type": "object"
+    },
+    "EvidenceResult": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.2.0",
+          "default": "0.2.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "evidence_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Evidence Id",
+          "type": "string"
+        },
+        "evidence": {
+          "$ref": "#/$defs/SourceEvidence"
+        },
+        "expires_at": {
+          "title": "Expires At",
+          "type": "string"
+        },
+        "source_text_is_untrusted": {
+          "const": true,
+          "default": true,
+          "title": "Source Text Is Untrusted",
+          "type": "boolean"
+        }
+      },
+      "required": ["evidence_id", "evidence", "expires_at"],
+      "title": "EvidenceResult",
+      "type": "object"
     }
   }
 }

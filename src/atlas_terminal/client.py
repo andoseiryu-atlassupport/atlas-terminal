@@ -2,7 +2,8 @@
 
 import os
 from dataclasses import asdict
-from typing import Any
+from pathlib import Path
+from typing import Any, Literal
 
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.models import (
@@ -18,7 +19,7 @@ from atlas_terminal.models import (
 from atlas_terminal.normalize import normalize
 from atlas_terminal.providers import FixtureTransport, SECProvider, SecTransport
 from atlas_terminal.research import ResearchSecFixtures, ResearchService, research_catalog
-from atlas_terminal.research_models import ResearchQuery
+from atlas_terminal.research_models import Dataset, ResearchQuery
 
 
 class Atlas:
@@ -28,13 +29,16 @@ class Atlas:
         *,
         source: SECProvider | None = None,
         research_source: SECProvider | None = None,
+        directory: Path | None = None,
     ) -> None:
         if provider not in {"sec", "fixture", "hosted", "public"}:
             raise AtlasError("INVALID_INPUT", "Unknown provider.")
         self.provider = provider
         self.source = source
         self.research_source = research_source
-        self._research = ResearchService(self._research_source, synthetic=provider == "fixture")
+        self._research = ResearchService(
+            self._research_source, synthetic=provider == "fixture", directory=directory
+        )
         self._hosted: Any = None
         if source is None and provider == "fixture":
             self.source = SECProvider(FixtureTransport())
@@ -71,8 +75,18 @@ class Atlas:
             ) from None
 
     @staticmethod
-    def research_catalog() -> dict[str, Any]:
-        return research_catalog()
+    def research_catalog(
+        dataset: Dataset | None = None,
+        *,
+        view: Literal["full", "compact"] = "full",
+    ) -> dict[str, Any]:
+        return research_catalog(dataset, view)
+
+    def get_evidence(self, evidence_id: str) -> dict[str, Any]:
+        """Read saved provenance without fetching a URL or initiating payment."""
+        if self.provider == "hosted":
+            raise AtlasError("CONFIG_REQUIRED", "Evidence uses local public or fixture providers.")
+        return self._research.views.evidence(evidence_id)
 
     def resolve_company(self, query: str) -> Company:
         if self._hosted:

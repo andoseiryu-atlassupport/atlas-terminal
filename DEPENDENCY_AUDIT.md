@@ -28,6 +28,8 @@ The [official README](https://github.com/modelcontextprotocol/python-sdk) and in
 
 Verified imports include `mcp.server.MCPServer`, `mcp.client.session.ClientSession`, `mcp.client.stdio.StdioServerParameters/stdio_client` and `mcp.types.CallToolResult/ToolAnnotations`. Python fields use snake_case and official SDK aliases define wire names. Middleware validates raw financial/research requests before coercion, rejecting unknown fields, PIT requests and boolean counts. The official client verifies initialize/list/call against a separate server process.
 
+MCP 2.3.0 also supports `Annotated[CallToolResult, OutputModel]`, used to publish and validate research/evidence output schemas while preserving structured content and error results. The actual official stdio client exercises typed dataset queries, compact pages, evidence retrieval and sanitized errors. These features add no runtime dependencies.
+
 ## Official x402 SDK
 
 The [official Python source](https://github.com/x402-foundation/x402/tree/main/python/x402), README, PyPI 2.25.0 and installed source were checked. Verified imports include:

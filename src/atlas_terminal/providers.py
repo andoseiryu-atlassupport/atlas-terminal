@@ -10,6 +10,7 @@ from datetime import datetime
 from decimal import Decimal
 from email.utils import parsedate_to_datetime
 from importlib.resources import files
+from math import ceil
 from pathlib import Path
 from typing import Any, Protocol
 from uuid import uuid4
@@ -209,6 +210,8 @@ class CachedHTTPTransport:
                                 "SOURCE_RATE_LIMITED",
                                 "SEC requested a later retry.",
                                 retryable=True,
+                                retry_after_seconds=ceil(min(wait, 86400)),
+                                status=429,
                             )
                     elif response.status_code == 304 and cached:
                         body = cached["body"]

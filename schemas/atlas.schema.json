@@ -588,33 +588,15 @@
       "additionalProperties": false
     },
     "Error": {
-      "type": "object",
+      "additionalProperties": false,
       "properties": {
         "error": {
-          "type": "object",
-          "properties": {
-            "code": {
-              "type": "string"
-            },
-            "message": {
-              "type": "string"
-            },
-            "retryable": {
-              "type": "boolean"
-            },
-            "details": {
-              "type": "object"
-            },
-            "request_id": {
-              "type": "string"
-            }
-          },
-          "required": ["code", "message", "retryable", "details", "request_id"],
-          "additionalProperties": false
+          "$ref": "#/$defs/ErrorPayload"
         }
       },
       "required": ["error"],
-      "additionalProperties": false
+      "title": "ErrorEnvelope",
+      "type": "object"
     },
     "ReconcileRequest": {
       "additionalProperties": false,
@@ -701,6 +683,109 @@
       },
       "required": ["quote_id", "state", "outcome", "reason", "checked_at"],
       "title": "ReconciliationResult",
+      "type": "object"
+    },
+    "ErrorPayload": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "retryable": {
+          "title": "Retryable",
+          "type": "boolean"
+        },
+        "details": {
+          "additionalProperties": true,
+          "title": "Details",
+          "type": "object"
+        },
+        "request_id": {
+          "title": "Request Id",
+          "type": "string"
+        },
+        "next_action": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/NextAction"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "retry_after_seconds": {
+          "anyOf": [
+            {
+              "maximum": 86400,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retry After Seconds"
+        }
+      },
+      "required": ["code", "message", "retryable", "details", "request_id"],
+      "title": "ErrorPayload",
+      "type": "object"
+    },
+    "NextAction": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "enum": [
+            "fix_query",
+            "inspect_catalog",
+            "resolve_company",
+            "review_coverage",
+            "retry_read",
+            "request_quote",
+            "wait",
+            "check_purchase_status",
+            "contact_operator",
+            "restart_query",
+            "stop"
+          ],
+          "title": "Action",
+          "type": "string"
+        },
+        "tool": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tool"
+        },
+        "fields": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Fields",
+          "type": "array"
+        },
+        "automatic": {
+          "default": false,
+          "title": "Automatic",
+          "type": "boolean"
+        }
+      },
+      "required": ["action"],
+      "title": "NextAction",
       "type": "object"
     }
   }

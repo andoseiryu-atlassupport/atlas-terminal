@@ -22,15 +22,17 @@ Run `atlas research catalog --json` for identifiers, query fields, units and lim
 
 ## Interfaces
 
-| Interface        | Entry points                                                             |
-| ---------------- | ------------------------------------------------------------------------ |
-| CLI              | `atlas research catalog` / `atlas research get`                          |
-| Python SDK       | `Atlas.research_catalog()` / `Atlas.get_research(query)`                 |
-| MCP              | Eight default tools; hosted adds native x402 purchase and reconciliation |
-| HTTP             | `GET /v1/research/catalog` / `POST /v1/research`                         |
-| Annual snapshots | `financials get` / `Atlas.get_financials`, covering five annual metrics  |
+| Interface        | Entry points                                                            |
+| ---------------- | ----------------------------------------------------------------------- |
+| CLI              | `atlas research catalog` / `atlas research get`                         |
+| Python SDK       | `Atlas.research_catalog()` / `Atlas.get_research(query)`                |
+| MCP              | Nine default tools; hosted adds native x402 purchase and reconciliation |
+| HTTP             | `GET /v1/research/catalog` / `POST /v1/research`                        |
+| Annual snapshots | `financials get` / `Atlas.get_financials`, covering five annual metrics |
 
 Research requires no data subscription, API key, wallet or LLM. SEC retrieval requires a private `SEC_USER_AGENT` containing the application name and an actual contact email. The `fixture` provider returns fictional data without network access.
+
+MCP research publishes dataset-specific query schemas and a validated common response schema. Optional compact responses replace repeated provenance with content-addressed evidence IDs; field projection preserves interpretation and calculation context. Snapshot-bound cursors resume without refetching upstream data. CLI, SDK and HTTP share these services. Catalogs support dataset filtering and compact discovery. Error envelopes expose safe field hints, next actions and known retry delays. See the [agent contracts](docs/agents.md) for retention and paging limits.
 
 ## Provenance and data quality
 
@@ -55,5 +57,7 @@ Official Python and TypeScript HTTP clients are exercised offline. Hosted MCP ac
 Consolidated equity prices, daily prices and adjustment factors, order books, options, analyst consensus, newswire articles, earnings-call transcripts, a complete security master or corporate-action history, PIT and trading are unavailable.
 
 The HTTP API supports one process, one private SQLite volume and loopback connections. Mainnet, distributed budgets, background reconciliation and public-facing authentication or TLS are unsupported. Reconciliation may remain unresolved for legacy deadlines, old nonce logs without a transaction hint, ambiguous batched receipts and pre-submission crashes. Live RPC/Facilitator behavior and real transfers remain unverified.
+
+Remote MCP hosting, batched research jobs, freshness/coverage requirements and model-driven task-success or token benchmarks are not implemented. Agent contract tests use official MCP messages and offline fixtures, without an LLM.
 
 [Quickstart](docs/quickstart.md) · [API configuration](docs/self-hosting.md) · [Payments](docs/payments.md) · [Apache-2.0](LICENSE)
