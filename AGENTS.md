@@ -1,40 +1,32 @@
 # Atlas Terminal: agent instructions
 
-## Project context
+Read `README.md`, `docs/project-brief.md`, `CONTRIBUTING.md` and `IMPLEMENTATION_STATUS.md` before changes. Work in this existing repository; preserve unrelated changes. Use Japanese project documentation and explanations, with the requested English README and clear English code identifiers.
 
-- Read `README.md`, `docs/project-brief.md`, and `CONTRIBUTING.md` before making changes.
-- This is a public repository, initially prepared for development in Codex Cloud.
-- Product scope and the application stack are undecided. Follow the requested task without inventing product requirements or introducing an application framework without an agreed need.
-- Node.js 24 currently supports repository tooling only.
+## Product and data
 
-## Working process
+- SEC public data only: issuer resolution, annual US-GAAP/USD facts, filing metadata. No UI, alerts, stock prices, trading, paid data or LLM dependency.
+- CLI / SDK / MCP / HTTP share application services. Never return expected fixtures directly as implementation.
+- Join accession and filing reportDate. Do not select a period from fy/frame alone or derive missing values. Keep source bytes/hash, JSON pointer, filing and retrieval time.
+- Current snapshots are not PIT data. Reject historical requests. Use exact integer/Decimal arithmetic and decimal strings.
 
-- Keep each change focused and reviewable. Prefer a task branch such as `codex/<short-task-name>` and a pull request for subsequent development.
-- Preserve existing user changes and unrelated files.
-- Write project documentation and user-facing explanations in Japanese unless the task specifies otherwise. Use clear English identifiers in code.
-- When a decision changes the product scope or stack, update `docs/project-brief.md` and the affected setup instructions.
-- Add dependencies only when the task needs them, and commit the corresponding lockfile.
-- Use meaningful behavioral checks when executable features are introduced. Documentation changes need the existing documentation check.
+## Payments and secrets
 
-## Commands
+- Default off. Mock is fictional and offline. Actual integration is official x402 V2 exact/EIP-3009 on Base Sepolia USDC only. Reject mainnet even if environment variables change.
+- Policy checks and durable budget reservations precede signing. Tools cannot alter policy, wallet, recipient or origin. Signing consumes a reservation atomically once.
+- Persist a settlement claim before calling the facilitator. Unknown/crashed attempts remain pending; never re-sign or settle again speculatively. Do not invent a facilitator status API.
+- Quote ID is not authorization. Keep recovery capabilities, private keys, signatures, contact settings and purchase databases out of output, logs and source control.
+- Local policy is not an OS security boundary against a same-user shell. Do not claim production custody or exactly-once settlement.
 
-```sh
-npm ci
-npm run check
-```
+## Work and verification
 
-`npm run check` runs Prettier on documentation and configuration files, followed by `git diff --check`. There is no application build or test command yet.
-After editing the GitHub Actions workflow, also review the YAML and verify the resulting workflow run when available.
+- Python 3.12+, locked uv dependencies; Node.js 24 for document checks. Verify actual SDK APIs when updating dependencies.
+- Run `uv run --offline ruff check .`, `uv run --offline ruff format --check .`, `uv run --offline mypy`, `uv run --offline pytest`, `uv run --offline python -m build --no-isolation`, `npm run check`.
+- Default tests must remain offline. Live SEC and testnet require explicit opt-in flags and private settings. Never convert mock PASS into real testnet PASS.
+- Source fixtures are byte-exact: do not reformat `resources/sec_like`, `tests/fixtures`, or schema examples without deliberately regenerating provenance expectations.
+- Update status with actual commands, results and limitations. CI runs, local checks and cloud-environment setup are different evidence.
+- Keep actions pinned to verified commit SHAs, use `pull_request` for external contributions, and grant read-only CI permissions.
+- Publication, deployment and real transfers require an explicit operator instruction. The project code is licensed under Apache-2.0; keep LICENSE, README and package metadata consistent. Source-data and dependency licenses remain separate.
 
-## Public repository hygiene
+## Confidentiality
 
-- Commit only material intended for public access. Keep credentials, local configuration, personal data, and production data out of source control and logs.
-- Use synthetic data if examples need data, and label it clearly.
-- Keep actual credentials in the relevant environment's secret settings; `.env.example` may contain names and harmless placeholders only.
-- Use the normal `pull_request` event for untrusted contributions. Keep CI permissions limited to the job's requirements and pin third-party actions to commit SHAs.
-
-## Completion evidence
-
-- Report what changed, the checks actually run, and any remaining blocker.
-- Distinguish a local check, a successful GitHub Actions run, and a verified Codex Cloud task. One does not establish the others.
-- Keep license status undecided until the repository owner selects a license.
+Keep private motivations, business hypotheses, owner strategy, conversations and handoff history outside tracked files and commit messages. Public documentation should describe usage, technical behavior and verified limitations. Store internal working notes outside this repository.

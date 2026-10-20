@@ -1,0 +1,168 @@
+"""CLI adapters only: all data selection lives in the shared SDK."""
+
+import json
+import os
+import sys
+from typing import Any
+
+import typer
+from pydantic import BaseModel, ValidationError
+from typer.exceptions import TyperException
+
+from atlas_terminal.client import Atlas
+from atlas_terminal.errors import AtlasError
+from atlas_terminal.models import parse_query
+
+app = typer.Typer(no_args_is_help=True, add_completion=False, pretty_exceptions_enable=False)
+company_app, financials_app, filings_app, quote_app, mcp_app = (typer.Typer() for _ in range(5))
+app.add_typer(company_app, name="company")
+app.add_typer(financials_app, name="financials")
+app.add_typer(filings_app, name="filings")
+app.add_typer(quote_app, name="quote")
+app.add_typer(mcp_app, name="mcp")
+
+
+def output(value: Any, *, err: bool = False) -> None:
+    if isinstance(value, BaseModel):
+        value = value.model_dump(mode="json")
+    typer.echo(json.dumps(value, ensure_ascii=False, allow_nan=False), err=err)
+
+
+def query(identifier: str, metrics: str, period: str, count: int, allow_partial: bool) -> Any:
+    return parse_query(
+        {
+            "identifier": identifier,
+            "metrics": metrics.split(","),
+            "period": period,
+            "count": count,
+            "allow_partial": allow_partial,
+        }
+    )
+
+
+@app.command()
+def demo(json_output: bool = typer.Option(False, "--json")) -> None:
+    """Offline synthetic demo: no network, model key or wallet."""
+    with Atlas("fixture") as atlas:
+        output(atlas.get_financials(query("ATLASDEMO", "revenue,net_income", "annual", 3, False)))
+
+
+@company_app.command("resolve")
+def resolve(
+    identifier: str, provider: str = "sec", json_output: bool = typer.Option(False, "--json")
+) -> None:
+    with Atlas(provider) as atlas:
+        output(atlas.resolve_company(identifier))
+
+
+@financials_app.command("get")
+def financials(
+    identifier: str,
+    metrics: str = "revenue,net_income",
+    period: str = "annual",
+    count: int = 3,
+    provider: str = "sec",
+    allow_partial: bool = False,
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    parsed = query(identifier, metrics, period, count, allow_partial)
+    with Atlas(provider) as atlas:
+        output(atlas.get_financials(parsed))
+
+
+@filings_app.command("list")
+def filings(
+    identifier: str,
+    form: str = "10-K",
+    limit: int = 3,
+    provider: str = "sec",
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    with Atlas(provider) as atlas:
+        output(atlas.list_filings(identifier, form, limit))
+
+
+@quote_app.command("financials")
+def quote_financials(
+    identifier: str,
+    metrics: str = "revenue,net_income",
+    period: str = "annual",
+    count: int = 3,
+    allow_partial: bool = False,
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    parsed = query(identifier, metrics, period, count, allow_partial)
+    with Atlas("hosted") as atlas:
+        output(atlas.quote(parsed))
+
+
+@app.command()
+def purchase(
+    quote_id: str, max_cost: str | None = None, json_output: bool = typer.Option(False, "--json")
+) -> None:
+    with Atlas("hosted") as atlas:
+        output(atlas.purchase(quote_id, max_cost=max_cost))
+
+
+@app.command("purchase-status")
+def purchase_status(quote_id: str, json_output: bool = typer.Option(False, "--json")) -> None:
+    with Atlas("hosted") as atlas:
+        output(atlas.purchase_status(quote_id))
+
+
+@mcp_app.command("serve")
+def serve_mcp(provider: str = "sec") -> None:
+    from atlas_terminal.mcp_server import create_mcp
+
+    create_mcp(provider).run(transport="stdio")
+
+
+@app.command()
+def serve(
+    provider: str = "sec", payments: str = "off", host: str = "127.0.0.1", port: int = 8000
+) -> None:
+    import uvicorn
+
+    from atlas_terminal.server import create_app
+
+    if not 1 <= port <= 65535 or host not in {"127.0.0.1", "localhost", "::1"}:
+        raise AtlasError(
+            "CONFIG_REQUIRED", "Reference API binds only to an explicit loopback address."
+        )
+    base_origin = os.environ.get(
+        "ATLAS_PUBLIC_ORIGIN", f"http://{'[::1]' if host == '::1' else host}:{port}"
+    )
+    api = create_app(
+        provider=provider,
+        payments=payments,
+        base_origin=base_origin,
+        amount=os.environ.get("ATLAS_PRICE_ATOMIC", "10000"),
+    )
+    uvicorn.run(api, host=host, port=port, workers=1, access_log=False, log_level="critical")
+
+
+def main() -> None:
+    mcp_startup = sys.argv[1:3] == ["mcp", "serve"]
+    try:
+        app(standalone_mode=False)
+    except AtlasError as exc:
+        output(exc.envelope(), err=mcp_startup)
+        raise SystemExit(exc.exit_code) from None
+    except (TyperException, ValidationError, ValueError):
+        output(
+            AtlasError(
+                "INVALID_INPUT", "Invalid command arguments; use --help for supported options."
+            ).envelope(),
+            err=mcp_startup,
+        )
+        raise SystemExit(2) from None
+    except Exception:
+        output(
+            AtlasError("INTERNAL_ERROR", "Operation stopped due to an internal error.").envelope(),
+            err=mcp_startup,
+        )
+        raise SystemExit(1) from None
+
+
+if __name__ == "__main__":
+    main()

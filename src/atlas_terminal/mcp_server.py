@@ -1,0 +1,156 @@
+"""Official MCP SDK server. stdout belongs exclusively to the stdio transport."""
+
+import json
+from collections.abc import Callable
+from typing import Any
+
+from mcp.server import MCPServer
+from mcp.server.context import CallNext, HandlerResult, ServerRequestContext
+from mcp.types import CallToolResult, TextContent, ToolAnnotations
+from pydantic import BaseModel
+
+from atlas_terminal.client import Atlas
+from atlas_terminal.errors import AtlasError
+from atlas_terminal.models import parse_query
+
+
+def create_mcp(provider: str = "sec") -> MCPServer:
+    atlas = Atlas(provider)
+
+    async def strict_tools(
+        ctx: ServerRequestContext[Any, Any], call_next: CallNext
+    ) -> HandlerResult:
+        if ctx.method == "tools/call" and ctx.params:
+            raw_name = ctx.params.get("name")
+            name = raw_name if isinstance(raw_name, str) else ""
+            arguments = ctx.params.get("arguments") or {}
+            try:
+                if name in {"atlas_get_financials", "atlas_quote"}:
+                    parse_query(dict(arguments))
+                else:
+                    allowed = {
+                        "atlas_resolve_company": {"query"},
+                        "atlas_list_filings": {"identifier", "form", "limit"},
+                        "atlas_purchase": {"quote_id"},
+                        "atlas_purchase_status": {"quote_id"},
+                    }.get(name)
+                    if allowed is not None and set(arguments) - allowed:
+                        raise AtlasError("INVALID_INPUT", "Unknown tool argument.")
+            except AtlasError as exc:
+                data = exc.envelope()
+                return CallToolResult(
+                    content=[TextContent(type="text", text=json.dumps(data))],
+                    structured_content=data,
+                    is_error=True,
+                )
+        return await call_next(ctx)
+
+    server = MCPServer(
+        "Atlas Terminal", version="0.1.0", log_level="WARNING", middleware=[strict_tools]
+    )
+    read = ToolAnnotations(
+        read_only_hint=True,
+        destructive_hint=False,
+        idempotent_hint=True,
+        open_world_hint=provider != "fixture",
+    )
+
+    def execute(call: Callable[[], Any]) -> CallToolResult:
+        failed = False
+        try:
+            data = call()
+            if isinstance(data, BaseModel):
+                data = data.model_dump(mode="json")
+        except AtlasError as exc:
+            data, failed = exc.envelope(), True
+        except Exception:
+            data, failed = (
+                AtlasError(
+                    "INTERNAL_ERROR", "Operation stopped due to an internal error."
+                ).envelope(),
+                True,
+            )
+        return CallToolResult(
+            content=[TextContent(type="text", text=json.dumps(data, ensure_ascii=False))],
+            structured_content=data,
+            is_error=failed,
+        )
+
+    @server.tool(annotations=read)
+    def atlas_resolve_company(query: str) -> CallToolResult:
+        """Resolve a current ticker, CIK or company name. Does not pay."""
+        return execute(lambda: atlas.resolve_company(query))
+
+    @server.tool(annotations=read)
+    def atlas_get_financials(
+        identifier: str,
+        metrics: list[str],
+        period: str = "annual",
+        count: int = 3,
+        allow_partial: bool = False,
+    ) -> CallToolResult:
+        """Get annual US-GAAP USD facts locally; hosted returns QUOTE_REQUIRED. Does not pay."""
+        return execute(
+            lambda: atlas.get_financials(
+                parse_query(
+                    {
+                        "identifier": identifier,
+                        "metrics": metrics,
+                        "period": period,
+                        "count": count,
+                        "allow_partial": allow_partial,
+                    }
+                )
+            )
+        )
+
+    @server.tool(annotations=read)
+    def atlas_list_filings(identifier: str, form: str = "10-K", limit: int = 3) -> CallToolResult:
+        """List SEC filing metadata and original source references. Does not pay."""
+        return execute(lambda: atlas.list_filings(identifier, form, limit))
+
+    @server.tool(
+        annotations=ToolAnnotations(
+            read_only_hint=False, destructive_hint=False, idempotent_hint=False
+        )
+    )
+    def atlas_quote(
+        identifier: str,
+        metrics: list[str],
+        period: str = "annual",
+        count: int = 3,
+        allow_partial: bool = False,
+    ) -> CallToolResult:
+        """Prepare and save a hosted snapshot quote. Does not authorize payment."""
+        return execute(
+            lambda: atlas.quote(
+                parse_query(
+                    {
+                        "identifier": identifier,
+                        "metrics": metrics,
+                        "period": period,
+                        "count": count,
+                        "allow_partial": allow_partial,
+                    }
+                )
+            )
+        )
+
+    @server.tool(
+        annotations=ToolAnnotations(
+            read_only_hint=False, destructive_hint=True, idempotent_hint=True
+        )
+    )
+    def atlas_purchase(quote_id: str) -> CallToolResult:
+        """SPENDS delegated funds for a saved quote under operator-configured policy.
+
+        Uses the durable budget and never changes policy.
+        """
+        return execute(lambda: atlas.purchase(quote_id))
+
+    @server.tool(annotations=read)
+    def atlas_purchase_status(quote_id: str) -> CallToolResult:
+        """Recover order status using the private local capability. Never signs or pays."""
+        return execute(lambda: atlas.purchase_status(quote_id))
+
+    return server

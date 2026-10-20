@@ -13,7 +13,7 @@ jobs:
   repository-checks:
     name: Repository checks
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -24,7 +24,30 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.12"
+      - name: Install locked Python dependencies
+        run: |
+          python -m pip install uv==0.12.23
+          uv sync --locked --all-extras --dev
       - name: Install dependencies
         run: npm ci
       - name: Check formatting and whitespace
         run: npm run check
+      - name: Check Python style and types
+        run: |
+          uv run --offline ruff check .
+          uv run --offline ruff format --check .
+          uv run --offline mypy
+      - name: Run offline acceptance tests
+        run: uv run --offline pytest
+      - name: Check public files for credential patterns
+        run: python scripts/scan_public_files.py
+      - name: Verify offline demonstrations
+        run: |
+          uv run --offline atlas demo --json
+          uv run --offline python examples/mock_purchase.py
+      - name: Build distribution
+        run: uv run --offline python -m build --no-isolation

@@ -2,3 +2,12 @@ node_modules/
 coverage/
 dist/
 build/
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+uv.lock
+# Byte-exact source fixtures and their provenance hashes must not be reformatted.
+src/atlas_terminal/resources/
+tests/fixtures/
+schemas/examples/

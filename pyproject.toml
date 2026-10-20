@@ -1,0 +1,62 @@
+[build-system]
+requires = ["hatchling==1.32.4"]
+build-backend = "hatchling.build"
+
+[project]
+name = "atlas-terminal"
+version = "0.1.0"
+description = "Agent-operated SEC annual financial data and an optional testnet retrieval service"
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi==0.151.0",
+  "httpx==0.28.1",
+  "mcp==2.3.0",
+  "pydantic==2.14.1",
+  "typer==0.27.3",
+  "uvicorn==0.54.0",
+  "x402[evm,httpx]==2.25.0",
+]
+
+[project.scripts]
+atlas = "atlas_terminal.cli:main"
+
+[dependency-groups]
+dev = [
+  "build==1.6.1",
+  "hatchling==1.32.4",
+  "jsonschema==4.26.0",
+  "mypy==2.4.0",
+  "pytest==9.1.1",
+  "pytest-asyncio==1.4.0",
+  "pytest-socket==0.8.1",
+  "ruff==0.17.1",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/atlas_terminal"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.mypy]
+python_version = "3.12"
+files = ["src/atlas_terminal"]
+check_untyped_defs = true
+disallow_untyped_defs = true
+warn_unused_ignores = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --tb=short --disable-socket --allow-unix-socket -m 'not live_sec and not live_x402'"
+asyncio_mode = "auto"
+markers = [
+  "live_sec: explicit live SEC retrieval, not run by default",
+  "live_x402: explicit Base Sepolia transfer, not run by default",
+]

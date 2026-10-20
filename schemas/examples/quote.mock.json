@@ -1,0 +1,53 @@
+{
+  "schema_version": "0.1.0",
+  "quote_id": "q_demo_complete",
+  "query": {
+    "identifier": "ATLASDEMO",
+    "metrics": [
+      "revenue",
+      "net_income"
+    ],
+    "period": "annual",
+    "count": 3,
+    "allow_partial": false
+  },
+  "company": {
+    "cik": "9999999999",
+    "name": "Atlas Demo Corporation (SYNTHETIC)",
+    "tickers": [
+      "ATLASDEMO"
+    ]
+  },
+  "snapshot_id": "snap_demo_complete",
+  "result_sha256": "d7bd371748db3900398007a625554b8f7e637ba93d6802940b7e8914d41f5126",
+  "period_ends": [
+    "2025-12-31",
+    "2024-12-31",
+    "2023-12-31"
+  ],
+  "coverage": {
+    "requested_periods": 3,
+    "available_periods": 3,
+    "requested_cells": 6,
+    "reported_cells": 6
+  },
+  "partial": false,
+  "missing": [],
+  "pricing": {
+    "mode": "mock",
+    "scheme": "exact",
+    "network": "mock:0",
+    "asset": "fixture:USDC",
+    "pay_to": "fixture:seller",
+    "symbol": "USDC",
+    "decimals": 6,
+    "amount_atomic": "10000",
+    "display_amount": "0.01"
+  },
+  "expires_at": "2026-10-20T00:05:00Z",
+  "resource_path": "/v1/quotes/q_demo_complete/result",
+  "limitations": [
+    "Mock pricing only; not an x402 wire payload, not a commercial quote."
+  ],
+  "is_synthetic": true
+}

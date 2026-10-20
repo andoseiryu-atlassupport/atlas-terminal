@@ -1,0 +1,1026 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Atlas Terminal reference API",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/healthz": {
+      "get": {
+        "summary": "Healthz",
+        "operationId": "healthz_healthz_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Healthz Healthz Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/catalog": {
+      "get": {
+        "summary": "Get Catalog",
+        "operationId": "get_catalog_v1_catalog_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Get Catalog V1 Catalog Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/companies/resolve": {
+      "get": {
+        "summary": "Resolve Company",
+        "operationId": "resolve_company_v1_companies_resolve_get",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100,
+              "title": "Query"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Company"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/filings": {
+      "get": {
+        "summary": "List Filings",
+        "operationId": "list_filings_v1_filings_get",
+        "parameters": [
+          {
+            "name": "cik",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9]{10}$",
+              "title": "Cik"
+            }
+          },
+          {
+            "name": "form",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "10-K",
+              "title": "Form"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 3,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response List Filings V1 Filings Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/quotes": {
+      "post": {
+        "summary": "Quote Financials",
+        "operationId": "quote_financials_v1_quotes_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "identifier": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 1,
+                    "title": "Identifier"
+                  },
+                  "metrics": {
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "revenue",
+                        "net_income",
+                        "assets",
+                        "liabilities",
+                        "operating_cash_flow"
+                      ]
+                    },
+                    "type": "array",
+                    "maxItems": 5,
+                    "minItems": 1,
+                    "title": "Metrics"
+                  },
+                  "period": {
+                    "type": "string",
+                    "const": "annual",
+                    "title": "Period",
+                    "default": "annual"
+                  },
+                  "count": {
+                    "type": "integer",
+                    "maximum": 20.0,
+                    "minimum": 1.0,
+                    "title": "Count",
+                    "default": 3
+                  },
+                  "allow_partial": {
+                    "type": "boolean",
+                    "title": "Allow Partial",
+                    "default": false
+                  }
+                },
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["identifier", "metrics"],
+                "title": "FinancialQuery"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Quote"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/quotes/{quote_id}/status": {
+      "get": {
+        "summary": "Purchase Status",
+        "operationId": "purchase_status_v1_quotes__quote_id__status_get",
+        "parameters": [
+          {
+            "name": "quote_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Quote Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Purchase Status V1 Quotes  Quote Id  Status Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/quotes/{quote_id}/result": {
+      "get": {
+        "summary": "Purchase Result",
+        "operationId": "purchase_result_v1_quotes__quote_id__result_get",
+        "parameters": [
+          {
+            "name": "quote_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Quote Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchaseResult"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Settlement unknown; do not sign again"
+          },
+          "402": {
+            "description": "Official x402 challenge, or explicit mock challenge"
+          },
+          "401": {
+            "description": "Recovery capability or matching proof required"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Company": {
+        "properties": {
+          "cik": {
+            "type": "string",
+            "pattern": "^[0-9]{10}$",
+            "title": "Cik"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "tickers": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tickers"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["cik", "name", "tickers"],
+        "title": "Company"
+      },
+      "Coverage": {
+        "properties": {
+          "requested_periods": {
+            "type": "integer",
+            "title": "Requested Periods"
+          },
+          "available_periods": {
+            "type": "integer",
+            "title": "Available Periods"
+          },
+          "requested_cells": {
+            "type": "integer",
+            "title": "Requested Cells"
+          },
+          "reported_cells": {
+            "type": "integer",
+            "title": "Reported Cells"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "requested_periods",
+          "available_periods",
+          "requested_cells",
+          "reported_cells"
+        ],
+        "title": "Coverage"
+      },
+      "Fact": {
+        "properties": {
+          "metric": {
+            "type": "string",
+            "enum": [
+              "revenue",
+              "net_income",
+              "assets",
+              "liabilities",
+              "operating_cash_flow"
+            ],
+            "title": "Metric"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["reported", "unavailable", "ambiguous"],
+            "title": "Status"
+          },
+          "unit": {
+            "type": "string",
+            "const": "USD",
+            "title": "Unit",
+            "default": "USD"
+          },
+          "period": {
+            "$ref": "#/components/schemas/Period"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Source"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["metric", "value", "status", "period", "reason", "source"],
+        "title": "Fact"
+      },
+      "FinancialQuery": {
+        "properties": {
+          "identifier": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Identifier"
+          },
+          "metrics": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "revenue",
+                "net_income",
+                "assets",
+                "liabilities",
+                "operating_cash_flow"
+              ]
+            },
+            "type": "array",
+            "maxItems": 5,
+            "minItems": 1,
+            "title": "Metrics"
+          },
+          "period": {
+            "type": "string",
+            "const": "annual",
+            "title": "Period",
+            "default": "annual"
+          },
+          "count": {
+            "type": "integer",
+            "maximum": 20.0,
+            "minimum": 1.0,
+            "title": "Count",
+            "default": 3
+          },
+          "allow_partial": {
+            "type": "boolean",
+            "title": "Allow Partial",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["identifier", "metrics"],
+        "title": "FinancialQuery"
+      },
+      "FinancialResult": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "0.1.0",
+            "title": "Schema Version",
+            "default": "0.1.0"
+          },
+          "kind": {
+            "type": "string",
+            "const": "financials",
+            "title": "Kind",
+            "default": "financials"
+          },
+          "company": {
+            "$ref": "#/components/schemas/Company"
+          },
+          "query": {
+            "$ref": "#/components/schemas/FinancialQuery"
+          },
+          "provider": {
+            "type": "string",
+            "enum": ["fixture", "sec"],
+            "title": "Provider"
+          },
+          "selection_policy": {
+            "type": "string",
+            "const": "latest_primary_filing_per_fact_v1",
+            "title": "Selection Policy",
+            "default": "latest_primary_filing_per_fact_v1"
+          },
+          "period_ends": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Period Ends"
+          },
+          "facts": {
+            "items": {
+              "$ref": "#/components/schemas/Fact"
+            },
+            "type": "array",
+            "title": "Facts"
+          },
+          "coverage": {
+            "$ref": "#/components/schemas/Coverage"
+          },
+          "partial": {
+            "type": "boolean",
+            "title": "Partial"
+          },
+          "warnings": {
+            "items": {
+              "$ref": "#/components/schemas/Warning"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations"
+          },
+          "retrieved_at": {
+            "type": "string",
+            "title": "Retrieved At"
+          },
+          "is_synthetic": {
+            "type": "boolean",
+            "title": "Is Synthetic"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "company",
+          "query",
+          "provider",
+          "period_ends",
+          "facts",
+          "coverage",
+          "partial",
+          "warnings",
+          "limitations",
+          "retrieved_at",
+          "is_synthetic"
+        ],
+        "title": "FinancialResult"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "Missing": {
+        "properties": {
+          "metric": {
+            "type": "string",
+            "title": "Metric"
+          },
+          "period_end": {
+            "type": "string",
+            "title": "Period End"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["metric", "period_end", "reason"],
+        "title": "Missing"
+      },
+      "Period": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["duration", "instant"],
+            "title": "Kind"
+          },
+          "start": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start"
+          },
+          "end": {
+            "type": "string",
+            "title": "End"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["kind", "start", "end"],
+        "title": "Period"
+      },
+      "Pricing": {
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": ["off", "mock", "testnet"],
+            "title": "Mode"
+          },
+          "scheme": {
+            "type": "string",
+            "enum": ["none", "exact"],
+            "title": "Scheme"
+          },
+          "network": {
+            "type": "string",
+            "title": "Network"
+          },
+          "asset": {
+            "type": "string",
+            "title": "Asset"
+          },
+          "pay_to": {
+            "type": "string",
+            "title": "Pay To"
+          },
+          "symbol": {
+            "type": "string",
+            "title": "Symbol"
+          },
+          "decimals": {
+            "type": "integer",
+            "maximum": 18.0,
+            "minimum": 0.0,
+            "title": "Decimals"
+          },
+          "amount_atomic": {
+            "type": "string",
+            "maxLength": 40,
+            "pattern": "^(0|[1-9][0-9]*)$",
+            "title": "Amount Atomic"
+          },
+          "display_amount": {
+            "type": "string",
+            "title": "Display Amount"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "mode",
+          "scheme",
+          "network",
+          "asset",
+          "pay_to",
+          "symbol",
+          "decimals",
+          "amount_atomic",
+          "display_amount"
+        ],
+        "title": "Pricing"
+      },
+      "PurchaseResult": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/FinancialResult"
+          },
+          "receipt": {
+            "$ref": "#/components/schemas/Receipt"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["data", "receipt"],
+        "title": "PurchaseResult"
+      },
+      "Quote": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "0.1.0",
+            "title": "Schema Version",
+            "default": "0.1.0"
+          },
+          "quote_id": {
+            "type": "string",
+            "title": "Quote Id"
+          },
+          "query": {
+            "$ref": "#/components/schemas/FinancialQuery"
+          },
+          "company": {
+            "$ref": "#/components/schemas/Company"
+          },
+          "snapshot_id": {
+            "type": "string",
+            "title": "Snapshot Id"
+          },
+          "result_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Result Sha256"
+          },
+          "period_ends": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Period Ends"
+          },
+          "coverage": {
+            "$ref": "#/components/schemas/Coverage"
+          },
+          "partial": {
+            "type": "boolean",
+            "title": "Partial"
+          },
+          "missing": {
+            "items": {
+              "$ref": "#/components/schemas/Missing"
+            },
+            "type": "array",
+            "title": "Missing"
+          },
+          "pricing": {
+            "$ref": "#/components/schemas/Pricing"
+          },
+          "expires_at": {
+            "type": "string",
+            "title": "Expires At"
+          },
+          "resource_path": {
+            "type": "string",
+            "title": "Resource Path"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations"
+          },
+          "is_synthetic": {
+            "type": "boolean",
+            "title": "Is Synthetic"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "quote_id",
+          "query",
+          "company",
+          "snapshot_id",
+          "result_sha256",
+          "period_ends",
+          "coverage",
+          "partial",
+          "missing",
+          "pricing",
+          "expires_at",
+          "resource_path",
+          "limitations",
+          "is_synthetic"
+        ],
+        "title": "Quote"
+      },
+      "Receipt": {
+        "properties": {
+          "quote_id": {
+            "type": "string",
+            "title": "Quote Id"
+          },
+          "mode": {
+            "type": "string",
+            "enum": ["off", "mock", "testnet"],
+            "title": "Mode"
+          },
+          "simulated": {
+            "type": "boolean",
+            "title": "Simulated"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["NOT_REQUIRED", "SETTLED"],
+            "title": "Status"
+          },
+          "network": {
+            "type": "string",
+            "title": "Network"
+          },
+          "asset": {
+            "type": "string",
+            "title": "Asset"
+          },
+          "amount_atomic": {
+            "type": "string",
+            "maxLength": 40,
+            "pattern": "^(0|[1-9][0-9]*)$",
+            "title": "Amount Atomic"
+          },
+          "transaction": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transaction"
+          },
+          "settled_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Settled At"
+          },
+          "result_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Result Sha256"
+          },
+          "retained_until": {
+            "type": "string",
+            "title": "Retained Until"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "quote_id",
+          "mode",
+          "simulated",
+          "status",
+          "network",
+          "asset",
+          "amount_atomic",
+          "transaction",
+          "settled_at",
+          "result_sha256",
+          "retained_until"
+        ],
+        "title": "Receipt"
+      },
+      "Source": {
+        "properties": {
+          "accession": {
+            "type": "string",
+            "pattern": "^[0-9]{10}-[0-9]{2}-[0-9]{6}$",
+            "title": "Accession"
+          },
+          "form": {
+            "type": "string",
+            "enum": ["10-K", "10-K/A"],
+            "title": "Form"
+          },
+          "filed_on": {
+            "type": "string",
+            "title": "Filed On"
+          },
+          "accepted_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Accepted At"
+          },
+          "taxonomy": {
+            "type": "string",
+            "const": "us-gaap",
+            "title": "Taxonomy",
+            "default": "us-gaap"
+          },
+          "tag": {
+            "type": "string",
+            "title": "Tag"
+          },
+          "source_url": {
+            "type": "string",
+            "title": "Source Url"
+          },
+          "raw_source_url": {
+            "type": "string",
+            "title": "Raw Source Url"
+          },
+          "json_pointer": {
+            "type": "string",
+            "title": "Json Pointer"
+          },
+          "raw_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Raw Sha256"
+          },
+          "retrieved_at": {
+            "type": "string",
+            "title": "Retrieved At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "accession",
+          "form",
+          "filed_on",
+          "accepted_at",
+          "tag",
+          "source_url",
+          "raw_source_url",
+          "json_pointer",
+          "raw_sha256",
+          "retrieved_at"
+        ],
+        "title": "Source"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": ["loc", "msg", "type"],
+        "title": "ValidationError"
+      },
+      "Warning": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["code", "message"],
+        "title": "Warning"
+      }
+    }
+  }
+}

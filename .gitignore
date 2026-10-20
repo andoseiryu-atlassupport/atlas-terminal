@@ -20,3 +20,23 @@ Thumbs.db
 .vscode/
 .local/
 work/
+
+# Python and private runtime state
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+*.sqlite3
+*.sqlite3-*
+*.db
+*.db-*
+.atlas/
+
+# Private planning material must stay outside the public repository.
+private/
+internal/
+handoff/
+*handoff*.zip

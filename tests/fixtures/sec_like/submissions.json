@@ -1,0 +1,61 @@
+{
+  "cik": "9999999999",
+  "entityType": "operating",
+  "sic": "0000",
+  "name": "Atlas Demo Corporation (SYNTHETIC)",
+  "tickers": [
+    "ATLASDEMO"
+  ],
+  "exchanges": [
+    "SYNTHETIC"
+  ],
+  "fiscalYearEnd": "1231",
+  "filings": {
+    "recent": {
+      "accessionNumber": [
+        "9999999999-26-000002",
+        "9999999999-26-000001",
+        "9999999999-25-000003",
+        "9999999999-25-000001"
+      ],
+      "filingDate": [
+        "2026-03-15",
+        "2026-02-15",
+        "2025-11-15",
+        "2025-02-15"
+      ],
+      "reportDate": [
+        "2025-12-31",
+        "2025-12-31",
+        "2025-09-30",
+        "2024-12-31"
+      ],
+      "acceptanceDateTime": [
+        "2026-03-15T16:30:00Z",
+        "2026-02-15T16:30:00Z",
+        "2025-11-15T16:30:00Z",
+        "2025-02-15T16:30:00Z"
+      ],
+      "form": [
+        "10-K/A",
+        "10-K",
+        "10-Q",
+        "10-K"
+      ],
+      "primaryDocument": [
+        "atlasdemo-20251231-amendment.htm",
+        "atlasdemo-20251231.htm",
+        "atlasdemo-20250930.htm",
+        "atlasdemo-20241231.htm"
+      ]
+    },
+    "files": [
+      {
+        "name": "CIK9999999999-submissions-001.json",
+        "filingCount": 1,
+        "filingFrom": "2024-02-15",
+        "filingTo": "2024-02-15"
+      }
+    ]
+  }
+}

@@ -1,32 +1,21 @@
-# プロジェクトの確定事項と未決事項
+# プロジェクト概要
 
-## 確定事項
+Atlas Terminal は SEC の公開 JSON を取得・正規化し、CLI、Python SDK、stdio MCP、参照 HTTP API から利用できるツールです。
 
-- プロジェクト名: Atlas Terminal
-- リポジトリ: `andoseiryu-atlassupport/atlas-terminal`
-- 公開範囲: Public
-- 開発の進め方: Codex Cloud を利用する
-- 初期段階の目的: 公開リポジトリと、開発を開始できる土台を整える
+## 対応範囲
 
-## 未決事項
+- 現在の企業照合、提出書類メタデータ、年次財務 5 指標。
+- US-GAAP、USD、主年度 10-K / 10-K/A。値と期間、原資料参照を一緒に返す。
+- ローカル SEC 取得と架空 fixture デモ。通常のデータ取得に wallet や LLM API は不要。
+- 明示 quote/purchase による任意の x402 参照 API。off / mock / testnet を区別する。
+- 公式 x402 V2 exact EIP-3009、Base Sepolia USDC のみ。mainnet は拒否する。
 
-- 想定する利用者と解決したい課題
-- 最初に提供する機能と、初期版に含めない範囲
-- アプリケーションの形態、技術構成、データソース
-- 認証や外部サービスの必要性
-- 配布方法、ホスティング、ライセンス
+## 技術構成
 
-## 現在あるもの
+Python 3.12 以上、uv、Pydantic、httpx、Typer、FastAPI、公式 MCP / x402 SDK、SQLite。Node.js 24 / Prettier はリポジトリの文書チェックに使います。
 
-- README と開発手順
-- Codex 向けの `AGENTS.md`
-- Node.js 24 と Prettier による文書・設定ファイルの整形チェック
-- GitHub Actions の CI
-- Codex Cloud のセットアップ手順
+## 制約と検証
 
-製品機能、サンプル画面、外部サービスとの接続は、この初期構成には含まれていません。
+四半期、為替換算、PIT、後年の比較列だけに現れる修正値の全面追跡には対応しません。株価、ニュース、監視、売買、LLM 分析の機能はありません。
 
-## 次に決めること
-
-最初の機能検討では、利用者、主な利用場面、最小の成果を決めます。
-その内容をもとに、少数の画面や操作と、初期版の受け入れ条件を整理し、実装方法を選びます。
+オフライン試験・公式 SDK のローカル統合は確認済みです。SEC live と実 testnet 送金は未検証です。詳細は [実装状況](../IMPLEMENTATION_STATUS.md)、[財務選択](methodology.md)、[セキュリティ](../SECURITY.md)を参照してください。

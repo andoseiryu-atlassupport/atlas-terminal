@@ -1,0 +1,201 @@
+{
+  "schema_version": "0.1.0",
+  "kind": "financials",
+  "company": {
+    "cik": "9999999999",
+    "name": "Atlas Demo Corporation (SYNTHETIC)",
+    "tickers": [
+      "ATLASDEMO"
+    ]
+  },
+  "query": {
+    "identifier": "ATLASDEMO",
+    "metrics": [
+      "revenue",
+      "net_income"
+    ],
+    "period": "annual",
+    "count": 3,
+    "allow_partial": false
+  },
+  "provider": "fixture",
+  "selection_policy": "latest_primary_filing_per_fact_v1",
+  "period_ends": [
+    "2025-12-31",
+    "2024-12-31",
+    "2023-12-31"
+  ],
+  "facts": [
+    {
+      "metric": "net_income",
+      "value": "24000000",
+      "status": "reported",
+      "unit": "USD",
+      "period": {
+        "kind": "duration",
+        "start": "2025-01-01",
+        "end": "2025-12-31"
+      },
+      "reason": null,
+      "source": {
+        "accession": "9999999999-26-000002",
+        "form": "10-K/A",
+        "filed_on": "2026-03-15",
+        "accepted_at": "2026-03-15T16:30:00Z",
+        "taxonomy": "us-gaap",
+        "tag": "NetIncomeLoss",
+        "source_url": "https://fixtures.atlas.invalid/Archives/edgar/data/9999999999/999999999926000002/atlasdemo-20251231-amendment.htm",
+        "raw_source_url": "https://fixtures.atlas.invalid/api/xbrl/companyfacts/CIK9999999999.json",
+        "json_pointer": "/facts/us-gaap/NetIncomeLoss/units/USD/3",
+        "raw_sha256": "980a224bdd173271596b09a7c422b994682d13cb5f0bb65dc82e8f73b476ca64",
+        "retrieved_at": "2026-10-20T00:00:00Z"
+      }
+    },
+    {
+      "metric": "revenue",
+      "value": "150000000",
+      "status": "reported",
+      "unit": "USD",
+      "period": {
+        "kind": "duration",
+        "start": "2025-01-01",
+        "end": "2025-12-31"
+      },
+      "reason": null,
+      "source": {
+        "accession": "9999999999-26-000001",
+        "form": "10-K",
+        "filed_on": "2026-02-15",
+        "accepted_at": "2026-02-15T16:30:00Z",
+        "taxonomy": "us-gaap",
+        "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+        "source_url": "https://fixtures.atlas.invalid/Archives/edgar/data/9999999999/999999999926000001/atlasdemo-20251231.htm",
+        "raw_source_url": "https://fixtures.atlas.invalid/api/xbrl/companyfacts/CIK9999999999.json",
+        "json_pointer": "/facts/us-gaap/RevenueFromContractWithCustomerExcludingAssessedTax/units/USD/2",
+        "raw_sha256": "980a224bdd173271596b09a7c422b994682d13cb5f0bb65dc82e8f73b476ca64",
+        "retrieved_at": "2026-10-20T00:00:00Z"
+      }
+    },
+    {
+      "metric": "net_income",
+      "value": "15000000",
+      "status": "reported",
+      "unit": "USD",
+      "period": {
+        "kind": "duration",
+        "start": "2024-01-01",
+        "end": "2024-12-31"
+      },
+      "reason": null,
+      "source": {
+        "accession": "9999999999-25-000001",
+        "form": "10-K",
+        "filed_on": "2025-02-15",
+        "accepted_at": "2025-02-15T16:30:00Z",
+        "taxonomy": "us-gaap",
+        "tag": "NetIncomeLoss",
+        "source_url": "https://fixtures.atlas.invalid/Archives/edgar/data/9999999999/999999999925000001/atlasdemo-20241231.htm",
+        "raw_source_url": "https://fixtures.atlas.invalid/api/xbrl/companyfacts/CIK9999999999.json",
+        "json_pointer": "/facts/us-gaap/NetIncomeLoss/units/USD/1",
+        "raw_sha256": "980a224bdd173271596b09a7c422b994682d13cb5f0bb65dc82e8f73b476ca64",
+        "retrieved_at": "2026-10-20T00:00:00Z"
+      }
+    },
+    {
+      "metric": "revenue",
+      "value": "120000000",
+      "status": "reported",
+      "unit": "USD",
+      "period": {
+        "kind": "duration",
+        "start": "2024-01-01",
+        "end": "2024-12-31"
+      },
+      "reason": null,
+      "source": {
+        "accession": "9999999999-25-000001",
+        "form": "10-K",
+        "filed_on": "2025-02-15",
+        "accepted_at": "2025-02-15T16:30:00Z",
+        "taxonomy": "us-gaap",
+        "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+        "source_url": "https://fixtures.atlas.invalid/Archives/edgar/data/9999999999/999999999925000001/atlasdemo-20241231.htm",
+        "raw_source_url": "https://fixtures.atlas.invalid/api/xbrl/companyfacts/CIK9999999999.json",
+        "json_pointer": "/facts/us-gaap/RevenueFromContractWithCustomerExcludingAssessedTax/units/USD/1",
+        "raw_sha256": "980a224bdd173271596b09a7c422b994682d13cb5f0bb65dc82e8f73b476ca64",
+        "retrieved_at": "2026-10-20T00:00:00Z"
+      }
+    },
+    {
+      "metric": "net_income",
+      "value": "-5000000",
+      "status": "reported",
+      "unit": "USD",
+      "period": {
+        "kind": "duration",
+        "start": "2023-01-01",
+        "end": "2023-12-31"
+      },
+      "reason": null,
+      "source": {
+        "accession": "9999999999-24-000001",
+        "form": "10-K",
+        "filed_on": "2024-02-15",
+        "accepted_at": "2024-02-15T16:30:00Z",
+        "taxonomy": "us-gaap",
+        "tag": "NetIncomeLoss",
+        "source_url": "https://fixtures.atlas.invalid/Archives/edgar/data/9999999999/999999999924000001/atlasdemo-20231231.htm",
+        "raw_source_url": "https://fixtures.atlas.invalid/api/xbrl/companyfacts/CIK9999999999.json",
+        "json_pointer": "/facts/us-gaap/NetIncomeLoss/units/USD/0",
+        "raw_sha256": "980a224bdd173271596b09a7c422b994682d13cb5f0bb65dc82e8f73b476ca64",
+        "retrieved_at": "2026-10-20T00:00:00Z"
+      }
+    },
+    {
+      "metric": "revenue",
+      "value": "100000000",
+      "status": "reported",
+      "unit": "USD",
+      "period": {
+        "kind": "duration",
+        "start": "2023-01-01",
+        "end": "2023-12-31"
+      },
+      "reason": null,
+      "source": {
+        "accession": "9999999999-24-000001",
+        "form": "10-K",
+        "filed_on": "2024-02-15",
+        "accepted_at": "2024-02-15T16:30:00Z",
+        "taxonomy": "us-gaap",
+        "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+        "source_url": "https://fixtures.atlas.invalid/Archives/edgar/data/9999999999/999999999924000001/atlasdemo-20231231.htm",
+        "raw_source_url": "https://fixtures.atlas.invalid/api/xbrl/companyfacts/CIK9999999999.json",
+        "json_pointer": "/facts/us-gaap/RevenueFromContractWithCustomerExcludingAssessedTax/units/USD/0",
+        "raw_sha256": "980a224bdd173271596b09a7c422b994682d13cb5f0bb65dc82e8f73b476ca64",
+        "retrieved_at": "2026-10-20T00:00:00Z"
+      }
+    }
+  ],
+  "coverage": {
+    "requested_periods": 3,
+    "available_periods": 3,
+    "requested_cells": 6,
+    "reported_cells": 6
+  },
+  "partial": false,
+  "warnings": [
+    {
+      "code": "mixed_filing_sources",
+      "message": "2025 metrics use the original filing and the metric-specific amendment; each field retains its own source."
+    }
+  ],
+  "limitations": [
+    "Annual USD US-GAAP facts only; not investment advice.",
+    "latest_primary_filing_per_fact_v1 excludes revisions appearing only as comparative values in later primary-year filings.",
+    "Current retrieval is not point-in-time historical availability.",
+    "Synthetic fixture: company, identifiers, amounts and links are fictional."
+  ],
+  "retrieved_at": "2026-10-20T00:00:00Z",
+  "is_synthetic": true
+}

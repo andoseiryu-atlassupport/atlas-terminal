@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "mode": "mock",
+  "allowed_origins": ["http://127.0.0.1:8000"],
+  "scheme": "exact",
+  "network": "mock:0",
+  "asset": "fixture:USDC",
+  "pay_to": "fixture:merchant",
+  "decimals": 6,
+  "per_purchase_atomic": "10000",
+  "per_session_atomic": "20000",
+  "per_day_atomic": "20000"
+}
