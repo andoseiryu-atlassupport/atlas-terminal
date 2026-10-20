@@ -12,6 +12,17 @@ queries = [
         "period": "quarterly",
         "count": 3,
     },
+    {
+        "dataset": "financial_analytics",
+        "identifier": "ATLASDEMO",
+        "metrics": ["revenue_growth_yoy", "free_cash_flow", "free_cash_flow_margin"],
+        "count": 1,
+    },
+    {
+        "dataset": "compare",
+        "identifiers": ["ATLASDEMO"],
+        "metrics": ["revenue", "revenue_growth_yoy", "free_cash_flow"],
+    },
     {"dataset": "insider_transactions", "identifier": "ATLASDEMO"},
     {"dataset": "institutional_holdings", "identifier": "ATLASDEMO"},
     {"dataset": "economics", "series": "unemployment"},

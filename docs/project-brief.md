@@ -4,8 +4,9 @@ Atlas Terminal retrieves US equity research from free public primary sources. Th
 
 ## Capabilities
 
-- Five government sources and 16 research datasets: SEC company, industry, financial, filing and ownership data; BLS inflation and employment series; Treasury yields and debt; Federal Reserve releases.
-- 37 reported financial concepts across annual, explicitly reported discrete quarters and YTD, raw XBRL contexts, six ratios with traceable inputs, and comparison of up to ten specified issuers.
+- Five government sources and 17 research datasets: SEC company, industry, financial, filing and ownership data; BLS inflation and employment series; Treasury yields and debt; Federal Reserve releases.
+- 37 reported financial concepts across annual, explicitly reported discrete quarters and YTD, raw XBRL contexts, six ratios, five YoY growth rates, FCF and FCF margin with traceable inputs.
+- Comparison of reported and derived financial metrics for up to ten specified issuers at the latest common reported end, with exact input-period alignment and explicit gaps.
 - XML records from one Form 3/4/5 or 13F filing per query. Beneficial ownership, fund and corporate-action discovery returns filing metadata and links.
 - Values include units, periods, source hashes and retrieval times. Missing data, archive limits and partial coverage remain explicit.
 - Research requires no data subscription, API key, wallet or LLM. SEC requests use a private, operator-supplied User-Agent with an actual contact email.

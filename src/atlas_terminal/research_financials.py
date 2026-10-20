@@ -98,7 +98,10 @@ def eligible_period(raw: dict[str, Any], spec: MetricSpec, period: str) -> bool:
     return low <= days <= high
 
 
-def statement_data(source: SECProvider, query: ResearchQuery) -> dict[str, Any]:
+def statement_data(
+    source: SECProvider, query: ResearchQuery, *, include_history: bool = False
+) -> dict[str, Any]:
+    """Select reported facts; internal analytics may need older comparison inputs."""
     company, snapshot, filings, truncated = source.financial_inputs(query.identifier or "")
     metrics = query.metrics or DEFAULT_METRICS
     if set(metrics) - STATEMENT_METRICS.keys():
@@ -153,7 +156,10 @@ def statement_data(source: SECProvider, query: ResearchQuery) -> dict[str, Any]:
                         },
                     }
                 )
-    ends = sorted(anchors, reverse=True)[: query.count]
+    ends = sorted(anchors, reverse=True)
+    if not include_history:
+        ends = ends[: query.count]
+    requested_periods = len(ends) if include_history else query.count
     if not ends:
         raise AtlasError(
             "INCOMPLETE_COVERAGE", "No eligible reported periods; no quarter was derived."
@@ -209,11 +215,11 @@ def statement_data(source: SECProvider, query: ResearchQuery) -> dict[str, Any]:
                 }
             )
     reported = sum(r["status"] == "reported" for r in records)
-    partial = reported < len(metrics) * query.count or truncated
+    partial = reported < len(metrics) * requested_periods or truncated
     coverage = {
-        "requested_periods": query.count,
+        "requested_periods": requested_periods,
         "available_periods": len(ends),
-        "requested_cells": len(metrics) * query.count,
+        "requested_cells": len(metrics) * requested_periods,
         "reported_cells": reported,
         "history_truncated": truncated,
         "partial": partial,

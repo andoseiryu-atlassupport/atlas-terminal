@@ -9,7 +9,8 @@ Atlas Terminal retrieves US equity research from free public primary sources. It
 | Companies   | Current ticker / CIK search, issuer profiles, SIC industry, exchanges and fiscal year end          |
 | Financials  | 37 US-GAAP concepts covering income, balance sheets, cash flow, EPS, shares and dividends          |
 | Periods     | Annual, explicitly reported discrete quarters and YTD, matched to actual dates and filing metadata |
-| Analysis    | Six ratios with formulas and reported inputs; comparison of up to ten specified issuers            |
+| Analysis    | Six ratios, five YoY growth rates, FCF and FCF margin, with formulas and reported inputs           |
+| Comparison  | Up to ten issuers at a common reported end; mismatched actual input periods are explicit gaps      |
 | XBRL        | Concept and unit inventories, plus observations with their original accounting contexts            |
 | Disclosures | All-form filing discovery and ownership, fund, proxy, offering and corporate-action filing groups  |
 | Ownership   | Form 3/4/5 records and a manager's 13F information table, retrieved one filing at a time           |
@@ -17,7 +18,7 @@ Atlas Terminal retrieves US equity research from free public primary sources. It
 | Treasury    | Daily Treasury par yields and federal Debt to the Penny observations                               |
 | Policy      | Federal Reserve release headlines, publication times and original links                            |
 
-Run `atlas research catalog --json` for identifiers, query fields, units and limits for all 16 datasets. The [research guide](docs/research.md) includes examples for each dataset.
+Run `atlas research catalog --json` for identifiers, query fields, units and limits for all 17 datasets. The [research guide](docs/research.md) includes examples for each dataset.
 
 ## Interfaces
 
@@ -37,6 +38,8 @@ Research requires no data subscription, API key, wallet or LLM. SEC retrieval re
 - Missing and conflicting values are explicit. Coverage distinguishes requested periods from available data; incomplete financial results require `allow_partial`.
 - Unreported Q4 values, currency conversions, 13F dollar/thousand-dollar units and CUSIP-to-ticker mappings are not inferred.
 - Filing discovery, reported records and derived ratios are distinct outputs. Current snapshots cannot satisfy point-in-time historical requests.
+- Growth compares corresponding actual prior-year durations and positive baselines. FCF uses reported operating CF minus nonnegative PP&E acquisition payments; margin divides by same-period revenue.
+- Comparisons support reported and derived metrics at the latest shared reported end, with identical actual periods per metric, including growth baselines. Missing or unaligned values require `allow_partial`.
 - Retrieval uses approved endpoints, caching, rate limits, response bounds and finite retries. Source failures never trigger a paid-provider fallback.
 
 [Sources and terms](DATA_SOURCES.md) · [Financial methodology](docs/methodology.md) · [Validation scope](docs/verification.md)

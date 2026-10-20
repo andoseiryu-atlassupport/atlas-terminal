@@ -36,6 +36,8 @@ from atlas_terminal.public_sources import (
     local_name,
     xml_root,
 )
+from atlas_terminal.research_analytics import analytics_catalog, analytics_data
+from atlas_terminal.research_comparison import comparison_data
 from atlas_terminal.research_financials import (
     RATIOS,
     metric_catalog,
@@ -104,6 +106,11 @@ DATASETS = {
         "normalized_facts",
     ),
     "ratios": ("Six financial ratios with reported inputs", "sec", "derived_facts"),
+    "financial_analytics": (
+        "Year-over-year growth, free cash flow and FCF margin with reported inputs",
+        "sec",
+        "derived_facts",
+    ),
     "company_facts": (
         "Concept inventory or raw reported XBRL observations",
         "sec",
@@ -143,7 +150,11 @@ DATASETS = {
         "federal_reserve",
         "release_metadata",
     ),
-    "compare": ("Explicit universe comparison of up to ten issuers", "sec", "normalized_facts"),
+    "compare": (
+        "Up to ten issuers at a common period with reported and derived financial metrics",
+        "sec",
+        "aligned_financial_facts",
+    ),
 }
 GAPS = {
     "realtime_prices_and_order_books": (
@@ -191,6 +202,7 @@ def research_catalog() -> dict[str, Any]:
         ],
         "statement_metrics": metric_catalog(),
         "ratios": RATIOS,
+        "analytics_metrics": analytics_catalog(),
         "periods": ["annual", "quarterly", "ytd"],
         "economic_series": {
             k: {"series_id": v[0], "title": v[1], "unit": v[2], "seasonally_adjusted": v[3]}
@@ -301,6 +313,8 @@ class ResearchService:
             result = (statement_data if q.dataset == "statements" else ratio_data)(
                 self.sec_factory(), q
             )
+        elif q.dataset == "financial_analytics":
+            result = analytics_data(self.sec_factory(), q)
         elif q.dataset == "compare":
             result = self.compare(q)
         elif q.dataset in {"insider_transactions", "institutional_holdings"}:
@@ -554,41 +568,7 @@ class ResearchService:
         }
 
     def compare(self, q: ResearchQuery) -> dict[str, Any]:
-        results, sources, errors = [], [], []
-        for identifier in q.identifiers:
-            child = ResearchQuery(
-                dataset="statements",
-                identifier=identifier,
-                metrics=q.metrics,
-                period=q.period,
-                count=1,
-                allow_partial=q.allow_partial,
-            )
-            try:
-                result = statement_data(self.sec_factory(), child)
-                results.append({"identifier": identifier, **result})
-                sources.extend(result["sources"])
-            except AtlasError as exc:
-                if not q.allow_partial:
-                    raise
-                errors.append({"identifier": identifier, "code": exc.code, "message": exc.message})
-        return {
-            "records": results,
-            "errors": errors,
-            "sources": sources,
-            "coverage": {
-                "requested_issuers": len(q.identifiers),
-                "returned_issuers": len(results),
-                "partial": bool(errors) or any(r["coverage"]["partial"] for r in results),
-            },
-            "limitations": [
-                (
-                    "Explicit universe, maximum ten issuers; latest reported periods "
-                    "can differ across companies. No global-universe screen or "
-                    "survivorship-free backtest."
-                )
-            ],
-        }
+        return comparison_data(self.sec_factory(), q)
 
     def xml_filing(self, q: ResearchQuery) -> dict[str, Any]:
         company, history, refs, truncated = self.filing_inputs(q.identifier or "")

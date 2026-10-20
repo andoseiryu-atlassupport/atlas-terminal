@@ -26,7 +26,7 @@ Official documentation and conditions:
 
 Atlas accepts no arbitrary source URLs or mirrors and follows no redirects. Refresh failures never present expired cache entries as current data or switch to a paid provider. HTTP uses shared rate limits, at most three attempts and response size/time bounds. BLS daily attempts are persisted.
 
-`statements` normalizes 37 annual, quarterly and YTD US-GAAP concepts with explicit tags and units. `financials` returns five-metric annual snapshots. Raw-context `company_facts`, input-traceable `ratios` and filing-discovery metadata are distinct outputs. See [methodology](docs/methodology.md) and the [research guide](docs/research.md).
+`statements` normalizes 37 annual, quarterly and YTD US-GAAP concepts with explicit tags and units. `financials` returns five-metric annual snapshots. `financial_analytics` calculates five YoY growth rates, FCF and FCF margin from those reported inputs without additional data providers. Raw-context `company_facts`, derived calculations and filing-discovery metadata are distinct outputs. See [methodology](docs/methodology.md) and the [research guide](docs/research.md).
 
 Free viewing and redistribution permission are different conditions. Unofficial Yahoo Finance APIs, daily-price sources without verified service redistribution terms, paid exchange feeds, consensus forecasts, newswire articles and earnings-call transcripts are not integrated. The service does not provide prices, order books, universe-wide adjustment factors or PIT data.
 

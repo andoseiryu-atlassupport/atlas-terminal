@@ -6,20 +6,20 @@ Atlas Terminal gives AI agents access to US equity research from free public pri
 
 ## Available data
 
-Atlas provides 16 datasets from SEC EDGAR, BLS, US Treasury yields, Treasury Fiscal Data and the Federal Reserve.
+Atlas provides 17 datasets from SEC EDGAR, BLS, US Treasury yields, Treasury Fiscal Data and the Federal Reserve.
 
 | Area        | Information                                                                                                                           |
 | ----------- | ------------------------------------------------------------------------------------------------------------------------------------- |
 | Companies   | Current ticker / CIK directory, issuer profiles, SIC industry, exchanges and fiscal year end                                          |
 | Financials  | 37 US-GAAP concepts covering income, balance sheets, cash flow, EPS, shares and dividends; annual, reported discrete quarters and YTD |
-| Analysis    | Six ratios with formulas and reported inputs; comparison of up to ten specified issuers                                               |
+| Analysis    | Six ratios, five year-over-year growth rates, free cash flow and FCF margin; comparison of up to ten issuers at a common period       |
 | XBRL        | Concept inventory and raw observations with their taxonomy, units and contexts                                                        |
 | Disclosures | All-form filing discovery, including ownership, fund, proxy, offering and corporate-action filings                                    |
 | Ownership   | Form 3/4/5 transactions and positions; a selected manager's 13F information table                                                     |
 | Macro       | Eight BLS inflation and employment series, daily Treasury par yields and federal debt                                                 |
 | Policy      | Federal Reserve release headlines, publication times and original links                                                               |
 
-Values retain their units, periods, source hashes, retrieval times and JSON pointers or XML paths. Missing or ambiguous values are explicit. Financial ratios include their formulas and inputs.
+Values retain their units, periods, source hashes, retrieval times and JSON pointers or XML paths. Missing or ambiguous values are explicit. Derived financial metrics include their formulas and reported inputs.
 
 ## Get started
 
@@ -37,11 +37,15 @@ For public data, research commands use `--provider public` by default. SEC reque
 
 ```sh
 uv run atlas research get statements --identifier AAPL --period quarterly --metrics revenue,eps_basic --count 3 --allow-partial --json
+uv run atlas research get financial_analytics --identifier AAPL --metrics revenue_growth_yoy,free_cash_flow,free_cash_flow_margin --count 1 --allow-partial --json
+uv run atlas research get compare --identifiers MSFT,GOOGL --metrics revenue,revenue_growth_yoy,free_cash_flow --period quarterly --allow-partial --json
 uv run atlas research get economics --series cpi --json
 uv run atlas research get treasury_yields --year 2026 --json
 ```
 
 Research needs no data subscription, API key, wallet or LLM. Commands return JSON, and errors use nonzero exit codes. Dataset names, metrics, series identifiers and query limits are listed in `research catalog` and the [research guide](docs/research.md).
+
+Growth matches actual prior-year periods; `0.25` means 25%. Free cash flow is reported operating cash flow minus PP&E acquisition payments. Comparisons select the latest shared reported period end and suppress values with different actual input dates. Missing quarters and nonpositive growth baselines remain unavailable. [Calculation rules](docs/research.md#growth-and-cash-flow-analytics).
 
 ## Python, MCP and HTTP
 

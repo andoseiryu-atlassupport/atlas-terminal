@@ -53,7 +53,7 @@ Configure `SEC_USER_AGENT` privately for SEC requests. The `hosted` provider use
 | atlas_quote            | Save an immutable artifact and price without authorizing payment    |
 | atlas_purchase         | Spend within the operator's delegated policy and budget             |
 | atlas_purchase_status  | Recover status using a private capability without paying            |
-| atlas_research_catalog | List 16 free datasets, units, query schemas and coverage gaps       |
+| atlas_research_catalog | List 17 free datasets, units, query schemas and coverage gaps       |
 | atlas_get_research     | Retrieve research using a `query` object without a quote or payment |
 
 For example, call `atlas_get_research` with `{"query":{"dataset":"economics","series":"cpi"}}`. Use `--provider public` for direct government sources. SEC contact settings are checked only when accessing SEC. The `hosted` provider does not proxy research. Only `atlas_purchase` spends funds. See the [research guide](research.md) for dataset queries.

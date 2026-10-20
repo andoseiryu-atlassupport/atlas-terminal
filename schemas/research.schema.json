@@ -87,6 +87,29 @@
           "if": {
             "properties": {
               "dataset": {
+                "const": "financial_analytics"
+              }
+            },
+            "required": ["dataset"]
+          },
+          "then": {
+            "propertyNames": {
+              "enum": [
+                "dataset",
+                "allow_partial",
+                "count",
+                "identifier",
+                "metrics",
+                "period"
+              ]
+            },
+            "required": ["identifier"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "dataset": {
                 "const": "company_facts"
               }
             },
@@ -296,6 +319,7 @@
             "profile",
             "statements",
             "ratios",
+            "financial_analytics",
             "company_facts",
             "filings",
             "insider_transactions",
@@ -493,6 +517,7 @@
             "profile",
             "statements",
             "ratios",
+            "financial_analytics",
             "company_facts",
             "filings",
             "insider_transactions",

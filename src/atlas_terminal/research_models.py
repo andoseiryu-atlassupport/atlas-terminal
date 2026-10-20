@@ -12,6 +12,7 @@ Dataset = Literal[
     "profile",
     "statements",
     "ratios",
+    "financial_analytics",
     "company_facts",
     "filings",
     "insider_transactions",
@@ -31,6 +32,7 @@ FIELDS = {
     "profile": {"identifier"},
     "statements": {"identifier", "metrics", "period", "count", "allow_partial"},
     "ratios": {"identifier", "period", "count", "allow_partial"},
+    "financial_analytics": {"identifier", "metrics", "period", "count", "allow_partial"},
     "company_facts": {"identifier", "taxonomy", "concept", "unit", "limit"},
     "filings": {"identifier", "form", "limit"},
     "insider_transactions": {"identifier", "accession", "limit"},
@@ -119,12 +121,18 @@ class ResearchQuery(Model):
             raise ValueError("Choose an economic series from the catalog")
         if self.unit and not self.concept:
             raise ValueError("A unit filter requires a concept")
-        if self.dataset in {"statements", "compare"} and self.metrics:
+        if self.dataset in {"statements", "financial_analytics", "compare"} and self.metrics:
+            from atlas_terminal.research_analytics import ANALYTICS_METRICS
             from atlas_terminal.research_financials import STATEMENT_METRICS
 
-            if set(self.metrics) - STATEMENT_METRICS.keys():
+            supported: set[str] = set()
+            if self.dataset != "financial_analytics":
+                supported.update(STATEMENT_METRICS)
+            if self.dataset != "statements":
+                supported.update(ANALYTICS_METRICS)
+            if set(self.metrics) - supported:
                 raise AtlasError(
-                    "UNSUPPORTED_METRIC", "Choose statement metrics from the research catalog."
+                    "UNSUPPORTED_METRIC", "Choose this dataset's metrics from the research catalog."
                 )
         return self
 
