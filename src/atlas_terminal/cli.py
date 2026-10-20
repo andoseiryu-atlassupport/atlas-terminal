@@ -20,6 +20,8 @@ app.add_typer(financials_app, name="financials")
 app.add_typer(filings_app, name="filings")
 app.add_typer(quote_app, name="quote")
 app.add_typer(mcp_app, name="mcp")
+research_app = typer.Typer(no_args_is_help=True)
+app.add_typer(research_app, name="research")
 
 
 def output(value: Any, *, err: bool = False) -> None:
@@ -45,6 +47,58 @@ def demo(json_output: bool = typer.Option(False, "--json")) -> None:
     """Offline synthetic demo: no network, model key or wallet."""
     with Atlas("fixture") as atlas:
         output(atlas.get_financials(query("ATLASDEMO", "revenue,net_income", "annual", 3, False)))
+
+
+@research_app.command("catalog")
+def research_catalog(json_output: bool = typer.Option(False, "--json")) -> None:
+    """List free sources, datasets, units, query schema and unavailable coverage."""
+    output(Atlas.research_catalog())
+
+
+@research_app.command("get")
+def research_get(
+    dataset: str,
+    identifier: str | None = None,
+    identifiers: str | None = None,
+    metrics: str | None = None,
+    period: str | None = None,
+    count: int | None = None,
+    limit: int | None = None,
+    allow_partial: bool = False,
+    taxonomy: str | None = None,
+    concept: str | None = None,
+    unit: str | None = None,
+    form: str | None = None,
+    accession: str | None = None,
+    series: str | None = None,
+    year: int | None = None,
+    provider: str = "public",
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """Fetch free public research. Dataset-specific options are in research catalog."""
+    data: dict[str, Any] = {"dataset": dataset}
+    options = {
+        "identifier": identifier,
+        "period": period,
+        "count": count,
+        "limit": limit,
+        "taxonomy": taxonomy,
+        "concept": concept,
+        "unit": unit,
+        "form": form,
+        "accession": accession,
+        "series": series,
+        "year": year,
+    }
+    data.update({k: v for k, v in options.items() if v is not None})
+    if metrics is not None:
+        data["metrics"] = metrics.split(",")
+    if identifiers is not None:
+        data["identifiers"] = identifiers.split(",")
+    if allow_partial:
+        data["allow_partial"] = True
+    with Atlas(provider) as atlas:
+        output(atlas.get_research(data))
 
 
 @company_app.command("resolve")

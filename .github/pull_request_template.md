@@ -1,16 +1,16 @@
-# 変更内容
+# Changes
 
-## 変更の目的
+## Purpose
 
-この変更で何ができるようになるか、または何を改善するかを記載してください。
+Describe the resulting behavior and the problem it addresses.
 
-## 確認結果
+## Validation
 
-- [ ] `npm run check` を実行した
-- [ ] 変更に必要な検証を実施し、結果を記載した
+- [ ] Ran `npm run check`
+- [ ] Ran checks appropriate to the change and recorded the results
 
-実行したコマンドと結果:
+Commands and results:
 
-## 未確認の事項
+## Unverified behavior
 
-未実施の検証や、残っている判断があれば記載してください。
+List checks not run and any unresolved decisions or limitations.

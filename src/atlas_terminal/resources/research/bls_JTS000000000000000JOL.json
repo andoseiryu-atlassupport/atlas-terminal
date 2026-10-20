@@ -1,0 +1,47 @@
+{
+  "status": "REQUEST_SUCCEEDED",
+  "responseTime": 1,
+  "message": [
+    "SYNTHETIC DATA"
+  ],
+  "Results": {
+    "series": [
+      {
+        "seriesID": "JTS000000000000000JOL",
+        "data": [
+          {
+            "year": "2026",
+            "period": "M09",
+            "periodName": "September",
+            "value": "321.500",
+            "latest": "true",
+            "footnotes": [
+              {
+                "code": "P",
+                "text": "SYNTHETIC preliminary observation."
+              }
+            ]
+          },
+          {
+            "year": "2026",
+            "period": "M08",
+            "periodName": "August",
+            "value": "320.100",
+            "footnotes": [
+              {}
+            ]
+          },
+          {
+            "year": "2025",
+            "period": "M13",
+            "periodName": "Annual",
+            "value": "310.000",
+            "footnotes": [
+              {}
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -100,10 +100,16 @@ CREATE TABLE IF NOT EXISTS source_cache (
 CREATE TABLE IF NOT EXISTS rate_state (id INTEGER PRIMARY KEY, next_at REAL NOT NULL);
 INSERT OR IGNORE INTO rate_state VALUES (1, 0);
 CREATE TABLE IF NOT EXISTS source_leases (owner TEXT PRIMARY KEY, expires REAL NOT NULL);
+CREATE TABLE IF NOT EXISTS source_daily_usage (
+ bucket TEXT NOT NULL, day TEXT NOT NULL, used INTEGER NOT NULL,
+ PRIMARY KEY (bucket, day)
+);
 """
 
 
-class SecTransport:
+class CachedHTTPTransport:
+    """Bounded, conditional HTTP cache. Subclasses define the approved endpoint set."""
+
     synthetic = False
 
     def __init__(
@@ -118,16 +124,8 @@ class SecTransport:
         max_bytes: int = 32 * 1024 * 1024,
     ) -> None:
         private_library_logs()
-        if (
-            not user_agent
-            or not re.search(r"[^\s@]+@[^\s@]+\.[^\s@]+", user_agent)
-            or ".invalid" in user_agent.lower()
-            or any(c in user_agent for c in "\r\n")
-        ):
-            raise AtlasError(
-                "CONFIG_REQUIRED",
-                "SEC live requires your identifying SEC_USER_AGENT with contact email.",
-            )
+        if not user_agent or any(c in user_agent for c in "\r\n"):
+            raise AtlasError("CONFIG_REQUIRED", "A valid identifying User-Agent is required.")
         self.headers = {"User-Agent": user_agent, "Accept-Encoding": "gzip, deflate"}
         self.db = Database(
             (cache_path or state_dir() / "sec-cache.sqlite3").resolve(), CACHE_SCHEMA
@@ -138,14 +136,21 @@ class SecTransport:
 
     @staticmethod
     def validate_url(url: str) -> None:
-        allowed = (
-            url == TICKERS
-            or re.fullmatch(re.escape(SUBMISSIONS) + r"CIK[0-9]{10}\.json", url)
-            or re.fullmatch(re.escape(SUBMISSIONS) + ARCHIVE_PATTERN, url)
-            or re.fullmatch(re.escape(FACTS) + r"CIK[0-9]{10}\.json", url)
-        )
-        if not allowed:
-            raise AtlasError("INVALID_INPUT", "SEC URL is outside the approved endpoint set.")
+        raise AtlasError("INVALID_INPUT", "No endpoint is approved by this transport.")
+
+    @staticmethod
+    def validate_body(url: str, body: bytes) -> None:
+        if not body:
+            raise ValueError("Empty response")
+
+    def before_request(self, url: str) -> None:
+        """Source-specific quotas, charged for network attempts rather than cache hits."""
+
+    @contextmanager
+    def request_permit(self, url: str) -> Iterator[None]:
+        with self.permit():
+            self.before_request(url)
+            yield
 
     @contextmanager
     def permit(self) -> Iterator[None]:
@@ -192,7 +197,10 @@ class SecTransport:
                 headers["If-Modified-Since"] = cached["modified"]
         for attempt in range(3):
             try:
-                with self.permit(), self.client.stream("GET", url, headers=headers) as response:
+                with (
+                    self.request_permit(url),
+                    self.client.stream("GET", url, headers=headers) as response,
+                ):
                     response_started = self.clock()
                     if response.status_code in {429, 503}:
                         wait = self.retry_after(response.headers.get("retry-after"), attempt)
@@ -219,8 +227,7 @@ class SecTransport:
                                 )
                             chunks.append(chunk)
                         body = b"".join(chunks)
-                        if not isinstance(decode_json(body), dict):
-                            raise ValueError("Expected JSON object")
+                        self.validate_body(url, body)
                         retrieved = self.save(url, body, ttl, response.headers)
                         return Snapshot(body, url, retrieved)
                     else:
@@ -270,6 +277,47 @@ class SecTransport:
         self.client.close()
 
 
+DOCUMENT_PATTERN = r"(?:xsl[A-Za-z0-9_-]+/)?[A-Za-z0-9_][A-Za-z0-9_.-]*"
+SEC_ARCHIVES = "https://www.sec.gov/Archives/edgar/data/"
+
+
+class SecTransport(CachedHTTPTransport):
+    def __init__(self, user_agent: str, **kwargs: Any) -> None:
+        if (
+            not re.search(r"[^\s@]+@[^\s@]+\.[^\s@]+", user_agent)
+            or ".invalid" in user_agent.lower()
+            or any(c in user_agent for c in "\r\n")
+        ):
+            raise AtlasError(
+                "CONFIG_REQUIRED",
+                "SEC live requires your identifying SEC_USER_AGENT with contact email.",
+            )
+        super().__init__(user_agent, **kwargs)
+
+    @staticmethod
+    def validate_url(url: str) -> None:
+        allowed = (
+            url == TICKERS
+            or re.fullmatch(re.escape(SUBMISSIONS) + r"CIK[0-9]{10}\.json", url)
+            or re.fullmatch(re.escape(SUBMISSIONS) + ARCHIVE_PATTERN, url)
+            or re.fullmatch(re.escape(FACTS) + r"CIK[0-9]{10}\.json", url)
+            or re.fullmatch(
+                re.escape(SEC_ARCHIVES) + r"[1-9][0-9]{0,9}/[0-9]{18}/" + DOCUMENT_PATTERN,
+                url,
+            )
+        )
+        if not allowed:
+            raise AtlasError("INVALID_INPUT", "SEC URL is outside the approved endpoint set.")
+
+    @staticmethod
+    def validate_body(url: str, body: bytes) -> None:
+        if url.endswith(".json"):
+            if not isinstance(decode_json(body), dict):
+                raise ValueError("Expected JSON object")
+        elif not body:
+            raise ValueError("Empty filing document")
+
+
 @dataclass(frozen=True)
 class Filing:
     accession: str
@@ -307,7 +355,7 @@ def filing_rows(data: dict[str, Any], cik: str, *, synthetic: bool) -> list[Fili
         except (ValueError, TypeError):
             raise AtlasError("SOURCE_UNAVAILABLE", "Malformed filing dates.") from None
         document = at("primaryDocument")
-        if document and not re.fullmatch(r"[A-Za-z0-9_][A-Za-z0-9_.-]*", document):
+        if document and not re.fullmatch(DOCUMENT_PATTERN, document):
             raise AtlasError("INVALID_SOURCE_PATH", "Unsafe primary document filename.")
         base = f"{origin}/Archives/edgar/data/{int(cik)}/{accession.replace('-', '')}"
         source_url = f"{base}/{document or (accession + '-index.html')}"

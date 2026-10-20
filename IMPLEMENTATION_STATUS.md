@@ -1,65 +1,54 @@
-# 実装・検証状況
+# Atlas Terminal capabilities
 
-確認日: **2026-10-20**。Python 3.12.14 / Linux で検証。
+Atlas Terminal retrieves US equity research from free public primary sources. Its CLI, Python SDK, stdio MCP server and HTTP API share the same datasets and selection rules.
 
-## 検証結果
+## Datasets
 
-**オフライン試験 87 件合格。ライブ試験 2 件は対象外。** SEC live、実 Base Sepolia 送金、Windows の実行は未検証です。
+| Area        | Capabilities                                                                                       |
+| ----------- | -------------------------------------------------------------------------------------------------- |
+| Companies   | Current ticker / CIK search, issuer profiles, SIC industry, exchanges and fiscal year end          |
+| Financials  | 37 US-GAAP concepts covering income, balance sheets, cash flow, EPS, shares and dividends          |
+| Periods     | Annual, explicitly reported discrete quarters and YTD, matched to actual dates and filing metadata |
+| Analysis    | Six ratios with formulas and reported inputs; comparison of up to ten specified issuers            |
+| XBRL        | Concept and unit inventories, plus observations with their original accounting contexts            |
+| Disclosures | All-form filing discovery and ownership, fund, proxy, offering and corporate-action filing groups  |
+| Ownership   | Form 3/4/5 records and a manager's 13F information table, retrieved one filing at a time           |
+| Economics   | Eight BLS series covering consumer prices, employment, unemployment, wages and job openings        |
+| Treasury    | Daily Treasury par yields and federal Debt to the Penny observations                               |
+| Policy      | Federal Reserve release headlines, publication times and original links                            |
 
-| 項目                     | 状態              | 確認範囲                                                                                                                                                                         |
-| ------------------------ | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Offline data / CLI / SDK | PASS              | 原 fixture の正規化、完全/部分期待値との一致、出典 hash/pointer                                                                                                                  |
-| SEC connector            | PASS（mock HTTP） | rate/cache/etag、archive、403/429、有限 retry、bytes/time 上限                                                                                                                   |
-| MCP subprocess           | PASS              | 公式 client で initialize/list/call、6 tools、structured content                                                                                                                 |
-| HTTP / off / mock        | PASS              | quote、固定 snapshot、policy、原子的予算予約、認証付き再取得                                                                                                                     |
-| 決済の競合・障害         | PASS（offline）   | 同じ proof の settle 一回、nonce/ID 重複拒否、UNKNOWN 保留、再署名禁止                                                                                                           |
-| Official x402 SDK        | PASS（offline）   | V2 headers、exact EIP-3009 ローカル署名・署名回復、facilitator HTTP、汎用公式 client                                                                                             |
-| 新規 wheel install       | PASS              | 別 venv・checkout 外 cwd で demo、MCP、loopback HTTP mock 購入・再起動回復                                                                                                       |
-| Package / quality        | PASS              | sdist/wheel、fixture bytes、py.typed、ruff、mypy、Prettier                                                                                                                       |
-| Credential pattern scan  | PASS（限定検査）  | 公開ファイルと到達可能な Git blobs。完全な秘密検出保証ではない                                                                                                                   |
-| SEC live                 | NOT RUN           | 利用者による接続設定と live 検証が必要                                                                                                                                           |
-| Real testnet E2E         | NOT RUN           | 専用 wallet、token、Facilitator の設定と明示実行が必要                                                                                                                           |
-| GitHub Actions           | PASS              | [CI run #2](https://github.com/andoseiryu-atlassupport/atlas-terminal/actions/runs/39422982457) で依存導入・整形・型検査・87件のoffline試験・秘密情報検査・デモ・配布buildが成功 |
+Run `atlas research catalog --json` for identifiers, query fields, units and limits for all 16 datasets. The [research guide](docs/research.md) includes examples for each dataset.
 
-## 実行したコマンド
+## Interfaces
 
-```text
-uv sync --all-extras --dev                         PASS
-npm ci                                            PASS
-uv run --offline ruff check .                      PASS
-uv run --offline ruff format --check .             PASS
-uv run --offline mypy                              PASS (19 source files)
-uv run --offline pytest                            PASS (87 passed, 2 deselected)
-uv run --offline atlas demo --json                  PASS
-uv run --offline python examples/mock_purchase.py  PASS
-uv run --offline python -m build --no-isolation     PASS
-npm run check                                     PASS
-python scripts/scan_public_files.py                PASS
-```
+| Interface        | Entry points                                                             |
+| ---------------- | ------------------------------------------------------------------------ |
+| CLI              | `atlas research catalog` / `atlas research get`                          |
+| Python SDK       | `Atlas.research_catalog()` / `Atlas.get_research(query)`                 |
+| MCP              | Eight tools, including `atlas_research_catalog` and `atlas_get_research` |
+| HTTP             | `GET /v1/research/catalog` / `POST /v1/research`                         |
+| Annual snapshots | `financials get` / `Atlas.get_financials`, covering five annual metrics  |
 
-初回の依存ダウンロードは必要です。hash 固定 requirements から別環境へ runtime dependencies とビルド済み wheel を導入し、デモ・MCP・模擬購入・API 再起動後の回復を確認しました。`scripts/verify_installed.py` を検証したい環境の Python で実行すると、同じローカル検査を再現できます。外部ネットワークと実資金は使いません。
+Research requires no data subscription, API key, wallet or LLM. SEC retrieval requires a private `SEC_USER_AGENT` containing the application name and an actual contact email. The `fixture` provider returns fictional data without network access.
 
-デモの canonical FinancialResult SHA-256:
+## Provenance and data quality
 
-```text
-d7bd371748db3900398007a625554b8f7e637ba93d6802940b7e8914d41f5126
-```
+- Numeric values are decimal strings with units, actual periods, accessions, source hashes, JSON pointers or XML paths, and retrieval times.
+- Missing and conflicting values are explicit. Coverage distinguishes requested periods from available data; incomplete financial results require `allow_partial`.
+- Unreported Q4 values, currency conversions, 13F dollar/thousand-dollar units and CUSIP-to-ticker mappings are not inferred.
+- Filing discovery, reported records and derived ratios are distinct outputs. Current snapshots cannot satisfy point-in-time historical requests.
+- Retrieval uses approved endpoints, caching, rate limits, response bounds and finite retries. Source failures never trigger a paid-provider fallback.
 
-## 起動
+[Sources and terms](DATA_SOURCES.md) · [Financial methodology](docs/methodology.md) · [Validation scope](docs/verification.md)
 
-```sh
-uv run --offline atlas demo --json
-uv run atlas company resolve AAPL --provider sec --json
-uv run atlas financials get AAPL --metrics revenue,net_income --period annual --count 3 --provider sec --json
-uv run --offline atlas mcp serve --provider fixture
-uv run atlas serve --provider fixture --payments off --host 127.0.0.1 --port 8000
-uv run --offline python examples/mock_purchase.py
-```
+## Optional snapshot API
 
-SEC は private な `SEC_USER_AGENT` が必要です。hosted の購入には接続先、private state、明示 policy を設定します。[README 日本語](README.ja.md)、[MCP 導入](docs/quickstart.md)、[自己運用](docs/self-hosting.md)、[決済](docs/payments.md)を参照してください。
+Immutable snapshots of five annual metrics support explicit quotes, purchases and authenticated recovery. Payments default to off. `mock` uses fictional payments; `testnet` uses x402 V2 exact/EIP-3009 with Base Sepolia USDC. Policy checks, budget reservations before signing and authenticated recovery protect the payment path. Unknown settlement remains pending. Research endpoints do not charge for retrieval.
 
-## バージョンと制約
+## Coverage limits
 
-Python 3.12 / Pydantic 2.14.1 / httpx 0.28.1 / Typer 0.27.3 / FastAPI 0.151.0 / Uvicorn 0.54.0 / MCP 2.3.0 / x402[evm,httpx] 2.25.0。直接・推移依存を uv.lock で固定し、実 import と公式 source を確認しました。[依存監査](DEPENDENCY_AUDIT.md)に詳細があります。
+Consolidated equity prices, daily prices and adjustment factors, order books, options, analyst consensus, newswire articles, earnings-call transcripts, a complete security master or corporate-action history, PIT and trading are unavailable.
 
-UNKNOWN からの自動 onchain 照合・予算解放、Facilitator 固有の認証統合、複数 replica、外部公開用の認証/TLS は未実装です。UNKNOWN は運用者の確認まで保留します。mainnet、四半期・為替・派生値、PIT、後年比較列の全面追跡には対応しません。コードのライセンスは [Apache-2.0](LICENSE) です。SEC 原データと依存パッケージの条件は別途適用されます。
+The HTTP API supports one process, one private SQLite volume and loopback connections. Mainnet, distributed budgets, automatic settlement reconciliation and public-facing authentication or TLS are unsupported.
+
+[Quickstart](docs/quickstart.md) · [API configuration](docs/self-hosting.md) · [Payments](docs/payments.md) · [Apache-2.0](LICENSE)

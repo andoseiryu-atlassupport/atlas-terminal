@@ -16,29 +16,67 @@ from atlas_terminal.models import (
 )
 from atlas_terminal.normalize import normalize
 from atlas_terminal.providers import FixtureTransport, SECProvider, SecTransport
+from atlas_terminal.research import ResearchSecFixtures, ResearchService, research_catalog
+from atlas_terminal.research_models import ResearchQuery
 
 
 class Atlas:
-    def __init__(self, provider: str = "sec", *, source: SECProvider | None = None) -> None:
-        if provider not in {"sec", "fixture", "hosted"}:
+    def __init__(
+        self,
+        provider: str = "sec",
+        *,
+        source: SECProvider | None = None,
+        research_source: SECProvider | None = None,
+    ) -> None:
+        if provider not in {"sec", "fixture", "hosted", "public"}:
             raise AtlasError("INVALID_INPUT", "Unknown provider.")
         self.provider = provider
         self.source = source
+        self.research_source = research_source
+        self._research = ResearchService(self._research_source, synthetic=provider == "fixture")
         self._hosted: Any = None
         if source is None and provider == "fixture":
             self.source = SECProvider(FixtureTransport())
-        elif source is None and provider == "sec":
-            self.source = SECProvider(SecTransport(os.environ.get("SEC_USER_AGENT", "")))
         elif provider == "hosted":
             from atlas_terminal.hosted import HostedClient
 
             self._hosted = HostedClient.from_env()
 
+    def _local_source(self) -> SECProvider:
+        if self.source is None:
+            self.source = SECProvider(SecTransport(os.environ.get("SEC_USER_AGENT", "")))
+        return self.source
+
+    def _research_source(self) -> SECProvider:
+        if self.research_source is None:
+            self.research_source = (
+                SECProvider(ResearchSecFixtures())
+                if self.provider == "fixture"
+                else self._local_source()
+            )
+        return self.research_source
+
+    def get_research(self, query: ResearchQuery | dict[str, Any]) -> dict[str, Any]:
+        """Free public-source research; never quotes, signs or purchases."""
+        if self.provider == "hosted":
+            raise AtlasError("CONFIG_REQUIRED", "Research uses local public or fixture providers.")
+        try:
+            return self._research.get(query)
+        except (KeyError, TypeError, ValueError, AttributeError):
+            raise AtlasError(
+                "SOURCE_UNAVAILABLE",
+                "Source response failed research schema validation.",
+                status=502,
+            ) from None
+
+    @staticmethod
+    def research_catalog() -> dict[str, Any]:
+        return research_catalog()
+
     def resolve_company(self, query: str) -> Company:
         if self._hosted:
             return self._hosted.resolve_company(query)
-        assert self.source is not None
-        return self.source.resolve(query)
+        return self._local_source().resolve(query)
 
     def get_financials(self, query: FinancialQuery | dict[str, Any]) -> FinancialResult:
         query = query if isinstance(query, FinancialQuery) else parse_query(query)
@@ -46,14 +84,14 @@ class Atlas:
             raise AtlasError(
                 "QUOTE_REQUIRED", "Hosted financials require explicit quote and purchase."
             )
-        assert self.source is not None
-        company, snapshot, filings, truncated = self.source.financial_inputs(query.identifier)
+        source = self._local_source()
+        company, snapshot, filings, truncated = source.financial_inputs(query.identifier)
         return normalize(
             query,
             company,
             snapshot,
             filings,
-            synthetic=self.source.transport.synthetic,
+            synthetic=source.transport.synthetic,
             history_truncated=truncated,
         )
 
@@ -64,14 +102,14 @@ class Atlas:
             raise AtlasError("INVALID_INPUT", "Unsupported filing form filter.")
         if self._hosted:
             return self._hosted.list_filings(query, form, limit)
-        assert self.source is not None
-        company, history, truncated = self.source.history(self.resolve_company(query))
+        source = self._local_source()
+        company, history, truncated = source.history(self.resolve_company(query))
         return {
             "schema_version": "0.1.0",
             "company": company.model_dump(),
             "filings": [asdict(f) for f in history if form == "all" or f.form == form][:limit],
             "history_truncated": truncated,
-            "is_synthetic": self.source.transport.synthetic,
+            "is_synthetic": source.transport.synthetic,
         }
 
     def quote(self, query: FinancialQuery | dict[str, Any]) -> Quote:
@@ -94,6 +132,9 @@ class Atlas:
         return self._hosted.status(quote_id)
 
     def close(self) -> None:
+        self._research.close()
+        if self.research_source and self.research_source is not self.source:
+            self.research_source.close()
         if self.source:
             self.source.close()
         if self._hosted:
@@ -118,4 +159,6 @@ def catalog() -> dict[str, Any]:
         "free": ["catalog", "resolve", "filings", "quote"],
         "product": "Immutable annual financial snapshot",
         "historical_queries": False,
+        "research_catalog_path": "/v1/research/catalog",
+        "free_research_path": "/v1/research",
     }

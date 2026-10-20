@@ -2,7 +2,7 @@
   "name": "atlas-terminal",
   "version": "0.0.0",
   "private": true,
-  "description": "Development foundation for Atlas Terminal",
+  "description": "Free public-source US equity research for agents",
   "license": "Apache-2.0",
   "engines": {
     "node": ">=24 <25"

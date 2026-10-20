@@ -1,21 +1,22 @@
-# プロジェクト概要
+# Project overview
 
-Atlas Terminal は SEC の公開 JSON を取得・正規化し、CLI、Python SDK、stdio MCP、参照 HTTP API から利用できるツールです。
+Atlas Terminal retrieves US equity research from free public primary sources. The CLI, Python SDK, stdio MCP server and reference HTTP API share retrieval and validation services.
 
-## 対応範囲
+## Capabilities
 
-- 現在の企業照合、提出書類メタデータ、年次財務 5 指標。
-- US-GAAP、USD、主年度 10-K / 10-K/A。値と期間、原資料参照を一緒に返す。
-- ローカル SEC 取得と架空 fixture デモ。通常のデータ取得に wallet や LLM API は不要。
-- 明示 quote/purchase による任意の x402 参照 API。off / mock / testnet を区別する。
-- 公式 x402 V2 exact EIP-3009、Base Sepolia USDC のみ。mainnet は拒否する。
+- Five government sources and 16 research datasets: SEC company, industry, financial, filing and ownership data; BLS inflation and employment series; Treasury yields and debt; Federal Reserve releases.
+- 37 reported financial concepts across annual, explicitly reported discrete quarters and YTD, raw XBRL contexts, six ratios with traceable inputs, and comparison of up to ten specified issuers.
+- XML records from one Form 3/4/5 or 13F filing per query. Beneficial ownership, fund and corporate-action discovery returns filing metadata and links.
+- Values include units, periods, source hashes and retrieval times. Missing data, archive limits and partial coverage remain explicit.
+- Research requires no data subscription, API key, wallet or LLM. SEC requests use a private, operator-supplied User-Agent with an actual contact email.
+- Immutable snapshots of five annual metrics and an optional x402 API. Payments default to off; testnet is restricted to Base Sepolia USDC, and mainnet is rejected.
 
-## 技術構成
+## Stack
 
-Python 3.12 以上、uv、Pydantic、httpx、Typer、FastAPI、公式 MCP / x402 SDK、SQLite。Node.js 24 / Prettier はリポジトリの文書チェックに使います。
+Python 3.12+, uv, Pydantic, httpx, Typer, FastAPI, the official MCP and x402 SDKs, and SQLite. XML parsing uses the standard library after rejecting DTD/entity declarations, unsafe filenames and arbitrary URLs. Node.js 24 and Prettier support documentation checks.
 
-## 制約と検証
+## Scope
 
-四半期、為替換算、PIT、後年の比較列だけに現れる修正値の全面追跡には対応しません。株価、ニュース、監視、売買、LLM 分析の機能はありません。
+Consolidated equity prices, order books, options, analyst consensus, newswire articles, earnings-call transcripts, complete corporate-action or security-master datasets, PIT, trading and built-in LLM analysis are unavailable. Free access does not imply unrestricted redistribution rights for third-party content.
 
-オフライン試験・公式 SDK のローカル統合は確認済みです。SEC live と実 testnet 送金は未検証です。詳細は [実装状況](../IMPLEMENTATION_STATUS.md)、[財務選択](methodology.md)、[セキュリティ](../SECURITY.md)を参照してください。
+See the [research guide](research.md) for queries and limits, [capabilities](../IMPLEMENTATION_STATUS.md) for the feature overview, [sources and terms](../DATA_SOURCES.md) for data conditions, and [validation scope](verification.md) for verified and unverified behavior.

@@ -1,0 +1,19 @@
+{
+  "data": [
+    {
+      "record_date": "2026-10-16",
+      "tot_pub_debt_out_amt": "12345678901234.56",
+      "debt_held_public_amt": "10000000000000.01",
+      "intragov_hold_amt": "2345678901234.55"
+    }
+  ],
+  "meta": {
+    "count": 1,
+    "labels": {
+      "record_date": "SYNTHETIC date"
+    }
+  },
+  "links": {
+    "next": null
+  }
+}

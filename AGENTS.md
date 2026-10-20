@@ -1,12 +1,13 @@
 # Atlas Terminal: agent instructions
 
-Read `README.md`, `docs/project-brief.md`, `CONTRIBUTING.md` and `IMPLEMENTATION_STATUS.md` before changes. Work in this existing repository; preserve unrelated changes. Use Japanese project documentation and explanations, with the requested English README and clear English code identifiers.
+Read `README.md`, `docs/project-brief.md`, `CONTRIBUTING.md` and `IMPLEMENTATION_STATUS.md` before changes. Work in this existing repository; preserve unrelated changes. Use English for all public documentation, templates and code identifiers. Keep README.md as the canonical README and describe current product capabilities rather than development-platform promotion or work history.
 
 ## Product and data
 
-- SEC public data only: issuer resolution, annual US-GAAP/USD facts, filing metadata. No UI, alerts, stock prices, trading, paid data or LLM dependency.
+- Use free public primary sources only. SEC issuer, financial and ownership disclosures plus BLS, Treasury and Federal Reserve context are supported. No paid data, UI, trading or LLM dependency. Do not claim consolidated real-time prices, order books, consensus estimates or complete news coverage.
+- Research datasets share a validated query, source catalog and service across CLI / SDK / MCP / HTTP. Distinguish normalized facts, raw reported facts and filing-discovery metadata. Preserve units and explicit coverage limits.
 - CLI / SDK / MCP / HTTP share application services. Never return expected fixtures directly as implementation.
-- Join accession and filing reportDate. Do not select a period from fy/frame alone or derive missing values. Keep source bytes/hash, JSON pointer, filing and retrieval time.
+- Join accession and filing reportDate. Do not select a period from fy/frame alone or derive missing values. Keep source bytes/hash, JSON pointer or XML path, filing and retrieval time. Research supports reported annual, discrete quarterly and YTD periods; never synthesize Q4 from annual minus YTD. Derived ratios must keep their exact inputs and formula.
 - Current snapshots are not PIT data. Reject historical requests. Use exact integer/Decimal arithmetic and decimal strings.
 
 ## Payments and secrets
@@ -23,7 +24,7 @@ Read `README.md`, `docs/project-brief.md`, `CONTRIBUTING.md` and `IMPLEMENTATION
 - Run `uv run --offline ruff check .`, `uv run --offline ruff format --check .`, `uv run --offline mypy`, `uv run --offline pytest`, `uv run --offline python -m build --no-isolation`, `npm run check`.
 - Default tests must remain offline. Live SEC and testnet require explicit opt-in flags and private settings. Never convert mock PASS into real testnet PASS.
 - Source fixtures are byte-exact: do not reformat `resources/sec_like`, `tests/fixtures`, or schema examples without deliberately regenerating provenance expectations.
-- Update status with actual commands, results and limitations. CI runs, local checks and cloud-environment setup are different evidence.
+- Describe current product capabilities in IMPLEMENTATION_STATUS.md. Record actual commands, results and limitations in docs/verification.md. Local checks and CI runs are separate evidence.
 - Keep actions pinned to verified commit SHAs, use `pull_request` for external contributions, and grant read-only CI permissions.
 - Publication, deployment and real transfers require an explicit operator instruction. The project code is licensed under Apache-2.0; keep LICENSE, README and package metadata consistent. Source-data and dependency licenses remain separate.
 

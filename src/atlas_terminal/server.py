@@ -24,6 +24,7 @@ from atlas_terminal.payments.common import (
 )
 from atlas_terminal.payments.mock import MockAdapter
 from atlas_terminal.payments.orders import OrderService
+from atlas_terminal.research_models import ResearchQuery
 from atlas_terminal.util import state_dir
 
 
@@ -87,7 +88,7 @@ def create_app(
         yield
         orders.close()
 
-    app = FastAPI(title="Atlas Terminal reference API", version="0.1.0", lifespan=lifespan)
+    app = FastAPI(title="Atlas Terminal reference API", version="0.2.0", lifespan=lifespan)
     app.state.orders = orders
 
     @app.exception_handler(AtlasError)
@@ -137,6 +138,22 @@ def create_app(
     @app.get("/v1/catalog")
     def get_catalog() -> dict[str, Any]:
         return catalog() | {"pricing": orders.pricing.model_dump(mode="json")}
+
+    @app.get("/v1/research/catalog")
+    def get_research_catalog() -> dict[str, Any]:
+        return orders.atlas.research_catalog()
+
+    @app.post(
+        "/v1/research",
+        openapi_extra={
+            "requestBody": {
+                "content": {"application/json": {"schema": ResearchQuery.model_json_schema()}},
+                "required": True,
+            }
+        },
+    )
+    def get_research(body: dict[str, Any]) -> dict[str, Any]:
+        return orders.atlas.get_research(body)
 
     @app.get("/v1/companies/resolve", response_model=Company)
     def resolve_company(query: str = Query(min_length=1, max_length=100)) -> Company:

@@ -1,6 +1,6 @@
-# 依存パッケージのライセンス記録
+# Third-party dependency licenses
 
-2026-10-20。uv.lock で解決した開発環境の installed metadata から収集。各配布物の LICENSE / NOTICE が正式な条件であり、この一覧はその代替ではありません。直接依存と開発依存・推移依存を含みます。
+Recorded on 2026-10-20 from installed metadata for dependencies resolved by uv.lock. Each distribution's LICENSE / NOTICE defines its terms; this inventory does not replace those files. It includes direct, development and transitive dependencies.
 
 | Distribution              | Version      | Declared license                                                |
 | ------------------------- | ------------ | --------------------------------------------------------------- |

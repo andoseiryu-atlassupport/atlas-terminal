@@ -1,20 +1,22 @@
-# セキュリティと境界
+# Security boundaries
 
-データ取得は read-only ですが、`atlas_purchase` は委任された資産の支出を伴います。MCP annotations は説明用で、制御は署名境界の policy と永続台帳で行います。
+Data retrieval is read-only, but `atlas_purchase` spends delegated funds. MCP annotations describe behavior; signing policy and the durable ledger enforce payment controls.
 
-- 主年度の財務値と出典を返すサービスです。外部の会社名・文書名は文字列データとして扱い、命令実行や支払先変更へ使いません。
-- SEC endpoint は固定 allowlist。archive は CIK 付き basename、primaryDocument は安全な filename のみ。URL・SQL・shell コマンドを通常の識別子として受け付けません。
-- ホスト・Facilitator は operator の固定設定だけを使い、redirect を追従しません。支払先・network・token・domain・金額・期限・resource を署名前に照合します。
-- mainnet は未対応。Base Sepolia USDC、exact / EIP-3009 に固定します。mock は架空 network/asset と専用ヘッダーを使い、本物の x402 と混同しません。
-- 予算予約と SIGNING claim は SQLite の write transaction で一度だけ確定します。全 task/session の同じ signer を日次集計し、未確定予約は日をまたいでも保持します。
-- サーバーは settlement 前に注文と nonce を確定します。timeout/crash は UNKNOWN に残し、自動で再送金・再署名・解放を行いません。証跡未確認を未払い扱いしません。
-- 注文 ID は認証ではありません。回復 bearer は status と購入済み artifact に限定し、新規支出を許可しません。サーバーには token hash、クライアントには private capability を保存します。
-- 秘密鍵、seed、raw 支払署名、bearer、購入 DB、SEC 連絡先は公開ファイル・ツール出力に含めません。HTTP/payment ライブラリの診断は抑制し、既存 root handler にも filter を設定します。CLI/API の例外は入力値や外部例外の全文を出しません。
+- External company names, document names, headlines and footnotes are source data. They never execute commands or change payment recipients.
+- SEC and other government endpoints use fixed allowlists. Submission archives require a CIK-prefixed basename. Primary documents allow a safe filename and at most one SEC xsl prefix. XML discovery examines at most six safe candidates. Identifiers cannot contain arbitrary URLs, SQL or shell commands.
+- XML parsing bounds size and element count and rejects DTD/entity declarations and UTF-16 input. It does not execute XInclude, external entities, stylesheets or scripts. Research queries cannot change source URLs, environment settings, keys or policy.
+- SEC contact details are never sent to BLS, Treasury or the Federal Reserve. Source failures do not trigger paid retrieval. Research HTTP endpoints do not use budgets, signatures or recovery tokens.
+- Hosted origins and Facilitators come only from operator configuration. Redirects are disabled. Recipient, network, token, domain, amount, validity window and resource are checked before signing.
+- Mainnet is unsupported. Real integration is restricted to Base Sepolia USDC and exact/EIP-3009. Mock mode uses a fictional network, asset and separate headers.
+- Budget reservations and the SIGNING claim are atomic SQLite write transactions. Daily usage is shared across tasks and sessions using the same signer, and unresolved reservations survive day changes.
+- The server claims an order and nonce before settlement. Timeouts or crashes leave UNKNOWN state; they do not trigger another transfer, signature or budget release.
+- A quote ID is not authorization. Recovery bearers grant status and purchased-artifact access only. The server stores token hashes; the client stores private recovery capabilities.
+- Keys, seeds, raw payment signatures, bearers, purchase databases and SEC contact settings stay out of public files and tool output. Sensitive HTTP/payment diagnostics are filtered, and errors do not expose raw inputs or upstream exception text.
 
-private state はディレクトリ 0700、DB 0600 で作成します。WAL/SHM も含めて保護し、共有ディレクトリに実購入 DB を置かないでください。MCP ツールから policy ファイルや wallet を変更する操作は公開していません。
+Private state uses mode 0700 directories and 0600 databases. Protect SQLite WAL/SHM files and backups as well. MCP tools cannot edit policy files or wallets.
 
-**同じ OS ユーザー権限で shell を実行できる主体は、環境・policy・DB を読んだり書き換えたりできます。ローカル設定は hardware signer や OS sandbox による隔離ではありません。** 複数端末・複数 volume・分散予算・預かり wallet・mainnet 金融安全性・SLA は今回対象外です。
+**A process with shell access as the same OS user can read or modify environment settings, policy files and databases. Local policy is not hardware-signer or OS-sandbox isolation.** Distributed budgets, custody, mainnet security guarantees and SLAs are unsupported.
 
-## 報告
+## Reporting
 
-連絡先は所有者が選定していません。脆弱性の報告先を捏造しません。公開 Issue に秘密鍵・支払証拠・回復 token・実購入 DB を添付しないでください。公開前に所有者が private な報告経路を設定する必要があります。
+A private vulnerability-reporting contact has not been designated. Do not post keys, payment proofs, recovery tokens or real purchase databases in public issues. A private reporting channel must be configured before public operation.

@@ -1,0 +1,210 @@
+{
+  "schema_version": "0.2.0",
+  "dataset": "statements",
+  "query": {
+    "dataset": "statements",
+    "identifier": "ATLASDEMO",
+    "metrics": [
+      "revenue",
+      "eps_basic"
+    ],
+    "period": "quarterly",
+    "count": 3
+  },
+  "source_id": "sec",
+  "source_terms_url": "https://www.sec.gov/about/developer-resources",
+  "upstream_data_cost": "0",
+  "is_synthetic": true,
+  "source_text_is_untrusted": true,
+  "retrieved_at": "2026-10-20T00:00:00Z",
+  "company": {
+    "cik": "9999999999",
+    "name": "Atlas Demo Corporation (SYNTHETIC)",
+    "tickers": [
+      "ATLASDEMO"
+    ]
+  },
+  "records": [
+    {
+      "metric": "revenue",
+      "value": "45000000",
+      "unit": "USD",
+      "status": "reported",
+      "period": {
+        "kind": "duration",
+        "start": "2026-04-01",
+        "end": "2026-06-30"
+      },
+      "source": {
+        "raw_source_url": "https://fixtures.atlas.invalid/research/companyfacts.json",
+        "raw_sha256": "c039ebb824fc4ba84f31bb18f266a079e2c54a0542c8b00ec9d128bfc8551e8f",
+        "retrieved_at": "2026-10-20T00:00:00Z",
+        "json_pointer": "/facts/us-gaap/RevenueFromContractWithCustomerExcludingAssessedTax/units/USD/7",
+        "accession": "9999999999-26-000010",
+        "form": "10-Q",
+        "filed_on": "2026-08-01",
+        "accepted_at": "2026-08-01T16:00:00Z",
+        "source_url": "https://fixtures.atlas.invalid/Archives/edgar/data/9999999999/999999999926000010/quarter2.htm",
+        "taxonomy": "us-gaap",
+        "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      },
+      "reason": null
+    },
+    {
+      "metric": "eps_basic",
+      "value": "1.25",
+      "unit": "USD/shares",
+      "status": "reported",
+      "period": {
+        "kind": "duration",
+        "start": "2026-04-01",
+        "end": "2026-06-30"
+      },
+      "source": {
+        "raw_source_url": "https://fixtures.atlas.invalid/research/companyfacts.json",
+        "raw_sha256": "c039ebb824fc4ba84f31bb18f266a079e2c54a0542c8b00ec9d128bfc8551e8f",
+        "retrieved_at": "2026-10-20T00:00:00Z",
+        "json_pointer": "/facts/us-gaap/EarningsPerShareBasic/units/USD~1shares/5",
+        "accession": "9999999999-26-000010",
+        "form": "10-Q",
+        "filed_on": "2026-08-01",
+        "accepted_at": "2026-08-01T16:00:00Z",
+        "source_url": "https://fixtures.atlas.invalid/Archives/edgar/data/9999999999/999999999926000010/quarter2.htm",
+        "taxonomy": "us-gaap",
+        "tag": "EarningsPerShareBasic"
+      },
+      "reason": null
+    },
+    {
+      "metric": "revenue",
+      "value": "45000000",
+      "unit": "USD",
+      "status": "reported",
+      "period": {
+        "kind": "duration",
+        "start": "2026-01-01",
+        "end": "2026-03-31"
+      },
+      "source": {
+        "raw_source_url": "https://fixtures.atlas.invalid/research/companyfacts.json",
+        "raw_sha256": "c039ebb824fc4ba84f31bb18f266a079e2c54a0542c8b00ec9d128bfc8551e8f",
+        "retrieved_at": "2026-10-20T00:00:00Z",
+        "json_pointer": "/facts/us-gaap/RevenueFromContractWithCustomerExcludingAssessedTax/units/USD/6",
+        "accession": "9999999999-26-000011",
+        "form": "10-Q",
+        "filed_on": "2026-05-01",
+        "accepted_at": "2026-05-01T16:00:00Z",
+        "source_url": "https://fixtures.atlas.invalid/Archives/edgar/data/9999999999/999999999926000011/quarter1.htm",
+        "taxonomy": "us-gaap",
+        "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      },
+      "reason": null
+    },
+    {
+      "metric": "eps_basic",
+      "value": "1.25",
+      "unit": "USD/shares",
+      "status": "reported",
+      "period": {
+        "kind": "duration",
+        "start": "2026-01-01",
+        "end": "2026-03-31"
+      },
+      "source": {
+        "raw_source_url": "https://fixtures.atlas.invalid/research/companyfacts.json",
+        "raw_sha256": "c039ebb824fc4ba84f31bb18f266a079e2c54a0542c8b00ec9d128bfc8551e8f",
+        "retrieved_at": "2026-10-20T00:00:00Z",
+        "json_pointer": "/facts/us-gaap/EarningsPerShareBasic/units/USD~1shares/4",
+        "accession": "9999999999-26-000011",
+        "form": "10-Q",
+        "filed_on": "2026-05-01",
+        "accepted_at": "2026-05-01T16:00:00Z",
+        "source_url": "https://fixtures.atlas.invalid/Archives/edgar/data/9999999999/999999999926000011/quarter1.htm",
+        "taxonomy": "us-gaap",
+        "tag": "EarningsPerShareBasic"
+      },
+      "reason": null
+    },
+    {
+      "metric": "revenue",
+      "value": "45000000",
+      "unit": "USD",
+      "status": "reported",
+      "period": {
+        "kind": "duration",
+        "start": "2025-07-01",
+        "end": "2025-09-30"
+      },
+      "source": {
+        "raw_source_url": "https://fixtures.atlas.invalid/research/companyfacts.json",
+        "raw_sha256": "c039ebb824fc4ba84f31bb18f266a079e2c54a0542c8b00ec9d128bfc8551e8f",
+        "retrieved_at": "2026-10-20T00:00:00Z",
+        "json_pointer": "/facts/us-gaap/RevenueFromContractWithCustomerExcludingAssessedTax/units/USD/5",
+        "accession": "9999999999-25-000003",
+        "form": "10-Q",
+        "filed_on": "2025-11-15",
+        "accepted_at": "2025-11-15T16:30:00Z",
+        "source_url": "https://fixtures.atlas.invalid/Archives/edgar/data/9999999999/999999999925000003/atlasdemo-20250930.htm",
+        "taxonomy": "us-gaap",
+        "tag": "RevenueFromContractWithCustomerExcludingAssessedTax"
+      },
+      "reason": null
+    },
+    {
+      "metric": "eps_basic",
+      "value": "1.25",
+      "unit": "USD/shares",
+      "status": "reported",
+      "period": {
+        "kind": "duration",
+        "start": "2025-07-01",
+        "end": "2025-09-30"
+      },
+      "source": {
+        "raw_source_url": "https://fixtures.atlas.invalid/research/companyfacts.json",
+        "raw_sha256": "c039ebb824fc4ba84f31bb18f266a079e2c54a0542c8b00ec9d128bfc8551e8f",
+        "retrieved_at": "2026-10-20T00:00:00Z",
+        "json_pointer": "/facts/us-gaap/EarningsPerShareBasic/units/USD~1shares/3",
+        "accession": "9999999999-25-000003",
+        "form": "10-Q",
+        "filed_on": "2025-11-15",
+        "accepted_at": "2025-11-15T16:30:00Z",
+        "source_url": "https://fixtures.atlas.invalid/Archives/edgar/data/9999999999/999999999925000003/atlasdemo-20250930.htm",
+        "taxonomy": "us-gaap",
+        "tag": "EarningsPerShareBasic"
+      },
+      "reason": null
+    }
+  ],
+  "period_ends": [
+    "2026-06-30",
+    "2026-03-31",
+    "2025-09-30"
+  ],
+  "coverage": {
+    "requested_periods": 3,
+    "available_periods": 3,
+    "requested_cells": 6,
+    "reported_cells": 6,
+    "history_truncated": false,
+    "partial": false
+  },
+  "sources": [
+    {
+      "raw_source_url": "https://fixtures.atlas.invalid/research/companyfacts.json",
+      "raw_sha256": "c039ebb824fc4ba84f31bb18f266a079e2c54a0542c8b00ec9d128bfc8551e8f",
+      "retrieved_at": "2026-10-20T00:00:00Z",
+      "json_pointer": ""
+    }
+  ],
+  "selection_policy": "reported_primary_period_v1",
+  "limitations": [
+    "US-GAAP concepts with metric-specific units; concept coverage varies by issuer.",
+    "Quarterly durations are 70-110 days; annual 330-400; YTD 70-310, longest reported start.",
+    "No subtraction-derived Q4, currency conversion, comparative-only revisions or PIT history.",
+    "A quarter with no reported duration anchor is omitted, including unreported Q4.",
+    "Current/revised source snapshots do not establish point-in-time historical availability.",
+    "Free public sources have upstream limits and no completeness or latency guarantee.",
+    "All companies, identifiers, observations and amounts in this fixture are fictional."
+  ]
+}

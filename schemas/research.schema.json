@@ -1,0 +1,573 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.atlas.invalid/research-0.2.schema.json",
+  "title": "Atlas free research query and common result envelope; dataset fields documented in the catalog",
+  "$defs": {
+    "ResearchQuery": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "dataset": {
+                "const": "companies"
+              }
+            },
+            "required": ["dataset"]
+          },
+          "then": {
+            "propertyNames": {
+              "enum": ["dataset", "identifier", "limit"]
+            },
+            "required": []
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "dataset": {
+                "const": "profile"
+              }
+            },
+            "required": ["dataset"]
+          },
+          "then": {
+            "propertyNames": {
+              "enum": ["dataset", "identifier"]
+            },
+            "required": ["identifier"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "dataset": {
+                "const": "statements"
+              }
+            },
+            "required": ["dataset"]
+          },
+          "then": {
+            "propertyNames": {
+              "enum": [
+                "dataset",
+                "allow_partial",
+                "count",
+                "identifier",
+                "metrics",
+                "period"
+              ]
+            },
+            "required": ["identifier"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "dataset": {
+                "const": "ratios"
+              }
+            },
+            "required": ["dataset"]
+          },
+          "then": {
+            "propertyNames": {
+              "enum": [
+                "dataset",
+                "allow_partial",
+                "count",
+                "identifier",
+                "period"
+              ]
+            },
+            "required": ["identifier"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "dataset": {
+                "const": "company_facts"
+              }
+            },
+            "required": ["dataset"]
+          },
+          "then": {
+            "propertyNames": {
+              "enum": [
+                "dataset",
+                "concept",
+                "identifier",
+                "limit",
+                "taxonomy",
+                "unit"
+              ]
+            },
+            "required": ["identifier"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "dataset": {
+                "const": "filings"
+              }
+            },
+            "required": ["dataset"]
+          },
+          "then": {
+            "propertyNames": {
+              "enum": ["dataset", "form", "identifier", "limit"]
+            },
+            "required": ["identifier"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "dataset": {
+                "const": "insider_transactions"
+              }
+            },
+            "required": ["dataset"]
+          },
+          "then": {
+            "propertyNames": {
+              "enum": ["dataset", "accession", "identifier", "limit"]
+            },
+            "required": ["identifier"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "dataset": {
+                "const": "institutional_holdings"
+              }
+            },
+            "required": ["dataset"]
+          },
+          "then": {
+            "propertyNames": {
+              "enum": ["dataset", "accession", "identifier", "limit"]
+            },
+            "required": ["identifier"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "dataset": {
+                "const": "ownership_filings"
+              }
+            },
+            "required": ["dataset"]
+          },
+          "then": {
+            "propertyNames": {
+              "enum": ["dataset", "identifier", "limit"]
+            },
+            "required": ["identifier"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "dataset": {
+                "const": "fund_filings"
+              }
+            },
+            "required": ["dataset"]
+          },
+          "then": {
+            "propertyNames": {
+              "enum": ["dataset", "identifier", "limit"]
+            },
+            "required": ["identifier"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "dataset": {
+                "const": "corporate_action_filings"
+              }
+            },
+            "required": ["dataset"]
+          },
+          "then": {
+            "propertyNames": {
+              "enum": ["dataset", "identifier", "limit"]
+            },
+            "required": ["identifier"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "dataset": {
+                "const": "economics"
+              }
+            },
+            "required": ["dataset"]
+          },
+          "then": {
+            "propertyNames": {
+              "enum": ["dataset", "limit", "series"]
+            },
+            "required": ["series"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "dataset": {
+                "const": "treasury_yields"
+              }
+            },
+            "required": ["dataset"]
+          },
+          "then": {
+            "propertyNames": {
+              "enum": ["dataset", "limit", "year"]
+            },
+            "required": []
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "dataset": {
+                "const": "federal_debt"
+              }
+            },
+            "required": ["dataset"]
+          },
+          "then": {
+            "propertyNames": {
+              "enum": ["dataset", "limit"]
+            },
+            "required": []
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "dataset": {
+                "const": "policy_news"
+              }
+            },
+            "required": ["dataset"]
+          },
+          "then": {
+            "propertyNames": {
+              "enum": ["dataset", "limit"]
+            },
+            "required": []
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "dataset": {
+                "const": "compare"
+              }
+            },
+            "required": ["dataset"]
+          },
+          "then": {
+            "propertyNames": {
+              "enum": [
+                "dataset",
+                "allow_partial",
+                "identifiers",
+                "metrics",
+                "period"
+              ]
+            },
+            "required": ["identifiers"]
+          }
+        }
+      ],
+      "properties": {
+        "dataset": {
+          "enum": [
+            "companies",
+            "profile",
+            "statements",
+            "ratios",
+            "company_facts",
+            "filings",
+            "insider_transactions",
+            "institutional_holdings",
+            "ownership_filings",
+            "fund_filings",
+            "corporate_action_filings",
+            "economics",
+            "treasury_yields",
+            "federal_debt",
+            "policy_news",
+            "compare"
+          ],
+          "title": "Dataset",
+          "type": "string"
+        },
+        "identifier": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Identifier"
+        },
+        "identifiers": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 10,
+          "title": "Identifiers",
+          "type": "array"
+        },
+        "metrics": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 40,
+          "title": "Metrics",
+          "type": "array"
+        },
+        "period": {
+          "default": "annual",
+          "enum": ["annual", "quarterly", "ytd"],
+          "title": "Period",
+          "type": "string"
+        },
+        "count": {
+          "default": 3,
+          "maximum": 20,
+          "minimum": 1,
+          "title": "Count",
+          "type": "integer"
+        },
+        "limit": {
+          "default": 100,
+          "maximum": 500,
+          "minimum": 1,
+          "title": "Limit",
+          "type": "integer"
+        },
+        "allow_partial": {
+          "default": false,
+          "title": "Allow Partial",
+          "type": "boolean"
+        },
+        "taxonomy": {
+          "default": "us-gaap",
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,79}$",
+          "title": "Taxonomy",
+          "type": "string"
+        },
+        "concept": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z][A-Za-z0-9_]{0,199}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Concept"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z][A-Za-z0-9_/-]{0,49}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        },
+        "form": {
+          "default": "all",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9 /-]{0,29}$",
+          "title": "Form",
+          "type": "string"
+        },
+        "accession": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9]{10}-[0-9]{2}-[0-9]{6}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Accession"
+        },
+        "series": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9_]{1,40}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Series"
+        },
+        "year": {
+          "anyOf": [
+            {
+              "maximum": 2100,
+              "minimum": 1990,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Year"
+        }
+      },
+      "required": ["dataset"],
+      "title": "ResearchQuery",
+      "type": "object"
+    },
+    "ResearchSource": {
+      "type": "object",
+      "properties": {
+        "raw_source_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "raw_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "retrieved_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "json_pointer": {
+          "type": "string"
+        },
+        "xml_local_path": {
+          "type": "string"
+        }
+      },
+      "required": ["raw_source_url", "raw_sha256", "retrieved_at"],
+      "anyOf": [
+        {
+          "required": ["json_pointer"]
+        },
+        {
+          "required": ["xml_local_path"]
+        }
+      ],
+      "additionalProperties": true
+    },
+    "ResearchResult": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "0.2.0"
+        },
+        "dataset": {
+          "enum": [
+            "companies",
+            "profile",
+            "statements",
+            "ratios",
+            "company_facts",
+            "filings",
+            "insider_transactions",
+            "institutional_holdings",
+            "ownership_filings",
+            "fund_filings",
+            "corporate_action_filings",
+            "economics",
+            "treasury_yields",
+            "federal_debt",
+            "policy_news",
+            "compare"
+          ]
+        },
+        "query": {
+          "$ref": "#/$defs/ResearchQuery"
+        },
+        "source_id": {
+          "enum": ["sec", "bls", "treasury", "fiscaldata", "federal_reserve"]
+        },
+        "source_terms_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "upstream_data_cost": {
+          "const": "0"
+        },
+        "is_synthetic": {
+          "type": "boolean"
+        },
+        "source_text_is_untrusted": {
+          "const": true
+        },
+        "retrieved_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "records": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ResearchSource"
+          }
+        },
+        "coverage": {
+          "type": "object"
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "schema_version",
+        "dataset",
+        "query",
+        "source_id",
+        "source_terms_url",
+        "upstream_data_cost",
+        "is_synthetic",
+        "source_text_is_untrusted",
+        "retrieved_at",
+        "records",
+        "sources",
+        "coverage",
+        "limitations"
+      ]
+    }
+  }
+}
