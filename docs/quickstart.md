@@ -1,8 +1,8 @@
-# 導入と MCP
+# Quickstart and MCP
 
-Python 3.12 以上と uv を用意し、このチェックアウトで `uv sync --locked --all-extras --dev` を実行します。初回の依存ダウンロード後は `uv run --offline atlas demo --json` で動きます。PyPI への配布は行っていません。
+Use Python 3.12+ and uv. Run `uv sync --locked --all-extras --dev` in the repository. After dependencies are installed, `uv run --offline atlas demo --json` works without external requests. The package has not been published to PyPI.
 
-## 最短のデータ取得
+## Retrieve data
 
 ```sh
 uv run --offline atlas demo --json
@@ -14,11 +14,11 @@ uv run --offline atlas research get statements --identifier ATLASDEMO --period q
 uv run --offline atlas research get economics --series cpi --provider fixture --json
 ```
 
-実 SEC を使う場合は `SEC_USER_AGENT` に利用者の識別情報と連絡先を private な環境設定から渡し、identifier を実企業、provider を `sec` に変更します。API キー・ウォレット・モデルキーは不要です。`.env.example` は変数名一覧で、自動ロードはしません。contact をチャットやログに記録しないでください。
+For SEC retrieval, configure `SEC_USER_AGENT` privately with your identifying application name and actual contact email. Use a real issuer identifier and the `sec` provider for company/annual commands, or `public` for research commands. No API key, wallet or model key is required. `.env.example` lists variable names; Atlas does not load it automatically. Keep contact details out of chat and logs.
 
-## MCP ホストへの接続
+## Connect an MCP host
 
-[設定例](../examples/mcp.fixture.json)の `/absolute/path/to/atlas-terminal` を実パスに置き換えます。ホスト側に uv の PATH を設定するか、command を uv の絶対パスにします。
+Replace `/absolute/path/to/atlas-terminal` in the [configuration example](../examples/mcp.fixture.json) with the repository path. Make uv available on the host's PATH, or use its absolute executable path.
 
 ```json
 {
@@ -41,21 +41,21 @@ uv run --offline atlas research get economics --series cpi --provider fixture --
 }
 ```
 
-`fixture` 起動後、公式クライアントの initialize / tools/list / tools/call に対応します。`atlas_get_financials` へ `identifier=ATLASDEMO`、`metrics=[revenue, net_income]`、`count=3` を渡すと CLI/SDK と同じ structured content を返します。
+The server supports initialize, tools/list and tools/call with the official MCP client. For `atlas_get_financials`, pass `identifier=ATLASDEMO`, `metrics=[revenue, net_income]` and `count=3` to receive the same structured result as the CLI and SDK.
 
-`sec` ではホストの private environment 設定から `SEC_USER_AGENT` を渡します。`hosted` は起動時に `ATLAS_HOSTED_ORIGIN`、private な `ATLAS_STATE_DIR`、有料購入用 `ATLAS_POLICY_FILE` を渡します。鍵の実値を設定例・モデル入力へ含めません。MCP ツールから provider、URL、policy、wallet を変更する機能はありません。
+Configure `SEC_USER_AGENT` privately for SEC requests. The `hosted` provider uses `ATLAS_HOSTED_ORIGIN`, a private `ATLAS_STATE_DIR` and, for paid purchases, `ATLAS_POLICY_FILE`. Never put real keys in examples or model inputs. MCP arguments cannot change providers, URLs, policies or wallets.
 
-| Tool                   | 動作                                                   |
-| ---------------------- | ------------------------------------------------------ |
-| atlas_resolve_company  | 企業候補を照合                                         |
-| atlas_get_financials   | fixture / SEC のみ取得。hosted は QUOTE_REQUIRED       |
-| atlas_list_filings     | 提出メタデータと出典参照                               |
-| atlas_quote            | 成果物と価格を固定。支払わない                         |
-| atlas_purchase         | 委任済みの方針・予算内で支出する                       |
-| atlas_purchase_status  | private な回復 capability を使って状態照合。支払わない |
-| atlas_research_catalog | 無料16データセット・単位・クエリ仕様・未提供情報       |
-| atlas_get_research     | `query` object で調査取得。見積もり・支払い不要        |
+| Tool                   | Behavior                                                            |
+| ---------------------- | ------------------------------------------------------------------- |
+| atlas_resolve_company  | Resolve a current issuer                                            |
+| atlas_get_financials   | Retrieve fixture/SEC annual data; hosted returns QUOTE_REQUIRED     |
+| atlas_list_filings     | Return filing metadata and source references                        |
+| atlas_quote            | Save an immutable artifact and price without authorizing payment    |
+| atlas_purchase         | Spend within the operator's delegated policy and budget             |
+| atlas_purchase_status  | Recover status using a private capability without paying            |
+| atlas_research_catalog | List 16 free datasets, units, query schemas and coverage gaps       |
+| atlas_get_research     | Retrieve research using a `query` object without a quote or payment |
 
-調査は [調査ガイド](research.md)を参照してください。例えば `atlas_get_research` の引数は `{"query":{"dataset":"economics","series":"cpi"}}`。`--provider public` で政府ソースから直接取得し、SEC に接続する場合だけ `SEC_USER_AGENT` を検査します。`hosted` では調査取得はできません。8ツールのうち支出を行うのは `atlas_purchase` だけです。
+For example, call `atlas_get_research` with `{"query":{"dataset":"economics","series":"cpi"}}`. Use `--provider public` for direct government sources. SEC contact settings are checked only when accessing SEC. The `hosted` provider does not proxy research. Only `atlas_purchase` spends funds. See the [research guide](research.md) for dataset queries.
 
-プロセス起動時の失敗は stderr、それ以降の stdout は公式 SDK のプロトコル専用です。Windows でも uv コマンドを使えますが、Windows 上での実行試験は未実施です。
+Startup failures go to stderr. Once running, stdout belongs exclusively to the official MCP protocol. Windows execution has not been verified.

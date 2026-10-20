@@ -1,10 +1,10 @@
 ---
 name: Feature
-about: 確定スコープ内の改善提案
+about: Suggest an improvement within the project scope
 ---
 
-解決したい問題:
+Problem to solve:
 
-想定する動作と受入条件:
+Expected behavior and acceptance criteria:
 
-年次 SEC / エージェント操作 / 任意の x402 という範囲との関係:
+Relationship to free public-source research, agent interfaces or the optional snapshot API:

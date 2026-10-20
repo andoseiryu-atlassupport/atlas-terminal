@@ -2,7 +2,7 @@
 
 Atlas Terminal gives AI agents access to US equity research from free public primary sources. It provides company profiles, financial statements, disclosures, reported ownership and economic indicators through a CLI, Python SDK, stdio MCP and HTTP API.
 
-[日本語](README.ja.md) · [Capabilities](IMPLEMENTATION_STATUS.md) · [Research guide](docs/research.md) · [Data sources](DATA_SOURCES.md)
+[Capabilities](IMPLEMENTATION_STATUS.md) · [Research guide](docs/research.md) · [Data sources](DATA_SOURCES.md)
 
 ## Available data
 

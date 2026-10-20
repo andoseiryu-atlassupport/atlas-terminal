@@ -1,6 +1,6 @@
-# 開発への参加
+# Contributing
 
-Python 3.12 以上、uv、Node.js 24 を用意します。
+Use Python 3.12+, uv and Node.js 24.
 
 ```sh
 uv sync --locked --all-extras --dev
@@ -13,10 +13,10 @@ uv run --offline python -m build --no-isolation
 npm run check
 ```
 
-作業ブランチで変更し、[対応範囲](docs/project-brief.md)、[機能一覧](IMPLEMENTATION_STATUS.md)、[検証範囲](docs/verification.md)を確認してください。実際に実行した検証と未実施の試験を PR に記録します。
+Work on a branch and review the [project scope](docs/project-brief.md), [capabilities](IMPLEMENTATION_STATUS.md) and [validation scope](docs/verification.md). Describe the checks actually run and any unverified behavior in the pull request.
 
-財務の不具合には CIK、accession、taxonomy/tag、実際の対象期間、期待する値、原資料参照を添付します。個人情報を含む User-Agent や原購入 DB は添付しません。期間選択・欠損・署名再利用・クラッシュ回復の挙動を保護する試験を優先します。
+For financial data issues, include the CIK, accession, taxonomy/tag, actual period, expected value and original source reference. Do not include a User-Agent containing personal contact details or a real purchase database. Prioritize tests for period selection, missing data, signature reuse and crash recovery.
 
-fixture は架空データで、bytes の hash を出典に使います。Prettier 対象外の原資料・期待値を無断で再整形しないでください。公開文書は日本語、README は英語・日本語の両方を保ちます。
+Fixtures are fictional, and source hashes depend on their exact bytes. Do not reformat raw sources or expected outputs excluded from Prettier. Keep public documentation and templates in English, with README.md as the canonical README.
 
-既定の試験は通信と送金を行いません。live 試験は [決済手順](docs/payments.md) と明示 opt-in を必要とし、外部 PR の CI には追加しません。コードのライセンスは [Apache-2.0](LICENSE) です。
+Default tests make no external requests or transfers. Live checks require the explicit opt-ins described in [payments](docs/payments.md) and must not run in CI for external contributions. The code is licensed under [Apache-2.0](LICENSE).

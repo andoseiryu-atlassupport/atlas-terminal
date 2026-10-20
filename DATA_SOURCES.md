@@ -1,49 +1,49 @@
-# データの出典と利用条件
+# Data sources and terms
 
-調査機能は無料でアクセスできる政府一次ソースに限定します。データ購読や API キーは不要です。SEC は利用者による識別用 User-Agent と実連絡先、アクセス条件への適合が必要です。他のソースへ SEC の連絡先を送信しません。
+Research uses free government primary sources without data subscriptions or API keys. SEC requests require an identifying User-Agent with actual contact details and compliance with SEC access rules. SEC contact settings are never sent to other sources.
 
-## 採用ソース
+## Sources
 
-| ソース                      | 取得するデータ                                    | 費用・認証                            | 取得範囲・留意点                                                             |
-| --------------------------- | ------------------------------------------------- | ------------------------------------- | ---------------------------------------------------------------------------- |
-| SEC EDGAR                   | ticker、企業、submissions、companyfacts、提出 XML | 無料、API キー不要、実連絡先を含む UA | 構造化事実と提出参照。第三者提出資料の権利を政府作成物と同一視しない         |
-| BLS API V1                  | CPI・雇用・失業・賃金・求人                       | 無料、登録不要                        | 最新3年、8系列を固定登録。ローカル DB で25試行/UTC日、共有 IP の上流制限は別 |
-| Treasury interest rates XML | 日次 nominal par yield curve                      | 無料、API キー不要                    | 1990年以降の指定年、日付・満期別。取引可能な債券価格ではない                 |
-| Treasury Fiscal Data        | Debt to the Penny                                 | 無料、API キー不要                    | 最新500件までの1ページ。日付・米ドル単位を保持                               |
-| Federal Reserve RSS         | 公式 press release の見出し・日時・リンク         | 無料、API キー不要                    | 配信中のリリースだけ。通信社記事・全文を提供しない                           |
+| Source                      | Data                                                              | Cost and authentication                                   | Coverage and conditions                                                                                         |
+| --------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| SEC EDGAR                   | Tickers, issuers, submissions, companyfacts and filing XML        | Free; no API key; identifying contact User-Agent required | Structured facts and filing references; third-party filings retain their own rights                             |
+| BLS API V1                  | Consumer prices, employment, unemployment, wages and job openings | Free; no registration                                     | Latest three years, eight registered series; 25 local attempts/UTC day, with separate upstream shared-IP limits |
+| Treasury interest rates XML | Daily nominal par yield curve                                     | Free; no API key                                          | Selected year from 1990 onward; date/maturity observations, not executable bond prices                          |
+| Treasury Fiscal Data        | Debt to the Penny                                                 | Free; no API key                                          | One page of at most 500 recent records with original dates and USD units                                        |
+| Federal Reserve RSS         | Official release headlines, dates and links                       | Free; no API key                                          | Entries retained by the feed; no newswire articles or full article bodies                                       |
 
-公式資料・条件の参照先:
+Official documentation and conditions:
 
-- SEC: [EDGAR API](https://www.sec.gov/search-filings/edgar-application-programming-interfaces)、[Developer Resources](https://www.sec.gov/about/developer-resources)、[Form 13F](https://www.sec.gov/files/form13f.pdf)。
-- BLS: [API V1](https://www.bls.gov/developers/api_signature_v1.htm)、[API features and limits](https://www.bls.gov/developers/api_features.htm)、[linking and copyright](https://www.bls.gov/bls/linksite.htm)。
-- Treasury yields: [CSV / XML archive](https://home.treasury.gov/interest-rates-data-csv-archive)、[site policy](https://home.treasury.gov/footer/privacy-act)。
-- Fiscal Data: [API documentation](https://fiscaldata.treasury.gov/api-documentation/)、[about](https://fiscaldata.treasury.gov/about-us/)。
-- Federal Reserve: [feeds](https://www.federalreserve.gov/feeds/feeds.htm)、[disclaimer](https://www.federalreserve.gov/disclaimer.htm)。
+- SEC: [EDGAR API](https://www.sec.gov/search-filings/edgar-application-programming-interfaces), [Developer Resources](https://www.sec.gov/about/developer-resources), [Form 13F](https://www.sec.gov/files/form13f.pdf).
+- BLS: [API V1](https://www.bls.gov/developers/api_signature_v1.htm), [API features and limits](https://www.bls.gov/developers/api_features.htm), [linking and copyright](https://www.bls.gov/bls/linksite.htm).
+- Treasury yields: [CSV / XML archive](https://home.treasury.gov/interest-rates-data-csv-archive), [site policy](https://home.treasury.gov/footer/privacy-act).
+- Fiscal Data: [API documentation](https://fiscaldata.treasury.gov/api-documentation/), [about](https://fiscaldata.treasury.gov/about-us/).
+- Federal Reserve: [feeds](https://www.federalreserve.gov/feeds/feeds.htm), [disclaimer](https://www.federalreserve.gov/disclaimer.htm).
 
-**確認範囲:** 固定 endpoint、データ形状、条件付き cache、上限、欠損・単位・出典をオフラインの fixture / HTTP mock で試験しています。ソースへの実接続、公式ページの最新状態、個別の再配布条件の最終確認は未実施です。参照リンクは利用条件の保証や個別のライセンス許諾ではありません。実運用では原サイトの最新条件・制限に従ってください。[検証範囲](docs/verification.md)に試験内容を記載しています。
+**Validation scope:** Endpoints, response shapes, conditional caching, limits, missing values, units and provenance are tested with offline fixtures and mock HTTP. Live access, current terms pages and final dataset-specific redistribution checks have not been verified. These links do not grant licenses or guarantee applicable conditions. Follow current source terms and limits before operation. See [validation scope](docs/verification.md) for test evidence.
 
-## 取得と加工の範囲
+## Retrieval and processing
 
-任意 URL や mirror を受け付けず、redirect を追いません。期限切れ cache の更新に失敗しても、古い値を最新値として返したり、有料 provider に切り替えたりしません。HTTP は共有 rate limiter と最大3試行、原 bytes の時間・サイズ上限を使います。BLS の日次試行数も永続化します。
+Atlas accepts no arbitrary source URLs or mirrors and follows no redirects. Refresh failures never present expired cache entries as current data or switch to a paid provider. HTTP uses shared rate limits, at most three attempts and response size/time bounds. BLS daily attempts are persisted.
 
-`statements` は年次・四半期・YTD、37の US-GAAP 指標をタグと単位を明示して正規化します。`financials` は年次5指標の snapshot を返します。元の taxonomy / unit / context を読む `company_facts`、計算式と入力を残す `ratios`、提出一覧だけの discovery datasets を区別します。[選択方法](docs/methodology.md)と[調査仕様](docs/research.md)を参照してください。
+`statements` normalizes 37 annual, quarterly and YTD US-GAAP concepts with explicit tags and units. `financials` returns five-metric annual snapshots. Raw-context `company_facts`, input-traceable `ratios` and filing-discovery metadata are distinct outputs. See [methodology](docs/methodology.md) and the [research guide](docs/research.md).
 
-無料閲覧と再配布許諾は異なります。Yahoo Finance 等の非公開 API、再配布条件が確認できない無料日足、取引所の有料相場、コンセンサス予想、通信社記事、決算電話全文は統合していません。株価・板・全銘柄の調整係数・PIT を取得できるとは表示しません。
+Free viewing and redistribution permission are different conditions. Unofficial Yahoo Finance APIs, daily-price sources without verified service redistribution terms, paid exchange feeds, consensus forecasts, newswire articles and earnings-call transcripts are not integrated. The service does not provide prices, order books, universe-wide adjustment factors or PIT data.
 
-## SEC endpoint
+## SEC endpoints
 
-| データ                | 参照元                                                                    |
-| --------------------- | ------------------------------------------------------------------------- |
-| 現在の ticker / CIK   | https://www.sec.gov/files/company_tickers.json                            |
-| 企業と提出履歴        | https://data.sec.gov/submissions/CIK{cik}.json                            |
-| 追加履歴              | submissions が列挙する検証済みの archive filename                         |
-| XBRL facts            | https://data.sec.gov/api/xbrl/companyfacts/CIK{cik}.json                  |
-| 提出 XML と directory | 検証済み CIK / accession の https://www.sec.gov/Archives/edgar/data/ 配下 |
+| Data                          | Source                                                                       |
+| ----------------------------- | ---------------------------------------------------------------------------- |
+| Current ticker / CIK mapping  | https://www.sec.gov/files/company_tickers.json                               |
+| Issuer and submission history | https://data.sec.gov/submissions/CIK{cik}.json                               |
+| Additional history            | Validated archive filenames listed by submissions                            |
+| XBRL facts                    | https://data.sec.gov/api/xbrl/companyfacts/CIK{cik}.json                     |
+| Filing XML and directories    | Validated CIK/accession paths under https://www.sec.gov/Archives/edgar/data/ |
 
-一次資料: [EDGAR API](https://www.sec.gov/search-filings/edgar-application-programming-interfaces)、[Accessing EDGAR](https://www.sec.gov/search-filings/edgar-search-assistance/accessing-edgar-data)、[Developer Resources](https://www.sec.gov/about/developer-resources)。SEC の実レスポンス取得と公式ページの最新状態の確認は未実施です。endpoint 処理の規則は HTTP MockTransport で試験しています。実運用前に最新条件を確認してください。
+Additional references: [Accessing EDGAR](https://www.sec.gov/search-filings/edgar-search-assistance/accessing-edgar-data) and [Developer Resources](https://www.sec.gov/about/developer-resources). Endpoint behavior is tested with HTTP MockTransport; live responses and the latest official pages remain unverified.
 
-SEC の原データがすべての会社・会計概念・原資料を網羅するとは扱いません。現在の ticker は過去の symbol history ではありません。13F は運用者別の個々の提出から取り、全投資家のリアルタイム保有一覧へ拡張解釈しません。
+SEC data is not treated as complete coverage of all issuers, concepts or documents. The current ticker directory is not a historical symbol map. 13F retrieval reads individual manager filings, not every investor's real-time holdings.
 
-原文 JSON / XML bytes は private cache に保存し、hash と JSON pointer / XML local path で追跡します。提供対象は構造化事実・提出メタデータ・限定した脚注・元資料参照で、第三者の文書全文、画像、音声を丸ごと再配信しません。コードの Apache-2.0 が原資料全体へ自動適用されるものではありません。
+Original JSON/XML bytes are cached privately and traced by hashes and JSON pointers or XML local paths. Output includes structured facts, filing metadata, limited footnotes and original references, not wholesale redistribution of third-party documents, images or audio. The code's Apache-2.0 license does not automatically apply to source material.
 
-`resources/sec_like`、`resources/research`、`tests/fixtures` の会社・CIK・金額・観測値はすべて架空です。`.invalid` の資料リンクへ通信しません。fixture の取得時刻は 2026-10-20T00:00:00Z 固定、原 hash は同梱 bytes から算出します。政府の原資料に似せた fixture を実データと表示しません。
+Companies, CIKs, amounts and observations under `resources/sec_like`, `resources/research` and `tests/fixtures` are fictional. Fixture source links use `.invalid` and are never fetched. Retrieval time is fixed at 2026-10-20T00:00:00Z, and hashes are calculated from packaged bytes. Government-shaped fixtures are never presented as real observations.

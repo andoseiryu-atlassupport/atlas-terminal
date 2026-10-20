@@ -1,12 +1,12 @@
 ---
 name: Bug
-about: 動作不良と再現手順
+about: Report incorrect behavior with reproduction steps
 ---
 
-バージョン / OS:
+Version / OS:
 
-再現手順と機械可読なエラーコード:
+Reproduction steps and machine-readable error code:
 
-期待する動作:
+Expected behavior:
 
-秘密値や private な購入情報を添付しないでください。
+Do not include secrets or private purchase information.

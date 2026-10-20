@@ -1,6 +1,6 @@
 # Atlas Terminal: agent instructions
 
-Read `README.md`, `docs/project-brief.md`, `CONTRIBUTING.md` and `IMPLEMENTATION_STATUS.md` before changes. Work in this existing repository; preserve unrelated changes. Use Japanese project documentation and explanations, with the requested English README and clear English code identifiers.
+Read `README.md`, `docs/project-brief.md`, `CONTRIBUTING.md` and `IMPLEMENTATION_STATUS.md` before changes. Work in this existing repository; preserve unrelated changes. Use English for all public documentation, templates and code identifiers. Keep README.md as the canonical README and describe current product capabilities rather than development-platform promotion or work history.
 
 ## Product and data
 
