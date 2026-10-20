@@ -28,7 +28,7 @@ uv run --offline atlas research get economics --series cpi --provider fixture --
 
 For live sources, use `--provider public` (the research default). SEC datasets require your private `SEC_USER_AGENT`; macro and policy datasets do not. There are no automatic paid-source fallbacks. Research HTTP requests use `POST /v1/research` without a quote or payment, including when the separate annual-snapshot service uses mock/testnet payments.
 
-**This does not provide Bloomberg-equivalent coverage.** Consolidated equity prices, order books, option chains, analyst consensus, licensed newswires, earnings-call transcripts and a PIT database are unavailable. Filing discovery is labeled metadata and does not imply normalized corporate actions or parsed fund portfolios. Free access is not blanket permission to redistribute third-party content. Source terms and implemented gaps are included in `research catalog` and [DATA_SOURCES.md](DATA_SOURCES.md).
+**Coverage limitations:** Consolidated equity prices, order books, option chains, analyst consensus, licensed newswires, earnings-call transcripts and a PIT database are unavailable. Filing discovery is labeled metadata and does not imply normalized corporate actions or parsed fund portfolios. Free access is not blanket permission to redistribute third-party content. Source terms and implemented gaps are included in `research catalog` and [DATA_SOURCES.md](DATA_SOURCES.md).
 
 All research datasets have offline fixture tests. **Live source access and the latest source terms pages have not been verified in this environment.** Fixture results are fictional and marked `is_synthetic=true`.
 
