@@ -18,7 +18,7 @@
 
 ## SEC REST と EdgarTools の比較
 
-必要なのは ticker、submissions/archive、companyfacts と独自の主年度選択だけのため、httpx による直接 REST を採用した。[EdgarTools](https://github.com/dgunning/edgartools) は再利用候補として PyPI metadata を確認した（5.62.0、MIT、requires_dist 41 件、extras を含む）。幅広い filing/table 機能と追加依存を導入せず、Atlas 側で rate/cache/期間規則を一元管理する。EdgarTools 自体はインストールしていない。
+必要な ticker、submissions/archive、companyfacts と独自の期間選択を一元管理するため、httpx による直接 REST を採用した。[EdgarTools](https://github.com/dgunning/edgartools) は再利用候補として PyPI metadata を確認した（5.62.0、MIT、requires_dist 41 件、extras を含む）。幅広い filing/table 機能と追加依存を導入せず、Atlas 側で rate/cache/期間規則を一元管理する。EdgarTools 自体はインストールしていない。
 
 SEC live 取得・公式ページの最新状態の確認は NOT RUN。既定 2 req/s・同時 2・archive 20 個・bytes/時間上限・条件付き cache を HTTP mock で試験する。
 
@@ -68,3 +68,7 @@ Facilitator 固有の AuthProvider、実接続の可否、real Base Sepolia 送�
 コードのライセンスは Apache-2.0。正式な原文は [Apache 公式 GitHub](https://github.com/apache/.github/blob/main/LICENSE) から取得し、ルートの [LICENSE](LICENSE) に同梱した。README、Python・npm のパッケージ設定に同じ SPDX 識別子を記載する。原データと依存パッケージの条件は別扱い。
 
 新規追加の `actions/setup-python` v6 は `git ls-remote` で `ece7cb06caefa5fff74198d8649806c4678c61a1` を確認して固定した。既存 checkout/setup-node の SHA を維持する。[GitHub Actions の CI run #2](https://github.com/andoseiryu-atlassupport/atlas-terminal/actions/runs/39422982457) で依存導入・品質チェック・offline 試験・デモ・配布 build の成功を確認した。
+
+## 無料調査コネクター
+
+調査機能は追加パッケージを導入せず、既存の httpx / Pydantic / FastAPI / MCP と Python 標準の xml.etree.ElementTree を使う。SEC と政府公開ソースの HTTP cache/rate/retry を共有実装にまとめ、DTD / entity 宣言・UTF-16・過大な XML を拒否してから解析する。BLS・Treasury・Federal Reserve の実接続と最新の公式条件の最終確認は未実施で、採用版の検証は fixture と HTTP mock に限る。[出典](DATA_SOURCES.md)と[調査仕様](docs/research.md)を参照。

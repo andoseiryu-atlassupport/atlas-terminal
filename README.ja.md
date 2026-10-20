@@ -1,8 +1,36 @@
 # Atlas Terminal
 
-AI エージェントが SEC 公開データの企業情報、年次財務実績、提出書類メタデータを取得する CLI・Python SDK・stdio MCP です。ローカル取得は無料で、ウォレットも LLM API キーも不要です。任意の参照 HTTP サービスでは、不変の財務 snapshot を明示的な見積もり・購入で取得できます。
+AI エージェントが無料の公開一次ソースから米株の企業・財務・開示・保有情報と経済指標を調べる CLI・Python SDK・stdio MCP・参照 HTTP API です。調査機能にデータ購読、ウォレット、LLM API キーは不要です。
 
-[English](README.md) · [実装・検証状況](IMPLEMENTATION_STATUS.md) · [選択方法](docs/methodology.md)
+[English](README.md) · [調査機能の使い方](docs/research.md) · [実装・検証状況](IMPLEMENTATION_STATUS.md) · [選択方法](docs/methodology.md)
+
+## 無料ソースの調査機能
+
+SEC、BLS、米財務省の利回り・Fiscal Data、FRB の5ソースから16種類のデータセットを扱います。数値は decimal 文字列で返し、単位・期間・原資料ハッシュ・JSON pointer / XML path を残します。
+
+| 分野       | 提供する情報                                                                             |
+| ---------- | ---------------------------------------------------------------------------------------- |
+| 企業       | 現在の ticker / CIK、企業概要、SIC 業種、取引所、決算期                                  |
+| 財務       | 損益・貸借・キャッシュフロー・EPS・株数・配当の37指標。年次・実際に報告された四半期・YTD |
+| 比較       | 元数値と式を残す6つの比率、指定した最大10社の比較                                        |
+| XBRL       | 会計概念一覧、元の taxonomy・単位・期間を保持した観測値                                  |
+| 開示       | 全フォームと、保有報告・投信報告・議決権・募集・企業イベント関連資料の一覧               |
+| 保有・取引 | Form 3/4/5 の保有・取引明細、選択した運用者の13F保有明細                                 |
+| 経済       | BLS の物価・雇用8系列、米国債パー利回り、連邦債務                                        |
+| 政策       | FRB 公式リリースの見出し・日時・原文リンク                                               |
+
+```sh
+uv run --offline atlas research catalog --json
+uv run --offline atlas research get statements --identifier ATLASDEMO --period quarterly --metrics revenue,eps_basic --count 3 --provider fixture --json
+uv run --offline atlas research get institutional_holdings --identifier ATLASDEMO --provider fixture --json
+uv run --offline atlas research get economics --series cpi --provider fixture --json
+```
+
+実データでは `--provider public`（調査コマンドの既定値）を使います。SEC の取得には private な `SEC_USER_AGENT` が必要ですが、経済・政策データには不要です。有料ソースへの自動切替はありません。HTTP の `POST /v1/research` も見積もり・支払い不要です。
+
+**Bloomberg と同等の網羅性はありません。** 統合株価・板・オプションチェーン・市場予想・通信社記事・決算電話会議全文・PIT データベースは未提供です。資料一覧はメタデータであり、企業イベントや投信保有の構造化明細と混同しません。無料でアクセスできる第三者資料に、無条件の再配布権があるとは扱いません。[出典と条件](DATA_SOURCES.md)、[各データセットの仕様](docs/research.md)を参照してください。
+
+全データセットをオフライン fixture で検証します。**この環境からの実接続と公式利用条件ページの最新状態は未確認です。** fixture は架空の値で、`is_synthetic=true` を返します。
 
 ## オフラインデモ
 
@@ -27,7 +55,7 @@ uv run atlas filings list AAPL --form 10-K --limit 3 --provider sec --json
 
 既定の provider は SEC です。取得失敗時にホスト版・支払いへ切り替わりません。架空企業 `ATLASDEMO` では `--provider fixture` を指定します。標準出力は単一 JSON、エラーは非ゼロ終了です。終了コードは 2=入力、3=上流、4=方針・設定、5=決済、1=予期しない失敗です。
 
-対応指標は `revenue`、`net_income`、`assets`、`liabilities`、`operating_cash_flow`。主年度の 10-K / 10-K/A に基づく年次・US-GAAP・USD に限定します。欠損・矛盾・年数不足は既定で `INCOMPLETE_COVERAGE`。`--allow-partial` を明示すると欠損を含む行列を返します。株価・ニュース・監視・売買・有料データ・内蔵 LLM 分析は対象外です。後年の比較列だけに現れる修正と `as_of` / PIT 要求にも対応しません。
+既存の `financials get` は年次 snapshot 契約を維持します。対応指標は `revenue`、`net_income`、`assets`、`liabilities`、`operating_cash_flow`。主年度の 10-K / 10-K/A に基づく年次・US-GAAP・USD に限定します。欠損・矛盾・年数不足は既定で `INCOMPLETE_COVERAGE`。`--allow-partial` を明示すると欠損を含む行列を返します。拡張指標と四半期・YTD には `research get statements` を使います。後年の比較列だけに現れる修正と `as_of` / PIT 要求は引き続き対象外です。
 
 ## Python と MCP
 
@@ -51,7 +79,7 @@ with Atlas("fixture") as atlas:
 uv run --offline atlas mcp serve --provider fixture
 ```
 
-[MCP 設定例](examples/mcp.fixture.json)の絶対パスを実際のチェックアウトに変更します。標準出力は MCP プロトコル専用です。企業照合、財務、開示、見積もり、購入、購入状態の 6 ツールが使えます。支払いを行うのは購入だけで、接続先・鍵・方針ファイルをツール引数に公開しません。[詳しい導入手順](docs/quickstart.md)を参照してください。
+[MCP 設定例](examples/mcp.fixture.json)の絶対パスを実際のチェックアウトに変更します。標準出力は MCP プロトコル専用です。調査カタログ、調査データ取得、企業照合、年次財務、開示、見積もり、購入、購入状態の8ツールが使えます。支払いを行うのは購入だけで、接続先・鍵・方針ファイルをツール引数に公開しません。[詳しい導入手順](docs/quickstart.md)を参照してください。
 
 ## 任意の参照 API と決済
 

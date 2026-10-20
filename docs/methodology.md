@@ -31,3 +31,7 @@
 後年の 10-K の比較列だけに現れる過去年の restatement は追跡しません。現在の companyfacts を使って過去の情報集合を復元できるとは扱わず、`as_of` / PIT / published_before を拒否します。数値の会計的同等性や全発行体での網羅性は保証していません。
 
 原 bytes の hash と JSON pointer で値を追跡できます。サーバーは元データの更新と独立した canonical FinancialResult bytes を quote 時に固定します。canonical JSON は UTF-8、キー昇順、`,` / `:` 区切り、ASCII への変換なし、非有限数なしです。
+
+## 拡張調査の財務契約
+
+この文書の年次5指標は既存の `financials` / snapshot 契約を説明します。調査の `statements` は37指標と年次・明示四半期・YTDを、`ratios` は出典入力を保持する6比率を扱います。期間・単位・欠損・Q4 の扱いは[調査仕様](research.md)を参照してください。元の文脈を返す `company_facts` と正規化値を混同しません。

@@ -15,12 +15,15 @@ uv run --offline ruff format --check .
 uv run --offline mypy
 uv run --offline pytest
 uv run --offline atlas demo --json
+uv run --offline python examples/free_research.py
 uv run --offline python -m build --no-isolation
 ```
 
 初回の依存取得には PyPI / package download の許可が必要です。実行後の fixture デモ・テストはオフラインです。uv 0.12.23、Python 3.12.14、Node.js 24.19.0 で検証しています。
 
 実 SEC では SEC の 2 ドメインと private な SEC_USER_AGENT、real testnet では選んだ Facilitator / HTTPS service の許可と専用 wallet/policy が別途必要です。既存 network 制限を回避せず、管理 UI の設定フローで扱います。秘密値を setup log やチャットへ出しません。
+
+無料調査の実取得では、必要なソースの `api.bls.gov`、`home.treasury.gov`、`api.fiscaldata.treasury.gov`、`www.federalreserve.gov` への HTTPS 許可が別途必要です。fixture 検証はこれらへ通信しません。`scripts/research_smoke.py` は `--allow-network` を明示した場合だけ live 検査を行います。通信制限による未検証を fixture PASS で置き換えません。
 
 ## 別タスクでの再現
 

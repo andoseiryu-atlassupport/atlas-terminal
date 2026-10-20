@@ -35,7 +35,15 @@ async def mcp_smoke(root):
         ClientSession(*streams, read_timeout_seconds=15) as session,
     ):
         await session.initialize()
-        assert len((await session.list_tools()).tools) == 6
+        assert len((await session.list_tools()).tools) == 8
+        research = await session.call_tool(
+            "atlas_get_research",
+            {"query": {"dataset": "institutional_holdings", "identifier": "ATLASDEMO"}},
+        )
+        assert (
+            not research.is_error
+            and research.structured_content["records"][0]["cusip"] == "999999AA1"
+        )
         data = await session.call_tool("atlas_get_financials", QUERY.model_dump(mode="json"))
         assert data.structured_content == expected
     return "PASS"
@@ -52,6 +60,26 @@ with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
         check=True,
     )
     assert json.loads(demo.stdout) == expected and not demo.stderr
+    research_demo = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "atlas_terminal",
+            "research",
+            "get",
+            "economics",
+            "--series",
+            "cpi",
+            "--provider",
+            "fixture",
+        ],
+        cwd=root,
+        capture_output=True,
+        text=True,
+        timeout=20,
+        check=True,
+    )
+    assert json.loads(research_demo.stdout)["records"][0]["value"] == "321.500"
     mcp_status = asyncio.run(mcp_smoke(root))
     with socket.socket() as sock:
         sock.bind(("127.0.0.1", 0))
@@ -122,6 +150,15 @@ with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
 
     proc = start_server()
     try:
+        with httpx.Client(trust_env=False) as probe:
+            research_http = probe.post(
+                base + "/v1/research",
+                json={"dataset": "insider_transactions", "identifier": "ATLASDEMO"},
+            )
+            assert (
+                research_http.status_code == 200
+                and research_http.json()["records"][0]["shares"] == "100.5"
+            )
         client = HostedClient(
             base,
             directory=root / "client",
@@ -154,6 +191,7 @@ with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
         json.dumps(
             {
                 "wheel_demo": "PASS",
+                "wheel_research_cli_mcp_http": "PASS",
                 "wheel_mcp_subprocess": mcp_status,
                 "real_loopback_http_mock_purchase": "PASS",
                 "server_restart_recovery": "PASS",

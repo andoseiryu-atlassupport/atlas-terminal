@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "atlas-terminal"
-version = "0.1.0"
-description = "Agent-operated SEC annual financial data and an optional testnet retrieval service"
+version = "0.2.0"
+description = "Free public-source US equity research, financial statements, ownership and macro data"
 readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE"]

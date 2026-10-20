@@ -3,7 +3,9 @@
 データ取得は read-only ですが、`atlas_purchase` は委任された資産の支出を伴います。MCP annotations は説明用で、制御は署名境界の policy と永続台帳で行います。
 
 - 主年度の財務値と出典を返すサービスです。外部の会社名・文書名は文字列データとして扱い、命令実行や支払先変更へ使いません。
-- SEC endpoint は固定 allowlist。archive は CIK 付き basename、primaryDocument は安全な filename のみ。URL・SQL・shell コマンドを通常の識別子として受け付けません。
+- SEC と政府公開 endpoint は固定 allowlist。archive は CIK 付き basename、primaryDocument は安全な filename と任意の1段の SEC xsl prefix のみ。提出 XML は検証した directory から最大6候補。URL・SQL・shell コマンドを通常の識別子として受け付けません。
+- XML はサイズ・要素数上限を設け、DTD / entity 宣言と UTF-16 等を拒否します。XInclude、外部実体、スタイルシート、HTML script を実行しません。会社名・脚注・見出しは出典付きの信頼しない文字列です。調査クエリから source URL・環境・鍵・方針を変更できません。
+- SEC 用の実連絡先を BLS・米財務省・FRB へ渡しません。無料ソースの失敗を有料購入へ切り替えません。調査 HTTP endpoint は支払いなしで、予算・署名・回復 token を使いません。
 - ホスト・Facilitator は operator の固定設定だけを使い、redirect を追従しません。支払先・network・token・domain・金額・期限・resource を署名前に照合します。
 - mainnet は未対応。Base Sepolia USDC、exact / EIP-3009 に固定します。mock は架空 network/asset と専用ヘッダーを使い、本物の x402 と混同しません。
 - 予算予約と SIGNING claim は SQLite の write transaction で一度だけ確定します。全 task/session の同じ signer を日次集計し、未確定予約は日をまたいでも保持します。

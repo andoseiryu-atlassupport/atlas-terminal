@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<informationTable xmlns="http://www.sec.gov/edgar/document/thirteenf/informationtable">
+<infoTable><nameOfIssuer>SYNTHETIC Issuer A</nameOfIssuer><titleOfClass>COM</titleOfClass><cusip>999999AA1</cusip><value>123456</value><shrsOrPrnAmt><sshPrnamt>1000</sshPrnamt><sshPrnamtType>SH</sshPrnamtType></shrsOrPrnAmt><investmentDiscretion>SOLE</investmentDiscretion><votingAuthority><Sole>1000</Sole><Shared>0</Shared><None>0</None></votingAuthority></infoTable>
+<infoTable><nameOfIssuer>SYNTHETIC Issuer B</nameOfIssuer><titleOfClass>OPTION</titleOfClass><cusip>999999BB2</cusip><value>456</value><shrsOrPrnAmt><sshPrnamt>100</sshPrnamt><sshPrnamtType>SH</sshPrnamtType></shrsOrPrnAmt><putCall>Call</putCall><investmentDiscretion>SOLE</investmentDiscretion><votingAuthority><Sole>0</Sole><Shared>0</Shared><None>100</None></votingAuthority></infoTable>
+</informationTable>

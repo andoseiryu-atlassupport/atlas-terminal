@@ -1,0 +1,19 @@
+{
+  "directory": {
+    "name": "SYNTHETIC",
+    "item": [
+      {
+        "name": "cover.xml",
+        "type": "text/xml"
+      },
+      {
+        "name": "holdings.xml",
+        "type": "text/xml"
+      },
+      {
+        "name": "insider.xml",
+        "type": "text/xml"
+      }
+    ]
+  }
+}

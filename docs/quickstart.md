@@ -9,6 +9,9 @@ uv run --offline atlas demo --json
 uv run --offline atlas company resolve ATLASDEMO --provider fixture --json
 uv run --offline atlas financials get ATLASDEMO --metrics revenue,net_income --count 3 --provider fixture --json
 uv run --offline atlas filings list ATLASDEMO --form 10-K --limit 3 --provider fixture --json
+uv run --offline atlas research catalog --json
+uv run --offline atlas research get statements --identifier ATLASDEMO --period quarterly --metrics revenue,eps_basic --count 3 --provider fixture --json
+uv run --offline atlas research get economics --series cpi --provider fixture --json
 ```
 
 実 SEC を使う場合は `SEC_USER_AGENT` に利用者の識別情報と連絡先を private な環境設定から渡し、identifier を実企業、provider を `sec` に変更します。API キー・ウォレット・モデルキーは不要です。`.env.example` は変数名一覧で、自動ロードはしません。contact をチャットやログに記録しないでください。
@@ -42,13 +45,17 @@ uv run --offline atlas filings list ATLASDEMO --form 10-K --limit 3 --provider f
 
 `sec` ではホストの private environment 設定から `SEC_USER_AGENT` を渡します。`hosted` は起動時に `ATLAS_HOSTED_ORIGIN`、private な `ATLAS_STATE_DIR`、有料購入用 `ATLAS_POLICY_FILE` を渡します。鍵の実値を設定例・モデル入力へ含めません。MCP ツールから provider、URL、policy、wallet を変更する機能はありません。
 
-| Tool                  | 動作                                                   |
-| --------------------- | ------------------------------------------------------ |
-| atlas_resolve_company | 企業候補を照合                                         |
-| atlas_get_financials  | fixture / SEC のみ取得。hosted は QUOTE_REQUIRED       |
-| atlas_list_filings    | 提出メタデータと出典参照                               |
-| atlas_quote           | 成果物と価格を固定。支払わない                         |
-| atlas_purchase        | 委任済みの方針・予算内で支出する                       |
-| atlas_purchase_status | private な回復 capability を使って状態照合。支払わない |
+| Tool                   | 動作                                                   |
+| ---------------------- | ------------------------------------------------------ |
+| atlas_resolve_company  | 企業候補を照合                                         |
+| atlas_get_financials   | fixture / SEC のみ取得。hosted は QUOTE_REQUIRED       |
+| atlas_list_filings     | 提出メタデータと出典参照                               |
+| atlas_quote            | 成果物と価格を固定。支払わない                         |
+| atlas_purchase         | 委任済みの方針・予算内で支出する                       |
+| atlas_purchase_status  | private な回復 capability を使って状態照合。支払わない |
+| atlas_research_catalog | 無料16データセット・単位・クエリ仕様・未提供情報       |
+| atlas_get_research     | `query` object で調査取得。見積もり・支払い不要        |
+
+調査は [調査ガイド](research.md)を参照してください。例えば `atlas_get_research` の引数は `{"query":{"dataset":"economics","series":"cpi"}}`。`--provider public` で政府ソースから直接取得し、SEC に接続する場合だけ `SEC_USER_AGENT` を検査します。`hosted` では調査取得はできません。8ツールのうち支出を行うのは `atlas_purchase` だけです。
 
 プロセス起動時の失敗は stderr、それ以降の stdout は公式 SDK のプロトコル専用です。Windows でも uv コマンドを使えますが、Windows 上での実行試験は未実施です。

@@ -4,9 +4,10 @@ Read `README.md`, `docs/project-brief.md`, `CONTRIBUTING.md` and `IMPLEMENTATION
 
 ## Product and data
 
-- SEC public data only: issuer resolution, annual US-GAAP/USD facts, filing metadata. No UI, alerts, stock prices, trading, paid data or LLM dependency.
+- Use free public primary sources only. SEC issuer, financial and ownership disclosures plus BLS, Treasury and Federal Reserve context are supported. No paid data, UI, trading or LLM dependency. Do not claim consolidated real-time prices, order books, consensus estimates or complete news coverage.
+- Research datasets share a validated query, source catalog and service across CLI / SDK / MCP / HTTP. Distinguish normalized facts, raw reported facts and filing-discovery metadata. Preserve units and explicit coverage limits.
 - CLI / SDK / MCP / HTTP share application services. Never return expected fixtures directly as implementation.
-- Join accession and filing reportDate. Do not select a period from fy/frame alone or derive missing values. Keep source bytes/hash, JSON pointer, filing and retrieval time.
+- Join accession and filing reportDate. Do not select a period from fy/frame alone or derive missing values. Keep source bytes/hash, JSON pointer or XML path, filing and retrieval time. Research supports reported annual, discrete quarterly and YTD periods; never synthesize Q4 from annual minus YTD. Derived ratios must keep their exact inputs and formula.
 - Current snapshots are not PIT data. Reject historical requests. Use exact integer/Decimal arithmetic and decimal strings.
 
 ## Payments and secrets
