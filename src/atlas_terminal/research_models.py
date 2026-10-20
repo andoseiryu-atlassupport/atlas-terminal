@@ -6,6 +6,7 @@ from typing import Any, Literal
 from pydantic import ConfigDict, Field, ValidationError, field_validator, model_validator
 
 from atlas_terminal.errors import AtlasError
+from atlas_terminal.macro_catalog import FX_CURRENCIES, MACRO_SERIES, REFERENCE_SERIES, Currency
 from atlas_terminal.models import Model, identifier
 
 Dataset = Literal[
@@ -26,6 +27,10 @@ Dataset = Literal[
     "federal_debt",
     "policy_news",
     "compare",
+    "fx_rates",
+    "reference_rates",
+    "treasury_real_yields",
+    "macro_analytics",
 ]
 
 FIELDS = {
@@ -46,15 +51,27 @@ FIELDS = {
     "federal_debt": {"limit"},
     "policy_news": {"limit"},
     "compare": {"identifiers", "metrics", "period", "allow_partial"},
+    "fx_rates": {"base_currency", "quote_currency", "limit"},
+    "reference_rates": {"series", "limit"},
+    "treasury_real_yields": {"year", "limit"},
+    "macro_analytics": {"series", "year", "limit"},
 }
 
 
 def dataset_required(name: str) -> list[str]:
     if name == "compare":
         return ["identifiers"]
-    if name == "economics":
+    if name in {"economics", "reference_rates", "macro_analytics"}:
         return ["series"]
-    if name not in {"companies", "treasury_yields", "federal_debt", "policy_news"}:
+    if name == "fx_rates":
+        return ["base_currency", "quote_currency"]
+    if name not in {
+        "companies",
+        "treasury_yields",
+        "treasury_real_yields",
+        "federal_debt",
+        "policy_news",
+    }:
         return ["identifier"]
     return []
 
@@ -119,14 +136,38 @@ def dataset_schema(schema: dict[str, Any]) -> None:
             properties["series"]["enum"] = sorted(
                 {*BLS_SERIES, *(value[0] for value in BLS_SERIES.values())}
             )
-        branches.append(
-            {
-                "type": "object",
-                "properties": properties,
-                "required": ["dataset", *dataset_required(name)],
-                "additionalProperties": False,
+        if name in {"reference_rates", "macro_analytics"}:
+            properties["series"]["enum"] = sorted(
+                REFERENCE_SERIES if name == "reference_rates" else MACRO_SERIES
+            )
+        if name == "fx_rates":
+            for key in ("base_currency", "quote_currency"):
+                properties[key] = {"type": "string", "enum": list(FX_CURRENCIES)}
+            properties["quote_currency"]["description"] = (
+                "Units of quote currency per one base currency; must differ from base_currency."
+            )
+        if name == "treasury_real_yields":
+            properties["year"]["anyOf"][0]["minimum"] = 2003
+        branch: dict[str, Any] = {
+            "type": "object",
+            "properties": properties,
+            "required": ["dataset", *dataset_required(name)],
+            "additionalProperties": False,
+        }
+        if name == "fx_rates":
+            branch["not"] = {
+                "anyOf": [
+                    {
+                        "properties": {
+                            "base_currency": {"const": currency},
+                            "quote_currency": {"const": currency},
+                        },
+                        "required": ["base_currency", "quote_currency"],
+                    }
+                    for currency in FX_CURRENCIES
+                ]
             }
-        )
+        branches.append(branch)
     schema["oneOf"] = branches
 
 
@@ -147,6 +188,8 @@ class ResearchQuery(Model):
     accession: str | None = Field(default=None, pattern=r"^[0-9]{10}-[0-9]{2}-[0-9]{6}$")
     series: str | None = Field(default=None, pattern=r"^[A-Za-z0-9_]{1,40}$")
     year: int | None = Field(default=None, ge=1990, le=2100, strict=True)
+    base_currency: Currency | None = None
+    quote_currency: Currency | None = None
     response: ResponseOptions = Field(default_factory=ResponseOptions)
 
     @field_validator("identifier")
@@ -200,6 +243,28 @@ class ResearchQuery(Model):
                 raise AtlasError(
                     "INVALID_INPUT", "Choose a registered economic series.", fields=["series"]
                 )
+        if self.dataset in {"reference_rates", "macro_analytics"}:
+            allowed = REFERENCE_SERIES if self.dataset == "reference_rates" else MACRO_SERIES
+            if self.series not in allowed:
+                raise AtlasError(
+                    "INVALID_INPUT",
+                    "Choose a registered series for this dataset.",
+                    fields=["series"],
+                )
+        if self.dataset == "fx_rates" and (
+            self.base_currency is None
+            or self.quote_currency is None
+            or self.base_currency == self.quote_currency
+        ):
+            raise AtlasError(
+                "INVALID_INPUT",
+                "Choose distinct supported base and quote currencies.",
+                fields=["base_currency", "quote_currency"],
+            )
+        if self.dataset == "treasury_real_yields" and self.year is not None and self.year < 2003:
+            raise AtlasError(
+                "INVALID_INPUT", "Treasury real-yield coverage starts in 2003.", fields=["year"]
+            )
         if self.unit and not self.concept:
             raise AtlasError(
                 "INVALID_INPUT", "A unit filter requires a concept.", fields=["concept"]

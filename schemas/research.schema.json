@@ -736,6 +736,267 @@
           },
           "required": ["dataset", "identifiers"],
           "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "not": {
+            "anyOf": [
+              {
+                "properties": {
+                  "base_currency": {
+                    "const": "EUR"
+                  },
+                  "quote_currency": {
+                    "const": "EUR"
+                  }
+                },
+                "required": ["base_currency", "quote_currency"]
+              },
+              {
+                "properties": {
+                  "base_currency": {
+                    "const": "USD"
+                  },
+                  "quote_currency": {
+                    "const": "USD"
+                  }
+                },
+                "required": ["base_currency", "quote_currency"]
+              },
+              {
+                "properties": {
+                  "base_currency": {
+                    "const": "JPY"
+                  },
+                  "quote_currency": {
+                    "const": "JPY"
+                  }
+                },
+                "required": ["base_currency", "quote_currency"]
+              },
+              {
+                "properties": {
+                  "base_currency": {
+                    "const": "GBP"
+                  },
+                  "quote_currency": {
+                    "const": "GBP"
+                  }
+                },
+                "required": ["base_currency", "quote_currency"]
+              },
+              {
+                "properties": {
+                  "base_currency": {
+                    "const": "CHF"
+                  },
+                  "quote_currency": {
+                    "const": "CHF"
+                  }
+                },
+                "required": ["base_currency", "quote_currency"]
+              },
+              {
+                "properties": {
+                  "base_currency": {
+                    "const": "AUD"
+                  },
+                  "quote_currency": {
+                    "const": "AUD"
+                  }
+                },
+                "required": ["base_currency", "quote_currency"]
+              },
+              {
+                "properties": {
+                  "base_currency": {
+                    "const": "CAD"
+                  },
+                  "quote_currency": {
+                    "const": "CAD"
+                  }
+                },
+                "required": ["base_currency", "quote_currency"]
+              },
+              {
+                "properties": {
+                  "base_currency": {
+                    "const": "NZD"
+                  },
+                  "quote_currency": {
+                    "const": "NZD"
+                  }
+                },
+                "required": ["base_currency", "quote_currency"]
+              },
+              {
+                "properties": {
+                  "base_currency": {
+                    "const": "CNY"
+                  },
+                  "quote_currency": {
+                    "const": "CNY"
+                  }
+                },
+                "required": ["base_currency", "quote_currency"]
+              }
+            ]
+          },
+          "properties": {
+            "dataset": {
+              "const": "fx_rates",
+              "type": "string"
+            },
+            "base_currency": {
+              "enum": [
+                "EUR",
+                "USD",
+                "JPY",
+                "GBP",
+                "CHF",
+                "AUD",
+                "CAD",
+                "NZD",
+                "CNY"
+              ],
+              "type": "string"
+            },
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "quote_currency": {
+              "description": "Units of quote currency per one base currency; must differ from base_currency.",
+              "enum": [
+                "EUR",
+                "USD",
+                "JPY",
+                "GBP",
+                "CHF",
+                "AUD",
+                "CAD",
+                "NZD",
+                "CNY"
+              ],
+              "type": "string"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            }
+          },
+          "required": ["dataset", "base_currency", "quote_currency"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "reference_rates",
+              "type": "string"
+            },
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "series": {
+              "enum": ["effr", "sofr"],
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            }
+          },
+          "required": ["dataset", "series"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "treasury_real_yields",
+              "type": "string"
+            },
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "year": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 2003,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Year"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            }
+          },
+          "required": ["dataset"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "macro_analytics",
+              "type": "string"
+            },
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "series": {
+              "enum": [
+                "core_cpi_yoy",
+                "cpi_yoy",
+                "payrolls_change_mom",
+                "yield_spread_10y_2y"
+              ],
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            "year": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 1990,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Year"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            }
+          },
+          "required": ["dataset", "series"],
+          "type": "object"
         }
       ],
       "properties": {
@@ -757,7 +1018,11 @@
             "treasury_yields",
             "federal_debt",
             "policy_news",
-            "compare"
+            "compare",
+            "fx_rates",
+            "reference_rates",
+            "treasury_real_yields",
+            "macro_analytics"
           ],
           "title": "Dataset",
           "type": "string"
@@ -892,6 +1157,52 @@
           ],
           "default": null,
           "title": "Year"
+        },
+        "base_currency": {
+          "anyOf": [
+            {
+              "enum": [
+                "EUR",
+                "USD",
+                "JPY",
+                "GBP",
+                "CHF",
+                "AUD",
+                "CAD",
+                "NZD",
+                "CNY"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Base Currency"
+        },
+        "quote_currency": {
+          "anyOf": [
+            {
+              "enum": [
+                "EUR",
+                "USD",
+                "JPY",
+                "GBP",
+                "CHF",
+                "AUD",
+                "CAD",
+                "NZD",
+                "CNY"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quote Currency"
         },
         "response": {
           "$ref": "#/$defs/ResponseOptions"
@@ -1158,7 +1469,11 @@
             "treasury_yields",
             "federal_debt",
             "policy_news",
-            "compare"
+            "compare",
+            "fx_rates",
+            "reference_rates",
+            "treasury_real_yields",
+            "macro_analytics"
           ],
           "title": "Dataset",
           "type": "string"

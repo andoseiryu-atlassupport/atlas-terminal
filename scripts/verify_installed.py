@@ -21,9 +21,15 @@ from atlas_terminal.util import canonical, digest
 
 QUERY = parse_query({"identifier": "ATLASDEMO", "metrics": ["revenue", "net_income"], "count": 3})
 expected = Atlas("fixture").get_financials(QUERY).model_dump(mode="json")
+MACRO_QUERIES = [
+    {"dataset": "fx_rates", "base_currency": "USD", "quote_currency": "JPY"},
+    {"dataset": "reference_rates", "series": "sofr"},
+    {"dataset": "treasury_real_yields", "year": 2026},
+    {"dataset": "macro_analytics", "series": "yield_spread_10y_2y", "year": 2026},
+]
 
 
-async def mcp_smoke(root):
+async def mcp_smoke(root, macro_expected):
     params = StdioServerParameters(
         command=sys.executable,
         args=["-m", "atlas_terminal", "mcp", "serve", "--provider", "fixture"],
@@ -36,6 +42,10 @@ async def mcp_smoke(root):
     ):
         await session.initialize()
         assert len((await session.list_tools()).tools) == 9
+        for query in MACRO_QUERIES:
+            macro = await session.call_tool("atlas_get_research", {"query": query})
+            assert not macro.is_error
+            assert macro.structured_content == macro_expected[query["dataset"]]
         research = await session.call_tool(
             "atlas_get_research",
             {"query": {"dataset": "institutional_holdings", "identifier": "ATLASDEMO"}},
@@ -95,7 +105,28 @@ with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
         check=True,
     )
     assert json.loads(research_demo.stdout)["records"][0]["value"] == "321.500"
-    mcp_status = asyncio.run(mcp_smoke(root))
+    with Atlas("fixture", directory=root / "sdk") as atlas:
+        macro_expected = {query["dataset"]: atlas.get_research(query) for query in MACRO_QUERIES}
+    assert macro_expected["fx_rates"]["records"][0]["value"] == "120"
+    assert macro_expected["reference_rates"]["records"][0]["value"] == "1.30"
+    assert any(row["value"] == "-0.10" for row in macro_expected["treasury_real_yields"]["records"])
+    assert macro_expected["macro_analytics"]["records"][0]["value"] == "25.00"
+    for query in MACRO_QUERIES:
+        args = [sys.executable, "-m", "atlas_terminal", "research", "get", query["dataset"]]
+        for key, value in query.items():
+            if key != "dataset":
+                args.extend(["--" + key.replace("_", "-"), str(value)])
+        macro_cli = subprocess.run(
+            [*args, "--provider", "fixture"],
+            cwd=root,
+            capture_output=True,
+            text=True,
+            timeout=20,
+            check=True,
+        )
+        assert json.loads(macro_cli.stdout) == macro_expected[query["dataset"]]
+        assert macro_expected[query["dataset"]]["is_synthetic"]
+    mcp_status = asyncio.run(mcp_smoke(root, macro_expected))
     with socket.socket() as sock:
         sock.bind(("127.0.0.1", 0))
         port = sock.getsockname()[1]
@@ -166,6 +197,10 @@ with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
     proc = start_server()
     try:
         with httpx.Client(trust_env=False) as probe:
+            for query in MACRO_QUERIES:
+                macro_http = probe.post(base + "/v1/research", json=query)
+                assert macro_http.status_code == 200
+                assert macro_http.json() == macro_expected[query["dataset"]]
             research_http = probe.post(
                 base + "/v1/research",
                 json={"dataset": "insider_transactions", "identifier": "ATLASDEMO"},
@@ -221,6 +256,7 @@ with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
             {
                 "wheel_demo": "PASS",
                 "wheel_research_cli_mcp_http": "PASS",
+                "wheel_macro_fx_cli_sdk_mcp_http": "PASS",
                 "wheel_mcp_subprocess": mcp_status,
                 "wheel_agent_compact_paging_evidence": "PASS",
                 "real_loopback_http_mock_purchase": "PASS",

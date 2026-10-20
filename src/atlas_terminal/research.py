@@ -13,6 +13,7 @@ from urllib.parse import urlsplit
 from xml.etree.ElementTree import Element
 
 from atlas_terminal.errors import AtlasError
+from atlas_terminal.macro_catalog import FX_CURRENCIES, MACRO_SERIES, REFERENCE_SERIES
 from atlas_terminal.normalize import number
 from atlas_terminal.providers import (
     DOCUMENT_PATTERN,
@@ -47,6 +48,7 @@ from atlas_terminal.research_financials import (
     reference,
     statement_data,
 )
+from atlas_terminal.research_macro import fx_rates, macro_analytics, real_yields, reference_rates
 from atlas_terminal.research_models import (
     FIELDS,
     Dataset,
@@ -163,6 +165,22 @@ DATASETS = {
         "sec",
         "aligned_financial_facts",
     ),
+    "fx_rates": (
+        "ECB daily reference FX, with same-date inverse/cross calculations",
+        "ecb",
+        "reference_observations",
+    ),
+    "reference_rates": ("New York Fed overnight EFFR and SOFR", "new_york_fed", "observations"),
+    "treasury_real_yields": (
+        "Treasury TIPS-based real par yield curve",
+        "treasury",
+        "observations",
+    ),
+    "macro_analytics": (
+        "CPI YoY, payroll monthly change and same-date Treasury curve spread",
+        "bls",
+        "derived_observations",
+    ),
 }
 GAPS = {
     "realtime_prices_and_order_books": (
@@ -210,6 +228,7 @@ def research_catalog(
                 "id": name,
                 "description": title,
                 "source": source,
+                "source_ids": ["bls", "treasury"] if name == "macro_analytics" else [source],
                 "output_type": kind,
                 "implementation": "implemented",
                 "validation": "offline_fixtures_and_mock_http",
@@ -228,6 +247,9 @@ def research_catalog(
             k: {"series_id": v[0], "title": v[1], "unit": v[2], "seasonally_adjusted": v[3]}
             for k, v in BLS_SERIES.items()
         },
+        "fx_currencies": list(FX_CURRENCIES),
+        "reference_rate_series": REFERENCE_SERIES,
+        "macro_series": MACRO_SERIES,
         "limits": {"count": 20, "records": 500, "compare_issuers": 10, "xml_candidates": 6},
         "not_available": GAPS,
         "point_in_time": False,
@@ -252,14 +274,23 @@ def research_catalog(
         ]
         schema["properties"] = schema["oneOf"][0]["properties"]
         schema["required"] = schema["oneOf"][0]["required"]
-        result["sources"] = {DATASETS[dataset][1]: SOURCE_CATALOG[DATASETS[dataset][1]]}
+        result["sources"] = {
+            source: SOURCE_CATALOG[source] for source in result["datasets"][0]["source_ids"]
+        }
     if view == "compact":
         result.pop("query_schema")
         result.pop("response_schema")
         result["sources"] = {
             key: {"terms": source["terms"]} for key, source in result["sources"].items()
         }
-        for key in ["statement_metrics", "analytics_metrics", "ratios", "economic_series"]:
+        for key in [
+            "statement_metrics",
+            "analytics_metrics",
+            "ratios",
+            "economic_series",
+            "reference_rate_series",
+            "macro_series",
+        ]:
             result[key] = list(result[key])
         result["not_available"] = list(result["not_available"])
         result["schema_included"] = False
@@ -364,7 +395,16 @@ class ResearchService:
         q = query if isinstance(query, ResearchQuery) else parse_research(query)
         if q.response.cursor:
             return self.views.render(q)
-        if q.dataset in {"economics", "treasury_yields", "federal_debt", "policy_news"}:
+        if q.dataset in {
+            "economics",
+            "treasury_yields",
+            "federal_debt",
+            "policy_news",
+            "fx_rates",
+            "reference_rates",
+            "treasury_real_yields",
+            "macro_analytics",
+        }:
             self.public = self.public or (PublicFixtures() if self.synthetic else PublicTransport())
             result = self.public_data(q)
         elif q.dataset == "companies":
@@ -385,7 +425,7 @@ class ResearchService:
             result = self.xml_filing(q)
         else:
             result = self.filings(q)
-        source_id = DATASETS[q.dataset][1]
+        source_id = result.get("source_id", DATASETS[q.dataset][1])
         result.setdefault("limitations", [])
         result["limitations"].extend(
             [
@@ -869,6 +909,14 @@ class ResearchService:
 
     def public_data(self, q: ResearchQuery) -> dict[str, Any]:
         assert self.public is not None
+        if q.dataset == "fx_rates":
+            return fx_rates(self.public, q)
+        if q.dataset == "reference_rates":
+            return reference_rates(self.public, q)
+        if q.dataset == "treasury_real_yields":
+            return real_yields(self.public, q)
+        if q.dataset == "macro_analytics":
+            return macro_analytics(self.public, q, self.economics)
         records: list[dict[str, Any]]
         if q.dataset == "economics":
             return self.economics(q)

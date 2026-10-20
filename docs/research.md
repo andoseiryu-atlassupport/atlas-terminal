@@ -1,6 +1,6 @@
-# Free public-source US equity research
+# Free public-source research
 
-`atlas research`, `Atlas.get_research`, MCP `atlas_get_research` and HTTP `POST /v1/research` use the same service. Sources are free government primary sources. No API key, data subscription, model or wallet is required. SEC alone requires a private `SEC_USER_AGENT` with the operator's actual contact details.
+`atlas research`, `Atlas.get_research`, MCP `atlas_get_research` and HTTP `POST /v1/research` use the same service. Sources are free public primary sources. No API key, data subscription, model or wallet is required. SEC alone requires a private `SEC_USER_AGENT` with the operator's actual contact details.
 
 Queries can include optional `response` settings for compact evidence references, field selection and snapshot-bound pages. The default response is unchanged. See [agent contracts](agents.md) for typed MCP schemas, evidence retrieval and structured recovery hints.
 
@@ -8,25 +8,29 @@ Results include missing-data status, periods, coverage and source terms. Discove
 
 ## Datasets
 
-| ID                         | Content                                                        | Query fields                                                | Output                              |
-| -------------------------- | -------------------------------------------------------------- | ----------------------------------------------------------- | ----------------------------------- |
-| `companies`                | Search the current SEC issuer/ticker directory                 | Optional `identifier`, `limit`                              | Current reference data              |
-| `profile`                  | Name, SIC, exchanges and fiscal year end                       | `identifier`                                                | Submission metadata                 |
-| `statements`               | 37 financial concepts                                          | `identifier`, `metrics`, `period`, `count`, `allow_partial` | Normalized reported facts           |
-| `ratios`                   | Six ratios with formulas and inputs                            | `identifier`, `period`, `count`, `allow_partial`            | Derived values                      |
-| `financial_analytics`      | Five YoY growth rates, free cash flow and FCF margin           | `identifier`, `metrics`, `period`, `count`, `allow_partial` | Derived values with reported inputs |
-| `company_facts`            | Concept inventory or raw XBRL observations                     | `identifier`, `taxonomy`, `concept`, `unit`, `limit`        | Original accounting contexts        |
-| `filings`                  | All-form filing discovery                                      | `identifier`, `form`, `limit`                               | Filing references                   |
-| `insider_transactions`     | Form 3/4/5 transactions and positions                          | `identifier`, `accession`, `limit`                          | XML records from one filing         |
-| `institutional_holdings`   | A manager's 13F information table                              | `identifier`, `accession`, `limit`                          | XML records from one filing         |
-| `ownership_filings`        | 13D/13G beneficial ownership reports                           | `identifier`, `limit`                                       | Filing references                   |
-| `fund_filings`             | N-PORT, N-PX, N-CSR and related reports                        | `identifier`, `limit`                                       | Filing references                   |
-| `corporate_action_filings` | Current reports, proxies, offerings and tender-related filings | `identifier`, `limit`                                       | Filing references                   |
-| `economics`                | Eight BLS inflation/employment series                          | `series`, `limit`                                           | Economic observations               |
-| `treasury_yields`          | Daily Treasury par yields                                      | `year`, `limit`                                             | Observations by date and maturity   |
-| `federal_debt`             | Debt to the Penny                                              | `limit`                                                     | Daily debt observations             |
-| `policy_news`              | Federal Reserve releases                                       | `limit`                                                     | Headlines, dates and source links   |
-| `compare`                  | Common reported period for up to ten specified issuers         | `identifiers`, `metrics`, `period`, `allow_partial`         | Aligned reported/derived financials |
+| ID                         | Content                                                        | Query fields                                                 | Output                              |
+| -------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------ | ----------------------------------- |
+| `companies`                | Search the current SEC issuer/ticker directory                 | Optional `identifier`, `limit`                               | Current reference data              |
+| `profile`                  | Name, SIC, exchanges and fiscal year end                       | `identifier`                                                 | Submission metadata                 |
+| `statements`               | 37 financial concepts                                          | `identifier`, `metrics`, `period`, `count`, `allow_partial`  | Normalized reported facts           |
+| `ratios`                   | Six ratios with formulas and inputs                            | `identifier`, `period`, `count`, `allow_partial`             | Derived values                      |
+| `financial_analytics`      | Five YoY growth rates, free cash flow and FCF margin           | `identifier`, `metrics`, `period`, `count`, `allow_partial`  | Derived values with reported inputs |
+| `company_facts`            | Concept inventory or raw XBRL observations                     | `identifier`, `taxonomy`, `concept`, `unit`, `limit`         | Original accounting contexts        |
+| `filings`                  | All-form filing discovery                                      | `identifier`, `form`, `limit`                                | Filing references                   |
+| `insider_transactions`     | Form 3/4/5 transactions and positions                          | `identifier`, `accession`, `limit`                           | XML records from one filing         |
+| `institutional_holdings`   | A manager's 13F information table                              | `identifier`, `accession`, `limit`                           | XML records from one filing         |
+| `ownership_filings`        | 13D/13G beneficial ownership reports                           | `identifier`, `limit`                                        | Filing references                   |
+| `fund_filings`             | N-PORT, N-PX, N-CSR and related reports                        | `identifier`, `limit`                                        | Filing references                   |
+| `corporate_action_filings` | Current reports, proxies, offerings and tender-related filings | `identifier`, `limit`                                        | Filing references                   |
+| `economics`                | Eight BLS inflation/employment series                          | `series`, `limit`                                            | Economic observations               |
+| `treasury_yields`          | Daily Treasury par yields                                      | `year`, `limit`                                              | Observations by date and maturity   |
+| `fx_rates`                 | ECB daily reference FX, with inverse/cross calculations        | Required `base_currency`, `quote_currency`; optional `limit` | Dated quote units per base unit     |
+| `reference_rates`          | New York Fed overnight EFFR/SOFR                               | Required `series`; optional `limit`                          | Effective daily observations        |
+| `treasury_real_yields`     | Treasury TIPS-based real par yield curve                       | `year`, `limit`                                              | Observations by date and maturity   |
+| `macro_analytics`          | CPI/core CPI YoY, payroll change and 10Y–2Y nominal spread     | Required `series`; optional `year`, `limit`                  | Derived values with original inputs |
+| `federal_debt`             | Debt to the Penny                                              | `limit`                                                      | Daily debt observations             |
+| `policy_news`              | Federal Reserve releases                                       | `limit`                                                      | Headlines, dates and source links   |
+| `compare`                  | Common reported period for up to ten specified issuers         | `identifiers`, `metrics`, `period`, `allow_partial`          | Aligned reported/derived financials |
 
 `identifier` accepts a ticker, CIK or company name. For 13F, use the **reporting manager's CIK**. An issuer CIK does not reverse-search every manager holding that issuer. Insider reports are likewise limited to the resolved filing history. Omitting `accession` selects the latest matching filing. Original filings and amendments are not merged automatically.
 
@@ -49,6 +53,10 @@ uv run --offline atlas research get insider_transactions --identifier ATLASDEMO 
 uv run --offline atlas research get institutional_holdings --identifier ATLASDEMO --provider fixture --json
 uv run --offline atlas research get economics --series unemployment --provider fixture --json
 uv run --offline atlas research get treasury_yields --year 2026 --provider fixture --json
+uv run --offline atlas research get fx_rates --base-currency USD --quote-currency JPY --provider fixture --json
+uv run --offline atlas research get reference_rates --series sofr --provider fixture --json
+uv run --offline atlas research get treasury_real_yields --year 2026 --provider fixture --json
+uv run --offline atlas research get macro_analytics --series yield_spread_10y_2y --year 2026 --provider fixture --json
 uv run --offline atlas research get federal_debt --provider fixture --json
 uv run --offline atlas research get policy_news --provider fixture --json
 ```
@@ -149,9 +157,11 @@ XML discovery uses filing history and safe directory filenames, examining at mos
 
 ## Economics and policy
 
-BLS `series` accepts `cpi`, `cpi_sa`, `core_cpi`, `unemployment`, `participation`, `payrolls`, `hourly_earnings` and `job_openings`, or their registered series IDs. Unregistered V1 retrieval covers the latest three years. Units, seasonal adjustment, footnotes and M13 annual averages are preserved. Release-time vintages and year-over-year changes are not generated. A shared cache and private database enforce 25 HTTP attempts per UTC day. Other programs and users sharing an IP may consume the upstream allowance first.
+BLS `series` accepts `cpi`, `cpi_sa`, `core_cpi`, `unemployment`, `participation`, `payrolls`, `hourly_earnings` and `job_openings`, or their registered series IDs. Unregistered V1 retrieval covers the latest three years. Units, seasonal adjustment, footnotes and M13 annual averages are preserved. The raw `economics` dataset does not calculate changes or reconstruct release-time vintages. `macro_analytics` calculates changes from exact monthly inputs in that current source window. A shared cache and private database enforce 25 HTTP attempts per UTC day. Other programs and users sharing an IP may consume the upstream allowance first.
 
 Treasury yields use the selected year's nominal par curve. Each record is one date/maturity pair, so a record limit can truncate a day's curve; coverage identifies truncation. Fiscal Data returns one page of at most 500 recent records. Federal Reserve output contains retained official headlines and links, not general company news or article bodies.
+
+`fx_rates` requires distinct supported currencies: EUR, USD, JPY, GBP, CHF, AUD, CAD, NZD or CNY. `reference_rates` accepts `effr` or `sofr`. `macro_analytics` accepts `cpi_yoy`, `core_cpi_yoy`, `payrolls_change_mom` or `yield_spread_10y_2y`. `treasury_real_yields` accepts one year from 2003 onward. See [macro and FX methodology](macro.md) for windows, formulas, units, missing inputs and attribution requirements.
 
 ## Provenance, validation and unavailable data
 

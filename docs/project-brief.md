@@ -1,10 +1,11 @@
 # Project overview
 
-Atlas Terminal retrieves US equity research from free public primary sources. The CLI, Python SDK, stdio MCP server and reference HTTP API share retrieval and validation services.
+Atlas Terminal retrieves US equity research, macro data and reference FX from free public primary sources. The CLI, Python SDK, stdio MCP server and reference HTTP API share retrieval and validation services.
 
 ## Capabilities
 
-- Five government sources and 17 research datasets: SEC company, industry, financial, filing and ownership data; BLS inflation and employment series; Treasury yields and debt; Federal Reserve releases.
+- Seven public primary sources and 21 research datasets: SEC company, industry, financial, filing and ownership data; BLS inflation and employment series; nominal/real Treasury yields and debt; Federal Reserve releases; ECB reference FX; New York Fed EFFR/SOFR.
+- Macro calculations include CPI/core CPI YoY, payroll monthly changes and the 10Y–2Y nominal spread, with original inputs and explicit missing baselines. FX cross rates use same-day ECB observations.
 - 37 reported financial concepts across annual, explicitly reported discrete quarters and YTD, raw XBRL contexts, six ratios, five YoY growth rates, FCF and FCF margin with traceable inputs.
 - Comparison of reported and derived financial metrics for up to ten specified issuers at the latest common reported end, with exact input-period alignment and explicit gaps.
 - XML records from one Form 3/4/5 or 13F filing per query. Beneficial ownership, fund and corporate-action discovery returns filing metadata and links.

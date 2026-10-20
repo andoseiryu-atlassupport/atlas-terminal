@@ -27,6 +27,10 @@ queries = [
     {"dataset": "institutional_holdings", "identifier": "ATLASDEMO"},
     {"dataset": "economics", "series": "unemployment"},
     {"dataset": "treasury_yields", "year": 2026},
+    {"dataset": "fx_rates", "base_currency": "USD", "quote_currency": "JPY"},
+    {"dataset": "reference_rates", "series": "sofr"},
+    {"dataset": "treasury_real_yields", "year": 2026},
+    {"dataset": "macro_analytics", "series": "yield_spread_10y_2y", "year": 2026},
 ]
 
 with Atlas("fixture") as atlas:

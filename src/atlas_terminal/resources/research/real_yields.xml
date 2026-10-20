@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices">
+  <title>SYNTHETIC Treasury real par curve; not market observations</title>
+  <entry><content type="application/xml"><m:properties>
+    <d:NEW_DATE>2026-10-19T00:00:00</d:NEW_DATE>
+    <d:TC_5YEAR>1.10</d:TC_5YEAR><d:TC_7YEAR>1.20</d:TC_7YEAR>
+    <d:TC_10YEAR>1.30</d:TC_10YEAR><d:TC_20YEAR>1.50</d:TC_20YEAR>
+    <d:TC_30YEAR m:null="true"/>
+  </m:properties></content></entry>
+  <entry><content type="application/xml"><m:properties>
+    <d:NEW_DATE>2026-10-16T00:00:00</d:NEW_DATE>
+    <d:TC_5YEAR>-0.10</d:TC_5YEAR><d:TC_7YEAR>0.00</d:TC_7YEAR>
+    <d:TC_10YEAR>0.10</d:TC_10YEAR><d:TC_20YEAR>0.30</d:TC_20YEAR>
+  </m:properties></content></entry>
+</feed>

@@ -1,24 +1,26 @@
 # Atlas Terminal capabilities
 
-Atlas Terminal retrieves US equity research from free public primary sources. Its CLI, Python SDK, stdio MCP server and HTTP API share the same datasets and selection rules.
+Atlas Terminal retrieves US equity research, macro data and reference FX from free public primary sources. Its CLI, Python SDK, stdio MCP server and HTTP API share the same datasets and selection rules.
 
 ## Datasets
 
-| Area        | Capabilities                                                                                       |
-| ----------- | -------------------------------------------------------------------------------------------------- |
-| Companies   | Current ticker / CIK search, issuer profiles, SIC industry, exchanges and fiscal year end          |
-| Financials  | 37 US-GAAP concepts covering income, balance sheets, cash flow, EPS, shares and dividends          |
-| Periods     | Annual, explicitly reported discrete quarters and YTD, matched to actual dates and filing metadata |
-| Analysis    | Six ratios, five YoY growth rates, FCF and FCF margin, with formulas and reported inputs           |
-| Comparison  | Up to ten issuers at a common reported end; mismatched actual input periods are explicit gaps      |
-| XBRL        | Concept and unit inventories, plus observations with their original accounting contexts            |
-| Disclosures | All-form filing discovery and ownership, fund, proxy, offering and corporate-action filing groups  |
-| Ownership   | Form 3/4/5 records and a manager's 13F information table, retrieved one filing at a time           |
-| Economics   | Eight BLS series covering consumer prices, employment, unemployment, wages and job openings        |
-| Treasury    | Daily Treasury par yields and federal Debt to the Penny observations                               |
-| Policy      | Federal Reserve release headlines, publication times and original links                            |
+| Area           | Capabilities                                                                                           |
+| -------------- | ------------------------------------------------------------------------------------------------------ |
+| Companies      | Current ticker / CIK search, issuer profiles, SIC industry, exchanges and fiscal year end              |
+| Financials     | 37 US-GAAP concepts covering income, balance sheets, cash flow, EPS, shares and dividends              |
+| Periods        | Annual, explicitly reported discrete quarters and YTD, matched to actual dates and filing metadata     |
+| Analysis       | Six ratios, five YoY growth rates, FCF and FCF margin, with formulas and reported inputs               |
+| Comparison     | Up to ten issuers at a common reported end; mismatched actual input periods are explicit gaps          |
+| XBRL           | Concept and unit inventories, plus observations with their original accounting contexts                |
+| Disclosures    | All-form filing discovery and ownership, fund, proxy, offering and corporate-action filing groups      |
+| Ownership      | Form 3/4/5 records and a manager's 13F information table, retrieved one filing at a time               |
+| Economics      | Eight BLS series covering consumer prices, employment, unemployment, wages and job openings            |
+| Treasury       | Daily nominal and TIPS-based real par yield curves; federal Debt to the Penny observations             |
+| Macro analysis | CPI/core CPI YoY, payroll monthly changes and the same-day 10Y–2Y nominal spread, with original inputs |
+| Rates / FX     | Overnight EFFR/SOFR; ECB daily reference FX for EUR, USD, JPY, GBP, CHF, AUD, CAD, NZD and CNY         |
+| Policy         | Federal Reserve release headlines, publication times and original links                                |
 
-Run `atlas research catalog --json` for identifiers, query fields, units and limits for all 17 datasets. The [research guide](docs/research.md) includes examples for each dataset.
+Run `atlas research catalog --json` for identifiers, query fields, units and limits for all 21 datasets. The [research guide](docs/research.md) includes examples for each dataset.
 
 ## Interfaces
 
@@ -42,6 +44,7 @@ MCP research publishes dataset-specific query schemas and a validated common res
 - Filing discovery, reported records and derived ratios are distinct outputs. Current snapshots cannot satisfy point-in-time historical requests.
 - Growth compares corresponding actual prior-year durations and positive baselines. FCF uses reported operating CF minus nonnegative PP&E acquisition payments; margin divides by same-period revenue.
 - Comparisons support reported and derived metrics at the latest shared reported end, with identical actual periods per metric, including growth baselines. Missing or unaligned values require `allow_partial`.
+- Derived FX uses same-day ECB inputs with explicit base/quote units. Macro calculations require the exact prior-year month, previous month or same-day maturities; absent inputs remain unavailable.
 - Retrieval uses approved endpoints, caching, rate limits, response bounds and finite retries. Source failures never trigger a paid-provider fallback.
 
 [Sources and terms](DATA_SOURCES.md) · [Financial methodology](docs/methodology.md) · [Validation scope](docs/verification.md)
@@ -55,6 +58,8 @@ Official Python and TypeScript HTTP clients are exercised offline. Hosted MCP ac
 ## Coverage limits
 
 Consolidated equity prices, daily prices and adjustment factors, order books, options, analyst consensus, newswire articles, earnings-call transcripts, a complete security master or corporate-action history, PIT and trading are unavailable.
+
+FX covers the ECB's latest 90-calendar-day reference window. EFFR/SOFR covers the latest 90 effective observations. Real Treasury yields cover one selected year from 2003 onward; BLS calculations use the registration-free latest-three-year source window. No holiday filling, real-time FX, term SOFR, historical release vintages or GDP/PCE connector is provided. See [macro coverage](docs/macro.md).
 
 The HTTP API supports one process, one private SQLite volume and loopback connections. Mainnet, distributed budgets, background reconciliation and public-facing authentication or TLS are unsupported. Reconciliation may remain unresolved for legacy deadlines, old nonce logs without a transaction hint, ambiguous batched receipts and pre-submission crashes. Live RPC/Facilitator behavior and real transfers remain unverified.
 

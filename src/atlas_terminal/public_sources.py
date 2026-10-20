@@ -8,12 +8,13 @@ from pathlib import Path
 from typing import Any
 
 from atlas_terminal.errors import AtlasError
+from atlas_terminal.macro_catalog import REFERENCE_SERIES
 from atlas_terminal.providers import CachedHTTPTransport, Snapshot, decode_json
 from atlas_terminal.util import state_dir
 
 BLS_BASE = "https://api.bls.gov/publicAPI/v1/timeseries/"
 TREASURY_BASE = (
-    "https://home.treasury.gov/resource-center-data-chart-center/interest-rates/pages/xml"
+    "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml"
     "?data=daily_treasury_yield_curve&field_tdr_date_value="
 )
 DEBT_URL = (
@@ -21,6 +22,14 @@ DEBT_URL = (
     "debt_to_penny?format=json&sort=-record_date&page%5Bsize%5D=500"
 )
 FED_NEWS = "https://www.federalreserve.gov/feeds/press_all.xml"
+ECB_FX_URL = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist-90d.xml"
+TREASURY_REAL_BASE = TREASURY_BASE.replace(
+    "daily_treasury_yield_curve", "daily_treasury_real_yield_curve"
+)
+NYFED_RATES = {
+    name: f"https://markets.newyorkfed.org/api/rates/{kind}/{name}/last/90.json"
+    for name, kind in [("effr", "unsecured"), ("sofr", "secured")]
+}
 
 # V1 is registration-free: the latest three years, with source-defined revisions.
 BLS_SERIES = {
@@ -45,6 +54,38 @@ BLS_SERIES = {
 }
 
 SOURCE_CATALOG = {
+    "ecb": {
+        "name": "European Central Bank euro reference rates",
+        "upstream_price": "0",
+        "api_key_required": False,
+        "contact_user_agent_required": False,
+        "documentation": "https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html",
+        "terms": "https://www.ecb.europa.eu/services/using-our-site/disclaimer/html/index.en.html",
+        "use": (
+            "Attribute ECB, identify modifications and retain source conditions; "
+            "information-purpose reference rates, not executable quotes."
+        ),
+        "cadence": (
+            "European working-day reference observations; fixed "
+            "last-90-calendar-day XML window, no holiday filling."
+        ),
+    },
+    "new_york_fed": {
+        "name": "Federal Reserve Bank of New York reference rates",
+        "upstream_price": "0",
+        "api_key_required": False,
+        "contact_user_agent_required": False,
+        "documentation": "https://markets.newyorkfed.org/static/docs/markets-api.html",
+        "terms": "https://www.newyorkfed.org/privacy/termsofuse",
+        "use": (
+            "Retain copyright, reference-rate notices, disclaimers and terms; "
+            "identify normalization and do not imply endorsement."
+        ),
+        "cadence": (
+            "Business-day effective observations with possible revisions; "
+            "last 90 observations for EFFR or SOFR."
+        ),
+    },
     "sec": {
         "name": "SEC EDGAR",
         "upstream_price": "0",
@@ -81,7 +122,10 @@ SOURCE_CATALOG = {
         "contact_user_agent_required": False,
         "documentation": "https://home.treasury.gov/interest-rates-data-csv-archive",
         "terms": "https://home.treasury.gov/footer/privacy-act",
-        "use": "Treasury daily indicative par yields, not security prices or executable quotes.",
+        "use": (
+            "Treasury daily nominal/real indicative par yields, "
+            "not security prices or executable quotes."
+        ),
         "cadence": "Business-day observations, with possible corrections.",
     },
     "fiscaldata": {
@@ -139,16 +183,17 @@ class PublicTransport(CachedHTTPTransport):
     @staticmethod
     def validate_url(url: str) -> None:
         if (
-            url in {DEBT_URL, FED_NEWS}
+            url in {DEBT_URL, FED_NEWS, ECB_FX_URL, *NYFED_RATES.values()}
             or url in {BLS_BASE + item[0] for item in BLS_SERIES.values()}
             or re.fullmatch(re.escape(TREASURY_BASE) + r"(?:199[0-9]|20[0-9]{2}|2100)", url)
+            or re.fullmatch(re.escape(TREASURY_REAL_BASE) + r"(?:200[3-9]|20[1-9][0-9]|2100)", url)
         ):
             return
         raise AtlasError("INVALID_INPUT", "URL is outside the free-source endpoint catalog.")
 
     @staticmethod
     def validate_body(url: str, body: bytes) -> None:
-        if url.startswith(BLS_BASE) or url == DEBT_URL:
+        if url.startswith(BLS_BASE) or url == DEBT_URL or url in NYFED_RATES.values():
             if not isinstance(decode_json(body), dict):
                 raise ValueError("Expected JSON object")
         else:
@@ -185,6 +230,17 @@ class PublicFixtures:
         PublicTransport.validate_url(url)
         if url.startswith(BLS_BASE):
             name = "bls_" + url.removeprefix(BLS_BASE) + ".json"
+        elif url == ECB_FX_URL:
+            name = "fx.xml"
+        elif url in NYFED_RATES.values():
+            series = next(name for name in REFERENCE_SERIES if NYFED_RATES[name] == url)
+            name = series + ".json"
+        elif url.startswith(TREASURY_REAL_BASE):
+            if not url.endswith("2026"):
+                raise AtlasError(
+                    "SOURCE_UNAVAILABLE", "Synthetic real-yield fixture covers 2026 only."
+                )
+            name = "real_yields.xml"
         elif url.startswith(TREASURY_BASE):
             if not url.endswith("2026"):
                 raise AtlasError("SOURCE_UNAVAILABLE", "Synthetic yield fixture covers 2026 only.")

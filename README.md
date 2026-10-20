@@ -1,12 +1,12 @@
 # Atlas Terminal
 
-Atlas Terminal gives AI agents access to US equity research from free public primary sources. It provides company profiles, financial statements, disclosures, reported ownership and economic indicators through a CLI, Python SDK, stdio MCP and HTTP API.
+Atlas Terminal gives AI agents access to US equity research, macro data and reference FX from free public primary sources. It provides company profiles, financial statements, disclosures, reported ownership and economic indicators through a CLI, Python SDK, stdio MCP and HTTP API.
 
 [Capabilities](IMPLEMENTATION_STATUS.md) · [Research guide](docs/research.md) · [Data sources](DATA_SOURCES.md)
 
 ## Available data
 
-Atlas provides 17 datasets from SEC EDGAR, BLS, US Treasury yields, Treasury Fiscal Data and the Federal Reserve.
+Atlas provides 21 datasets from SEC EDGAR, BLS, US Treasury yields, Treasury Fiscal Data, the Federal Reserve, the ECB and the New York Fed.
 
 | Area        | Information                                                                                                                           |
 | ----------- | ------------------------------------------------------------------------------------------------------------------------------------- |
@@ -16,10 +16,11 @@ Atlas provides 17 datasets from SEC EDGAR, BLS, US Treasury yields, Treasury Fis
 | XBRL        | Concept inventory and raw observations with their taxonomy, units and contexts                                                        |
 | Disclosures | All-form filing discovery, including ownership, fund, proxy, offering and corporate-action filings                                    |
 | Ownership   | Form 3/4/5 transactions and positions; a selected manager's 13F information table                                                     |
-| Macro       | Eight BLS inflation and employment series, daily Treasury par yields and federal debt                                                 |
+| Macro       | Eight BLS series, CPI/core CPI YoY, payroll monthly changes, nominal/real Treasury par yields, 10Y–2Y spread and federal debt         |
+| Rates / FX  | EFFR and SOFR overnight rates; ECB daily reference FX for nine currencies, with traceable inverse and cross calculations              |
 | Policy      | Federal Reserve release headlines, publication times and original links                                                               |
 
-Values retain their units, periods, source hashes, retrieval times and JSON pointers or XML paths. Missing or ambiguous values are explicit. Derived financial metrics include their formulas and reported inputs.
+Values retain their units, periods, source hashes, retrieval times and JSON pointers or XML paths. Missing or ambiguous values are explicit. Derived metrics include their formulas and reported inputs.
 
 ## Get started
 
@@ -33,7 +34,7 @@ uv run --offline atlas research get statements --identifier ATLASDEMO --period q
 
 The fixture provider runs without network access. Its company identifiers and values are fictional, with `is_synthetic=true` and `.invalid` source links.
 
-For public data, research commands use `--provider public` by default. SEC requests require a private `SEC_USER_AGENT` containing your application name and actual contact email. BLS, Treasury and Federal Reserve requests do not require that setting.
+For public data, research commands use `--provider public` by default. SEC requests require a private `SEC_USER_AGENT` containing your application name and actual contact email. Other sources do not require that setting.
 
 ```sh
 uv run atlas research get statements --identifier AAPL --period quarterly --metrics revenue,eps_basic --count 3 --allow-partial --json
@@ -41,11 +42,17 @@ uv run atlas research get financial_analytics --identifier AAPL --metrics revenu
 uv run atlas research get compare --identifiers MSFT,GOOGL --metrics revenue,revenue_growth_yoy,free_cash_flow --period quarterly --allow-partial --json
 uv run atlas research get economics --series cpi --json
 uv run atlas research get treasury_yields --year 2026 --json
+uv run atlas research get fx_rates --base-currency USD --quote-currency JPY --json
+uv run atlas research get reference_rates --series sofr --json
+uv run atlas research get treasury_real_yields --year 2026 --json
+uv run atlas research get macro_analytics --series cpi_yoy --json
 ```
 
 Research needs no data subscription, API key, wallet or LLM. Commands return JSON, and errors use nonzero exit codes. Dataset names, metrics, series identifiers and query limits are listed in `research catalog` and the [research guide](docs/research.md).
 
 Growth matches actual prior-year periods; `0.25` means 25%. Free cash flow is reported operating cash flow minus PP&E acquisition payments. Comparisons select the latest shared reported period end and suppress values with different actual input dates. Missing quarters and nonpositive growth baselines remain unavailable. [Calculation rules](docs/research.md#growth-and-cash-flow-analytics).
+
+FX observations are daily reference rates for information purposes. The ECB window covers the latest 90 calendar days; EFFR/SOFR retrieval covers the latest 90 observations. Cross rates use inputs from the same date. Missing dates and macro baselines are not filled. [Macro and FX guide](docs/macro.md).
 
 ## Python, MCP and HTTP
 

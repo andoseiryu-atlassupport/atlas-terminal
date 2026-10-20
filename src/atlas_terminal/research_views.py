@@ -163,6 +163,14 @@ CONTEXT_FIELDS = {
     "published_at",
     "published_at_raw",
     "url",
+    "base_currency",
+    "quote_currency",
+    "quote_convention",
+    "rate_type",
+    "frequency",
+    "revision_indicator",
+    "source_series",
+    "rounding",
 }
 
 

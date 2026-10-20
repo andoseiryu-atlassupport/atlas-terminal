@@ -11,6 +11,7 @@ from typer.exceptions import TyperException
 
 from atlas_terminal.client import Atlas
 from atlas_terminal.errors import AtlasError
+from atlas_terminal.macro_catalog import Currency
 from atlas_terminal.models import parse_query
 from atlas_terminal.research_models import Dataset
 
@@ -77,6 +78,8 @@ def research_get(
     accession: str | None = None,
     series: str | None = None,
     year: int | None = None,
+    base_currency: Currency | None = None,
+    quote_currency: Currency | None = None,
     view: str = "full",
     fields: str | None = None,
     page_size: int | None = None,
@@ -98,6 +101,8 @@ def research_get(
         "accession": accession,
         "series": series,
         "year": year,
+        "base_currency": base_currency,
+        "quote_currency": quote_currency,
     }
     data.update({k: v for k, v in options.items() if v is not None})
     if metrics is not None:

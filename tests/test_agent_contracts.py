@@ -37,9 +37,13 @@ def query(dataset="statements", **extra):
         result[key] = (
             ["ATLASDEMO"] if key == "identifiers" else "cpi" if key == "series" else "ATLASDEMO"
         )
+    if dataset == "fx_rates":
+        result.update(base_currency="USD", quote_currency="JPY")
+    if dataset in {"reference_rates", "macro_analytics"}:
+        result["series"] = "sofr" if dataset == "reference_rates" else "cpi_yoy"
     if dataset in {"statements", "ratios", "financial_analytics", "compare"}:
         result["allow_partial"] = True
-    if dataset == "treasury_yields":
+    if dataset in {"treasury_yields", "treasury_real_yields"}:
         result["year"] = 2026
     return result | extra
 

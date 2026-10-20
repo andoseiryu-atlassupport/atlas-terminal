@@ -16,16 +16,18 @@ def main() -> None:
     parser.add_argument("--identifier")
     parser.add_argument("--series")
     parser.add_argument("--year", type=int)
+    parser.add_argument("--base-currency")
+    parser.add_argument("--quote-currency")
     parser.add_argument("--allow-network", action="store_true")
     args = parser.parse_args()
     if not args.allow_network:
         print(json.dumps({"status": "NOT RUN", "reason": "Explicit --allow-network is required."}))
         raise SystemExit(4)
     query: dict[str, Any] = {"dataset": args.dataset}
-    for name in ("identifier", "series", "year"):
+    for name in ("identifier", "series", "year", "base_currency", "quote_currency"):
         if getattr(args, name) is not None:
             query[name] = getattr(args, name)
-    if args.dataset in {"statements", "ratios"}:
+    if args.dataset in {"statements", "ratios", "financial_analytics"}:
         query.update(count=1, allow_partial=True)
     elif args.dataset != "profile":
         query["limit"] = 5

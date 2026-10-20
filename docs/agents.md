@@ -4,7 +4,7 @@ Atlas exposes free research through typed MCP input, structured output, the Pyth
 
 ## Discover only the needed contract
 
-Call `atlas_research_catalog` with `{"dataset":"statements","view":"compact"}` for dataset limits, metric names and source terms without large schemas. Use `view="full"` for query and common response schemas. Omit `dataset` to discover all 17 datasets. The default catalog view remains full.
+Call `atlas_research_catalog` with `{"dataset":"statements","view":"compact"}` for dataset limits, metric names and source terms without large schemas. Use `view="full"` for query and common response schemas. Omit `dataset` to discover all 21 datasets. The default catalog view remains full.
 
 `atlas_get_research` publishes a typed `query` parameter with a separate JSON Schema branch for each dataset. Branches specify required identity, supported metrics or economic series, periods, bounds and applicable fields. Its `outputSchema` describes the common result envelope, provenance references and page metadata; dataset-specific record fields remain extensible. Invalid tool arguments return a sanitized error without echoing supplied values.
 
@@ -32,6 +32,8 @@ Use the fixture provider for ATLASDEMO. Public retrieval uses real identifiers a
 Compact output replaces each source provenance object with `{"evidence_id":"…"}`. Read that ID with `atlas_get_evidence(evidence_id)`. The response contains the exact saved source URL, raw-byte SHA-256, retrieval time, JSON pointer or XML path, and any original filing metadata. The evidence ID is the SHA-256 of the canonical provenance object. It refers to saved provenance, not a downloaded document or an arbitrary fetch URL.
 
 Values, units, actual periods, missing/conflicting statuses, formulas and reported calculation inputs remain present. Source text stays untrusted. `response.fields` optionally selects leaf-record fields while retaining identifying dimensions, units, periods, statuses, missingness, source references and calculation context. Unknown fields are rejected against the selected result. Nested comparison wrappers retain their issuer identity, coverage and alignment.
+
+For FX, projection also retains base/quote currencies, quote convention, rate type and rounding context. Derived FX provenance is under `inputs`; its output `source` is null. Macro calculations likewise retain their reported inputs and required comparison period. Root-level `attributions` retain ECB conditions and New York Fed copyright/reference-rate notices in both views; preserve these when redistributing results. See [macro and FX](macro.md) for units, source windows and missing-input rules.
 
 The default view remains full and embeds original provenance. Compact output reduces repeated provenance; small results can grow because of page metadata. No fixed token saving is guaranteed.
 
