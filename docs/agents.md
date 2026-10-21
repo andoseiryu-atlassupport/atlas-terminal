@@ -72,6 +72,68 @@ CLI equivalents use `research catalog --dataset statements --view compact`, `res
 
 HTTP uses `GET /v1/research/catalog?dataset=statements&view=compact`, the same flat query body at `POST /v1/research`, and `GET /v1/research/evidence/{evidence_id}`. The reference API remains single-process and loopback-oriented.
 
+## Require data quality explicitly
+
+Add an optional `requirements` object to any research query. Omitted requirements preserve existing behavior. Supplied conditions are checked on the complete selected result, including calculation inputs and nested comparison records, before field selection or pagination:
+
+```json
+{
+  "dataset": "fx_rates",
+  "base_currency": "USD",
+  "quote_currency": "JPY",
+  "limit": 2,
+  "requirements": {
+    "max_source_age_seconds": 3600,
+    "min_observation_date": "2026-10-19",
+    "allow_missing": false,
+    "allow_derived": true,
+    "allow_truncated": true
+  }
+}
+```
+
+| Field                    | Meaning                                                                                                                                                                                                                |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `max_source_age_seconds` | Maximum age of the oldest source retrieval/check used, including reported inputs. Integer 0–31,536,000; unknown or future source timestamps fail the condition.                                                        |
+| `min_observation_date`   | Minimum ISO date for the latest usable observation in the selected output. Unknown dates and unavailable values cannot satisfy it. It does not require every historical row to be newer.                               |
+| `allow_missing`          | Defaults true. False rejects Atlas-marked unavailable/ambiguous cells, null `value` fields, null primary debt/13F amounts, empty results and explicitly partial coverage. Optional nullable metadata is not certified. |
+| `allow_derived`          | Defaults true. False rejects output or dependency records marked derived, including FX cross/inverse calculations.                                                                                                     |
+| `allow_truncated`        | Defaults true. False rejects explicit record, archive or footnote truncation. A fixed upstream window alone is not truncation.                                                                                         |
+
+Source age and observation age are separate. A successful HTTP 304 revalidation updates the source check/retrieval time; it does not change an observation's date. Requirements do not force a cache refresh, infer release times, fill gaps, extend history or relax financial `allow_partial` rules. A stale cached result is rejected until a valid refresh is available. Observation dates use reported dates or period ends; BLS monthly periods map to calendar month end and M13 averages to year end. Raw XBRL uses the reported context end, filing discovery uses the filing date, and policy-release metadata uses its explicit publication date. Ownership records can inherit the selected filing's explicit report date and retain any actual transaction dates. Undated company/profile metadata remains unknown. No release/holiday calendar or PIT reconstruction is implied.
+
+A failed condition returns `QUALITY_NOT_MET` (HTTP 409), with `details.quality` containing the actual values and failed checks, and `next_action.action="review_requirements"`. The caller decides whether changed requirements or a fresh read are acceptable. No condition is silently relaxed.
+
+Successful results include `quality`, whose scope is `complete_selected_result`. A continuation repeats the exact requirements; changed requirements return `INVALID_CURSOR`. Time-dependent checks run again against the saved full result without fetching upstream data. `response.result_sha256` continues to identify the original saved result, including its initial assessment; a resumed page's `quality.evaluated_at` and age describe the current assessment.
+
+CLI equivalents include `--max-source-age-seconds 3600`, `--min-observation-date 2026-10-19`, `--no-allow-missing`, `--no-allow-derived` and `--no-allow-truncated`. Fixtures have a fixed source retrieval time; short age limits intentionally fail as that fictional snapshot ages.
+
+## Retrieve independent queries in a batch
+
+Use `Atlas.get_research_batch`, MCP `atlas_get_research_batch`, HTTP `POST /v1/research/batch` or `atlas research batch --input FILE`. Each uses this envelope:
+
+```json
+{
+  "items": [
+    { "id": "cpi", "query": { "dataset": "economics", "series": "cpi" } },
+    {
+      "id": "sofr",
+      "query": { "dataset": "reference_rates", "series": "sofr" }
+    }
+  ]
+}
+```
+
+Queries use the catalog's existing dataset schemas, including their own requirements and presentation options. The batch tool types its envelope and output; the inner query is an object so invalid queries can produce item errors independently. Results preserve input order and IDs. An item has `status="ok"` and `result`, or `status="error"` and the shared safe error payload. Root `status` is `ok`, `partial` or `error`, with requested/successful/failed counts and `summary.retryable_read_ids`. Partial batches remain successful MCP calls and HTTP 200 responses: callers must inspect item statuses. No item is retried automatically, and retry hints grant no payment authorization.
+
+There are at most ten items, unique IDs of 1–64 ASCII letters/digits/underscores/hyphens, a 16 KiB request limit and a 4 MiB aggregate response budget. Structural/envelope failures execute nothing; query errors affect only their item. Items exceeding the remaining output budget return `RESPONSE_TOO_LARGE` and can be retried with a deliberately smaller result. Execution is sequential and shares normal source caches, quotas and retries. A batch is not an atomic or simultaneous snapshot, an asynchronous job or a payment operation. IDs correlate results without guaranteeing persistent idempotency across calls.
+
+`atlas research batch --input -` reads stdin. CLI emits one JSON document and exits 0 when every item succeeds, 1 for item failures, and the ordinary nonzero domain code for invalid envelopes/configuration. [Offline four-query example](../examples/research_batch.json):
+
+```sh
+uv run --offline atlas research batch --input examples/research_batch.json --provider fixture --json
+```
+
 ## Handle errors by contract
 
 Errors retain `code`, `message`, `retryable`, `details` and `request_id`, with additive `next_action` and nullable `retry_after_seconds` fields. A request ID stays stable when the same error is serialized in multiple places. Validation hints contain known field names, never submitted values.
@@ -82,6 +144,7 @@ Errors retain `code`, `message`, `retryable`, `details` and `request_id`, with a
 | Unsupported metric/period/history                      | `inspect_catalog`       | Read capabilities; do not silently replace a historical request with current data      |
 | Missing/ambiguous issuer                               | `resolve_company`       | Resolve identity before research                                                       |
 | Incomplete coverage                                    | `review_coverage`       | Decide whether the task accepts partial results; Atlas does not enable `allow_partial` |
+| Unmet explicit quality requirements                    | `review_requirements`   | Review actual quality checks; do not silently loosen the requested conditions          |
 | Source quota                                           | `wait`                  | Honor the bounded retry hint and the caller's retry limit                              |
 | Retryable source read                                  | `retry_read`            | Retry only an idempotent read within the caller's limits                               |
 | Expired/absent presentation data                       | `restart_query`         | Fetch a new free result if the task permits changed source contents                    |

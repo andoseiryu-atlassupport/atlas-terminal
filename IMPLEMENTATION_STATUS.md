@@ -28,13 +28,19 @@ Run `atlas research catalog --json` for identifiers, query fields, units and lim
 | ---------------- | ----------------------------------------------------------------------- |
 | CLI              | `atlas research catalog` / `atlas research get`                         |
 | Python SDK       | `Atlas.research_catalog()` / `Atlas.get_research(query)`                |
-| MCP              | Nine default tools; hosted adds native x402 purchase and reconciliation |
+| MCP              | Ten default tools; hosted adds native x402 purchase and reconciliation  |
 | HTTP             | `GET /v1/research/catalog` / `POST /v1/research`                        |
 | Annual snapshots | `financials get` / `Atlas.get_financials`, covering five annual metrics |
 
 Research requires no data subscription, API key, wallet or LLM. SEC retrieval requires a private `SEC_USER_AGENT` containing the application name and an actual contact email. The `fixture` provider returns fictional data without network access.
 
 MCP research publishes dataset-specific query schemas and a validated common response schema. Optional compact responses replace repeated provenance with content-addressed evidence IDs; field projection preserves interpretation and calculation context. Snapshot-bound cursors resume without refetching upstream data. CLI, SDK and HTTP share these services. Catalogs support dataset filtering and compact discovery. Error envelopes expose safe field hints, next actions and known retry delays. See the [agent contracts](docs/agents.md) for retention and paging limits.
+
+Optional requirements enforce the oldest source age, latest usable observation date, missingness, derived records and explicit truncation on the complete selected result. Conditions fail closed with `QUALITY_NOT_MET`; cursor reads recheck source age without refetching. Source age does not imply publication freshness, and requirements do not expand coverage or force a refresh.
+
+Research batches support up to ten ordered independent queries, 16 KiB requests and a 4 MiB response budget. Each item has a caller ID, result or safe error, with explicit retryable read IDs. Malformed envelopes execute no items. CLI, SDK, MCP and HTTP share the service; batches never purchase, sign or retry failed items automatically.
+
+Opt-in source checks cover seven official source families with ten fixed probes. They capture raw-byte and structure hashes, observation dates, latency and changes against private last-success baselines. A manual workflow keeps live requests separate from offline CI. Fixture/mock checks do not establish live connectivity. See [operator source checks](docs/source-checks.md).
 
 ## Provenance and data quality
 
@@ -63,6 +69,6 @@ FX covers the ECB's latest 90-calendar-day reference window. EFFR/SOFR covers th
 
 The HTTP API supports one process, one private SQLite volume and loopback connections. Mainnet, distributed budgets, background reconciliation and public-facing authentication or TLS are unsupported. Reconciliation may remain unresolved for legacy deadlines, old nonce logs without a transaction hint, ambiguous batched receipts and pre-submission crashes. Live RPC/Facilitator behavior and real transfers remain unverified.
 
-Remote MCP hosting, batched research jobs, freshness/coverage requirements and model-driven task-success or token benchmarks are not implemented. Agent contract tests use official MCP messages and offline fixtures, without an LLM.
+Remote MCP hosting, asynchronous research jobs, historical value-difference feeds and model-driven task-success or token benchmarks are not implemented. Agent contract tests use official MCP messages and offline fixtures, without an LLM. Source checks are invoked explicitly; no recurring monitor or release/holiday calendar is installed.
 
 [Quickstart](docs/quickstart.md) · [API configuration](docs/self-hosting.md) · [Payments](docs/payments.md) · [Apache-2.0](LICENSE)

@@ -78,9 +78,18 @@ Start the MCP server with:
 uv run --offline atlas mcp serve --provider fixture
 ```
 
-Nine MCP tools expose research, saved evidence, company resolution, annual snapshots, filings, quotes, purchases and purchase status. `atlas_get_research` publishes dataset-specific input branches and a common output schema. Use `atlas_research_catalog` with an optional dataset filter and compact view to reduce discovery output. [MCP setup](docs/quickstart.md).
+Ten MCP tools expose research, research batches, saved evidence, company resolution, annual snapshots, filings, quotes, purchases and purchase status. `atlas_get_research` publishes dataset-specific input branches and a common output schema. Use `atlas_research_catalog` with an optional dataset filter and compact view to reduce discovery output. [MCP setup](docs/quickstart.md).
 
 Research accepts optional `response` settings for compact provenance references, field selection and snapshot pagination. `atlas_get_evidence` retrieves the original provenance by ID. Errors include a structured next action and a retry delay when known. The same contracts work through CLI, SDK and HTTP. [Agent usage](docs/agents.md).
+
+Optional `requirements` gate source age, the latest usable observation date, missing values, derived records and truncation before returning data. Failed conditions return `QUALITY_NOT_MET`; pages recheck time-dependent conditions. `Atlas.get_research_batch`, MCP `atlas_get_research_batch`, HTTP `POST /v1/research/batch` and `atlas research batch` process up to ten independent reads with an ID and status per item. [Requirements and batches](docs/agents.md#require-data-quality-explicitly).
+
+```sh
+uv run --offline atlas research batch --input examples/research_batch.json --provider fixture --json
+uv run atlas research check-sources --sources ecb,new_york_fed --allow-network --json
+```
+
+Source checks require an explicit network opt-in, revalidate through shared source caches/quotas and record response hashes, structural fingerprints and observation dates against private last-success baselines. A separate manual workflow supports read-only official-source verification. [Source checks and limits](docs/source-checks.md).
 
 The hosted MCP provider adds native x402 purchases through standard payment metadata and read-only chain reconciliation. Its external-wallet path uses the caller's spending controls. [MCP payment setup](docs/payments.md#standard-http-and-native-mcp-clients).
 

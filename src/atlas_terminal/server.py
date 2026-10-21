@@ -33,6 +33,7 @@ from atlas_terminal.payments.common import (
 from atlas_terminal.payments.mock import MockAdapter
 from atlas_terminal.payments.orders import OrderService
 from atlas_terminal.payments.reconciliation import BaseSepoliaReconciler, SettlementReconciler
+from atlas_terminal.research_batch import ResearchBatchQuery, ResearchBatchResult
 from atlas_terminal.research_models import Dataset, ResearchQuery
 from atlas_terminal.research_views import EvidenceResult, ResearchResult
 from atlas_terminal.util import state_dir
@@ -190,6 +191,20 @@ def create_app(
     )
     def get_research(body: dict[str, Any]) -> dict[str, Any]:
         return orders.atlas.get_research(body)
+
+    @app.post(
+        "/v1/research/batch",
+        response_model=ResearchBatchResult,
+        response_model_exclude_unset=True,
+        openapi_extra={
+            "requestBody": {
+                "content": {"application/json": {"schema": ResearchBatchQuery.model_json_schema()}},
+                "required": True,
+            }
+        },
+    )
+    def get_research_batch(body: dict[str, Any]) -> dict[str, Any]:
+        return orders.atlas.get_research_batch(body)
 
     @app.get(
         "/v1/research/evidence/{evidence_id}",

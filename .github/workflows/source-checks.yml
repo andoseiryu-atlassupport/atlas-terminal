@@ -1,0 +1,49 @@
+name: Official source checks
+
+on:
+  workflow_dispatch:
+    inputs:
+      allow_network:
+        description: Allow read-only requests to the selected official sources
+        required: true
+        default: false
+        type: boolean
+      sources:
+        description: Comma-separated source IDs from the research catalog, or all
+        required: true
+        default: ecb,new_york_fed,bls,treasury,fiscaldata,federal_reserve
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  check-sources:
+    if: ${{ inputs.allow_network }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.12"
+      - name: Install locked Python dependencies
+        run: |
+          python -m pip install uv==0.12.23
+          uv sync --locked --all-extras --dev
+      - name: Check selected source responses
+        env:
+          SOURCE_IDS: ${{ inputs.sources }}
+          SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
+          ATLAS_STATE_DIR: ${{ runner.temp }}/atlas-source-checks
+        run: uv run --offline atlas research check-sources --sources "$SOURCE_IDS" --allow-network --json > source-checks.json
+      - name: Print structured verification report
+        if: ${{ always() }}
+        run: |
+          if test -f source-checks.json; then
+            cat source-checks.json
+          fi

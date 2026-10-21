@@ -7,6 +7,7 @@ from tempfile import TemporaryDirectory
 from pydantic import BaseModel
 
 from atlas_terminal.errors import ErrorEnvelope
+from atlas_terminal.research_batch import ResearchBatchQuery, ResearchBatchResult
 from atlas_terminal.research_models import ResearchQuery
 from atlas_terminal.research_views import EvidenceResult, ResearchResult, SourceEvidence
 from atlas_terminal.server import create_app
@@ -33,6 +34,8 @@ def main() -> None:
     schema["$defs"] = definitions(
         [
             ("ResearchQuery", ResearchQuery),
+            ("ResearchBatchQuery", ResearchBatchQuery),
+            ("ResearchBatchResult", ResearchBatchResult),
             ("ResearchSource", SourceEvidence),
             ("ResearchResult", ResearchResult),
             ("EvidenceResult", EvidenceResult),

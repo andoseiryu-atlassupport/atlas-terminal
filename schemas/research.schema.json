@@ -3,6 +3,61 @@
   "$id": "https://schemas.atlas.invalid/research-0.2.schema.json",
   "title": "Atlas free research queries, presentation, provenance and common result contracts",
   "$defs": {
+    "ResearchRequirements": {
+      "additionalProperties": false,
+      "properties": {
+        "max_source_age_seconds": {
+          "anyOf": [
+            {
+              "maximum": 31536000,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Maximum age of the oldest source retrieval/check used, including inputs. Does not force refresh.",
+          "title": "Max Source Age Seconds"
+        },
+        "min_observation_date": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Minimum date for the latest usable selected output observation or period end, not its publication time.",
+          "format": "date",
+          "title": "Min Observation Date"
+        },
+        "allow_missing": {
+          "default": true,
+          "description": "Permit Atlas-marked unavailable/ambiguous cells, null value/primary amount fields and partial coverage; optional metadata is not certified.",
+          "title": "Allow Missing",
+          "type": "boolean"
+        },
+        "allow_derived": {
+          "default": true,
+          "description": "Permit output/dependency records marked as derived.",
+          "title": "Allow Derived",
+          "type": "boolean"
+        },
+        "allow_truncated": {
+          "default": true,
+          "description": "Permit explicit record, archive or footnote truncation. A fixed upstream window alone is not truncation.",
+          "title": "Allow Truncated",
+          "type": "boolean"
+        }
+      },
+      "title": "ResearchRequirements",
+      "type": "object"
+    },
     "ResponseOptions": {
       "additionalProperties": false,
       "description": "Presentation only: does not expand upstream retrieval or relax coverage.",
@@ -83,6 +138,17 @@
             },
             "response": {
               "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
             }
           },
           "required": ["dataset"],
@@ -102,6 +168,17 @@
             },
             "response": {
               "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
             }
           },
           "required": ["dataset", "identifier"],
@@ -186,6 +263,17 @@
             },
             "response": {
               "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
             }
           },
           "required": ["dataset", "identifier"],
@@ -223,6 +311,17 @@
             },
             "response": {
               "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
             }
           },
           "required": ["dataset", "identifier"],
@@ -277,6 +376,17 @@
             },
             "response": {
               "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
             }
           },
           "required": ["dataset", "identifier"],
@@ -335,6 +445,17 @@
             },
             "response": {
               "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
             }
           },
           "required": ["dataset", "identifier"],
@@ -367,6 +488,17 @@
             },
             "response": {
               "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
             }
           },
           "required": ["dataset", "identifier"],
@@ -406,6 +538,17 @@
             },
             "response": {
               "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
             }
           },
           "required": ["dataset", "identifier"],
@@ -445,6 +588,17 @@
             },
             "response": {
               "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
             }
           },
           "required": ["dataset", "identifier"],
@@ -471,6 +625,17 @@
             },
             "response": {
               "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
             }
           },
           "required": ["dataset", "identifier"],
@@ -497,6 +662,17 @@
             },
             "response": {
               "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
             }
           },
           "required": ["dataset", "identifier"],
@@ -523,6 +699,17 @@
             },
             "response": {
               "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
             }
           },
           "required": ["dataset", "identifier"],
@@ -567,6 +754,17 @@
             },
             "response": {
               "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
             }
           },
           "required": ["dataset", "series"],
@@ -602,6 +800,17 @@
             },
             "response": {
               "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
             }
           },
           "required": ["dataset"],
@@ -623,6 +832,17 @@
             },
             "response": {
               "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
             }
           },
           "required": ["dataset"],
@@ -644,6 +864,17 @@
             },
             "response": {
               "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
             }
           },
           "required": ["dataset"],
@@ -732,6 +963,17 @@
             },
             "response": {
               "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
             }
           },
           "required": ["dataset", "identifiers"],
@@ -885,6 +1127,17 @@
             },
             "response": {
               "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
             }
           },
           "required": ["dataset", "base_currency", "quote_currency"],
@@ -912,6 +1165,17 @@
             },
             "response": {
               "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
             }
           },
           "required": ["dataset", "series"],
@@ -947,6 +1211,17 @@
             },
             "response": {
               "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
             }
           },
           "required": ["dataset"],
@@ -993,6 +1268,17 @@
             },
             "response": {
               "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
             }
           },
           "required": ["dataset", "series"],
@@ -1206,75 +1492,111 @@
         },
         "response": {
           "$ref": "#/$defs/ResponseOptions"
+        },
+        "requirements": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ResearchRequirements"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": ["dataset"],
       "title": "ResearchQuery",
       "type": "object"
     },
-    "ResearchSource": {
-      "additionalProperties": true,
-      "anyOf": [
-        {
-          "properties": {
-            "json_pointer": {
-              "type": "string"
-            }
-          },
-          "required": ["json_pointer"]
-        },
-        {
-          "properties": {
-            "xml_local_path": {
-              "type": "string"
-            }
-          },
-          "required": ["xml_local_path"]
-        }
-      ],
+    "ResearchBatchItem": {
+      "additionalProperties": false,
       "properties": {
-        "raw_source_url": {
-          "format": "uri",
-          "title": "Raw Source Url",
+        "id": {
+          "pattern": "^[A-Za-z0-9_-]{1,64}$",
+          "title": "Id",
           "type": "string"
         },
-        "raw_sha256": {
-          "pattern": "^[0-9a-f]{64}$",
-          "title": "Raw Sha256",
-          "type": "string"
-        },
-        "retrieved_at": {
-          "format": "date-time",
-          "title": "Retrieved At",
-          "type": "string"
-        },
-        "json_pointer": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Json Pointer"
-        },
-        "xml_local_path": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Xml Local Path"
+        "query": {
+          "additionalProperties": true,
+          "description": "One dataset-specific ResearchQuery from atlas_research_catalog. Queries are validated independently; invalid queries produce per-item errors.",
+          "title": "Query",
+          "type": "object"
         }
       },
-      "required": ["raw_source_url", "raw_sha256", "retrieved_at"],
-      "title": "SourceEvidence",
+      "required": ["id", "query"],
+      "title": "ResearchBatchItem",
+      "type": "object"
+    },
+    "ResearchBatchQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "items": {
+          "items": {
+            "$ref": "#/$defs/ResearchBatchItem"
+          },
+          "maxItems": 10,
+          "minItems": 1,
+          "title": "Items",
+          "type": "array"
+        }
+      },
+      "required": ["items"],
+      "title": "ResearchBatchQuery",
+      "type": "object"
+    },
+    "ErrorPayload": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "retryable": {
+          "title": "Retryable",
+          "type": "boolean"
+        },
+        "details": {
+          "additionalProperties": true,
+          "title": "Details",
+          "type": "object"
+        },
+        "request_id": {
+          "title": "Request Id",
+          "type": "string"
+        },
+        "next_action": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/NextAction"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "retry_after_seconds": {
+          "anyOf": [
+            {
+              "maximum": 86400,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retry After Seconds"
+        }
+      },
+      "required": ["code", "message", "retryable", "details", "request_id"],
+      "title": "ErrorPayload",
       "type": "object"
     },
     "EvidenceReference": {
@@ -1288,6 +1610,398 @@
       },
       "required": ["evidence_id"],
       "title": "EvidenceReference",
+      "type": "object"
+    },
+    "NextAction": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "enum": [
+            "fix_query",
+            "inspect_catalog",
+            "resolve_company",
+            "review_coverage",
+            "review_requirements",
+            "retry_read",
+            "request_quote",
+            "wait",
+            "check_purchase_status",
+            "contact_operator",
+            "restart_query",
+            "stop"
+          ],
+          "title": "Action",
+          "type": "string"
+        },
+        "tool": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tool"
+        },
+        "fields": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Fields",
+          "type": "array"
+        },
+        "automatic": {
+          "default": false,
+          "title": "Automatic",
+          "type": "boolean"
+        }
+      },
+      "required": ["action"],
+      "title": "NextAction",
+      "type": "object"
+    },
+    "QualityCheck": {
+      "additionalProperties": false,
+      "properties": {
+        "requirement": {
+          "enum": [
+            "max_source_age_seconds",
+            "min_observation_date",
+            "allow_missing",
+            "allow_derived",
+            "allow_truncated"
+          ],
+          "title": "Requirement",
+          "type": "string"
+        },
+        "passed": {
+          "title": "Passed",
+          "type": "boolean"
+        },
+        "required": {
+          "title": "Required"
+        },
+        "actual": {
+          "title": "Actual"
+        }
+      },
+      "required": ["requirement", "passed", "required", "actual"],
+      "title": "QualityCheck",
+      "type": "object"
+    },
+    "ResearchBatchFailure": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "status": {
+          "const": "error",
+          "default": "error",
+          "title": "Status",
+          "type": "string"
+        },
+        "error": {
+          "$ref": "#/$defs/ErrorPayload"
+        }
+      },
+      "required": ["id", "error"],
+      "title": "ResearchBatchFailure",
+      "type": "object"
+    },
+    "ResearchBatchSuccess": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "status": {
+          "const": "ok",
+          "default": "ok",
+          "title": "Status",
+          "type": "string"
+        },
+        "result": {
+          "$ref": "#/$defs/ResearchResult"
+        }
+      },
+      "required": ["id", "result"],
+      "title": "ResearchBatchSuccess",
+      "type": "object"
+    },
+    "ResearchBatchSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "requested": {
+          "title": "Requested",
+          "type": "integer"
+        },
+        "successful": {
+          "title": "Successful",
+          "type": "integer"
+        },
+        "failed": {
+          "title": "Failed",
+          "type": "integer"
+        },
+        "retryable_read_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Retryable Read Ids",
+          "type": "array"
+        }
+      },
+      "required": ["requested", "successful", "failed", "retryable_read_ids"],
+      "title": "ResearchBatchSummary",
+      "type": "object"
+    },
+    "ResearchQuality": {
+      "additionalProperties": false,
+      "properties": {
+        "evaluated_at": {
+          "title": "Evaluated At",
+          "type": "string"
+        },
+        "scope": {
+          "const": "complete_selected_result",
+          "default": "complete_selected_result",
+          "title": "Scope",
+          "type": "string"
+        },
+        "oldest_source_retrieved_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Oldest Source Retrieved At"
+        },
+        "newest_source_retrieved_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Newest Source Retrieved At"
+        },
+        "max_source_age_seconds": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Max Source Age Seconds"
+        },
+        "latest_observation_date": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Latest Observation Date"
+        },
+        "missing_value_count": {
+          "minimum": 0,
+          "title": "Missing Value Count",
+          "type": "integer"
+        },
+        "derived_record_count": {
+          "minimum": 0,
+          "title": "Derived Record Count",
+          "type": "integer"
+        },
+        "partial_coverage": {
+          "title": "Partial Coverage",
+          "type": "boolean"
+        },
+        "truncated": {
+          "title": "Truncated",
+          "type": "boolean"
+        },
+        "meets_requirements": {
+          "title": "Meets Requirements",
+          "type": "boolean"
+        },
+        "checks": {
+          "items": {
+            "$ref": "#/$defs/QualityCheck"
+          },
+          "title": "Checks",
+          "type": "array"
+        }
+      },
+      "required": [
+        "evaluated_at",
+        "oldest_source_retrieved_at",
+        "newest_source_retrieved_at",
+        "max_source_age_seconds",
+        "latest_observation_date",
+        "missing_value_count",
+        "derived_record_count",
+        "partial_coverage",
+        "truncated",
+        "meets_requirements",
+        "checks"
+      ],
+      "title": "ResearchQuality",
+      "type": "object"
+    },
+    "ResearchResult": {
+      "additionalProperties": true,
+      "description": "Common envelope; dataset-specific records and metadata remain extensible.",
+      "properties": {
+        "schema_version": {
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "dataset": {
+          "enum": [
+            "companies",
+            "profile",
+            "statements",
+            "ratios",
+            "financial_analytics",
+            "company_facts",
+            "filings",
+            "insider_transactions",
+            "institutional_holdings",
+            "ownership_filings",
+            "fund_filings",
+            "corporate_action_filings",
+            "economics",
+            "treasury_yields",
+            "federal_debt",
+            "policy_news",
+            "compare",
+            "fx_rates",
+            "reference_rates",
+            "treasury_real_yields",
+            "macro_analytics"
+          ],
+          "title": "Dataset",
+          "type": "string"
+        },
+        "query": {
+          "additionalProperties": true,
+          "title": "Query",
+          "type": "object"
+        },
+        "source_id": {
+          "title": "Source Id",
+          "type": "string"
+        },
+        "source_terms_url": {
+          "title": "Source Terms Url",
+          "type": "string"
+        },
+        "upstream_data_cost": {
+          "const": "0",
+          "title": "Upstream Data Cost",
+          "type": "string"
+        },
+        "is_synthetic": {
+          "title": "Is Synthetic",
+          "type": "boolean"
+        },
+        "source_text_is_untrusted": {
+          "const": true,
+          "title": "Source Text Is Untrusted",
+          "type": "boolean"
+        },
+        "retrieved_at": {
+          "title": "Retrieved At",
+          "type": "string"
+        },
+        "records": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Records",
+          "type": "array"
+        },
+        "sources": {
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SourceEvidence"
+              },
+              {
+                "$ref": "#/$defs/EvidenceReference"
+              }
+            ]
+          },
+          "title": "Sources",
+          "type": "array"
+        },
+        "coverage": {
+          "additionalProperties": true,
+          "title": "Coverage",
+          "type": "object"
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Limitations",
+          "type": "array"
+        },
+        "response": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ResponseMetadata"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "quality": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ResearchQuality"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "schema_version",
+        "dataset",
+        "query",
+        "source_id",
+        "source_terms_url",
+        "upstream_data_cost",
+        "is_synthetic",
+        "source_text_is_untrusted",
+        "retrieved_at",
+        "records",
+        "sources",
+        "coverage",
+        "limitations"
+      ],
+      "title": "ResearchResult",
       "type": "object"
     },
     "ResponseMetadata": {
@@ -1443,134 +2157,130 @@
       "title": "SourceEvidence",
       "type": "object"
     },
-    "ResearchResult": {
-      "additionalProperties": true,
-      "description": "Common envelope; dataset-specific records and metadata remain extensible.",
+    "ResearchBatchResult": {
+      "additionalProperties": false,
       "properties": {
         "schema_version": {
+          "const": "0.2.0",
+          "default": "0.2.0",
           "title": "Schema Version",
           "type": "string"
         },
-        "dataset": {
-          "enum": [
-            "companies",
-            "profile",
-            "statements",
-            "ratios",
-            "financial_analytics",
-            "company_facts",
-            "filings",
-            "insider_transactions",
-            "institutional_holdings",
-            "ownership_filings",
-            "fund_filings",
-            "corporate_action_filings",
-            "economics",
-            "treasury_yields",
-            "federal_debt",
-            "policy_news",
-            "compare",
-            "fx_rates",
-            "reference_rates",
-            "treasury_real_yields",
-            "macro_analytics"
-          ],
-          "title": "Dataset",
+        "status": {
+          "enum": ["ok", "partial", "error"],
+          "title": "Status",
           "type": "string"
         },
-        "query": {
-          "additionalProperties": true,
-          "title": "Query",
-          "type": "object"
-        },
-        "source_id": {
-          "title": "Source Id",
-          "type": "string"
-        },
-        "source_terms_url": {
-          "title": "Source Terms Url",
+        "execution": {
+          "const": "sequential_independent_reads",
+          "default": "sequential_independent_reads",
+          "title": "Execution",
           "type": "string"
         },
         "upstream_data_cost": {
           "const": "0",
+          "default": "0",
           "title": "Upstream Data Cost",
           "type": "string"
         },
-        "is_synthetic": {
-          "title": "Is Synthetic",
+        "requires_wallet": {
+          "const": false,
+          "default": false,
+          "title": "Requires Wallet",
           "type": "boolean"
         },
-        "source_text_is_untrusted": {
-          "const": true,
-          "title": "Source Text Is Untrusted",
-          "type": "boolean"
-        },
-        "retrieved_at": {
-          "title": "Retrieved At",
-          "type": "string"
-        },
-        "records": {
+        "items": {
           "items": {
-            "additionalProperties": true,
-            "type": "object"
-          },
-          "title": "Records",
-          "type": "array"
-        },
-        "sources": {
-          "items": {
-            "anyOf": [
+            "discriminator": {
+              "mapping": {
+                "error": "#/$defs/ResearchBatchFailure",
+                "ok": "#/$defs/ResearchBatchSuccess"
+              },
+              "propertyName": "status"
+            },
+            "oneOf": [
               {
-                "$ref": "#/$defs/SourceEvidence"
+                "$ref": "#/$defs/ResearchBatchSuccess"
               },
               {
-                "$ref": "#/$defs/EvidenceReference"
+                "$ref": "#/$defs/ResearchBatchFailure"
               }
             ]
           },
-          "title": "Sources",
+          "title": "Items",
           "type": "array"
         },
-        "coverage": {
-          "additionalProperties": true,
-          "title": "Coverage",
-          "type": "object"
-        },
-        "limitations": {
-          "items": {
-            "type": "string"
+        "summary": {
+          "$ref": "#/$defs/ResearchBatchSummary"
+        }
+      },
+      "required": ["status", "items", "summary"],
+      "title": "ResearchBatchResult",
+      "type": "object"
+    },
+    "ResearchSource": {
+      "additionalProperties": true,
+      "anyOf": [
+        {
+          "properties": {
+            "json_pointer": {
+              "type": "string"
+            }
           },
-          "title": "Limitations",
-          "type": "array"
+          "required": ["json_pointer"]
         },
-        "response": {
+        {
+          "properties": {
+            "xml_local_path": {
+              "type": "string"
+            }
+          },
+          "required": ["xml_local_path"]
+        }
+      ],
+      "properties": {
+        "raw_source_url": {
+          "format": "uri",
+          "title": "Raw Source Url",
+          "type": "string"
+        },
+        "raw_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Raw Sha256",
+          "type": "string"
+        },
+        "retrieved_at": {
+          "format": "date-time",
+          "title": "Retrieved At",
+          "type": "string"
+        },
+        "json_pointer": {
           "anyOf": [
             {
-              "$ref": "#/$defs/ResponseMetadata"
+              "type": "string"
             },
             {
               "type": "null"
             }
           ],
-          "default": null
+          "default": null,
+          "title": "Json Pointer"
+        },
+        "xml_local_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Xml Local Path"
         }
       },
-      "required": [
-        "schema_version",
-        "dataset",
-        "query",
-        "source_id",
-        "source_terms_url",
-        "upstream_data_cost",
-        "is_synthetic",
-        "source_text_is_untrusted",
-        "retrieved_at",
-        "records",
-        "sources",
-        "coverage",
-        "limitations"
-      ],
-      "title": "ResearchResult",
+      "required": ["raw_source_url", "raw_sha256", "retrieved_at"],
+      "title": "SourceEvidence",
       "type": "object"
     },
     "EvidenceResult": {

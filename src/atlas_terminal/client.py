@@ -19,6 +19,7 @@ from atlas_terminal.models import (
 from atlas_terminal.normalize import normalize
 from atlas_terminal.providers import FixtureTransport, SECProvider, SecTransport
 from atlas_terminal.research import ResearchSecFixtures, ResearchService, research_catalog
+from atlas_terminal.research_batch import ResearchBatchQuery, research_batch
 from atlas_terminal.research_models import Dataset, ResearchQuery
 
 
@@ -87,6 +88,12 @@ class Atlas:
         if self.provider == "hosted":
             raise AtlasError("CONFIG_REQUIRED", "Evidence uses local public or fixture providers.")
         return self._research.views.evidence(evidence_id)
+
+    def get_research_batch(self, query: ResearchBatchQuery | dict[str, Any]) -> dict[str, Any]:
+        """Read up to ten independent research queries without purchasing or signing."""
+        if self.provider == "hosted":
+            raise AtlasError("CONFIG_REQUIRED", "Research uses local public or fixture providers.")
+        return research_batch(query, self.get_research)
 
     def resolve_company(self, query: str) -> Company:
         if self._hosted:

@@ -18,6 +18,7 @@ For SEC retrieval, use `--provider sec` and a private `SEC_USER_AGENT`. Set `ATL
 | GET    | /v1/catalog                                  | Annual metrics, periods and pricing mode                         |
 | GET    | /v1/research/catalog                         | Research datasets, query fields, units and limits                |
 | POST   | /v1/research                                 | Research retrieval without a quote or payment                    |
+| POST   | /v1/research/batch                           | Up to ten ordered independent free reads, with per-item status   |
 | GET    | /v1/research/evidence/{evidence_id}          | Saved provenance for a compact research result                   |
 | GET    | /v1/companies/resolve?query=ATLASDEMO        | Free issuer resolution                                           |
 | GET    | /v1/filings?cik=9999999999&form=10-K&limit=3 | Free filing metadata                                             |
@@ -43,6 +44,8 @@ Example body for `POST /v1/quotes`:
 `/openapi.json` exposes the generated FastAPI specification. Domain contracts use [annual snapshot and reconciliation JSON Schema](../schemas/atlas.schema.json) and [research JSON Schema](../schemas/research.schema.json). Official SDK models define x402 wire payloads.
 
 Research catalogs accept `dataset` and `view=compact` query parameters. Research POST bodies accept optional `response` settings for compact evidence references, field selection and snapshot pagination. Shared error contracts describe next actions and retry hints. See [agent contracts](agents.md) for examples and interpretation of coverage versus page size.
+
+Research `requirements` apply before projection/paging. A failed condition returns HTTP 409 with `QUALITY_NOT_MET`. Batch requests use `{"items":[{"id":"caller-id","query":{...}}]}`; valid envelopes return HTTP 200 even when items fail. Inspect root `status`, `summary.failed` and each item. Batches share existing source caches and rate limits, without a transaction or a simultaneous-observation guarantee. Their aggregate response budget is 4 MiB. Duplicate IDs, oversized requests and malformed envelopes execute no items.
 
 Optional server-only `ATLAS_TESTNET_RPC_URL` enables capability-authenticated reconciliation against canonical finalized Base Sepolia state. Requests use `{}` or an optional `transaction` hash hint. No payment is signed or submitted. See [reconciliation rules](payments.md#finalized-chain-reconciliation) for required RPC methods, outcomes, bounded discovery and unresolved cases.
 

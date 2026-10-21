@@ -3,6 +3,7 @@
 import json
 import os
 import sys
+from pathlib import Path
 from typing import Any, Literal
 
 import typer
@@ -13,6 +14,7 @@ from atlas_terminal.client import Atlas
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.macro_catalog import Currency
 from atlas_terminal.models import parse_query
+from atlas_terminal.research_batch import MAX_BATCH_REQUEST_BYTES
 from atlas_terminal.research_models import Dataset
 
 app = typer.Typer(no_args_is_help=True, add_completion=False, pretty_exceptions_enable=False)
@@ -80,6 +82,11 @@ def research_get(
     year: int | None = None,
     base_currency: Currency | None = None,
     quote_currency: Currency | None = None,
+    max_source_age_seconds: int | None = None,
+    min_observation_date: str | None = None,
+    allow_missing: bool | None = None,
+    allow_derived: bool | None = None,
+    allow_truncated: bool | None = None,
     view: str = "full",
     fields: str | None = None,
     page_size: int | None = None,
@@ -111,6 +118,17 @@ def research_get(
         data["identifiers"] = identifiers.split(",")
     if allow_partial:
         data["allow_partial"] = True
+    requirements = {
+        "max_source_age_seconds": max_source_age_seconds,
+        "min_observation_date": min_observation_date,
+        "allow_missing": allow_missing,
+        "allow_derived": allow_derived,
+        "allow_truncated": allow_truncated,
+    }
+    if any(value is not None for value in requirements.values()):
+        data["requirements"] = {
+            key: value for key, value in requirements.items() if value is not None
+        }
     if view != "full" or fields is not None or page_size is not None or cursor is not None:
         response: dict[str, Any] = {"view": view}
         if fields is not None:
@@ -124,6 +142,33 @@ def research_get(
         output(atlas.get_research(data))
 
 
+@research_app.command("batch")
+def research_batch(
+    input_file: str = typer.Option(..., "--input"),
+    provider: str = "public",
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """Read independent research queries from a bounded JSON file, or stdin with --input -."""
+    try:
+        if input_file == "-":
+            body = sys.stdin.buffer.read(MAX_BATCH_REQUEST_BYTES + 1)
+        else:
+            with Path(input_file).open("rb") as file:
+                body = file.read(MAX_BATCH_REQUEST_BYTES + 1)
+        if len(body) > MAX_BATCH_REQUEST_BYTES:
+            raise ValueError("Request exceeds bounds")
+        data = json.loads(body)
+    except (OSError, ValueError):
+        raise AtlasError(
+            "INVALID_INPUT", "Read a valid batch JSON object of at most 16 KiB."
+        ) from None
+    with Atlas(provider) as atlas:
+        result = atlas.get_research_batch(data)
+    output(result)
+    if result["summary"]["failed"]:
+        raise SystemExit(1)
+
+
 @research_app.command("evidence")
 def research_evidence(
     evidence_id: str,
@@ -133,6 +178,26 @@ def research_evidence(
     """Read saved provenance for a compact result; never fetches or pays."""
     with Atlas(provider) as atlas:
         output(atlas.get_evidence(evidence_id))
+
+
+@research_app.command("check-sources")
+def research_check_sources(
+    sources: str = "all",
+    allow_network: bool = False,
+    max_observation_lag_days: int | None = None,
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """Opt-in official-source checks; save private last-success shape/date baselines."""
+    from atlas_terminal.source_checks import check_sources
+
+    result = check_sources(
+        None if sources == "all" else sources.split(","),
+        allow_network=allow_network,
+        max_observation_lag_days=max_observation_lag_days,
+    )
+    output(result)
+    if result["status"] != "PASS":
+        raise SystemExit(4 if result["status"] == "NOT_RUN" else 3)
 
 
 @company_app.command("resolve")

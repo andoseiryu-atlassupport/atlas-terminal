@@ -748,6 +748,7 @@
             "inspect_catalog",
             "resolve_company",
             "review_coverage",
+            "review_requirements",
             "retry_read",
             "request_quote",
             "wait",

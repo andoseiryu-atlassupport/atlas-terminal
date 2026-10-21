@@ -49,6 +49,7 @@ jobs:
         run: |
           uv run --offline atlas demo --json
           uv run --offline python examples/free_research.py
+          uv run --offline atlas research batch --input examples/research_batch.json --provider fixture --json
           uv run --offline python examples/mock_purchase.py
       - name: Build distribution
         run: uv run --offline python -m build --no-isolation

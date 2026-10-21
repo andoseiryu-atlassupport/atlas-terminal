@@ -56,6 +56,7 @@ from atlas_terminal.research_models import (
     dataset_required,
     parse_research,
 )
+from atlas_terminal.research_quality import ResearchRequirements, enforce_requirements
 from atlas_terminal.research_views import ResearchResult, ResearchViews
 from atlas_terminal.util import stamp, state_dir
 
@@ -210,6 +211,14 @@ def research_catalog(
     dataset: Dataset | None = None,
     view: Literal["full", "compact"] = "full",
 ) -> dict[str, Any]:
+    from atlas_terminal.research_batch import (
+        MAX_BATCH_ITEMS,
+        MAX_BATCH_REQUEST_BYTES,
+        MAX_BATCH_RESPONSE_BYTES,
+        ResearchBatchQuery,
+        ResearchBatchResult,
+    )
+
     if (
         dataset is not None and (not isinstance(dataset, str) or dataset not in DATASETS)
     ) or view not in ("full", "compact"):
@@ -236,6 +245,7 @@ def research_catalog(
                 "query_fields": sorted(FIELDS[name]),
                 "required_fields": dataset_required(name),
                 "response_options": ["view", "fields", "page_size", "cursor"],
+                "requirements": list(ResearchRequirements.model_fields),
             }
             for name, (title, source, kind) in DATASETS.items()
         ],
@@ -253,6 +263,16 @@ def research_catalog(
         "limits": {"count": 20, "records": 500, "compare_issuers": 10, "xml_candidates": 6},
         "not_available": GAPS,
         "point_in_time": False,
+        "batch": {
+            "tool": "atlas_get_research_batch",
+            "http_path": "/v1/research/batch",
+            "max_items": MAX_BATCH_ITEMS,
+            "max_request_bytes": MAX_BATCH_REQUEST_BYTES,
+            "max_response_bytes": MAX_BATCH_RESPONSE_BYTES,
+            "execution": "sequential_independent_reads",
+            "query_schema": ResearchBatchQuery.model_json_schema(),
+            "response_schema": ResearchBatchResult.model_json_schema(),
+        },
         "query_schema": ResearchQuery.model_json_schema(),
         "response_schema": ResearchResult.model_json_schema(),
         "presentation": {
@@ -278,6 +298,8 @@ def research_catalog(
             source: SOURCE_CATALOG[source] for source in result["datasets"][0]["source_ids"]
         }
     if view == "compact":
+        result["batch"].pop("query_schema")
+        result["batch"].pop("response_schema")
         result.pop("query_schema")
         result.pop("response_schema")
         result["sources"] = {
@@ -462,6 +484,8 @@ class ResearchService:
             **result,
         }
         ResearchResult.model_validate(result)
+        if q.requirements is not None:
+            result["quality"] = enforce_requirements(result, q.requirements)
         if q.response.view == "compact" or q.response.fields or q.response.page_size:
             return self.views.render(q, result)
         return result

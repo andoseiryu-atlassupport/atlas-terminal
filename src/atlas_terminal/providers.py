@@ -172,7 +172,7 @@ class CachedHTTPTransport:
             if acquired:
                 break
             if now - started > 30:
-                raise AtlasError("SOURCE_RATE_LIMITED", "SEC transport is busy.", retryable=True)
+                raise AtlasError("SOURCE_RATE_LIMITED", "Source transport is busy.", retryable=True)
             self.sleep(min(0.5, max(0.01, next_at - now)))
         try:
             yield
@@ -180,11 +180,11 @@ class CachedHTTPTransport:
             with self.db.connect(write=True) as conn:
                 conn.execute("DELETE FROM source_leases WHERE owner=?", (owner,))
 
-    def get(self, url: str, ttl: int) -> Snapshot:
+    def get(self, url: str, ttl: int, *, force_refresh: bool = False) -> Snapshot:
         self.validate_url(url)
         with self.db.connect() as conn:
             cached = conn.execute("SELECT * FROM source_cache WHERE url=?", (url,)).fetchone()
-        if cached and cached["expires"] > self.clock():
+        if cached and not force_refresh and cached["expires"] > self.clock():
             if digest(cached["body"]) != cached["sha256"]:
                 raise AtlasError(
                     "SOURCE_UNAVAILABLE", "Cached source failed integrity verification."
@@ -208,7 +208,7 @@ class CachedHTTPTransport:
                         if attempt == 2 or wait > 30:
                             raise AtlasError(
                                 "SOURCE_RATE_LIMITED",
-                                "SEC requested a later retry.",
+                                "Source requested a later retry.",
                                 retryable=True,
                                 retry_after_seconds=ceil(min(wait, 86400)),
                                 status=429,
@@ -226,7 +226,8 @@ class CachedHTTPTransport:
                             size += len(chunk)
                             if size > self.max_bytes or self.clock() - response_started > 30:
                                 raise AtlasError(
-                                    "SOURCE_UNAVAILABLE", "SEC response exceeds size or time limit."
+                                    "SOURCE_UNAVAILABLE",
+                                    "Source response exceeds size or time limit.",
                                 )
                             chunks.append(chunk)
                         body = b"".join(chunks)
@@ -236,7 +237,7 @@ class CachedHTTPTransport:
                     else:
                         raise AtlasError(
                             "SOURCE_UNAVAILABLE",
-                            "SEC retrieval failed; no provider fallback was attempted.",
+                            "Source retrieval failed; no provider fallback was attempted.",
                             details={"http_status": response.status_code},
                             status=502,
                         )
@@ -244,10 +245,10 @@ class CachedHTTPTransport:
             except (httpx.HTTPError, ValueError):
                 raise AtlasError(
                     "SOURCE_UNAVAILABLE",
-                    "SEC response could not be retrieved or parsed.",
+                    "Source response could not be retrieved or parsed.",
                     status=502,
                 ) from None
-        raise AtlasError("SOURCE_UNAVAILABLE", "SEC retrieval exhausted retries.")
+        raise AtlasError("SOURCE_UNAVAILABLE", "Source retrieval exhausted retries.")
 
     def save(self, url: str, body: bytes, ttl: int, headers: Any, old: Any = None) -> str:
         retrieved = stamp()

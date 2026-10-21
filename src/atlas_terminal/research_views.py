@@ -14,6 +14,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.models import Hash, Model
 from atlas_terminal.research_models import Dataset, ResearchQuery
+from atlas_terminal.research_quality import ResearchQuality, enforce_requirements
 from atlas_terminal.util import Database, canonical, digest, stamp, utcnow
 
 
@@ -86,6 +87,7 @@ class ResearchResult(BaseModel):
     coverage: dict[str, Any]
     limitations: list[str]
     response: ResponseMetadata | None = None
+    quality: ResearchQuality | None = None
 
 
 class EvidenceResult(Model):
@@ -273,6 +275,8 @@ class ResearchViews:
                 fields=["response.fields"],
             )
         rendered = deepcopy(original)
+        if options.cursor and q.requirements is not None:
+            rendered["quality"] = enforce_requirements(original, q.requirements)
         total = len(original["records"])
         end = min(total, offset + options.page_size) if options.page_size else total
         rendered["records"] = rendered["records"][offset:end]

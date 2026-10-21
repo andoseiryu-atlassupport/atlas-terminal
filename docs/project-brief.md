@@ -11,6 +11,7 @@ Atlas Terminal retrieves US equity research, macro data and reference FX from fr
 - XML records from one Form 3/4/5 or 13F filing per query. Beneficial ownership, fund and corporate-action discovery returns filing metadata and links.
 - Values include units, periods, source hashes and retrieval times. Missing data, archive limits and partial coverage remain explicit.
 - Agent contracts include dataset-specific MCP input, a common output schema, filtered catalogs, optional compact evidence references, snapshot pagination and structured recovery hints across the shared interfaces.
+- Optional source-age, observation-date and coverage requirements fail explicitly. Up to ten ordered independent research reads share a batch response with per-item errors. Operator source checks record response structures and last-success changes behind an explicit network opt-in.
 - Research requires no data subscription, API key, wallet or LLM. SEC requests use a private, operator-supplied User-Agent with an actual contact email.
 - Immutable snapshots of five annual metrics and an optional x402 API. Payments default to off; testnet is restricted to Base Sepolia USDC, and mainnet is rejected.
 - On-demand reconciliation reads finalized chain evidence without signing or settling again. Hosted MCP supports external-wallet payment metadata; official Python and TypeScript clients have offline interoperability checks.

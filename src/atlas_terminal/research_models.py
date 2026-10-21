@@ -8,6 +8,7 @@ from pydantic import ConfigDict, Field, ValidationError, field_validator, model_
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.macro_catalog import FX_CURRENCIES, MACRO_SERIES, REFERENCE_SERIES, Currency
 from atlas_terminal.models import Model, identifier
+from atlas_terminal.research_quality import ResearchRequirements
 
 Dataset = Literal[
     "companies",
@@ -117,7 +118,7 @@ def dataset_schema(schema: dict[str, Any]) -> None:
     for name, fields in FIELDS.items():
         properties = {
             key: deepcopy(schema["properties"][key])
-            for key in ["dataset", *sorted(fields), "response"]
+            for key in ["dataset", *sorted(fields), "response", "requirements"]
         }
         properties["dataset"] = {"const": name, "type": "string"}
         for required in dataset_required(name):
@@ -191,6 +192,7 @@ class ResearchQuery(Model):
     base_currency: Currency | None = None
     quote_currency: Currency | None = None
     response: ResponseOptions = Field(default_factory=ResponseOptions)
+    requirements: ResearchRequirements | None = None
 
     @field_validator("identifier")
     @classmethod
@@ -214,12 +216,13 @@ class ResearchQuery(Model):
 
     @model_validator(mode="after")
     def check_dataset(self) -> "ResearchQuery":
-        if self.model_fields_set - (FIELDS[self.dataset] | {"dataset", "response"}):
+        if self.model_fields_set - (FIELDS[self.dataset] | {"dataset", "response", "requirements"}):
             raise AtlasError(
                 "INVALID_INPUT",
                 "Argument does not apply to this dataset.",
                 fields=sorted(
-                    self.model_fields_set - (FIELDS[self.dataset] | {"dataset", "response"})
+                    self.model_fields_set
+                    - (FIELDS[self.dataset] | {"dataset", "response", "requirements"})
                 ),
             )
         if "identifier" in dataset_required(self.dataset) and self.identifier is None:
@@ -298,10 +301,15 @@ def parse_research(data: dict[str, Any]) -> ResearchQuery:
     except ValidationError as exc:
         fields = sorted(
             {
-                "response." + str(error["loc"][1])
-                if error["loc"][0] == "response"
+                str(error["loc"][0]) + "." + str(error["loc"][1])
+                if error["loc"][0] in {"response", "requirements"}
                 and len(error["loc"]) > 1
-                and error["loc"][1] in ResponseOptions.model_fields
+                and error["loc"][1]
+                in (
+                    ResponseOptions.model_fields
+                    if error["loc"][0] == "response"
+                    else ResearchRequirements.model_fields
+                )
                 else str(error["loc"][0])
                 for error in exc.errors(include_input=False, include_context=False)
                 if error["loc"] and error["loc"][0] in ResearchQuery.model_fields

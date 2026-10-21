@@ -55,6 +55,7 @@ Configure `SEC_USER_AGENT` privately for SEC requests. The `hosted` provider use
 | atlas_purchase_status    | Recover status using a private capability without paying            |
 | atlas_research_catalog   | List 21 free datasets, units, query schemas and coverage gaps       |
 | atlas_get_research       | Retrieve research using a `query` object without a quote or payment |
+| atlas_get_research_batch | Retrieve up to ten independent queries with per-item IDs and errors |
 | atlas_get_evidence       | Resolve a compact research source ID to its saved provenance        |
 | atlas_purchase_x402      | Hosted only: external-wallet purchase via standard MCP metadata     |
 | atlas_purchase_reconcile | Hosted only: reconcile an existing order without signing or paying  |

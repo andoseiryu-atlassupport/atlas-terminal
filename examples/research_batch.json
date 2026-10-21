@@ -1,0 +1,39 @@
+{
+  "items": [
+    {
+      "id": "usd_jpy",
+      "query": {
+        "dataset": "fx_rates",
+        "base_currency": "USD",
+        "quote_currency": "JPY",
+        "limit": 2,
+        "requirements": {
+          "min_observation_date": "2026-10-16",
+          "allow_missing": false
+        }
+      }
+    },
+    {
+      "id": "sofr",
+      "query": { "dataset": "reference_rates", "series": "sofr", "limit": 2 }
+    },
+    {
+      "id": "payroll_change",
+      "query": {
+        "dataset": "macro_analytics",
+        "series": "payrolls_change_mom",
+        "limit": 1,
+        "requirements": { "allow_missing": false }
+      }
+    },
+    {
+      "id": "curve_spread",
+      "query": {
+        "dataset": "macro_analytics",
+        "series": "yield_spread_10y_2y",
+        "year": 2026,
+        "limit": 2
+      }
+    }
+  ]
+}

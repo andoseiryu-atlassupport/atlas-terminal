@@ -27,6 +27,37 @@ MACRO_QUERIES = [
     {"dataset": "treasury_real_yields", "year": 2026},
     {"dataset": "macro_analytics", "series": "yield_spread_10y_2y", "year": 2026},
 ]
+BATCH_QUERY = {
+    "items": [
+        {
+            "id": "fx",
+            "query": {
+                "dataset": "fx_rates",
+                "base_currency": "USD",
+                "quote_currency": "JPY",
+                "limit": 2,
+                "requirements": {"min_observation_date": "2026-10-19", "allow_missing": False},
+            },
+        },
+        {"id": "sofr", "query": {"dataset": "reference_rates", "series": "sofr"}},
+        {"id": "invalid", "query": {"dataset": "economics", "series": "unknown"}},
+    ]
+}
+
+
+def verify_batch_result(result):
+    assert result["status"] == "partial"
+    assert result["summary"] == {
+        "requested": 3,
+        "successful": 2,
+        "failed": 1,
+        "retryable_read_ids": [],
+    }
+    assert [row["id"] for row in result["items"]] == ["fx", "sofr", "invalid"]
+    assert result["items"][0]["result"]["records"][0]["value"] == "120"
+    assert result["items"][0]["result"]["quality"]["meets_requirements"]
+    assert result["items"][1]["result"]["records"][0]["value"] == "1.30"
+    assert result["items"][2]["error"]["code"] == "INVALID_INPUT"
 
 
 async def mcp_smoke(root, macro_expected):
@@ -41,7 +72,10 @@ async def mcp_smoke(root, macro_expected):
         ClientSession(*streams, read_timeout_seconds=15) as session,
     ):
         await session.initialize()
-        assert len((await session.list_tools()).tools) == 9
+        assert len((await session.list_tools()).tools) == 10
+        batch = await session.call_tool("atlas_get_research_batch", {"query": BATCH_QUERY})
+        assert not batch.is_error
+        verify_batch_result(batch.structured_content)
         for query in MACRO_QUERIES:
             macro = await session.call_tool("atlas_get_research", {"query": query})
             assert not macro.is_error
@@ -107,6 +141,35 @@ with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
     assert json.loads(research_demo.stdout)["records"][0]["value"] == "321.500"
     with Atlas("fixture", directory=root / "sdk") as atlas:
         macro_expected = {query["dataset"]: atlas.get_research(query) for query in MACRO_QUERIES}
+        verify_batch_result(atlas.get_research_batch(BATCH_QUERY))
+    batch_cli = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "atlas_terminal",
+            "research",
+            "batch",
+            "--input",
+            "-",
+            "--provider",
+            "fixture",
+        ],
+        cwd=root,
+        input=json.dumps(BATCH_QUERY),
+        text=True,
+        capture_output=True,
+        timeout=20,
+    )
+    assert batch_cli.returncode == 1 and not batch_cli.stderr
+    verify_batch_result(json.loads(batch_cli.stdout))
+    source_check = subprocess.run(
+        [sys.executable, "-m", "atlas_terminal", "research", "check-sources", "--sources", "ecb"],
+        cwd=root,
+        text=True,
+        capture_output=True,
+        timeout=20,
+    )
+    assert source_check.returncode == 4 and json.loads(source_check.stdout)["status"] == "NOT_RUN"
     assert macro_expected["fx_rates"]["records"][0]["value"] == "120"
     assert macro_expected["reference_rates"]["records"][0]["value"] == "1.30"
     assert any(row["value"] == "-0.10" for row in macro_expected["treasury_real_yields"]["records"])
@@ -197,6 +260,9 @@ with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
     proc = start_server()
     try:
         with httpx.Client(trust_env=False) as probe:
+            batch_http = probe.post(base + "/v1/research/batch", json=BATCH_QUERY)
+            assert batch_http.status_code == 200
+            verify_batch_result(batch_http.json())
             for query in MACRO_QUERIES:
                 macro_http = probe.post(base + "/v1/research", json=query)
                 assert macro_http.status_code == 200
@@ -257,6 +323,8 @@ with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
                 "wheel_demo": "PASS",
                 "wheel_research_cli_mcp_http": "PASS",
                 "wheel_macro_fx_cli_sdk_mcp_http": "PASS",
+                "wheel_quality_batch_cli_sdk_mcp_http": "PASS",
+                "wheel_source_check_optin_guard": "PASS",
                 "wheel_mcp_subprocess": mcp_status,
                 "wheel_agent_compact_paging_evidence": "PASS",
                 "real_loopback_http_mock_purchase": "PASS",

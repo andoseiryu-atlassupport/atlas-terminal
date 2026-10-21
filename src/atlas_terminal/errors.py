@@ -13,6 +13,7 @@ class NextAction(BaseModel):
         "inspect_catalog",
         "resolve_company",
         "review_coverage",
+        "review_requirements",
         "retry_read",
         "request_quote",
         "wait",
@@ -43,7 +44,7 @@ class ErrorEnvelope(BaseModel):
 
 
 def recovery_action(code: str, retryable: bool, fields: list[str]) -> NextAction:
-    if code == "INVALID_INPUT" or code == "INVALID_CURSOR":
+    if code in {"INVALID_INPUT", "INVALID_CURSOR", "RESPONSE_TOO_LARGE"}:
         return NextAction(action="fix_query", fields=fields)
     if code.startswith("UNSUPPORTED_"):
         return NextAction(action="inspect_catalog", tool="atlas_research_catalog", fields=fields)
@@ -51,6 +52,8 @@ def recovery_action(code: str, retryable: bool, fields: list[str]) -> NextAction
         return NextAction(action="resolve_company", tool="atlas_resolve_company")
     if code == "INCOMPLETE_COVERAGE":
         return NextAction(action="review_coverage")
+    if code == "QUALITY_NOT_MET":
+        return NextAction(action="review_requirements", fields=["requirements"])
     if code == "SETTLEMENT_UNKNOWN":
         return NextAction(action="check_purchase_status", tool="atlas_purchase_status")
     if code == "QUOTE_REQUIRED":

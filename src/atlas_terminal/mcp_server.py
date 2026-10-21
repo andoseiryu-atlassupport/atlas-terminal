@@ -14,6 +14,7 @@ from pydantic import BaseModel, ValidationError
 from atlas_terminal.client import Atlas
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.models import Hash, parse_query
+from atlas_terminal.research_batch import ResearchBatchQuery, ResearchBatchResult, parse_batch
 from atlas_terminal.research_models import CatalogQuery, Dataset, ResearchQuery, parse_research
 from atlas_terminal.research_views import EvidenceResult, ResearchResult
 
@@ -39,6 +40,12 @@ def create_mcp(provider: str = "sec", *, atlas_client: Atlas | None = None) -> M
                             "INVALID_INPUT", "Provide exactly one research query object."
                         )
                     parse_research(arguments["query"])
+                elif name == "atlas_get_research_batch":
+                    if set(arguments) != {"query"} or not isinstance(arguments["query"], dict):
+                        raise AtlasError(
+                            "INVALID_INPUT", "Provide exactly one research batch object."
+                        )
+                    parse_batch(arguments["query"])
                 else:
                     allowed = {
                         "atlas_resolve_company": {"query"},
@@ -126,6 +133,17 @@ def create_mcp(provider: str = "sec", *, atlas_client: Atlas | None = None) -> M
         Uses the same private state volume. No network, signing or payment.
         """
         return execute(lambda: atlas.get_evidence(evidence_id))
+
+    @server.tool(annotations=read)
+    def atlas_get_research_batch(
+        query: ResearchBatchQuery,
+    ) -> Annotated[CallToolResult, ResearchBatchResult]:
+        """Read up to ten research queries in order, with an ID and status per item.
+
+        Queries use atlas_research_catalog's dataset schemas. Item failures remain in items;
+        inspect summary.failed and retryable_read_ids. Never purchases or signs.
+        """
+        return execute(lambda: atlas.get_research_batch(query))
 
     @server.tool(annotations=read)
     def atlas_resolve_company(query: str) -> CallToolResult:
