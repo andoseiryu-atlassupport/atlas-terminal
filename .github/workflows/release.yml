@@ -1,0 +1,128 @@
+name: Release artifacts
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing version tag reachable from main, such as v0.3.0
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+env:
+  RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+
+jobs:
+  build:
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+    steps:
+      - name: Check out the version tag
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.RELEASE_TAG }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Validate version and reviewed ancestry
+        id: version
+        run: |
+          python - <<'PY'
+          import os, re, subprocess, tomllib
+          from pathlib import Path
+          tag = os.environ["RELEASE_TAG"]
+          if not re.fullmatch(r"v[0-9]+\.[0-9]+\.[0-9]+", tag):
+              raise SystemExit("Use an explicit stable version tag.")
+          version = tomllib.loads(Path("pyproject.toml").read_text())["project"]["version"]
+          if tag != "v" + version:
+              raise SystemExit("The tag must match package metadata.")
+          subprocess.run(["git", "merge-base", "--is-ancestor", "HEAD", "origin/main"], check=True)
+          with open(os.environ["GITHUB_OUTPUT"], "a") as stream:
+              stream.write("tag=" + tag + "\n")
+          PY
+      - name: Install locked dependencies
+        run: |
+          python -m pip install uv==0.12.23
+          uv sync --locked --dev
+          npm ci
+      - name: Validate the exact release source
+        run: |
+          uv run --offline ruff check .
+          uv run --offline ruff format --check .
+          uv run --offline mypy
+          uv run --offline pytest
+          npm run check
+          python scripts/scan_public_files.py
+      - name: Build packages, documentation and research plugin
+        run: |
+          uv run --offline python -m build --no-isolation
+          uv run --offline python scripts/build_docs.py
+          uv run --offline python scripts/prepare_distribution.py
+          python - <<'PY'
+          import hashlib, os, shutil, tomllib
+          from pathlib import Path
+          version = tomllib.loads(Path("pyproject.toml").read_text())["project"]["version"]
+          output = Path("build/release")
+          assets = output / "assets"
+          assets.mkdir(parents=True, exist_ok=True)
+          for name in (f"atlas_terminal-{version}-py3-none-any.whl", f"atlas_terminal-{version}.tar.gz"):
+              shutil.copyfile(Path("dist") / name, assets / name)
+          plugin = f"atlas-terminal-{version}-plugin.zip"
+          shutil.copyfile(Path("build/distribution") / plugin, assets / plugin)
+          shutil.copyfile("build/distribution/server.json", assets / f"atlas-terminal-{version}-registry-draft.json")
+          shutil.make_archive(str(assets / f"atlas-terminal-{version}-docs"), "zip", "build/site")
+          checksums = "".join(hashlib.sha256(p.read_bytes()).hexdigest() + "  " + p.name + "\n" for p in sorted(assets.iterdir()))
+          (assets / f"SHA256SUMS-{version}.txt").write_text(checksums)
+          notes = Path("CHANGELOG.md").read_text()
+          notes += "\n\nThe plugin ZIP is for compatible local/desktop clients; Registry metadata is a draft. "
+          notes += "No PyPI release, official Registry/plugin listing, public remote endpoint or standalone documentation-site deployment is claimed. "
+          notes += "Fixture checks do not verify live sources or real transfers.\n"
+          (output / "notes.md").write_text(notes)
+          PY
+      - name: Upload validated release artifacts
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: release-${{ steps.version.outputs.tag }}
+          path: build/release
+          if-no-files-found: error
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Download validated artifacts
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with:
+          name: release-${{ needs.build.outputs.tag }}
+          path: release
+      - name: Publish a new GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ needs.build.outputs.tag }}
+        run: |
+          if gh release view "$RELEASE_TAG" --json tagName > /dev/null 2>&1; then
+            echo "The release already exists; existing assets are never overwritten automatically."
+            exit 1
+          fi
+          gh release create "$RELEASE_TAG" release/assets/* --verify-tag --title "Atlas Terminal ${RELEASE_TAG#v}" --notes-file release/notes.md
