@@ -8,7 +8,7 @@ Atlas reads research queries and the process environment needed for the selected
 
 Research requests go to the relevant public publisher. For SEC requests the identifying User-Agent supplied by the operator includes their actual contact email. That contact setting is not returned in research records or configuration diagnostics. Publishers and an operator's network infrastructure may process request metadata under their own policies.
 
-Research does not require an LLM or model API key. Atlas does not include application analytics, advertising trackers or a telemetry upload service. A configured MCP client or hosting provider has its own data handling. The static documentation site uses no analytics scripts, cookies set by application code or external fonts; GitHub Pages may process ordinary hosting/access metadata under GitHub's policies.
+Research does not require an LLM or model API key. Atlas does not include application analytics, advertising trackers or a telemetry upload service. A configured MCP client or hosting provider has its own data handling. The static documentation pages contain no analytics scripts, cookies set by application code or external fonts. GitHub and the documentation hosting provider may process ordinary hosting/access metadata under their own policies. The public documentation website uses Sites and serves static files, without a research backend or user-account database.
 
 ## Self-hosted remote MCP
 
