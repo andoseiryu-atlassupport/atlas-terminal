@@ -78,6 +78,7 @@ class ResearchResult(BaseModel):
     query: dict[str, Any]
     source_id: str
     source_terms_url: str
+    documentation: dict[str, str] | None = None
     upstream_data_cost: Literal["0"]
     is_synthetic: bool
     source_text_is_untrusted: Literal[True]

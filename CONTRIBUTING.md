@@ -10,6 +10,8 @@ uv run --offline ruff format --check .
 uv run --offline mypy
 uv run --offline pytest
 uv run --offline python -m build --no-isolation
+uv run --offline python scripts/build_docs.py
+uv run --offline python scripts/prepare_distribution.py
 npm run check
 ```
 

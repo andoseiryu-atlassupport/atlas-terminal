@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Atlas Terminal reference API",
-    "version": "0.2.0"
+    "version": "0.3.0"
   },
   "paths": {
     "/healthz": {
@@ -3647,6 +3647,20 @@
           "source_terms_url": {
             "type": "string",
             "title": "Source Terms Url"
+          },
+          "documentation": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Documentation"
           },
           "upstream_data_cost": {
             "type": "string",

@@ -351,10 +351,43 @@ def purchase_reconcile(
 
 
 @mcp_app.command("serve")
-def serve_mcp(provider: str = "sec") -> None:
+def serve_mcp(provider: str = "sec", research_only: bool = False) -> None:
     from atlas_terminal.mcp_server import create_mcp
 
-    create_mcp(provider).run(transport="stdio")
+    create_mcp(provider, research_only=research_only).run(transport="stdio")
+
+
+@mcp_app.command("http")
+def serve_remote_mcp(
+    provider: str = "public",
+    host: str = "127.0.0.1",
+    port: int = 8001,
+    allow_anonymous: bool = False,
+) -> None:
+    """Serve research-only Streamable HTTP behind operator-managed HTTPS."""
+    import uvicorn
+
+    from atlas_terminal.remote_mcp import create_remote_mcp
+
+    if host not in {"127.0.0.1", "localhost", "::1", "0.0.0.0"} or not 1 <= port <= 65535:
+        raise AtlasError("CONFIG_REQUIRED", "Choose an explicit bind address and valid port.")
+    public_origin = os.environ.get("ATLAS_MCP_PUBLIC_ORIGIN")
+    if not public_origin:
+        if host == "0.0.0.0":
+            raise AtlasError("CONFIG_REQUIRED", "Configure the external HTTPS MCP origin.")
+        public_origin = f"http://{'[::1]' if host == '::1' else host}:{port}"
+    if host == "0.0.0.0" and not public_origin.startswith("https://"):
+        raise AtlasError("CONFIG_REQUIRED", "External MCP binding requires an HTTPS origin.")
+    api = create_remote_mcp(
+        provider=provider,
+        public_origin=public_origin,
+        token=os.environ.get("ATLAS_MCP_AUTH_TOKEN"),
+        allow_anonymous=allow_anonymous,
+        allowed_origins=[
+            value for value in os.environ.get("ATLAS_MCP_ALLOWED_ORIGINS", "").split(",") if value
+        ],
+    )
+    uvicorn.run(api, host=host, port=port, workers=1, access_log=False, log_level="critical")
 
 
 @app.command()

@@ -1,6 +1,6 @@
 # Quickstart and MCP
 
-Use Python 3.12+ and uv. Run `uv sync --locked --all-extras --dev` in the repository. After dependencies are installed, `uv run --offline atlas demo --json` works without external requests. The package has not been published to PyPI.
+Use Python 3.12+ and uv. Install a tagged GitHub distribution with the [Codex setup](codex.md), or run `uv sync --locked --all-extras --dev` in the repository. After dependencies are installed, `uv run --offline atlas demo --json` works without external requests. The package has not been published to PyPI.
 
 ## Retrieve data
 
@@ -69,3 +69,5 @@ For smaller agent responses, add `"response":{"view":"compact","page_size":2}` i
 Call `atlas_get_research_preset` with `{"query":{"preset":"fx_context","base_currency":"USD","quote_currency":"JPY","include":["fx","us_cpi","us_sofr"]}}` for a multi-source request. Add `preview=true` inside the query to inspect its plan without fetching. The result contains the batch plus an overview of observation/publication/retrieval times and missingness. `atlas_research_diagnostics` with `{"query":{}}` checks configuration without source access. [Presets, saved queries and network opt-in](presets.md).
 
 Startup failures go to stderr. Once running, stdout belongs exclusively to the official MCP protocol. Windows execution has not been verified.
+
+For a focused data connection, add `--research-only` to `atlas mcp serve`. This registers only six research tools and excludes all snapshot/payment tools. Compatible Codex clients can use the [version-pinned connection and skill](codex.md). Operators can also deploy the separate [Streamable HTTP service](remote-mcp.md); the local HTTP API is a different transport.

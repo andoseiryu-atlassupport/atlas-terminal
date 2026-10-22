@@ -12,6 +12,7 @@ from typing import Any, Literal
 from urllib.parse import urlsplit
 from xml.etree.ElementTree import Element
 
+from atlas_terminal.documentation import DOCUMENTATION_ORIGIN, research_documentation
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.macro_catalog import FX_CURRENCIES, MACRO_SERIES, REFERENCE_SERIES
 from atlas_terminal.normalize import number
@@ -232,6 +233,12 @@ def research_catalog(
         "schema_version": "0.2.0",
         "upstream_data_cost": "0",
         "requires_wallet": False,
+        "documentation": {
+            "home": DOCUMENTATION_ORIGIN + "/docs/index.md",
+            "quickstart": DOCUMENTATION_ORIGIN + "/docs/quickstart.md",
+            "presets": DOCUMENTATION_ORIGIN + "/docs/presets.md",
+            "citations": DOCUMENTATION_ORIGIN + "/docs/citations.md",
+        },
         "sources": SOURCE_CATALOG,
         "datasets": [
             {
@@ -487,6 +494,7 @@ class ResearchService:
             "query": q.model_dump(exclude_unset=True, exclude={"response"}),
             "source_id": source_id,
             "source_terms_url": SOURCE_CATALOG[source_id]["terms"],
+            "documentation": research_documentation(q.dataset),
             "upstream_data_cost": "0",
             "is_synthetic": self.synthetic,
             "source_text_is_untrusted": True,

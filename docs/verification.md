@@ -1,10 +1,10 @@
 # Validation scope
 
-Recorded on 2026-10-22 for Atlas Terminal 0.2.0 with Python 3.12.14 and Node.js 24.19.0 on Linux.
+Recorded on 2026-10-22 for Atlas Terminal 0.3.0 with Python 3.12.14 and Node.js 24.19.0 on Linux.
 
 ## Verified behavior
 
-422 offline tests pass; two live tests are deselected. Default tests prohibit IP sockets and do not retrieve live sources or transfer funds.
+437 offline tests pass; two live tests are deselected. Default tests prohibit IP sockets and do not retrieve live sources or transfer funds.
 
 | Area                         | Coverage                                                                                                                                                                                                                                                                         |
 | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -40,8 +40,8 @@ Research endpoints remain free of payment requirements in every payment mode. Mo
 | Check                                                                        | Result                                  |
 | ---------------------------------------------------------------------------- | --------------------------------------- |
 | `uv run --offline ruff check .` and `uv run --offline ruff format --check .` | PASS                                    |
-| `uv run --offline mypy`                                                      | PASS; 35 source files                   |
-| `uv run --offline pytest`                                                    | PASS; 422 passed, 2 deselected          |
+| `uv run --offline mypy`                                                      | PASS; 37 source files                   |
+| `uv run --offline pytest`                                                    | PASS; 437 passed, 2 deselected          |
 | `uv run --offline python -m build --no-isolation`                            | PASS; wheel and sdist                   |
 | `npm run check`                                                              | PASS; Prettier and whitespace checks    |
 | `python scripts/scan_public_files.py`                                        | PASS; heuristic credential-pattern scan |
@@ -51,6 +51,14 @@ The free-research and mock-purchase examples run successfully. The built wheel w
 The installed-wheel verifier also checks requirement-gated batches and independent invalid-query errors through CLI, SDK, real stdio MCP and loopback HTTP, plus the source-check command's network opt-in guard. The packaged four-query batch example succeeds offline. Source-check fingerprints and persistence are exercised only with mock HTTP; no mocked PASS is recorded as live verification.
 
 The fresh installed wheel also passes named FX-context preset execution through CLI, SDK, real stdio MCP and loopback HTTP, including original values and missingness/publication-time reporting. SDK preview returns no batch; configuration diagnostics work through all four interfaces without live source access. All three saved preset examples execute against fictional packaged sources. The MCP server exposes twelve default tools. No external network or real transfers are used by these checks.
+
+Research-only Streamable HTTP is exercised with the pinned official MCP client using an offline ASGI transport. Tests cover initialize/list/call, six research tools without payment handlers, preset execution, compact evidence and state-volume recovery, unknown input fields, authentication, exact Host/Origin checks, body-size and body-read timeout limits, ingress quotas, default-port normalization and multiple-worker rejection. These tests use fictional data and do not establish a public deployment or live source availability.
+
+`scripts/verify_remote_installed.py` also starts the installed wheel's actual loopback HTTP process, connects the official Streamable HTTP client, executes a fictional FX/SOFR preset, resolves its evidence, and verifies evidence lookup after a process restart. Authentication and invalid Host/Origin requests are checked against the real loopback process. The original installed-wheel CLI/SDK/stdio/HTTP and mock-recovery verifier also passes. No external source requests or transfers are made.
+
+`scripts/build_docs.py` produces 30 HTML documentation pages with canonical metadata, Markdown alternatives, a sitemap, supplemental `llms.txt` and a noindex 404 page. All generated internal file and section links pass offline verification. `scripts/prepare_distribution.py` produces a portable research-only stdio plugin ZIP and versioned MCP Registry metadata; anonymous HTTPS remote metadata generation is also checked with a fictional `.invalid` endpoint, without contacting it. Generated metadata is not publication or platform approval.
+
+Public tool/package documentation links use the GitHub source guides. A standalone documentation-site deployment, PyPI publication, official MCP Registry listing and OpenAI plugin review are not completed. The documentation workflow builds artifacts; deployment requires configured Pages and `PAGES_ENABLED=true`. Local verification is separate from GitHub Actions results and does not establish indexing, citation rate or model task success.
 
 The interoperability tests use the pinned official x402 Python and JavaScript clients. JavaScript dependencies require `npm ci`; the fetch bridge uses private pipes rather than IP sockets. Native MCP uses in-memory client/server streams and the transport adapter for the pinned MCP 2.x API. Facilitator and chain RPC responses are fixtures, not live evidence.
 
@@ -78,11 +86,15 @@ uv run --offline atlas research preset --input examples/research_presets/fx_cont
 uv run --offline atlas research doctor --provider fixture --json
 uv run --offline python examples/mock_purchase.py
 uv run --offline python -m build --no-isolation
+uv run --offline python scripts/build_docs.py
+uv run --offline python scripts/prepare_distribution.py
 npm run check
 python scripts/scan_public_files.py
 ```
 
 `scripts/verify_installed.py` uses the installed package to check CLI, MCP, loopback HTTP, mock purchases and restart recovery without external requests or real transfers.
+
+Run `scripts/verify_remote_installed.py` with the fresh installed wheel's Python interpreter to check the research-only Streamable HTTP process, official client and restart/evidence behavior on loopback. It uses packaged fixtures and creates a temporary private test token; it does not deploy a service or retrieve live observations.
 
 Live checks in `scripts/research_smoke.py` and `scripts/smoke.py` require `--allow-network`. Real testnet transfers also require dedicated configuration and a transfer opt-in flag. Default CI does not run these checks.
 

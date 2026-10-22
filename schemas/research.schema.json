@@ -1911,6 +1911,21 @@
           "title": "Source Terms Url",
           "type": "string"
         },
+        "documentation": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Documentation"
+        },
         "upstream_data_cost": {
           "const": "0",
           "title": "Upstream Data Cost",

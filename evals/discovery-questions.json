@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0.0",
+  "purpose": "Manual search-discovery observations, separate from installed-tool execution; no automatic model requests or ranking claims.",
+  "questions": [
+    "What is Atlas Terminal and what financial data does it support?",
+    "How do I connect Atlas Terminal to Codex?",
+    "Does Atlas Terminal provide point-in-time data?",
+    "Can Atlas Terminal supply real-time FX quotes?",
+    "How does Atlas Terminal calculate free cash flow?",
+    "Which free financial data MCP servers support AI agents?",
+    "How can I get company financials and macro data through one MCP connection?",
+    "How can Codex retrieve SEC financial statements with original sources?",
+    "How can an AI agent retrieve BLS CPI and New York Fed SOFR together?",
+    "How can I retrieve ECB USD/JPY reference rates in Python?",
+    "What financial data tools preserve source hashes and filing accessions?",
+    "How should an AI agent handle missing financial data?",
+    "Which MCP tools offer SEC quarterly financials without a paid data subscription?",
+    "How can I retrieve free cash flow with traceable operating cash flow and capex inputs?",
+    "How can I compare company financials at a common reported period?",
+    "How can I distinguish publication dates from financial data retrieval dates?",
+    "Can one Python toolkit retrieve SEC, BLS, Treasury and ECB data?",
+    "How can I preview the sources needed for a multi-source financial research request?",
+    "How can a financial research agent enforce freshness and missingness requirements?",
+    "How do I connect a source-backed financial data toolkit to ChatGPT desktop?"
+  ]
+}

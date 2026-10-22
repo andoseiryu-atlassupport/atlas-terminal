@@ -11,6 +11,7 @@ from fastapi import FastAPI, Query, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
+from atlas_terminal import __version__
 from atlas_terminal.client import Atlas, catalog
 from atlas_terminal.errors import AtlasError, ErrorEnvelope
 from atlas_terminal.models import (
@@ -130,7 +131,7 @@ def create_app(
 
     app = AtlasAPI(
         title="Atlas Terminal reference API",
-        version="0.2.0",
+        version=__version__,
         lifespan=lifespan,
         responses={
             status: {"model": ErrorEnvelope}

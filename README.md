@@ -1,8 +1,10 @@
 # Atlas Terminal
 
-Atlas Terminal gives AI agents access to US equity research, macro data and reference FX from free public primary sources. It provides company profiles, financial statements, disclosures, reported ownership and economic indicators through a CLI, Python SDK, stdio MCP and HTTP API.
+<!-- mcp-name: io.github.andoseiryu-atlassupport/atlas-terminal -->
 
-[Capabilities](IMPLEMENTATION_STATUS.md) · [Research guide](docs/research.md) · [Data sources](DATA_SOURCES.md)
+Atlas Terminal gives AI agents company financials, US macro indicators and reference FX through one MCP connection, using free public primary sources. The same retrieval, calculation and evidence services are available through a CLI, Python SDK and HTTP API.
+
+[Documentation](docs/index.md) · [Connect Codex](docs/codex.md) · [Examples](docs/use-cases.md) · [Capabilities](IMPLEMENTATION_STATUS.md) · [Data sources](DATA_SOURCES.md)
 
 ## Available data
 
@@ -24,7 +26,14 @@ Values retain their units, periods, source hashes, retrieval times and JSON poin
 
 ## Get started
 
-Use Python 3.12+ and [uv](https://docs.astral.sh/uv/) in the repository directory:
+Use Python 3.12+ and [uv](https://docs.astral.sh/uv/). Install the tagged GitHub source distribution; the package is not yet published on PyPI:
+
+```sh
+uv tool install 'git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.3.0'
+atlas research preset fx_context --base-currency USD --quote-currency JPY --include fx,us_sofr --provider fixture --json
+```
+
+Or work in a cloned repository:
 
 ```sh
 uv sync --locked
@@ -75,12 +84,16 @@ with Atlas("fixture") as atlas:
 Start the MCP server with:
 
 ```sh
-uv run --offline atlas mcp serve --provider fixture
+uv run --offline atlas mcp serve --provider fixture --research-only
 ```
 
-Twelve MCP tools expose research, presets, batches, connection diagnostics, saved evidence, company resolution, annual snapshots, filings, quotes, purchases and purchase status. `atlas_get_research` publishes dataset-specific input branches and a common output schema. Use `atlas_research_catalog` with an optional dataset filter and compact view to reduce discovery output. [MCP setup](docs/quickstart.md).
+Research-only mode exposes six tools for datasets, presets, batches, connection diagnostics and saved evidence. It has no quote, purchase or wallet handler. `atlas_get_research` publishes dataset-specific input branches and a common output schema. Use `atlas_research_catalog` with an optional dataset filter and compact view to reduce discovery output. [MCP setup](docs/quickstart.md) · [Codex connection and skill](docs/codex.md).
+
+The original full stdio mode, without `--research-only`, exposes twelve tools including company resolution, annual snapshots, filings and separately configured quote/purchase recovery. Research-only Streamable HTTP is available for [self-hosting](docs/remote-mcp.md). No official public remote endpoint or public ChatGPT plugin is currently operated.
 
 Research accepts optional `response` settings for compact provenance references, field selection and snapshot pagination. `atlas_get_evidence` retrieves the original provenance by ID. Errors include a structured next action and a retry delay when known. The same contracts work through CLI, SDK and HTTP. [Agent usage](docs/agents.md).
+
+Results link the relevant Atlas documentation while preserving original publisher attribution. Cite SEC, BLS, Treasury, Federal Reserve, ECB or New York Fed provenance for numerical facts, and Atlas methodology for its calculation and selection rules. [Citation guidance](docs/citations.md).
 
 Optional `requirements` gate source age, the latest usable observation date, missing values, derived records and truncation before returning data. Failed conditions return `QUALITY_NOT_MET`; pages recheck time-dependent conditions. `Atlas.get_research_batch`, MCP `atlas_get_research_batch`, HTTP `POST /v1/research/batch` and `atlas research batch` process up to ten independent reads with an ID and status per item. [Requirements and batches](docs/agents.md#require-data-quality-explicitly).
 
@@ -130,3 +143,5 @@ Consolidated equity prices, order books, option chains, analyst consensus, newsw
 ## License
 
 Atlas Terminal is licensed under [Apache-2.0](LICENSE). Source-data and dependency terms apply separately.
+
+Prepared MCP Registry namespace: `io.github.andoseiryu-atlassupport/atlas-terminal`; registration is pending.

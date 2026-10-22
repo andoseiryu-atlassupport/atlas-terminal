@@ -1,6 +1,6 @@
 # Project overview
 
-Atlas Terminal retrieves US equity research, macro data and reference FX from free public primary sources. The CLI, Python SDK, stdio MCP server and reference HTTP API share retrieval and validation services.
+Atlas Terminal retrieves company financials, US macro data and reference FX from free public primary sources through one MCP connection. The CLI, Python SDK, stdio/Streamable HTTP MCP and reference HTTP API share retrieval and validation services.
 
 ## Capabilities
 
@@ -13,6 +13,8 @@ Atlas Terminal retrieves US equity research, macro data and reference FX from fr
 - Agent contracts include dataset-specific MCP input, a common output schema, filtered catalogs, optional compact evidence references, snapshot pagination and structured recovery hints across the shared interfaces.
 - Optional source-age, observation-date and coverage requirements fail explicitly. Up to ten ordered independent research reads share a batch response with per-item errors. Operator source checks record response structures and last-success changes behind an explicit network opt-in.
 - Company, US macro and FX-context presets expand into inspectable batches, with item selection, per-item requirements, saved JSON queries and a missingness/time overview. Preview and configuration diagnosis make no source requests; opt-in connectivity diagnosis reuses fixed read-only probes.
+- Research-only stdio/Streamable HTTP exposes six tools with no payment handlers. Remote ingress requires explicit authentication or anonymous access, exact host/origin checks and bounded requests, with one worker and operator-managed HTTPS/persistent disk.
+- Public guides explain supported tasks, Codex setup, calculations and original-source citations. A focused research skill and versioned plugin/Registry metadata preparation support client installation; no public remote endpoint or official plugin listing is operated.
 - Research requires no data subscription, API key, wallet or LLM. SEC requests use a private, operator-supplied User-Agent with an actual contact email.
 - Immutable snapshots of five annual metrics and an optional x402 API. Payments default to off; testnet is restricted to Base Sepolia USDC, and mainnet is rejected.
 - On-demand reconciliation reads finalized chain evidence without signing or settling again. Hosted MCP supports external-wallet payment metadata; official Python and TypeScript clients have offline interoperability checks.

@@ -24,13 +24,13 @@ Run `atlas research catalog --json` for identifiers, query fields, units and lim
 
 ## Interfaces
 
-| Interface        | Entry points                                                              |
-| ---------------- | ------------------------------------------------------------------------- |
-| CLI              | `atlas research catalog` / `atlas research get`                           |
-| Python SDK       | `Atlas.research_catalog()` / `Atlas.get_research(query)`                  |
-| MCP              | Twelve default tools; hosted adds native x402 purchase and reconciliation |
-| HTTP             | `GET /v1/research/catalog` / `POST /v1/research`                          |
-| Annual snapshots | `financials get` / `Atlas.get_financials`, covering five annual metrics   |
+| Interface        | Entry points                                                                                                               |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| CLI              | `atlas research catalog` / `atlas research get`                                                                            |
+| Python SDK       | `Atlas.research_catalog()` / `Atlas.get_research(query)`                                                                   |
+| MCP              | Six research-only tools over stdio or Streamable HTTP; twelve in full stdio mode, plus hosted payment/reconciliation tools |
+| HTTP             | `GET /v1/research/catalog` / `POST /v1/research`                                                                           |
+| Annual snapshots | `financials get` / `Atlas.get_financials`, covering five annual metrics                                                    |
 
 Research requires no data subscription, API key, wallet or LLM. SEC retrieval requires a private `SEC_USER_AGENT` containing the application name and an actual contact email. The `fixture` provider returns fictional data without network access.
 
@@ -71,8 +71,8 @@ Consolidated equity prices, daily prices and adjustment factors, order books, op
 
 FX covers the ECB's latest 90-calendar-day reference window. EFFR/SOFR covers the latest 90 effective observations. Real Treasury yields cover one selected year from 2003 onward; BLS calculations use the registration-free latest-three-year source window. No holiday filling, real-time FX, term SOFR, historical release vintages or GDP/PCE connector is provided. See [macro coverage](docs/macro.md).
 
-The HTTP API supports one process, one private SQLite volume and loopback connections. Mainnet, distributed budgets, background reconciliation and public-facing authentication or TLS are unsupported. Reconciliation may remain unresolved for legacy deadlines, old nonce logs without a transaction hint, ambiguous batched receipts and pre-submission crashes. Live RPC/Facilitator behavior and real transfers remain unverified.
+The reference HTTP API supports one process, one private SQLite volume and loopback connections. The separate research-only MCP HTTP service adds exact host/origin validation, explicit bearer or anonymous access, request-size/rate/concurrency limits and stateless JSON Streamable HTTP. It requires one process and a persistent state volume behind operator-managed HTTPS. It has no payment handlers, OAuth, tenant isolation or distributed limiter. No official public remote endpoint is operated. Mainnet, distributed budgets and background reconciliation are unsupported. Reconciliation may remain unresolved for legacy deadlines, old nonce logs without a transaction hint, ambiguous batched receipts and pre-submission crashes. Live RPC/Facilitator behavior and real transfers remain unverified.
 
-Remote MCP hosting, asynchronous research jobs, historical value-difference feeds and model-driven task-success or token benchmarks are not implemented. Agent contract tests use official MCP messages and offline fixtures, without an LLM. Source checks are invoked explicitly; no recurring monitor or release/holiday calendar is installed.
+The repository includes static HTML/Markdown documentation, a focused research skill, versioned plugin/Registry metadata preparation and manual discovery/workflow evaluation cases. Tool responses link public GitHub guides and preserve original data attribution. PyPI publication, a public documentation-site deployment, an official MCP Registry listing and OpenAI plugin review remain external publication steps. Asynchronous research jobs, historical value-difference feeds and model-driven task-success or token benchmarks are not implemented. Agent contract tests use official MCP messages and offline fixtures, without an LLM. Source checks are invoked explicitly; no recurring monitor or release/holiday calendar is installed.
 
 [Quickstart](docs/quickstart.md) · [API configuration](docs/self-hosting.md) · [Payments](docs/payments.md) · [Apache-2.0](LICENSE)
