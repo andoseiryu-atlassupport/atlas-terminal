@@ -81,6 +81,8 @@ def verify(directory: Path) -> None:
             destination = (path.parent / unquote(target.path)).resolve() if target.path else path
             if destination.is_dir():
                 destination /= "index.html"
+            elif not destination.suffix and destination.with_suffix(".html").is_file():
+                destination = destination.with_suffix(".html")
             if not destination.is_relative_to(directory.resolve()) or not destination.is_file():
                 failures.append(f"{path.relative_to(directory)}: missing {raw}")
             elif target.fragment and destination in documents:
@@ -90,10 +92,16 @@ def verify(directory: Path) -> None:
         raise ValueError("\n".join(failures))
 
 
-def build(directory: Path) -> None:
+def build(directory: Path, *, html_suffix: bool = False) -> None:
     directory.mkdir(parents=True, exist_ok=True)
     sources = [*ROOT_PAGES, *sorted(str(p.relative_to(ROOT)) for p in (ROOT / "docs").glob("*.md"))]
     pages = {source: output_path(source) for source in sources}
+
+    def public_path(output: str) -> str:
+        if output == "index.html":
+            return ""
+        return output if html_suffix else str(Path(output).with_suffix(""))
+
     nav_sources = (
         ("docs/index.md", "Home"),
         ("docs/quickstart.md", "Quickstart"),
@@ -141,7 +149,12 @@ def build(directory: Path) -> None:
                 "#" + target.fragment if target.fragment else ""
             )
             if resolved in pages:
-                return posixpath.relpath(pages[resolved], posixpath.dirname(output) or ".") + suffix
+                return (
+                    posixpath.relpath(
+                        public_path(pages[resolved]) or ".", posixpath.dirname(output) or "."
+                    )
+                    + suffix
+                )
             if resolved.startswith(("schemas/", "examples/")) or resolved == "LICENSE":
                 src = ROOT / resolved
                 if src.is_file() and src.resolve().is_relative_to(ROOT):
@@ -163,10 +176,10 @@ def build(directory: Path) -> None:
                 elif child.type == "image":
                     child.attrSet("src", rewrite(child.attrGet("src") or ""))
         content = parser.renderer.render(tokens, parser.options, {})
-        canonical = DOCUMENTATION_ORIGIN + "/" + ("" if output == "index.html" else output)
+        canonical = DOCUMENTATION_ORIGIN + "/" + public_path(output)
         nav = " ".join(
             '<a href="'
-            + posixpath.relpath(pages[p], posixpath.dirname(output) or ".")
+            + posixpath.relpath(public_path(pages[p]) or ".", posixpath.dirname(output) or ".")
             + '">'
             + label
             + "</a>"
@@ -263,5 +276,10 @@ def build(directory: Path) -> None:
 if __name__ == "__main__":
     cli = argparse.ArgumentParser(description=__doc__)
     cli.add_argument("--output", type=Path, default=ROOT / "build/site")
+    cli.add_argument(
+        "--html-suffix",
+        action="store_true",
+        help="Use .html URLs on hosts that require file suffixes",
+    )
     args = cli.parse_args()
-    build(args.output.resolve())
+    build(args.output.resolve(), html_suffix=args.html_suffix)
