@@ -218,6 +218,7 @@ def research_catalog(
         ResearchBatchQuery,
         ResearchBatchResult,
     )
+    from atlas_terminal.research_presets import preset_catalog
 
     if (
         dataset is not None and (not isinstance(dataset, str) or dataset not in DATASETS)
@@ -263,6 +264,13 @@ def research_catalog(
         "limits": {"count": 20, "records": 500, "compare_issuers": 10, "xml_candidates": 6},
         "not_available": GAPS,
         "point_in_time": False,
+        "presets": preset_catalog(include_schema=view == "full"),
+        "diagnostics": {
+            "tool": "atlas_research_diagnostics",
+            "http_path": "/v1/research/diagnostics",
+            "network_default": False,
+            "source_ids": list(SOURCE_CATALOG),
+        },
         "batch": {
             "tool": "atlas_get_research_batch",
             "http_path": "/v1/research/batch",
@@ -427,7 +435,11 @@ class ResearchService:
             "treasury_real_yields",
             "macro_analytics",
         }:
-            self.public = self.public or (PublicFixtures() if self.synthetic else PublicTransport())
+            self.public = self.public or (
+                PublicFixtures()
+                if self.synthetic
+                else PublicTransport(cache_path=self.view_path.parent / "public-cache.sqlite3")
+            )
             result = self.public_data(q)
         elif q.dataset == "companies":
             result = self.companies(q)

@@ -169,6 +169,82 @@ def research_batch(
         raise SystemExit(1)
 
 
+@research_app.command("preset")
+def research_preset(
+    preset: str | None = typer.Argument(None),
+    identifier: str | None = None,
+    period: str | None = None,
+    count: int | None = None,
+    year: int | None = None,
+    base_currency: Currency | None = None,
+    quote_currency: Currency | None = None,
+    include: str | None = None,
+    view: Literal["full", "compact"] | None = None,
+    preview: bool = False,
+    input_file: str | None = typer.Option(None, "--input"),
+    provider: str = "public",
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """Preview/execute a named recipe, or load its reusable JSON query with --input FILE/- ."""
+    options = {
+        "preset": preset,
+        "identifier": identifier,
+        "period": period,
+        "count": count,
+        "year": year,
+        "base_currency": base_currency,
+        "quote_currency": quote_currency,
+        "include": include.split(",") if include is not None else None,
+        "view": view,
+    }
+    data = {key: value for key, value in options.items() if value is not None}
+    if input_file is not None:
+        if data:
+            raise AtlasError("INVALID_INPUT", "Use either --input or preset query arguments.")
+        try:
+            if input_file == "-":
+                body = sys.stdin.buffer.read(MAX_BATCH_REQUEST_BYTES + 1)
+            else:
+                with Path(input_file).open("rb") as file:
+                    body = file.read(MAX_BATCH_REQUEST_BYTES + 1)
+            if len(body) > MAX_BATCH_REQUEST_BYTES:
+                raise ValueError("Request exceeds bounds")
+            data = json.loads(body)
+            if not isinstance(data, dict):
+                raise ValueError("Use an object")
+        except (OSError, ValueError):
+            raise AtlasError(
+                "INVALID_INPUT", "Read a preset JSON object of at most 16 KiB."
+            ) from None
+    if preview:
+        data["preview"] = True
+    with Atlas(provider) as atlas:
+        result = atlas.get_research_preset(data)
+    output(result)
+    if result["batch"] is not None and result["batch"]["summary"]["failed"]:
+        raise SystemExit(1)
+
+
+@research_app.command("doctor")
+def research_doctor(
+    sources: str = "all",
+    allow_network: bool = False,
+    provider: str = "public",
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """Check configuration; --allow-network explicitly runs fixed official-source probes."""
+    with Atlas(provider) as atlas:
+        result = atlas.research_diagnostics(
+            {
+                "sources": None if sources == "all" else sources.split(","),
+                "allow_network": allow_network,
+            }
+        )
+    output(result)
+    if result["status"] in {"action_required", "degraded"}:
+        raise SystemExit(4 if result["status"] == "action_required" else 3)
+
+
 @research_app.command("evidence")
 def research_evidence(
     evidence_id: str,

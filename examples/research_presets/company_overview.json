@@ -1,0 +1,7 @@
+{
+  "preset": "company_overview",
+  "identifier": "ATLASDEMO",
+  "period": "quarterly",
+  "count": 1,
+  "view": "compact"
+}

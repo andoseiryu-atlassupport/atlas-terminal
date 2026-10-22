@@ -15,7 +15,13 @@ from atlas_terminal.client import Atlas
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.models import Hash, parse_query
 from atlas_terminal.research_batch import ResearchBatchQuery, ResearchBatchResult, parse_batch
+from atlas_terminal.research_diagnostics import (
+    ResearchDiagnosticsQuery,
+    ResearchDiagnosticsResult,
+    parse_diagnostics,
+)
 from atlas_terminal.research_models import CatalogQuery, Dataset, ResearchQuery, parse_research
+from atlas_terminal.research_presets import ResearchPresetQuery, ResearchPresetResult, parse_preset
 from atlas_terminal.research_views import EvidenceResult, ResearchResult
 
 
@@ -46,6 +52,16 @@ def create_mcp(provider: str = "sec", *, atlas_client: Atlas | None = None) -> M
                             "INVALID_INPUT", "Provide exactly one research batch object."
                         )
                     parse_batch(arguments["query"])
+                elif name == "atlas_get_research_preset":
+                    if set(arguments) != {"query"} or not isinstance(arguments["query"], dict):
+                        raise AtlasError(
+                            "INVALID_INPUT", "Provide exactly one preset query object."
+                        )
+                    parse_preset(arguments["query"])
+                elif name == "atlas_research_diagnostics":
+                    if set(arguments) != {"query"} or not isinstance(arguments["query"], dict):
+                        raise AtlasError("INVALID_INPUT", "Provide one diagnostics query object.")
+                    parse_diagnostics(arguments["query"])
                 else:
                     allowed = {
                         "atlas_resolve_company": {"query"},
@@ -144,6 +160,29 @@ def create_mcp(provider: str = "sec", *, atlas_client: Atlas | None = None) -> M
         inspect summary.failed and retryable_read_ids. Never purchases or signs.
         """
         return execute(lambda: atlas.get_research_batch(query))
+
+    @server.tool(annotations=read)
+    def atlas_get_research_preset(
+        query: ResearchPresetQuery,
+    ) -> Annotated[CallToolResult, ResearchPresetResult]:
+        """Get company_overview, us_macro_overview or fx_context through one connection.
+
+        Discover item IDs in atlas_research_catalog.presets. preview=true inspects the exact
+        queries without source access; include selects items. Inspect overview and batch item
+        errors. Sources have distinct observation/publication/retrieval times. Never pays.
+        """
+        return execute(lambda: atlas.get_research_preset(query))
+
+    @server.tool(annotations=read)
+    def atlas_research_diagnostics(
+        query: ResearchDiagnosticsQuery,
+    ) -> Annotated[CallToolResult, ResearchDiagnosticsResult]:
+        """Check source configuration without exposing contact settings or credentials.
+
+        Default query={} makes no source requests. allow_network=true runs fixed read-only
+        probes with source quotas and private baselines. Fixtures never establish live access.
+        """
+        return execute(lambda: atlas.research_diagnostics(query))
 
     @server.tool(annotations=read)
     def atlas_resolve_company(query: str) -> CallToolResult:

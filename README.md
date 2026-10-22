@@ -78,7 +78,7 @@ Start the MCP server with:
 uv run --offline atlas mcp serve --provider fixture
 ```
 
-Ten MCP tools expose research, research batches, saved evidence, company resolution, annual snapshots, filings, quotes, purchases and purchase status. `atlas_get_research` publishes dataset-specific input branches and a common output schema. Use `atlas_research_catalog` with an optional dataset filter and compact view to reduce discovery output. [MCP setup](docs/quickstart.md).
+Twelve MCP tools expose research, presets, batches, connection diagnostics, saved evidence, company resolution, annual snapshots, filings, quotes, purchases and purchase status. `atlas_get_research` publishes dataset-specific input branches and a common output schema. Use `atlas_research_catalog` with an optional dataset filter and compact view to reduce discovery output. [MCP setup](docs/quickstart.md).
 
 Research accepts optional `response` settings for compact provenance references, field selection and snapshot pagination. `atlas_get_evidence` retrieves the original provenance by ID. Errors include a structured next action and a retry delay when known. The same contracts work through CLI, SDK and HTTP. [Agent usage](docs/agents.md).
 
@@ -90,6 +90,18 @@ uv run atlas research check-sources --sources ecb,new_york_fed --allow-network -
 ```
 
 Source checks require an explicit network opt-in, revalidate through shared source caches/quotas and record response hashes, structural fingerprints and observation dates against private last-success baselines. A separate manual workflow supports read-only official-source verification. [Source checks and limits](docs/source-checks.md).
+
+### Multiple datasets through one connection
+
+`company_overview`, `us_macro_overview` and `fx_context` expand into inspectable free research queries. Select items, preview the exact plan, then execute it through the existing batch service. Results include units, source cadence, usable observations, missingness and separate observation/publication/retrieval times. Missing publication times remain unknown; this is not an atomic snapshot.
+
+```sh
+uv run --offline atlas research preset company_overview --identifier ATLASDEMO --preview --provider fixture --json
+uv run --offline atlas research preset --input examples/research_presets/fx_context.json --provider fixture --json
+uv run --offline atlas research doctor --sources ecb,new_york_fed --json
+```
+
+SDK `Atlas.get_research_preset`, MCP `atlas_get_research_preset` and HTTP `POST /v1/research/preset` share the same query. `research doctor`, SDK `research_diagnostics`, MCP `atlas_research_diagnostics` and HTTP `POST /v1/research/diagnostics` check configuration without exposing private contact settings. Source probes require explicit `allow_network=true`; fixtures never establish live connectivity. [Presets, saved queries and diagnostics](docs/presets.md).
 
 The hosted MCP provider adds native x402 purchases through standard payment metadata and read-only chain reconciliation. Its external-wallet path uses the caller's spending controls. [MCP payment setup](docs/payments.md#standard-http-and-native-mcp-clients).
 

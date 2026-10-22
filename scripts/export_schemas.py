@@ -8,7 +8,9 @@ from pydantic import BaseModel
 
 from atlas_terminal.errors import ErrorEnvelope
 from atlas_terminal.research_batch import ResearchBatchQuery, ResearchBatchResult
+from atlas_terminal.research_diagnostics import ResearchDiagnosticsQuery, ResearchDiagnosticsResult
 from atlas_terminal.research_models import ResearchQuery
+from atlas_terminal.research_presets import ResearchPresetQuery, ResearchPresetResult
 from atlas_terminal.research_views import EvidenceResult, ResearchResult, SourceEvidence
 from atlas_terminal.server import create_app
 
@@ -36,6 +38,10 @@ def main() -> None:
             ("ResearchQuery", ResearchQuery),
             ("ResearchBatchQuery", ResearchBatchQuery),
             ("ResearchBatchResult", ResearchBatchResult),
+            ("ResearchPresetQuery", ResearchPresetQuery),
+            ("ResearchPresetResult", ResearchPresetResult),
+            ("ResearchDiagnosticsQuery", ResearchDiagnosticsQuery),
+            ("ResearchDiagnosticsResult", ResearchDiagnosticsResult),
             ("ResearchSource", SourceEvidence),
             ("ResearchResult", ResearchResult),
             ("EvidenceResult", EvidenceResult),

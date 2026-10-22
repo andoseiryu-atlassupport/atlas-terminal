@@ -2218,6 +2218,1056 @@
       "title": "ResearchBatchResult",
       "type": "object"
     },
+    "ResearchPresetQuery": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "count": {
+              "default": 1,
+              "maximum": 20,
+              "minimum": 1,
+              "title": "Count",
+              "type": "integer"
+            },
+            "identifier": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            "include": {
+              "anyOf": [
+                {
+                  "items": {
+                    "enum": ["profile", "statements", "analytics", "filings"]
+                  },
+                  "maxItems": 10,
+                  "minItems": 1,
+                  "type": "array",
+                  "uniqueItems": true
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Include"
+            },
+            "period": {
+              "default": "quarterly",
+              "enum": ["annual", "quarterly", "ytd"],
+              "title": "Period",
+              "type": "string"
+            },
+            "preset": {
+              "const": "company_overview",
+              "type": "string"
+            },
+            "preview": {
+              "default": false,
+              "title": "Preview",
+              "type": "boolean"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "requirements_by_item": {
+              "additionalProperties": {
+                "$ref": "#/$defs/ResearchRequirements"
+              },
+              "maxProperties": 10,
+              "propertyNames": {
+                "enum": ["profile", "statements", "analytics", "filings"]
+              },
+              "title": "Requirements By Item",
+              "type": "object"
+            },
+            "view": {
+              "default": "compact",
+              "enum": ["full", "compact"],
+              "title": "View",
+              "type": "string"
+            }
+          },
+          "required": ["preset", "identifier"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "include": {
+              "anyOf": [
+                {
+                  "items": {
+                    "enum": [
+                      "cpi",
+                      "cpi_yoy",
+                      "payrolls",
+                      "unemployment",
+                      "treasury_yields",
+                      "effr",
+                      "sofr"
+                    ]
+                  },
+                  "maxItems": 10,
+                  "minItems": 1,
+                  "type": "array",
+                  "uniqueItems": true
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Include"
+            },
+            "preset": {
+              "const": "us_macro_overview",
+              "type": "string"
+            },
+            "preview": {
+              "default": false,
+              "title": "Preview",
+              "type": "boolean"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "requirements_by_item": {
+              "additionalProperties": {
+                "$ref": "#/$defs/ResearchRequirements"
+              },
+              "maxProperties": 10,
+              "propertyNames": {
+                "enum": [
+                  "cpi",
+                  "cpi_yoy",
+                  "payrolls",
+                  "unemployment",
+                  "treasury_yields",
+                  "effr",
+                  "sofr"
+                ]
+              },
+              "title": "Requirements By Item",
+              "type": "object"
+            },
+            "view": {
+              "default": "compact",
+              "enum": ["full", "compact"],
+              "title": "View",
+              "type": "string"
+            },
+            "year": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 1990,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Year"
+            }
+          },
+          "required": ["preset"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "not": {
+            "anyOf": [
+              {
+                "properties": {
+                  "base_currency": {
+                    "const": "EUR"
+                  },
+                  "quote_currency": {
+                    "const": "EUR"
+                  }
+                },
+                "required": ["base_currency", "quote_currency"]
+              },
+              {
+                "properties": {
+                  "base_currency": {
+                    "const": "USD"
+                  },
+                  "quote_currency": {
+                    "const": "USD"
+                  }
+                },
+                "required": ["base_currency", "quote_currency"]
+              },
+              {
+                "properties": {
+                  "base_currency": {
+                    "const": "JPY"
+                  },
+                  "quote_currency": {
+                    "const": "JPY"
+                  }
+                },
+                "required": ["base_currency", "quote_currency"]
+              },
+              {
+                "properties": {
+                  "base_currency": {
+                    "const": "GBP"
+                  },
+                  "quote_currency": {
+                    "const": "GBP"
+                  }
+                },
+                "required": ["base_currency", "quote_currency"]
+              },
+              {
+                "properties": {
+                  "base_currency": {
+                    "const": "CHF"
+                  },
+                  "quote_currency": {
+                    "const": "CHF"
+                  }
+                },
+                "required": ["base_currency", "quote_currency"]
+              },
+              {
+                "properties": {
+                  "base_currency": {
+                    "const": "AUD"
+                  },
+                  "quote_currency": {
+                    "const": "AUD"
+                  }
+                },
+                "required": ["base_currency", "quote_currency"]
+              },
+              {
+                "properties": {
+                  "base_currency": {
+                    "const": "CAD"
+                  },
+                  "quote_currency": {
+                    "const": "CAD"
+                  }
+                },
+                "required": ["base_currency", "quote_currency"]
+              },
+              {
+                "properties": {
+                  "base_currency": {
+                    "const": "NZD"
+                  },
+                  "quote_currency": {
+                    "const": "NZD"
+                  }
+                },
+                "required": ["base_currency", "quote_currency"]
+              },
+              {
+                "properties": {
+                  "base_currency": {
+                    "const": "CNY"
+                  },
+                  "quote_currency": {
+                    "const": "CNY"
+                  }
+                },
+                "required": ["base_currency", "quote_currency"]
+              }
+            ]
+          },
+          "properties": {
+            "base_currency": {
+              "enum": [
+                "EUR",
+                "USD",
+                "JPY",
+                "GBP",
+                "CHF",
+                "AUD",
+                "CAD",
+                "NZD",
+                "CNY"
+              ],
+              "type": "string"
+            },
+            "include": {
+              "anyOf": [
+                {
+                  "items": {
+                    "enum": [
+                      "fx",
+                      "us_cpi",
+                      "us_treasury_yields",
+                      "us_effr",
+                      "us_sofr"
+                    ]
+                  },
+                  "maxItems": 10,
+                  "minItems": 1,
+                  "type": "array",
+                  "uniqueItems": true
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Include"
+            },
+            "preset": {
+              "const": "fx_context",
+              "type": "string"
+            },
+            "preview": {
+              "default": false,
+              "title": "Preview",
+              "type": "boolean"
+            },
+            "quote_currency": {
+              "enum": [
+                "EUR",
+                "USD",
+                "JPY",
+                "GBP",
+                "CHF",
+                "AUD",
+                "CAD",
+                "NZD",
+                "CNY"
+              ],
+              "type": "string"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "requirements_by_item": {
+              "additionalProperties": {
+                "$ref": "#/$defs/ResearchRequirements"
+              },
+              "maxProperties": 10,
+              "propertyNames": {
+                "enum": [
+                  "fx",
+                  "us_cpi",
+                  "us_treasury_yields",
+                  "us_effr",
+                  "us_sofr"
+                ]
+              },
+              "title": "Requirements By Item",
+              "type": "object"
+            },
+            "view": {
+              "default": "compact",
+              "enum": ["full", "compact"],
+              "title": "View",
+              "type": "string"
+            },
+            "year": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 1990,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Year"
+            }
+          },
+          "required": ["preset", "base_currency", "quote_currency"],
+          "type": "object"
+        }
+      ],
+      "properties": {
+        "preset": {
+          "enum": ["company_overview", "us_macro_overview", "fx_context"],
+          "title": "Preset",
+          "type": "string"
+        },
+        "identifier": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Identifier"
+        },
+        "period": {
+          "default": "quarterly",
+          "enum": ["annual", "quarterly", "ytd"],
+          "title": "Period",
+          "type": "string"
+        },
+        "count": {
+          "default": 1,
+          "maximum": 20,
+          "minimum": 1,
+          "title": "Count",
+          "type": "integer"
+        },
+        "year": {
+          "anyOf": [
+            {
+              "maximum": 2100,
+              "minimum": 1990,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Year"
+        },
+        "base_currency": {
+          "anyOf": [
+            {
+              "enum": [
+                "EUR",
+                "USD",
+                "JPY",
+                "GBP",
+                "CHF",
+                "AUD",
+                "CAD",
+                "NZD",
+                "CNY"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Base Currency"
+        },
+        "quote_currency": {
+          "anyOf": [
+            {
+              "enum": [
+                "EUR",
+                "USD",
+                "JPY",
+                "GBP",
+                "CHF",
+                "AUD",
+                "CAD",
+                "NZD",
+                "CNY"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quote Currency"
+        },
+        "include": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 10,
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Include"
+        },
+        "requirements": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ResearchRequirements"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "requirements_by_item": {
+          "additionalProperties": {
+            "$ref": "#/$defs/ResearchRequirements"
+          },
+          "maxProperties": 10,
+          "title": "Requirements By Item",
+          "type": "object"
+        },
+        "view": {
+          "default": "compact",
+          "enum": ["full", "compact"],
+          "title": "View",
+          "type": "string"
+        },
+        "preview": {
+          "default": false,
+          "title": "Preview",
+          "type": "boolean"
+        }
+      },
+      "required": ["preset"],
+      "title": "ResearchPresetQuery",
+      "type": "object"
+    },
+    "PresetPlanItem": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "source_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Ids",
+          "type": "array"
+        },
+        "query": {
+          "additionalProperties": true,
+          "title": "Query",
+          "type": "object"
+        }
+      },
+      "required": ["id", "source_ids", "query"],
+      "title": "PresetPlanItem",
+      "type": "object"
+    },
+    "ResearchItemOverview": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "dataset": {
+          "title": "Dataset",
+          "type": "string"
+        },
+        "source_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Ids",
+          "type": "array"
+        },
+        "cadence_and_limits": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Cadence And Limits",
+          "type": "object"
+        },
+        "availability": {
+          "enum": ["available", "partial", "unavailable", "error"],
+          "title": "Availability",
+          "type": "string"
+        },
+        "is_synthetic": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Is Synthetic"
+        },
+        "returned_records": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Returned Records"
+        },
+        "usable_records": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Usable Records"
+        },
+        "units": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Units",
+          "type": "array"
+        },
+        "observation_dates": {
+          "$ref": "#/$defs/TimeRange"
+        },
+        "publication_times": {
+          "$ref": "#/$defs/TimeRange"
+        },
+        "publication_time_known_records": {
+          "default": 0,
+          "title": "Publication Time Known Records",
+          "type": "integer"
+        },
+        "publication_time_unknown_records": {
+          "default": 0,
+          "title": "Publication Time Unknown Records",
+          "type": "integer"
+        },
+        "source_retrieval_times": {
+          "$ref": "#/$defs/TimeRange"
+        },
+        "quality": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ResearchQuality"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "error_code": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Error Code"
+        }
+      },
+      "required": [
+        "id",
+        "dataset",
+        "source_ids",
+        "cadence_and_limits",
+        "availability"
+      ],
+      "title": "ResearchItemOverview",
+      "type": "object"
+    },
+    "ResearchPresetPlan": {
+      "additionalProperties": false,
+      "properties": {
+        "preset": {
+          "enum": ["company_overview", "us_macro_overview", "fx_context"],
+          "title": "Preset",
+          "type": "string"
+        },
+        "items": {
+          "items": {
+            "$ref": "#/$defs/PresetPlanItem"
+          },
+          "maxItems": 10,
+          "minItems": 1,
+          "title": "Items",
+          "type": "array"
+        },
+        "excluded_items": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Excluded Items",
+          "type": "array"
+        },
+        "year_basis": {
+          "anyOf": [
+            {
+              "enum": ["explicit", "current_utc_year"],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Year Basis"
+        },
+        "execution": {
+          "const": "sequential_independent_reads",
+          "default": "sequential_independent_reads",
+          "title": "Execution",
+          "type": "string"
+        }
+      },
+      "required": ["preset", "items", "excluded_items", "year_basis"],
+      "title": "ResearchPresetPlan",
+      "type": "object"
+    },
+    "TimeRange": {
+      "additionalProperties": false,
+      "properties": {
+        "earliest": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Earliest"
+        },
+        "latest": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Latest"
+        }
+      },
+      "title": "TimeRange",
+      "type": "object"
+    },
+    "ResearchPresetResult": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.2.0",
+          "default": "0.2.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "mode": {
+          "enum": ["preview", "executed"],
+          "title": "Mode",
+          "type": "string"
+        },
+        "status": {
+          "enum": ["preview", "ok", "partial", "error"],
+          "title": "Status",
+          "type": "string"
+        },
+        "generated_at": {
+          "title": "Generated At",
+          "type": "string"
+        },
+        "is_synthetic": {
+          "title": "Is Synthetic",
+          "type": "boolean"
+        },
+        "upstream_data_cost": {
+          "const": "0",
+          "default": "0",
+          "title": "Upstream Data Cost",
+          "type": "string"
+        },
+        "requires_wallet": {
+          "const": false,
+          "default": false,
+          "title": "Requires Wallet",
+          "type": "boolean"
+        },
+        "point_in_time": {
+          "const": false,
+          "default": false,
+          "title": "Point In Time",
+          "type": "boolean"
+        },
+        "atomic_snapshot": {
+          "const": false,
+          "default": false,
+          "title": "Atomic Snapshot",
+          "type": "boolean"
+        },
+        "source_text_is_untrusted": {
+          "const": true,
+          "default": true,
+          "title": "Source Text Is Untrusted",
+          "type": "boolean"
+        },
+        "plan": {
+          "$ref": "#/$defs/ResearchPresetPlan"
+        },
+        "overview": {
+          "items": {
+            "$ref": "#/$defs/ResearchItemOverview"
+          },
+          "title": "Overview",
+          "type": "array"
+        },
+        "batch": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ResearchBatchResult"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Limitations",
+          "type": "array"
+        }
+      },
+      "required": [
+        "mode",
+        "status",
+        "generated_at",
+        "is_synthetic",
+        "plan",
+        "overview",
+        "batch",
+        "limitations"
+      ],
+      "title": "ResearchPresetResult",
+      "type": "object"
+    },
+    "ResearchDiagnosticsQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "sources": {
+          "anyOf": [
+            {
+              "items": {
+                "enum": [
+                  "sec",
+                  "bls",
+                  "treasury",
+                  "fiscaldata",
+                  "federal_reserve",
+                  "ecb",
+                  "new_york_fed"
+                ],
+                "type": "string"
+              },
+              "maxItems": 7,
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sources"
+        },
+        "allow_network": {
+          "default": false,
+          "title": "Allow Network",
+          "type": "boolean"
+        }
+      },
+      "title": "ResearchDiagnosticsQuery",
+      "type": "object"
+    },
+    "SourceDiagnostic": {
+      "additionalProperties": false,
+      "properties": {
+        "source_id": {
+          "title": "Source Id",
+          "type": "string"
+        },
+        "configuration": {
+          "enum": ["ready", "configuration_required", "synthetic"],
+          "title": "Configuration",
+          "type": "string"
+        },
+        "connectivity": {
+          "enum": ["not_checked", "pass", "fail", "not_run"],
+          "title": "Connectivity",
+          "type": "string"
+        },
+        "next_action": {
+          "title": "Next Action",
+          "type": "string"
+        },
+        "api_key_required": {
+          "const": false,
+          "default": false,
+          "title": "Api Key Required",
+          "type": "boolean"
+        },
+        "contact_user_agent_required": {
+          "title": "Contact User Agent Required",
+          "type": "boolean"
+        },
+        "cadence_and_limits": {
+          "title": "Cadence And Limits",
+          "type": "string"
+        },
+        "source_terms_url": {
+          "title": "Source Terms Url",
+          "type": "string"
+        },
+        "checks": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Checks",
+          "type": "array"
+        }
+      },
+      "required": [
+        "source_id",
+        "configuration",
+        "connectivity",
+        "next_action",
+        "contact_user_agent_required",
+        "cadence_and_limits",
+        "source_terms_url"
+      ],
+      "title": "SourceDiagnostic",
+      "type": "object"
+    },
+    "ResearchDiagnosticsResult": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.2.0",
+          "default": "0.2.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "checked_at": {
+          "title": "Checked At",
+          "type": "string"
+        },
+        "provider": {
+          "title": "Provider",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "configured",
+            "action_required",
+            "verified",
+            "degraded",
+            "synthetic"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "scope": {
+          "const": "configuration_and_optional_fixed_source_probes",
+          "default": "configuration_and_optional_fixed_source_probes",
+          "title": "Scope",
+          "type": "string"
+        },
+        "allow_network": {
+          "title": "Allow Network",
+          "type": "boolean"
+        },
+        "network_checks_executed": {
+          "title": "Network Checks Executed",
+          "type": "boolean"
+        },
+        "is_synthetic": {
+          "title": "Is Synthetic",
+          "type": "boolean"
+        },
+        "requires_wallet": {
+          "const": false,
+          "default": false,
+          "title": "Requires Wallet",
+          "type": "boolean"
+        },
+        "real_transfer": {
+          "const": false,
+          "default": false,
+          "title": "Real Transfer",
+          "type": "boolean"
+        },
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/SourceDiagnostic"
+          },
+          "title": "Sources",
+          "type": "array"
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Limitations",
+          "type": "array"
+        }
+      },
+      "required": [
+        "checked_at",
+        "provider",
+        "status",
+        "allow_network",
+        "network_checks_executed",
+        "is_synthetic",
+        "sources",
+        "limitations"
+      ],
+      "title": "ResearchDiagnosticsResult",
+      "type": "object"
+    },
     "ResearchSource": {
       "additionalProperties": true,
       "anyOf": [

@@ -43,6 +43,24 @@ BATCH_QUERY = {
         {"id": "invalid", "query": {"dataset": "economics", "series": "unknown"}},
     ]
 }
+PRESET_QUERY = {
+    "preset": "fx_context",
+    "base_currency": "USD",
+    "quote_currency": "JPY",
+    "include": ["fx", "us_sofr"],
+    "view": "full",
+}
+
+
+def verify_preset_result(result):
+    assert result["status"] == "ok" and result["mode"] == "executed"
+    assert not result["requires_wallet"] and not result["atomic_snapshot"]
+    assert result["batch"]["summary"]["successful"] == 2
+    assert [row["id"] for row in result["overview"]] == ["fx", "us_sofr"]
+    assert result["overview"][0]["availability"] == "partial"
+    assert result["overview"][0]["publication_times"]["latest"] is None
+    assert result["batch"]["items"][0]["result"]["records"][0]["value"] == "120"
+    assert result["overview"][1]["observation_dates"]["latest"] == "2026-10-19"
 
 
 def verify_batch_result(result):
@@ -72,7 +90,12 @@ async def mcp_smoke(root, macro_expected):
         ClientSession(*streams, read_timeout_seconds=15) as session,
     ):
         await session.initialize()
-        assert len((await session.list_tools()).tools) == 10
+        assert len((await session.list_tools()).tools) == 12
+        preset = await session.call_tool("atlas_get_research_preset", {"query": PRESET_QUERY})
+        assert not preset.is_error
+        verify_preset_result(preset.structured_content)
+        doctor = await session.call_tool("atlas_research_diagnostics", {"query": {}})
+        assert not doctor.is_error and doctor.structured_content["status"] == "synthetic"
         batch = await session.call_tool("atlas_get_research_batch", {"query": BATCH_QUERY})
         assert not batch.is_error
         verify_batch_result(batch.structured_content)
@@ -142,6 +165,38 @@ with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
     with Atlas("fixture", directory=root / "sdk") as atlas:
         macro_expected = {query["dataset"]: atlas.get_research(query) for query in MACRO_QUERIES}
         verify_batch_result(atlas.get_research_batch(BATCH_QUERY))
+        verify_preset_result(atlas.get_research_preset(PRESET_QUERY))
+        assert atlas.get_research_preset(PRESET_QUERY | {"preview": True})["batch"] is None
+        assert not atlas.research_diagnostics()["network_checks_executed"]
+    preset_cli = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "atlas_terminal",
+            "research",
+            "preset",
+            "--input",
+            "-",
+            "--provider",
+            "fixture",
+        ],
+        cwd=root,
+        input=json.dumps(PRESET_QUERY),
+        capture_output=True,
+        text=True,
+        timeout=20,
+        check=True,
+    )
+    verify_preset_result(json.loads(preset_cli.stdout))
+    doctor_cli = subprocess.run(
+        [sys.executable, "-m", "atlas_terminal", "research", "doctor", "--provider", "fixture"],
+        cwd=root,
+        capture_output=True,
+        text=True,
+        timeout=20,
+        check=True,
+    )
+    assert json.loads(doctor_cli.stdout)["status"] == "synthetic" and not doctor_cli.stderr
     batch_cli = subprocess.run(
         [
             sys.executable,
@@ -260,9 +315,21 @@ with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
     proc = start_server()
     try:
         with httpx.Client(trust_env=False) as probe:
+            document = probe.get(base + "/openapi.json").json()
+            preset_schema = document["paths"]["/v1/research/preset"]["post"]["requestBody"][
+                "content"
+            ]["application/json"]["schema"]
+            assert preset_schema["$ref"] == "#/components/schemas/ResearchPresetQuery"
+            assert "ResearchPresetQuery" in document["components"]["schemas"]
             batch_http = probe.post(base + "/v1/research/batch", json=BATCH_QUERY)
             assert batch_http.status_code == 200
             verify_batch_result(batch_http.json())
+            preset_http = probe.post(base + "/v1/research/preset", json=PRESET_QUERY)
+            assert preset_http.status_code == 200
+            verify_preset_result(preset_http.json())
+            assert "PAYMENT-REQUIRED" not in preset_http.headers
+            doctor_http = probe.post(base + "/v1/research/diagnostics", json={})
+            assert doctor_http.status_code == 200 and doctor_http.json()["status"] == "synthetic"
             for query in MACRO_QUERIES:
                 macro_http = probe.post(base + "/v1/research", json=query)
                 assert macro_http.status_code == 200
@@ -324,6 +391,9 @@ with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
                 "wheel_research_cli_mcp_http": "PASS",
                 "wheel_macro_fx_cli_sdk_mcp_http": "PASS",
                 "wheel_quality_batch_cli_sdk_mcp_http": "PASS",
+                "wheel_presets_cli_sdk_mcp_http": "PASS",
+                "wheel_openapi_contracts": "PASS",
+                "wheel_diagnostics_cli_sdk_mcp_http": "PASS",
                 "wheel_source_check_optin_guard": "PASS",
                 "wheel_mcp_subprocess": mcp_status,
                 "wheel_agent_compact_paging_evidence": "PASS",

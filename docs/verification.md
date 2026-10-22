@@ -1,10 +1,10 @@
 # Validation scope
 
-Recorded on 2026-10-21 for Atlas Terminal 0.2.0 with Python 3.12.14 and Node.js 24.19.0 on Linux.
+Recorded on 2026-10-22 for Atlas Terminal 0.2.0 with Python 3.12.14 and Node.js 24.19.0 on Linux.
 
 ## Verified behavior
 
-381 offline tests pass; two live tests are deselected. Default tests prohibit IP sockets and do not retrieve live sources or transfer funds.
+422 offline tests pass; two live tests are deselected. Default tests prohibit IP sockets and do not retrieve live sources or transfer funds.
 
 | Area                         | Coverage                                                                                                                                                                                                                                                                         |
 | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -31,6 +31,8 @@ Recorded on 2026-10-21 for Atlas Terminal 0.2.0 with Python 3.12.14 and Node.js 
 | Packages                     | Wheel installation in a new virtual environment and CLI/MCP/HTTP execution outside the repository                                                                                                                                                                                |
 | CI                           | [Published baseline run](https://github.com/andoseiryu-atlassupport/atlas-terminal/actions/runs/39428101933): types, formatting, 158 tests, demos and builds. Separate from local verification of expanded analytics, x402, agent contracts, macro/FX, requirements and batches. |
 
+Preset tests cover all three recipes, exact preview expansion, rejection before reads, selected-item execution, common/per-item requirements, original batch/provenance preservation, explicit missingness, UTC publication times and distinct observation/retrieval times. SDK, HTTP, CLI and real stdio MCP exercise the same contracts. Every local OpenAPI reference resolves in the exported document; shared query schemas validate requests using component references. Diagnostic tests cover configuration-only operation without source clients/stores, private-contact redaction, fixture isolation, invalid network flags and actual probe logic against mock HTTP. Mock HTTP probe success is not live verification.
+
 Research endpoints remain free of payment requirements in every payment mode. Mock-purchase checks cover authenticated recovery after an API restart. Wheel and sdist packages contain source fixtures and the Apache-2.0 LICENSE, without private runtime databases.
 
 ## Local validation results
@@ -38,8 +40,8 @@ Research endpoints remain free of payment requirements in every payment mode. Mo
 | Check                                                                        | Result                                  |
 | ---------------------------------------------------------------------------- | --------------------------------------- |
 | `uv run --offline ruff check .` and `uv run --offline ruff format --check .` | PASS                                    |
-| `uv run --offline mypy`                                                      | PASS; 33 source files                   |
-| `uv run --offline pytest`                                                    | PASS; 381 passed, 2 deselected          |
+| `uv run --offline mypy`                                                      | PASS; 35 source files                   |
+| `uv run --offline pytest`                                                    | PASS; 422 passed, 2 deselected          |
 | `uv run --offline python -m build --no-isolation`                            | PASS; wheel and sdist                   |
 | `npm run check`                                                              | PASS; Prettier and whitespace checks    |
 | `python scripts/scan_public_files.py`                                        | PASS; heuristic credential-pattern scan |
@@ -47,6 +49,8 @@ Research endpoints remain free of payment requirements in every payment mode. Mo
 The free-research and mock-purchase examples run successfully. The built wheel was installed into a fresh virtual environment using the exported locked runtime requirements. `scripts/verify_installed.py` passed outside the repository for CLI, official stdio MCP, loopback HTTP, compact research/evidence, page continuation, mock purchase and server restart recovery. All four new macro/FX datasets returned identical synthetic results across the installed CLI, SDK, MCP and HTTP. Additional earlier installed-wheel CLI/SDK checks verified evidence and page recovery across separate processes; earlier checks also covered reconciliation, hosted MCP tools, growth, FCF and aligned comparison. Runtime checks made no external requests or real transfers. Local results do not establish a new GitHub Actions run or live-source validation.
 
 The installed-wheel verifier also checks requirement-gated batches and independent invalid-query errors through CLI, SDK, real stdio MCP and loopback HTTP, plus the source-check command's network opt-in guard. The packaged four-query batch example succeeds offline. Source-check fingerprints and persistence are exercised only with mock HTTP; no mocked PASS is recorded as live verification.
+
+The fresh installed wheel also passes named FX-context preset execution through CLI, SDK, real stdio MCP and loopback HTTP, including original values and missingness/publication-time reporting. SDK preview returns no batch; configuration diagnostics work through all four interfaces without live source access. All three saved preset examples execute against fictional packaged sources. The MCP server exposes twelve default tools. No external network or real transfers are used by these checks.
 
 The interoperability tests use the pinned official x402 Python and JavaScript clients. JavaScript dependencies require `npm ci`; the fetch bridge uses private pipes rather than IP sockets. Native MCP uses in-memory client/server streams and the transport adapter for the pinned MCP 2.x API. Facilitator and chain RPC responses are fixtures, not live evidence.
 
@@ -70,6 +74,8 @@ uv run --offline pytest
 uv run --offline atlas demo --json
 uv run --offline python examples/free_research.py
 uv run --offline atlas research batch --input examples/research_batch.json --provider fixture --json
+uv run --offline atlas research preset --input examples/research_presets/fx_context.json --provider fixture --json
+uv run --offline atlas research doctor --provider fixture --json
 uv run --offline python examples/mock_purchase.py
 uv run --offline python -m build --no-isolation
 npm run check

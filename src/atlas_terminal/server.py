@@ -34,9 +34,30 @@ from atlas_terminal.payments.mock import MockAdapter
 from atlas_terminal.payments.orders import OrderService
 from atlas_terminal.payments.reconciliation import BaseSepoliaReconciler, SettlementReconciler
 from atlas_terminal.research_batch import ResearchBatchQuery, ResearchBatchResult
+from atlas_terminal.research_diagnostics import ResearchDiagnosticsQuery, ResearchDiagnosticsResult
 from atlas_terminal.research_models import Dataset, ResearchQuery
+from atlas_terminal.research_presets import ResearchPresetQuery, ResearchPresetResult
 from atlas_terminal.research_views import EvidenceResult, ResearchResult
 from atlas_terminal.util import state_dir
+
+
+class AtlasAPI(FastAPI):
+    def openapi(self) -> dict[str, Any]:
+        """Publish shared input models with document-resolvable component references."""
+        document = super().openapi()
+        schemas = document.setdefault("components", {}).setdefault("schemas", {})
+        for model in (
+            FinancialQuery,
+            ResearchQuery,
+            ResearchBatchQuery,
+            ResearchPresetQuery,
+            ResearchDiagnosticsQuery,
+        ):
+            if model.__name__ not in schemas:
+                schema = model.model_json_schema(ref_template="#/components/schemas/{model}")
+                schemas.update(schema.pop("$defs", {}))
+                schemas[model.__name__] = schema
+        return document
 
 
 def create_app(
@@ -107,7 +128,7 @@ def create_app(
         yield
         orders.close()
 
-    app = FastAPI(
+    app = AtlasAPI(
         title="Atlas Terminal reference API",
         version="0.2.0",
         lifespan=lifespan,
@@ -184,7 +205,9 @@ def create_app(
         response_model_exclude_unset=True,
         openapi_extra={
             "requestBody": {
-                "content": {"application/json": {"schema": ResearchQuery.model_json_schema()}},
+                "content": {
+                    "application/json": {"schema": {"$ref": "#/components/schemas/ResearchQuery"}}
+                },
                 "required": True,
             }
         },
@@ -198,13 +221,52 @@ def create_app(
         response_model_exclude_unset=True,
         openapi_extra={
             "requestBody": {
-                "content": {"application/json": {"schema": ResearchBatchQuery.model_json_schema()}},
+                "content": {
+                    "application/json": {
+                        "schema": {"$ref": "#/components/schemas/ResearchBatchQuery"}
+                    }
+                },
                 "required": True,
             }
         },
     )
     def get_research_batch(body: dict[str, Any]) -> dict[str, Any]:
         return orders.atlas.get_research_batch(body)
+
+    @app.post(
+        "/v1/research/preset",
+        response_model=ResearchPresetResult,
+        response_model_exclude_unset=True,
+        openapi_extra={
+            "requestBody": {
+                "content": {
+                    "application/json": {
+                        "schema": {"$ref": "#/components/schemas/ResearchPresetQuery"}
+                    }
+                },
+                "required": True,
+            }
+        },
+    )
+    def get_research_preset(body: dict[str, Any]) -> dict[str, Any]:
+        return orders.atlas.get_research_preset(body)
+
+    @app.post(
+        "/v1/research/diagnostics",
+        response_model=ResearchDiagnosticsResult,
+        openapi_extra={
+            "requestBody": {
+                "content": {
+                    "application/json": {
+                        "schema": {"$ref": "#/components/schemas/ResearchDiagnosticsQuery"}
+                    }
+                },
+                "required": True,
+            }
+        },
+    )
+    def research_diagnostics(body: dict[str, Any]) -> dict[str, Any]:
+        return orders.atlas.research_diagnostics(body)
 
     @app.get(
         "/v1/research/evidence/{evidence_id}",
@@ -231,7 +293,9 @@ def create_app(
         response_model=Quote,
         openapi_extra={
             "requestBody": {
-                "content": {"application/json": {"schema": FinancialQuery.model_json_schema()}},
+                "content": {
+                    "application/json": {"schema": {"$ref": "#/components/schemas/FinancialQuery"}}
+                },
                 "required": True,
             }
         },

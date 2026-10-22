@@ -2,6 +2,8 @@
 
 Atlas exposes free research through typed MCP input, structured output, the Python SDK, CLI and HTTP. Research never signs or purchases. No model service is required by the server.
 
+[Research presets](presets.md) provide inspectable company, US macro and FX-context query sets through the same connection. They reuse batch/quality services, retain per-item failures and separate observation/publication/retrieval times. Configuration diagnosis is offline by default; source probes require explicit opt-in.
+
 ## Discover only the needed contract
 
 Call `atlas_research_catalog` with `{"dataset":"statements","view":"compact"}` for dataset limits, metric names and source terms without large schemas. Use `view="full"` for query and common response schemas. Omit `dataset` to discover all 21 datasets. The default catalog view remains full.

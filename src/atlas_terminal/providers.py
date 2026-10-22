@@ -285,17 +285,22 @@ DOCUMENT_PATTERN = r"(?:xsl[A-Za-z0-9_-]+/)?[A-Za-z0-9_][A-Za-z0-9_.-]*"
 SEC_ARCHIVES = "https://www.sec.gov/Archives/edgar/data/"
 
 
+def validate_sec_user_agent(user_agent: str) -> None:
+    """Validate private contact configuration without constructing a client or echoing it."""
+    if (
+        not re.search(r"[^\s@]+@[^\s@]+\.[^\s@]+", user_agent)
+        or ".invalid" in user_agent.lower()
+        or any(c in user_agent for c in "\r\n")
+    ):
+        raise AtlasError(
+            "CONFIG_REQUIRED",
+            "SEC live requires your identifying SEC_USER_AGENT with contact email.",
+        )
+
+
 class SecTransport(CachedHTTPTransport):
     def __init__(self, user_agent: str, **kwargs: Any) -> None:
-        if (
-            not re.search(r"[^\s@]+@[^\s@]+\.[^\s@]+", user_agent)
-            or ".invalid" in user_agent.lower()
-            or any(c in user_agent for c in "\r\n")
-        ):
-            raise AtlasError(
-                "CONFIG_REQUIRED",
-                "SEC live requires your identifying SEC_USER_AGENT with contact email.",
-            )
+        validate_sec_user_agent(user_agent)
         super().__init__(user_agent, **kwargs)
 
     @staticmethod
