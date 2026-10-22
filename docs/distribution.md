@@ -14,6 +14,8 @@ uv run --offline python scripts/prepare_distribution.py
 uv run --offline python scripts/build_docs.py
 ```
 
+The `Release artifacts` GitHub Actions workflow builds an existing version tag, checks that its package version matches and its commit is reachable from main, and runs the offline checks before publishing. It produces wheel/source, plugin, documentation, draft Registry metadata and checksum assets. Only its final publication job receives repository-content write permission; build/PR checks remain read-only. Trigger it with a version tag or dispatch it from main with the explicit existing tag. Existing releases/assets are never overwritten automatically. This workflow publishes GitHub release artifacts, not PyPI packages, Registry registrations or OpenAI plugins.
+
 `build/distribution/plugin` uses the portable `plugin.json`, `mcp.json` and `skills/` layout. Its MCP command fetches the tagged GitHub distribution through uv. Install it only through a client that supports this local/desktop format. Installation does not make tools available to unrelated clients or register a public plugin. The generated `server.json` is an MCP Registry submission draft that depends on a matching actual PyPI package publication.
 
 ## PyPI publication
