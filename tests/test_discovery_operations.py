@@ -1,4 +1,5 @@
 import importlib.util
+import io
 import json
 from pathlib import Path
 from types import SimpleNamespace
@@ -131,6 +132,19 @@ def test_crawl_network_failure_never_exposes_transport_exception():
         report = crawl.audit(client, ORIGIN)
     assert report["status"] == "FAIL" and "SECRET_SENTINEL" not in json.dumps(report)
     assert "NETWORK_ERROR" in json.dumps(report)
+    stream = io.StringIO()
+    report["checks"] = [
+        {
+            "status": "FAIL",
+            "code": "NETWORK_ERROR",
+            "agent": "audit",
+            "url": "https://docs.example/\n::add-mask::text%",
+        }
+    ]
+    crawl.emit_failure_annotations(report, stream)
+    annotation = stream.getvalue()
+    assert annotation.count("\n") == 1
+    assert "%0A::add-mask::text%25" in annotation
 
 
 def test_deploy_files_bind_loopback_keep_state_and_require_bearer_by_default(tmp_path):
