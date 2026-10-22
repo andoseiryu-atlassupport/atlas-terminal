@@ -1,10 +1,10 @@
 # Validation scope
 
-Recorded on 2026-10-22 for Atlas Terminal 0.3.1 with Python 3.12.14 and Node.js 24.19.0 on Linux.
+Recorded on 2026-10-22 for Atlas Terminal 0.3.2 with Python 3.12.14 and Node.js 24.19.0 on Linux.
 
 ## Verified behavior
 
-437 offline tests pass; two live tests are deselected. Default tests prohibit IP sockets and do not retrieve live sources or transfer funds.
+459 offline tests pass; two live tests are deselected. Default tests prohibit IP sockets and do not retrieve live sources or transfer funds.
 
 | Area                         | Coverage                                                                                                                                                                                                                                                                         |
 | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -35,7 +35,7 @@ Preset tests cover all three recipes, exact preview expansion, rejection before 
 
 Research endpoints remain free of payment requirements in every payment mode. Mock-purchase checks cover authenticated recovery after an API restart. Wheel and sdist packages contain source fixtures and the Apache-2.0 LICENSE, without private runtime databases.
 
-Source distributions explicitly select project paths and exclude installed dependencies, generated output and private state independently of VCS ignore behavior. `scripts/verify_distribution.py` checks source/wheel contents, package version, license and the Registry ownership marker before CI/release publication. A source archive rebuilt outside Git with a fictional `node_modules` directory passes the same archive checks, confirming the development dependency is excluded. The current source archive contains 172 entries; the wheel contains 68 files.
+Source distributions explicitly select project paths and exclude installed dependencies, generated output and private state independently of VCS ignore behavior. `scripts/verify_distribution.py` checks source/wheel contents, package version, license and the Registry ownership marker before CI/release publication. A source archive rebuilt outside Git with a fictional `node_modules` directory passes the same archive checks, confirming the development dependency is excluded.
 
 ## Local validation results
 
@@ -58,9 +58,15 @@ Research-only Streamable HTTP is exercised with the pinned official MCP client u
 
 `scripts/verify_remote_installed.py` also starts the installed wheel's actual loopback HTTP process, connects the official Streamable HTTP client, executes a fictional FX/SOFR preset, resolves its evidence, and verifies evidence lookup after a process restart. Authentication and invalid Host/Origin requests are checked against the real loopback process. The original installed-wheel CLI/SDK/stdio/HTTP and mock-recovery verifier also passes. No external source requests or transfers are made.
 
-`scripts/build_docs.py` produces 30 HTML documentation pages with canonical metadata, Markdown alternatives, a sitemap, supplemental `llms.txt` and a noindex 404 page. All generated internal file and section links pass offline verification. `scripts/prepare_distribution.py` produces a portable research-only stdio plugin ZIP and versioned MCP Registry metadata; anonymous HTTPS remote metadata generation is also checked with a fictional `.invalid` endpoint, without contacting it. Generated metadata is not publication or platform approval.
+`scripts/build_docs.py` produces 32 HTML documentation pages with canonical metadata, Markdown alternatives, a sitemap, supplemental `llms.txt` and a noindex 404 page. All generated internal file and section links pass offline verification. `scripts/prepare_distribution.py` produces a portable research-only stdio plugin ZIP and versioned MCP Registry metadata; anonymous HTTPS remote metadata generation is also checked with a fictional `.invalid` endpoint, without contacting it. Generated metadata is not publication or platform approval.
 
 Public tool/package documentation links use the GitHub source guides. The [documentation website](https://atlas-terminal-docs.citrus-genet-7815.chatgpt.site) is deployed successfully through Sites with public access. Its generated canonical, sitemap, Markdown and crawler files use that origin, and the deployment's rendered screenshot was inspected. The separate search-fetch tool could not retrieve the new domain, so external crawler access, response headers, search indexing and citation behavior remain unverified. PyPI publication, official MCP Registry listing and OpenAI plugin review are not completed. The optional Pages workflow requires configured Pages and `PAGES_ENABLED=true`. Local verification remains separate from GitHub Actions results and does not establish model task success.
+
+The new public-access tests use mock HTTP to cover successful sitemap/page access, search-specific robots rules, wildcard/anchor rules, HTML/header noindex, incorrect canonicals, authentication pages, redirects, denied responses, external sitemap rejection and network-error redaction. Deployment tests cover explicit anonymous/fixture modes, private persistent state, loopback binding, refusal to overwrite output and invalid-origin rejection before file creation. These checks do not contact the published site or provision a server.
+
+`scripts/run_research_workflow.py --output build/evals/fixture-workflow.json` passes seven contract checks through one actual stdio MCP process, with four fictional research results, nine resolved evidence IDs and 14 tool calls. An explicit zero-calendar-day FX-age requirement fails the batch as expected for the older packaged observation; the runner returns nonzero without loosening the requirement. These are contract results, not model accuracy or citation measurements. The 0.3.2 wheel also passes the same runner from a new runtime virtual environment outside the checkout, the installed CLI/SDK/stdio/HTTP and mock-recovery verifier, and the actual loopback Streamable HTTP/restart verifier. These checks use fictional sources and no external requests or transfers.
+
+The rendered Caddy configuration validates with Caddy 2.11.7 after checking the release archive against its published SHA-512 checksum and GitHub asset SHA-256. `systemd-analyze verify` accepts the rendered unit with only the executable path replaced by the existing local Atlas environment for validation. The target `/opt/atlas-terminal/.venv` is not installed here. No service is started, no certificate is issued, and no public endpoint or persistent host volume is established by these checks.
 
 The interoperability tests use the pinned official x402 Python and JavaScript clients. JavaScript dependencies require `npm ci`; the fetch bridge uses private pipes rather than IP sockets. Native MCP uses in-memory client/server streams and the transport adapter for the pinned MCP 2.x API. Facilitator and chain RPC responses are fixtures, not live evidence.
 

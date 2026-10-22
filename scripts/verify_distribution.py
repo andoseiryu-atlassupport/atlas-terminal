@@ -51,6 +51,11 @@ def main():
             "docs/codex.md",
             "skills/atlas-research/SKILL.md",
             "tests/test_remote_mcp.py",
+            "deploy/atlas-mcp.service",
+            "deploy/.env.example",
+            "evals/research-workflows.json",
+            "scripts/run_research_workflow.py",
+            "examples/company_macro_fx.json",
         ):
             assert f"{prefix}/{required}" in names, "Required project file missing."
         source_count = len(names)

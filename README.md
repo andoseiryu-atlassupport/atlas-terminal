@@ -29,7 +29,7 @@ Values retain their units, periods, source hashes, retrieval times and JSON poin
 Use Python 3.12+ and [uv](https://docs.astral.sh/uv/). Install the tagged GitHub source distribution; the package is not yet published on PyPI:
 
 ```sh
-uv tool install 'git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.3.1'
+uv tool install 'git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.3.2'
 atlas research preset fx_context --base-currency USD --quote-currency JPY --include fx,us_sofr --provider fixture --json
 ```
 
@@ -88,6 +88,8 @@ uv run --offline atlas mcp serve --provider fixture --research-only
 ```
 
 Research-only mode exposes six tools for datasets, presets, batches, connection diagnostics and saved evidence. It has no quote, purchase or wallet handler. `atlas_get_research` publishes dataset-specific input branches and a common output schema. Use `atlas_research_catalog` with an optional dataset filter and compact view to reduce discovery output. [MCP setup](docs/quickstart.md) · [Codex connection and skill](docs/codex.md).
+
+The [company, CPI and USD/JPY example](docs/company-macro-fx.md) uses one official MCP session to retrieve four datasets and resolve all evidence IDs. Its executable contract evaluation reports explicit quality and unsupported-dataset rejection without an LLM. [Public checks](docs/public-checks.md) separately inspect published documentation HTTP/crawler signals and an optionally configured actual remote endpoint.
 
 The original full stdio mode, without `--research-only`, exposes twelve tools including company resolution, annual snapshots, filings and separately configured quote/purchase recovery. Research-only Streamable HTTP is available for [self-hosting](docs/remote-mcp.md). No official public remote endpoint or public ChatGPT plugin is currently operated.
 

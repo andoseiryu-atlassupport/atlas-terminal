@@ -1,0 +1,79 @@
+name: Public access checks
+
+on:
+  workflow_dispatch:
+    inputs:
+      check_remote:
+        description: Check the actual public MCP endpoint configured in ATLAS_MCP_URL
+        required: true
+        default: false
+        type: boolean
+  schedule:
+    - cron: "23 6 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  documentation:
+    name: Public documentation crawl signals
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.12"
+      - name: Install locked dependencies
+        run: |
+          python -m pip install uv==0.12.23
+          uv sync --locked --all-extras --dev
+      - name: Inspect published HTTP responses
+        run: uv run --offline python scripts/check_public_docs.py --allow-network > public-docs-checks.json
+      - name: Retain public crawl report
+        if: ${{ always() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: public-documentation-checks
+          path: public-docs-checks.json
+          if-no-files-found: error
+          retention-days: 30
+
+  remote-mcp:
+    name: Actual public MCP research workflow
+    if: ${{ inputs.check_remote || (github.event_name == 'schedule' && vars.MCP_MONITOR_ENABLED == 'true') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.12"
+      - name: Install locked dependencies
+        run: |
+          python -m pip install uv==0.12.23
+          uv sync --locked --all-extras --dev
+      - name: Verify evidence and usable FX date through the actual endpoint
+        env:
+          MCP_URL: ${{ vars.ATLAS_MCP_URL }}
+          ATLAS_MCP_AUTH_TOKEN: ${{ secrets.ATLAS_MCP_AUTH_TOKEN }}
+          MAX_FX_AGE_DAYS: ${{ vars.MCP_MAX_FX_AGE_DAYS || '10' }}
+        run: |
+          test -n "$MCP_URL"
+          uv run --offline python scripts/run_research_workflow.py --url "$MCP_URL" --allow-network --max-fx-age-days "$MAX_FX_AGE_DAYS" --output public-mcp-checks.json
+      - name: Retain public research report
+        if: ${{ always() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: public-mcp-workflow-checks
+          path: public-mcp-checks.json
+          if-no-files-found: warn
+          retention-days: 30

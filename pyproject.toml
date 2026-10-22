@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "atlas-terminal"
-version = "0.3.1"
+version = "0.3.2"
 description = "Source-backed company financials, US macro and reference FX through one MCP connection"
 readme = "README.md"
 license = "Apache-2.0"
@@ -50,7 +50,7 @@ packages = ["src/atlas_terminal"]
 [tool.hatch.build.targets.sdist]
 include = [
   "/src/atlas_terminal", "/tests", "/docs", "/examples", "/schemas",
-  "/skills", "/scripts", "/.github", "/*.md", "/pyproject.toml", "/uv.lock",
+  "/skills", "/scripts", "/evals", "/deploy", "/.github", "/*.md", "/pyproject.toml", "/uv.lock",
   "/package.json", "/package-lock.json", "/LICENSE", "/.env.example",
   "/.gitignore", "/.gitattributes", "/.prettierignore", "/.prettierrc.json", "/.nvmrc",
 ]

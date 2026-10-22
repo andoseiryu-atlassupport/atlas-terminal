@@ -42,12 +42,52 @@ The transport is stateless JSON Streamable HTTP, while research evidence and pag
 
 ## Connect and validate the actual deployment
 
+### Prepare a dedicated Linux host
+
+The repository includes a single-process systemd unit and a Caddy HTTPS configuration. They require a dedicated operator-managed Linux host with systemd, a system-installed Python 3.12+, uv, Git, Caddy, a persistent local disk and a DNS hostname pointing to that host. Static documentation hosting does not run this Python service. No host or domain is provisioned by these files.
+
+Render files into a new local directory:
+
+```sh
+uv run --offline python scripts/prepare_remote_deploy.py --origin https://your-verified-host.example --provider public --output build/remote-deploy
+```
+
+This prepares files without installing services, requesting source data, obtaining certificates or generating credentials. The default is bearer-required; the operator must privately supply a token before the service can start. Add `--anonymous` only for an intentionally public anonymous service. Omit `--provider public` to render a fictional staging service instead. Never advertise a fixture service as real-source access.
+
+Install a version-pinned Atlas environment at `/opt/atlas-terminal/.venv`, using a system Python interpreter outside protected home directories. For example, on a host with `/usr/bin/python3.12`:
+
+```sh
+sudo install -d -m 0755 /opt/atlas-terminal
+sudo /usr/bin/python3.12 -m venv /opt/atlas-terminal/.venv
+sudo uv pip install --python /opt/atlas-terminal/.venv/bin/python 'git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.3.2'
+sudo install -d -m 0700 /etc/atlas-terminal
+sudo install -m 0600 build/remote-deploy/.env.example /etc/atlas-terminal/mcp.env
+sudoedit /etc/atlas-terminal/mcp.env
+```
+
+In the private environment file set the actual token and, for company data, the real SEC contact setting. Leave the token unset only for an explicitly anonymous unit. Do not commit the populated file. The unit creates a private persistent `/var/lib/atlas-terminal` state directory with systemd-managed ownership, binds only to `127.0.0.1:8001`, runs one worker, restarts after failures and restricts filesystem writes. Keep this volume across upgrades and process restarts.
+
+Validate the rendered files on the target host before installation:
+
+```sh
+systemd-analyze verify build/remote-deploy/atlas-mcp.service
+caddy validate --config build/remote-deploy/Caddyfile --adapter caddyfile
+```
+
+Install the reviewed unit in `/etc/systemd/system/atlas-mcp.service`. For a dedicated host, install the reviewed Caddy configuration as `/etc/caddy/Caddyfile`; merge its settings if Caddy already serves other applications. Run `systemctl daemon-reload`, start/enable `atlas-mcp.service`, and reload Caddy after validation. Permit public ingress only to the intended HTTPS/TLS-certificate ports; keep port 8001 private. Caddy preserves Host, caps bodies and sets read timeouts; access logging is not enabled by the supplied configuration.
+
+The templates do not install a firewall, backups, OAuth, account isolation, perimeter rate limiting or distributed storage. Target-host startup, certificate issuance and persistence must be checked on the actual host. Deployment preparation is not evidence of a running endpoint.
+
+### Verify the running endpoint
+
 1. Reach `/healthz` over its real HTTPS URL and confirm `is_synthetic=false` for public data.
 2. Initialize an official MCP client and confirm the six advertised tools.
 3. Run `atlas_research_diagnostics` first without network probes; inspect configuration readiness.
 4. Execute a selected real research query and inspect returned source evidence, units, observation dates and partial failures. SEC requires the operator's real identifying contact setting.
 5. Fetch evidence again after a process restart to verify the persistent volume.
 6. Check authentication, invalid origins/hosts, size/concurrency limits and safe error output at the proxy and application.
+
+Run the [reproducible company/macro/FX workflow](company-macro-fx.md) against the actual URL, then enable the optional [remote checks](public-checks.md) after its evidence and failure handling are verified. Restart the service and resolve saved evidence again from the same volume. A script that verifies an already running endpoint does not itself deploy or restart it.
 
 The server permits fixed read-only source probes only through explicit `allow_network=true`; fixture mode never performs them. Do not label a deployment verified from fixture output. [Operator source checks](source-checks.md) and [verification scope](verification.md) explain remaining live checks.
 

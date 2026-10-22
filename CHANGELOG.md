@@ -1,5 +1,12 @@
 # Release notes
 
+## 0.3.2
+
+- Run a reproducible company-financials, CPI and USD/JPY workflow through one official MCP connection, resolve all evidence IDs and retain explicit quality/unsupported-dataset checks. Fixture contracts and real-source opt-in remain separate from model evaluations.
+- Inspect published documentation HTTP status, crawler directives, canonicals and same-origin sitemap pages with bounded responses and safe reports. A separate weekly/manual workflow retains public checks and optionally verifies a configured actual remote MCP endpoint.
+- Prepare single-host systemd and Caddy deployment files with loopback ingress, persistent private state and explicit bearer/anonymous access. Templates do not provision or deploy a public service.
+- Publish expanded documentation and a complete multi-source example at the active documentation origin. Include deployment/evaluation materials in source distributions.
+
 ## 0.3.1
 
 - Limit source distributions to project source, fixtures, documentation and build configuration; exclude installed Node dependencies and generated/private state independently of VCS ignore behavior.
