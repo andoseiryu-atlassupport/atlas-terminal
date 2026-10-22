@@ -21,7 +21,7 @@ Start with the [Codex setup](codex.md) or [general MCP quickstart](quickstart.md
 Try the packaged fictional data before making any public-source requests:
 
 ```sh
-uvx --from 'git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.3.2' atlas research preset fx_context --base-currency USD --quote-currency JPY --include fx,us_sofr --provider fixture --json
+uvx --from 'git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.3.3' atlas research preset fx_context --base-currency USD --quote-currency JPY --include fx,us_sofr --provider fixture --json
 ```
 
 This example uses synthetic data, not current market observations. It needs Python 3.12+ and uv, and its first installation needs network access. The Python package is not yet published on PyPI.

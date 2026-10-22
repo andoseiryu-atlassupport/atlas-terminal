@@ -1,5 +1,10 @@
 # Release notes
 
+## 0.3.3
+
+- Use extensionless documentation URLs for the active static host so canonical URLs, sitemap entries and internal links match the served pages. Retain an explicit `.html` mode for hosts that require file suffixes.
+- Expose bounded, escaped public-access failure codes directly in GitHub check annotations while retaining the complete JSON artifact.
+
 ## 0.3.2
 
 - Run a reproducible company-financials, CPI and USD/JPY workflow through one official MCP connection, resolve all evidence IDs and retain explicit quality/unsupported-dataset checks. Fixture contracts and real-source opt-in remain separate from model evaluations.

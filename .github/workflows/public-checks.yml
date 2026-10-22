@@ -33,7 +33,7 @@ jobs:
           python -m pip install uv==0.12.23
           uv sync --locked --all-extras --dev
       - name: Inspect published HTTP responses
-        run: uv run --offline python scripts/check_public_docs.py --allow-network > public-docs-checks.json
+        run: uv run --offline python scripts/check_public_docs.py --allow-network --github-annotations > public-docs-checks.json
       - name: Retain public crawl report
         if: ${{ always() }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7

@@ -19,7 +19,7 @@ The report checks:
 
 Responses are limited to 1 MiB each and 64 sitemap pages. Reports retain safe failure codes, not response bodies, raw headers or network exception text. A redirected page fails and should be reviewed; redirects are not followed to another host. Robots matching covers Allow/Disallow paths, wildcard patterns, terminal anchors and specific agent groups. This is a focused technical check, not a complete search-engine emulator.
 
-The `Public access checks` workflow runs documentation checks weekly and on manual dispatch, retaining a JSON artifact for 30 days. It runs separately from offline pull-request tests and official-source checks. Workflow failure is an operational signal; no third-party messages or marketing submissions are sent.
+The `Public access checks` workflow runs documentation checks weekly and on manual dispatch, retaining a JSON artifact for 30 days. Bounded, escaped failure codes also appear directly in GitHub check annotations. It runs separately from offline pull-request tests and official-source checks. Workflow failure is an operational signal; no third-party messages or marketing submissions are sent.
 
 Changing a User-Agent does not reproduce an official crawler's IP address or CDN/WAF treatment. A passing report therefore keeps `official_crawler_ip_verified`, `search_indexing_verified` and `model_citation_measured` false. Confirm actual search-bot access through the host's request logs and the publisher's [current crawler guidance](https://developers.openai.com/api/docs/bots). Search-crawler access and training-crawler preferences are separate. Neither structured data nor `llms.txt` guarantees inclusion or citation.
 

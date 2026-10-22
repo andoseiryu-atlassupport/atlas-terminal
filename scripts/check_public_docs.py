@@ -214,10 +214,23 @@ def audit(client, origin):
     }
 
 
+def emit_failure_annotations(report, stream):
+    """Expose bounded, escaped failure codes directly in the GitHub check result."""
+    failures = {}
+    for check in report["checks"]:
+        if check["status"] == "FAIL":
+            failures.setdefault((check["url"], check["code"]), []).append(check["agent"])
+    for (url, code), agents in list(failures.items())[:10]:
+        message = f"{code}: {url} ({', '.join(agents)})"
+        message = message.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+        print("::error title=Public documentation access::" + message, file=stream)
+
+
 def main():
     cli = argparse.ArgumentParser(description=__doc__)
     cli.add_argument("--origin", default=SITE_ORIGIN)
     cli.add_argument("--allow-network", action="store_true")
+    cli.add_argument("--github-annotations", action="store_true")
     args = cli.parse_args()
     if not args.allow_network:
         cli.error("Public HTTP checks require --allow-network.")
@@ -229,6 +242,8 @@ def main():
             "Use one exact public HTTPS origin without credentials, paths or query parameters."
         )
     print(json.dumps(result, indent=2))
+    if args.github_annotations:
+        emit_failure_annotations(result, sys.stderr)
     return 0 if result["status"] == "PASS" else 1
 
 
