@@ -1,5 +1,11 @@
 # Release notes
 
+## 0.3.1
+
+- Limit source distributions to project source, fixtures, documentation and build configuration; exclude installed Node dependencies and generated/private state independently of VCS ignore behavior.
+- Validate built source/wheel archives before release publication, including required content, package version and forbidden dependency/state paths.
+- Keep MCP Registry ownership comments out of HTML page summaries while preserving the raw package README marker.
+
 ## 0.3.0
 
 - Retrieve 21 free primary-source datasets across company financials, disclosures, ownership, US macro indicators and reference FX through shared CLI, Python, MCP and HTTP services.

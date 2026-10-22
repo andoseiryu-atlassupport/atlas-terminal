@@ -17,6 +17,8 @@ import httpx2
 from mcp.client.session import ClientSession
 from mcp.client.streamable_http import streamable_http_client
 
+from atlas_terminal import __version__
+
 
 @contextmanager
 def running(directory, token, port):
@@ -75,7 +77,7 @@ async def exercise(origin, token, evidence_id=None):
         ClientSession(*streams, read_timeout_seconds=15) as session,
     ):
         initialized = await session.initialize()
-        assert initialized.server_info.version == "0.3.0"
+        assert initialized.server_info.version == __version__
         tools = (await session.list_tools()).tools
         assert len(tools) == 6 and not any("purchase" in tool.name for tool in tools)
         if evidence_id is None:

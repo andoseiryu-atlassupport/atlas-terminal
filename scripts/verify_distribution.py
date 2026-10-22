@@ -1,0 +1,81 @@
+"""Check built archive contents and metadata before publishing; no network access."""
+
+import json
+import tarfile
+import tomllib
+from email import message_from_bytes
+from pathlib import Path, PurePosixPath
+from zipfile import ZipFile
+
+ROOT = Path(__file__).resolve().parents[1]
+FORBIDDEN = {
+    "node_modules",
+    ".venv",
+    ".git",
+    "build",
+    "dist",
+    ".atlas",
+    "__pycache__",
+    ".pytest_cache",
+    ".mypy_cache",
+    ".ruff_cache",
+    "private",
+    "internal",
+    "handoff",
+}
+
+
+def safe_name(name):
+    parts = PurePosixPath(name).parts
+    assert not name.startswith("/") and ".." not in parts, "Unsafe archive path."
+    assert not (set(parts) & FORBIDDEN), "Generated, dependency or private path in archive."
+    assert not any(part.startswith(".env") and part != ".env.example" for part in parts)
+    assert not name.endswith((".sqlite3", ".db", ".pem", ".key", ".pyc"))
+
+
+def main():
+    version = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"]["version"]
+    prefix = f"atlas_terminal-{version}"
+    with tarfile.open(ROOT / "dist" / f"{prefix}.tar.gz") as archive:
+        names = {member.name for member in archive.getmembers()}
+        for member in archive.getmembers():
+            safe_name(member.name)
+            assert member.isfile() or member.isdir(), "Archive links/devices are unsupported."
+        for required in (
+            "README.md",
+            "LICENSE",
+            "pyproject.toml",
+            "uv.lock",
+            "src/atlas_terminal/remote_mcp.py",
+            "src/atlas_terminal/resources/research/fx.xml",
+            "docs/codex.md",
+            "skills/atlas-research/SKILL.md",
+            "tests/test_remote_mcp.py",
+        ):
+            assert f"{prefix}/{required}" in names, "Required project file missing."
+        source_count = len(names)
+    with ZipFile(ROOT / "dist" / f"{prefix}-py3-none-any.whl") as archive:
+        names = set(archive.namelist())
+        for name in names:
+            safe_name(name)
+        metadata = message_from_bytes(archive.read(f"{prefix}.dist-info/METADATA"))
+        assert metadata["Version"] == version and metadata["Name"] == "atlas-terminal"
+        marker = "mcp-name: io.github.andoseiryu-atlassupport/atlas-terminal "
+        assert marker in metadata.get_payload()
+        assert f"{prefix}.dist-info/licenses/LICENSE" in names
+        assert "atlas_terminal/remote_mcp.py" in names
+    print(
+        json.dumps(
+            {
+                "status": "PASS",
+                "version": version,
+                "sdist_files": source_count,
+                "wheel_files": len(names),
+                "forbidden_paths": False,
+            }
+        )
+    )
+
+
+if __name__ == "__main__":
+    main()

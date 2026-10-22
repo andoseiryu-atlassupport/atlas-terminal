@@ -8,6 +8,7 @@ from mcp.client.session import ClientSession
 from mcp.client.streamable_http import streamable_http_client
 from starlette.testclient import TestClient
 
+from atlas_terminal import __version__
 from atlas_terminal.client import Atlas
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.remote_mcp import IngressGuard, create_remote_mcp, validated_origin
@@ -53,7 +54,7 @@ async def test_official_streamable_client_presets_evidence_and_no_payment_tools(
         ClientSession(*streams, read_timeout_seconds=15) as session,
     ):
         initialized = await session.initialize()
-        assert initialized.server_info.version == "0.3.0"
+        assert initialized.server_info.version == __version__
         assert initialized.server_info.website_url
         tools = (await session.list_tools()).tools
         assert {tool.name for tool in tools} == {

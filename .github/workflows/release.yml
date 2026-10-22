@@ -73,6 +73,7 @@ jobs:
       - name: Build packages, documentation and research plugin
         run: |
           uv run --offline python -m build --no-isolation
+          uv run --offline python scripts/verify_distribution.py
           uv run --offline python scripts/build_docs.py
           uv run --offline python scripts/prepare_distribution.py
           python - <<'PY'

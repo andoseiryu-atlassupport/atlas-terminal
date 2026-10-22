@@ -1,6 +1,6 @@
 # Validation scope
 
-Recorded on 2026-10-22 for Atlas Terminal 0.3.0 with Python 3.12.14 and Node.js 24.19.0 on Linux.
+Recorded on 2026-10-22 for Atlas Terminal 0.3.1 with Python 3.12.14 and Node.js 24.19.0 on Linux.
 
 ## Verified behavior
 
@@ -34,6 +34,8 @@ Recorded on 2026-10-22 for Atlas Terminal 0.3.0 with Python 3.12.14 and Node.js 
 Preset tests cover all three recipes, exact preview expansion, rejection before reads, selected-item execution, common/per-item requirements, original batch/provenance preservation, explicit missingness, UTC publication times and distinct observation/retrieval times. SDK, HTTP, CLI and real stdio MCP exercise the same contracts. Every local OpenAPI reference resolves in the exported document; shared query schemas validate requests using component references. Diagnostic tests cover configuration-only operation without source clients/stores, private-contact redaction, fixture isolation, invalid network flags and actual probe logic against mock HTTP. Mock HTTP probe success is not live verification.
 
 Research endpoints remain free of payment requirements in every payment mode. Mock-purchase checks cover authenticated recovery after an API restart. Wheel and sdist packages contain source fixtures and the Apache-2.0 LICENSE, without private runtime databases.
+
+Source distributions explicitly select project paths and exclude installed dependencies, generated output and private state independently of VCS ignore behavior. `scripts/verify_distribution.py` checks source/wheel contents, package version, license and the Registry ownership marker before CI/release publication. A source archive rebuilt outside Git with a fictional `node_modules` directory passes the same archive checks, confirming the development dependency is excluded. The current source archive contains 172 entries; the wheel contains 68 files.
 
 ## Local validation results
 
@@ -86,6 +88,7 @@ uv run --offline atlas research preset --input examples/research_presets/fx_cont
 uv run --offline atlas research doctor --provider fixture --json
 uv run --offline python examples/mock_purchase.py
 uv run --offline python -m build --no-isolation
+uv run --offline python scripts/verify_distribution.py
 uv run --offline python scripts/build_docs.py
 uv run --offline python scripts/prepare_distribution.py
 npm run check
