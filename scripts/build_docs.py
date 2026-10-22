@@ -119,10 +119,11 @@ def build(directory: Path) -> None:
     for source, output in pages.items():
         text = (ROOT / source).read_text()
         parser = MarkdownIt("commonmark", {"html": False}).enable("table")
-        tokens = parser.parse(re.sub(r"<!--\s*mcp-name:.*?-->", "", text))
+        visible_text = re.sub(r"<!--\s*mcp-name:.*?-->", "", text)
+        tokens = parser.parse(visible_text)
         heading_counts = {}
         title = next((line[2:] for line in text.splitlines() if line.startswith("# ")), source)
-        paragraphs = re.split(r"\n\s*\n", text)
+        paragraphs = re.split(r"\n\s*\n", visible_text)
         description = next(
             (p for p in paragraphs if p and not p.startswith(("#", "```", "|", "---"))), title
         )
