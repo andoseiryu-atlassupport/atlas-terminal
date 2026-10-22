@@ -20,6 +20,7 @@ from atlas_terminal.models import (
     PurchaseResult,
     Quote,
     Receipt,
+    ReconciliationResult,
 )
 from atlas_terminal.payments.common import (
     PaymentAdapter,
@@ -28,6 +29,7 @@ from atlas_terminal.payments.common import (
     fingerprint,
     origin,
 )
+from atlas_terminal.payments.reconciliation import SettlementReconciler, settlement_header
 from atlas_terminal.util import Database, canonical, digest, stamp, utcnow
 
 ORDER_SCHEMA = """
@@ -46,6 +48,11 @@ CREATE TABLE IF NOT EXISTS payment_attempts (
  UNIQUE(network,asset,payer,nonce)
 );
 CREATE TABLE IF NOT EXISTS quote_rate (id TEXT PRIMARY KEY, created REAL NOT NULL);
+CREATE TABLE IF NOT EXISTS reconciliation_audit (
+ id INTEGER PRIMARY KEY, quote_id TEXT NOT NULL, payment_id TEXT NOT NULL,
+ previous_state TEXT NOT NULL, state TEXT NOT NULL, checked_at TEXT NOT NULL,
+ evidence TEXT NOT NULL, sha256 TEXT NOT NULL
+);
 """
 
 
@@ -58,15 +65,22 @@ class OrderService:
         *,
         base_origin: str,
         adapter: PaymentAdapter | None = None,
+        reconciler: SettlementReconciler | None = None,
         clock: Callable[[], datetime] = utcnow,
         ttl_seconds: int = 300,
         max_snapshots: int = 128,
         max_storage_bytes: int = 64 * 1024 * 1024,
     ) -> None:
         self.atlas, self.pricing, self.adapter = atlas, pricing, adapter
+        self.reconciler = reconciler
         self.base_origin, self.clock, self.ttl = origin(base_origin), clock, ttl_seconds
         self.max_snapshots, self.max_storage_bytes = max_snapshots, max_storage_bytes
         self.db = Database(path.resolve(), ORDER_SCHEMA)
+        # Legacy attempts have no deadline and cannot be declared expired-unused.
+        with self.db.connect(write=True) as conn:
+            columns = {row["name"] for row in conn.execute("PRAGMA table_info(payment_attempts)")}
+            if "valid_before" not in columns:
+                conn.execute("ALTER TABLE payment_attempts ADD COLUMN valid_before TEXT")
         if pricing.mode != "off" and adapter is None:
             raise AtlasError("CONFIG_REQUIRED", "Paid mode requires its explicit adapter.")
 
@@ -260,6 +274,12 @@ class OrderService:
         except Exception:
             settlement = Settlement("SETTLEMENT_UNKNOWN")
         if settlement.state == "SETTLED":
+            with self.db.connect(write=True) as conn:
+                conn.execute(
+                    "UPDATE payment_attempts SET transaction_id=? WHERE payment_id=? "
+                    "AND state IN ('SETTLEMENT_SUBMITTED','SETTLEMENT_UNKNOWN')",
+                    (settlement.transaction, payment.payment_id),
+                )
             self.complete(quote, settlement, payment.payment_id)
             return (
                 self.artifact(self.row(quote_id)),
@@ -273,13 +293,16 @@ class OrderService:
         with self.db.connect(write=True) as conn:
             state = "FAILED" if settlement.state == "FAILED" else "SETTLEMENT_UNKNOWN"
             conn.execute(
-                "UPDATE payment_attempts SET state=?,transaction_id=? WHERE payment_id=?",
+                "UPDATE payment_attempts SET state=?,transaction_id=coalesce(?,transaction_id) "
+                "WHERE payment_id=? AND state IN ('SETTLEMENT_SUBMITTED','SETTLEMENT_UNKNOWN')",
                 (state, settlement.transaction, payment.payment_id),
             )
-            conn.execute("UPDATE quotes SET state=? WHERE id=?", (state, quote_id))
-        if state == "FAILED":
-            raise AtlasError("PAYMENT_FAILED", "Payment definitively failed.", status=409)
-        return {"quote_id": quote_id, "state": state, "code": "SETTLEMENT_UNKNOWN"}, 202, {}
+            conn.execute(
+                "UPDATE quotes SET state=? WHERE id=? "
+                "AND state IN ('SETTLEMENT_SUBMITTED','SETTLEMENT_UNKNOWN')",
+                (state, quote_id),
+            )
+        return self.result(quote_id, bearer=bearer, proof=proof)
 
     def claim(self, quote: Quote, payment: VerifiedPayment) -> bool:
         try:
@@ -311,7 +334,10 @@ class OrderService:
                         "QUOTE_EXPIRED", "Quote expired before a payment was accepted.", status=410
                     )
                 conn.execute(
-                    "INSERT INTO payment_attempts VALUES (?,?,?,?,?,?,?,?,?,NULL)",
+                    "INSERT INTO payment_attempts "
+                    "(payment_id,quote_id,fingerprint,network,asset,payer,nonce,"
+                    "proof_digest,state,valid_before) "
+                    "VALUES (?,?,?,?,?,?,?,?,?,?)",
                     (
                         payment.payment_id,
                         quote.quote_id,
@@ -322,6 +348,7 @@ class OrderService:
                         payment.nonce.lower(),
                         payment.proof_digest,
                         "SETTLEMENT_SUBMITTED",
+                        str(payment.valid_before) if payment.valid_before is not None else None,
                     ),
                 )
                 conn.execute(
@@ -337,6 +364,37 @@ class OrderService:
             ) from None
 
     def complete(self, quote: Quote, settlement: Settlement, payment_id: str | None) -> None:
+        with self.db.connect(write=True) as conn:
+            self._complete(conn, quote, settlement, payment_id)
+
+    def _complete(
+        self,
+        conn: sqlite3.Connection,
+        quote: Quote,
+        settlement: Settlement,
+        payment_id: str | None,
+    ) -> None:
+        existing = conn.execute("SELECT state FROM quotes WHERE id=?", (quote.quote_id,)).fetchone()
+        if not existing:
+            raise AtlasError("LEDGER_UNAVAILABLE", "Settlement order is missing.")
+        if existing["state"] in {"SETTLED", "NOT_REQUIRED"}:
+            return
+        if payment_id:
+            attempt = conn.execute(
+                "SELECT * FROM payment_attempts WHERE payment_id=? AND quote_id=?",
+                (payment_id, quote.quote_id),
+            ).fetchone()
+            if (
+                not attempt
+                or attempt["fingerprint"] != fingerprint(quote, self.base_origin)
+                or attempt["state"] not in {"SETTLEMENT_SUBMITTED", "SETTLEMENT_UNKNOWN"}
+                or existing["state"] not in {"SETTLEMENT_SUBMITTED", "SETTLEMENT_UNKNOWN"}
+            ):
+                raise AtlasError(
+                    "LEDGER_UNAVAILABLE", "Settlement claim changed; operation stopped."
+                )
+        elif quote.pricing.mode != "off" or existing["state"] != "QUOTED":
+            raise AtlasError("LEDGER_UNAVAILABLE", "Unpaid completion is not permitted.")
         now = self.clock()
         receipt = Receipt(
             quote_id=quote.quote_id,
@@ -351,31 +409,144 @@ class OrderService:
             result_sha256=quote.result_sha256,
             retained_until=stamp(now + timedelta(hours=24)),
         )
-        with self.db.connect(write=True) as conn:
-            if payment_id is None:
-                existing = conn.execute(
-                    "SELECT state FROM quotes WHERE id=?", (quote.quote_id,)
-                ).fetchone()
-                if existing and existing[0] == "NOT_REQUIRED":
-                    return
+        conn.execute(
+            "UPDATE quotes SET state=?,receipt=?,retained_until=?,response_header=? WHERE id=?",
+            (
+                receipt.status,
+                canonical(receipt).decode(),
+                receipt.retained_until,
+                settlement.response_header,
+                quote.quote_id,
+            ),
+        )
+        if payment_id:
             conn.execute(
-                "UPDATE quotes SET state=?,receipt=?,retained_until=?,response_header=? WHERE id=?",
-                (
-                    receipt.status,
-                    canonical(receipt).decode(),
-                    receipt.retained_until,
-                    settlement.response_header,
-                    quote.quote_id,
-                ),
+                "UPDATE payment_attempts SET state='SETTLED',transaction_id=? WHERE payment_id=?",
+                (settlement.transaction, payment_id),
             )
-            if payment_id:
+
+    def reconciliation_report(self, quote_id: str) -> ReconciliationResult:
+        row = self.row(quote_id)
+        with self.db.connect() as conn:
+            audit = conn.execute(
+                "SELECT * FROM reconciliation_audit WHERE quote_id=? ORDER BY id DESC LIMIT 1",
+                (quote_id,),
+            ).fetchone()
+        if audit and audit["state"] != row["state"]:
+            audit = None
+        if audit and digest(audit["evidence"].encode()) != audit["sha256"]:
+            raise AtlasError(
+                "LEDGER_UNAVAILABLE", "Reconciliation audit failed integrity verification."
+            )
+        state = row["state"]
+        if state == "QUOTED" and row["expires"] <= stamp(self.clock()):
+            state = "EXPIRED"
+        outcomes = {
+            "SETTLED": "settled",
+            "FAILED": "failed",
+            "NOT_REQUIRED": "not_required",
+            "QUOTED": "not_started",
+            "EXPIRED": "not_started",
+        }
+        if state not in outcomes:
+            state = "SETTLEMENT_UNKNOWN"
+        evidence = json.loads(audit["evidence"]) if audit else None
+        return ReconciliationResult.model_validate(
+            {
+                "quote_id": quote_id,
+                "state": state,
+                "outcome": outcomes.get(state, "pending"),
+                "reason": evidence["reason"]
+                if evidence
+                else "No reconciliation evidence was needed or recorded.",
+                "checked_at": audit["checked_at"] if audit else stamp(self.clock()),
+                "evidence_sha256": audit["sha256"] if audit else None,
+                "receipt": json.loads(row["receipt"]) if row["receipt"] else None,
+            }
+        )
+
+    def reconcile(
+        self, quote_id: str, bearer: str | None, transaction: str | None = None
+    ) -> ReconciliationResult:
+        row = self.row(quote_id)
+        if not self.authorized(row, bearer):
+            raise AtlasError("UNAUTHORIZED", "Recovery capability is required.", status=401)
+        if row["state"] not in {"SETTLEMENT_SUBMITTED", "SETTLEMENT_UNKNOWN", "PAYMENT_VERIFIED"}:
+            return self.reconciliation_report(quote_id)
+        if self.reconciler is None:
+            raise AtlasError("CONFIG_REQUIRED", "Configure a trusted testnet reconciliation RPC.")
+        quote = Quote.model_validate_json(row["metadata"])
+        self.snapshot(row)
+        with self.db.connect() as conn:
+            saved = conn.execute(
+                "SELECT * FROM payment_attempts WHERE quote_id=?", (quote_id,)
+            ).fetchone()
+        if (
+            not saved
+            or saved["fingerprint"] != fingerprint(quote, self.base_origin)
+            or saved["network"] != quote.pricing.network
+            or saved["asset"] != quote.pricing.asset.lower()
+        ):
+            raise AtlasError(
+                "LEDGER_UNAVAILABLE", "Bound payment attempt is missing or inconsistent."
+            )
+        # RPC reads never hold the SQLite write lock. They do not verify, settle,
+        # sign or broadcast a payment, and use no saved payment proof.
+        decision = self.reconciler.check(quote, dict(saved), transaction)
+        evidence = {
+            "state": decision.state,
+            "reason": decision.reason,
+            "transaction": decision.transaction,
+            "details": decision.details,
+        }
+        encoded = canonical(evidence)
+        with self.db.connect(write=True) as conn:
+            current = conn.execute("SELECT state FROM quotes WHERE id=?", (quote_id,)).fetchone()
+            if current and current["state"] in {"SETTLED", "NOT_REQUIRED", "FAILED"}:
+                pass
+            elif current:
+                if decision.state == "SETTLED":
+                    if not decision.transaction:
+                        raise AtlasError(
+                            "LEDGER_UNAVAILABLE", "Finalized transaction evidence is missing."
+                        )
+                    self._complete(
+                        conn,
+                        quote,
+                        Settlement(
+                            "SETTLED",
+                            decision.transaction,
+                            settlement_header(quote, saved["payer"], decision.transaction),
+                        ),
+                        saved["payment_id"],
+                    )
+                else:
+                    conn.execute("UPDATE quotes SET state=? WHERE id=?", (decision.state, quote_id))
+                    conn.execute(
+                        "UPDATE payment_attempts SET state=? WHERE quote_id=?",
+                        (decision.state, quote_id),
+                    )
                 conn.execute(
-                    "UPDATE payment_attempts SET state='SETTLED',transaction_id=? "
-                    "WHERE payment_id=?",
-                    (settlement.transaction, payment_id),
+                    "INSERT INTO reconciliation_audit "
+                    "(quote_id,payment_id,previous_state,state,checked_at,evidence,sha256) "
+                    "VALUES (?,?,?,?,?,?,?)",
+                    (
+                        quote_id,
+                        saved["payment_id"],
+                        current["state"],
+                        decision.state,
+                        stamp(self.clock()),
+                        encoded.decode(),
+                        digest(encoded),
+                    ),
                 )
+            else:
+                raise AtlasError("LEDGER_UNAVAILABLE", "Reconciliation order disappeared.")
+        return self.reconciliation_report(quote_id)
 
     def close(self) -> None:
+        if self.reconciler:
+            self.reconciler.close()
         if self.adapter:
             self.adapter.close()
         self.atlas.close()

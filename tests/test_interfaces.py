@@ -69,6 +69,10 @@ async def test_real_mcp_subprocess_initialize_list_call_and_structured_content(t
             "atlas_purchase_status",
             "atlas_research_catalog",
             "atlas_get_research",
+            "atlas_get_research_batch",
+            "atlas_get_research_preset",
+            "atlas_research_diagnostics",
+            "atlas_get_evidence",
         }
         purchase = next(t for t in tools if t.name == "atlas_purchase")
         assert set(purchase.input_schema["properties"]) == {"quote_id"}

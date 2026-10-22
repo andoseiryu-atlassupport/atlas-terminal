@@ -34,4 +34,4 @@ Raw hashes and JSON pointers trace source values. At quote preparation, the serv
 
 ## Research financial contracts
 
-The five-metric policy above applies to `financials` and annual snapshots. Research `statements` supports 37 concepts and annual, explicitly reported discrete-quarter and YTD periods. Research `ratios` supports six ratios with original inputs. See the [research guide](research.md) for periods, units, missing data and Q4 treatment. Raw-context `company_facts` observations are distinct from normalized statement values.
+The five-metric policy above applies to `financials` and annual snapshots. Research `statements` supports 37 concepts and annual, explicitly reported discrete-quarter and YTD periods. Research `ratios` supports six ratios with original inputs. `financial_analytics` supports five YoY growth rates, FCF and FCF margin as separate derived records. It does not fill missing reported facts. See the [research guide](research.md) for periods, formulas, input alignment, missing data and Q4 treatment. Raw-context `company_facts` observations are distinct from normalized statement values.

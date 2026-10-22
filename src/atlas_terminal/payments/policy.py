@@ -179,6 +179,13 @@ class BudgetLedger:
         if state not in {"PENDING", "SPENT", "FAILED"}:
             raise ValueError("invalid budget state")
         with self.db.connect(write=True) as conn:
+            existing = conn.execute(
+                "SELECT state FROM client_orders WHERE quote_id=?", (quote_id,)
+            ).fetchone()
+            if existing and existing["state"] in {"SPENT", "FAILED"}:
+                if state in {"SPENT", "FAILED"} and state != existing["state"]:
+                    raise AtlasError("LEDGER_UNAVAILABLE", "Conflicting terminal budget state.")
+                return
             if state == "SPENT":
                 # Charge a delayed confirmation to today's cap, once. Repeated
                 # retrieval tomorrow must not move an already confirmed spend.

@@ -3,7 +3,7 @@
 | Choice                                           | Reason                                                                                                       |
 | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
 | Direct SEC REST                                  | Centralize endpoint selection, period rules, rates and caching                                               |
-| Free government primary sources                  | Use SEC, BLS, Treasury and Federal Reserve data without unverified redistribution rights for market feeds    |
+| Free public primary sources                      | Use SEC, BLS, Treasury, Federal Reserve, ECB and New York Fed data with source-specific conditions           |
 | Shared research query                            | Apply dataset-specific arguments, limits, provenance and coverage rules across all interfaces                |
 | Distinct reported, derived and discovery outputs | Separate quarter/YTD facts, trace ratio inputs and avoid inferring Q4 or 13F value units                     |
 | Bounded public transport                         | Keep SEC contact settings separate from other sources and persist shared caching, rates and BLS daily limits |

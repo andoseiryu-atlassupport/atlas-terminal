@@ -12,6 +12,11 @@
     "check": "npm run format:check && git diff --check"
   },
   "devDependencies": {
-    "prettier": "3.9.10"
+    "@x402/core": "2.25.0",
+    "@x402/evm": "2.25.0",
+    "@x402/extensions": "2.25.0",
+    "@x402/fetch": "2.25.0",
+    "prettier": "3.9.10",
+    "viem": "2.48.11"
   }
 }

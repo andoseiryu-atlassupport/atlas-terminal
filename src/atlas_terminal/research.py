@@ -7,11 +7,14 @@ from datetime import date
 from decimal import Decimal, InvalidOperation
 from email.utils import parsedate_to_datetime
 from importlib.resources import files
-from typing import Any
+from pathlib import Path
+from typing import Any, Literal
 from urllib.parse import urlsplit
 from xml.etree.ElementTree import Element
 
+from atlas_terminal.documentation import DOCUMENTATION_ORIGIN, research_documentation
 from atlas_terminal.errors import AtlasError
+from atlas_terminal.macro_catalog import FX_CURRENCIES, MACRO_SERIES, REFERENCE_SERIES
 from atlas_terminal.normalize import number
 from atlas_terminal.providers import (
     DOCUMENT_PATTERN,
@@ -36,6 +39,8 @@ from atlas_terminal.public_sources import (
     local_name,
     xml_root,
 )
+from atlas_terminal.research_analytics import analytics_catalog, analytics_data
+from atlas_terminal.research_comparison import comparison_data
 from atlas_terminal.research_financials import (
     RATIOS,
     metric_catalog,
@@ -44,8 +49,17 @@ from atlas_terminal.research_financials import (
     reference,
     statement_data,
 )
-from atlas_terminal.research_models import FIELDS, ResearchQuery, dataset_required, parse_research
-from atlas_terminal.util import stamp
+from atlas_terminal.research_macro import fx_rates, macro_analytics, real_yields, reference_rates
+from atlas_terminal.research_models import (
+    FIELDS,
+    Dataset,
+    ResearchQuery,
+    dataset_required,
+    parse_research,
+)
+from atlas_terminal.research_quality import ResearchRequirements, enforce_requirements
+from atlas_terminal.research_views import ResearchResult, ResearchViews
+from atlas_terminal.util import stamp, state_dir
 
 FAMILIES = {
     "ownership_filings": {
@@ -104,6 +118,11 @@ DATASETS = {
         "normalized_facts",
     ),
     "ratios": ("Six financial ratios with reported inputs", "sec", "derived_facts"),
+    "financial_analytics": (
+        "Year-over-year growth, free cash flow and FCF margin with reported inputs",
+        "sec",
+        "derived_facts",
+    ),
     "company_facts": (
         "Concept inventory or raw reported XBRL observations",
         "sec",
@@ -143,7 +162,27 @@ DATASETS = {
         "federal_reserve",
         "release_metadata",
     ),
-    "compare": ("Explicit universe comparison of up to ten issuers", "sec", "normalized_facts"),
+    "compare": (
+        "Up to ten issuers at a common period with reported and derived financial metrics",
+        "sec",
+        "aligned_financial_facts",
+    ),
+    "fx_rates": (
+        "ECB daily reference FX, with same-date inverse/cross calculations",
+        "ecb",
+        "reference_observations",
+    ),
+    "reference_rates": ("New York Fed overnight EFFR and SOFR", "new_york_fed", "observations"),
+    "treasury_real_yields": (
+        "Treasury TIPS-based real par yield curve",
+        "treasury",
+        "observations",
+    ),
+    "macro_analytics": (
+        "CPI YoY, payroll monthly change and same-date Treasury curve spread",
+        "bls",
+        "derived_observations",
+    ),
 }
 GAPS = {
     "realtime_prices_and_order_books": (
@@ -169,38 +208,132 @@ GAPS = {
 }
 
 
-def research_catalog() -> dict[str, Any]:
-    return {
+def research_catalog(
+    dataset: Dataset | None = None,
+    view: Literal["full", "compact"] = "full",
+) -> dict[str, Any]:
+    from atlas_terminal.research_batch import (
+        MAX_BATCH_ITEMS,
+        MAX_BATCH_REQUEST_BYTES,
+        MAX_BATCH_RESPONSE_BYTES,
+        ResearchBatchQuery,
+        ResearchBatchResult,
+    )
+    from atlas_terminal.research_presets import preset_catalog
+
+    if (
+        dataset is not None and (not isinstance(dataset, str) or dataset not in DATASETS)
+    ) or view not in ("full", "compact"):
+        raise AtlasError(
+            "INVALID_INPUT",
+            "Choose a catalog dataset and full/compact view.",
+            fields=["dataset", "view"],
+        )
+    result: dict[str, Any] = {
         "schema_version": "0.2.0",
         "upstream_data_cost": "0",
         "requires_wallet": False,
+        "documentation": {
+            "home": DOCUMENTATION_ORIGIN + "/docs/index.md",
+            "quickstart": DOCUMENTATION_ORIGIN + "/docs/quickstart.md",
+            "presets": DOCUMENTATION_ORIGIN + "/docs/presets.md",
+            "citations": DOCUMENTATION_ORIGIN + "/docs/citations.md",
+        },
         "sources": SOURCE_CATALOG,
         "datasets": [
             {
                 "id": name,
                 "description": title,
                 "source": source,
+                "source_ids": ["bls", "treasury"] if name == "macro_analytics" else [source],
                 "output_type": kind,
                 "implementation": "implemented",
                 "validation": "offline_fixtures_and_mock_http",
                 "live_verified": False,
                 "query_fields": sorted(FIELDS[name]),
                 "required_fields": dataset_required(name),
+                "response_options": ["view", "fields", "page_size", "cursor"],
+                "requirements": list(ResearchRequirements.model_fields),
             }
             for name, (title, source, kind) in DATASETS.items()
         ],
         "statement_metrics": metric_catalog(),
         "ratios": RATIOS,
+        "analytics_metrics": analytics_catalog(),
         "periods": ["annual", "quarterly", "ytd"],
         "economic_series": {
             k: {"series_id": v[0], "title": v[1], "unit": v[2], "seasonally_adjusted": v[3]}
             for k, v in BLS_SERIES.items()
         },
+        "fx_currencies": list(FX_CURRENCIES),
+        "reference_rate_series": REFERENCE_SERIES,
+        "macro_series": MACRO_SERIES,
         "limits": {"count": 20, "records": 500, "compare_issuers": 10, "xml_candidates": 6},
         "not_available": GAPS,
         "point_in_time": False,
+        "presets": preset_catalog(include_schema=view == "full"),
+        "diagnostics": {
+            "tool": "atlas_research_diagnostics",
+            "http_path": "/v1/research/diagnostics",
+            "network_default": False,
+            "source_ids": list(SOURCE_CATALOG),
+        },
+        "batch": {
+            "tool": "atlas_get_research_batch",
+            "http_path": "/v1/research/batch",
+            "max_items": MAX_BATCH_ITEMS,
+            "max_request_bytes": MAX_BATCH_REQUEST_BYTES,
+            "max_response_bytes": MAX_BATCH_RESPONSE_BYTES,
+            "execution": "sequential_independent_reads",
+            "query_schema": ResearchBatchQuery.model_json_schema(),
+            "response_schema": ResearchBatchResult.model_json_schema(),
+        },
         "query_schema": ResearchQuery.model_json_schema(),
+        "response_schema": ResearchResult.model_json_schema(),
+        "presentation": {
+            "default_view": "full",
+            "compact_evidence_tool": "atlas_get_evidence",
+            "snapshot_ttl_seconds": 86400,
+            "page_size_max": 500,
+            "coverage_scope": "complete_selected_snapshot_not_response_page",
+            "point_in_time": False,
+        },
     }
+    if dataset is not None:
+        result["datasets"] = [item for item in result["datasets"] if item["id"] == dataset]
+        schema = result["query_schema"]
+        schema["oneOf"] = [
+            branch
+            for branch in schema["oneOf"]
+            if branch["properties"]["dataset"]["const"] == dataset
+        ]
+        schema["properties"] = schema["oneOf"][0]["properties"]
+        schema["required"] = schema["oneOf"][0]["required"]
+        result["sources"] = {
+            source: SOURCE_CATALOG[source] for source in result["datasets"][0]["source_ids"]
+        }
+    if view == "compact":
+        result["batch"].pop("query_schema")
+        result["batch"].pop("response_schema")
+        result.pop("query_schema")
+        result.pop("response_schema")
+        result["sources"] = {
+            key: {"terms": source["terms"]} for key, source in result["sources"].items()
+        }
+        for key in [
+            "statement_metrics",
+            "analytics_metrics",
+            "ratios",
+            "economic_series",
+            "reference_rate_series",
+            "macro_series",
+        ]:
+            result[key] = list(result[key])
+        result["not_available"] = list(result["not_available"])
+        result["schema_included"] = False
+    else:
+        result["schema_included"] = True
+    return result
 
 
 class ResearchSecFixtures(FixtureTransport):
@@ -277,10 +410,19 @@ class ResearchService:
         *,
         synthetic: bool = False,
         public: Transport | None = None,
+        directory: Path | None = None,
     ) -> None:
         self.sec_factory = sec
         self.synthetic = synthetic
         self.public = public
+        self._views: ResearchViews | None = None
+        self.view_path = (directory or state_dir()) / "research-responses.sqlite3"
+
+    @property
+    def views(self) -> ResearchViews:
+        if self._views is None:
+            self._views = ResearchViews(self.view_path, synthetic=self.synthetic)
+        return self._views
 
     def close(self) -> None:
         if self.public:
@@ -288,8 +430,23 @@ class ResearchService:
 
     def get(self, query: ResearchQuery | dict[str, Any]) -> dict[str, Any]:
         q = query if isinstance(query, ResearchQuery) else parse_research(query)
-        if q.dataset in {"economics", "treasury_yields", "federal_debt", "policy_news"}:
-            self.public = self.public or (PublicFixtures() if self.synthetic else PublicTransport())
+        if q.response.cursor:
+            return self.views.render(q)
+        if q.dataset in {
+            "economics",
+            "treasury_yields",
+            "federal_debt",
+            "policy_news",
+            "fx_rates",
+            "reference_rates",
+            "treasury_real_yields",
+            "macro_analytics",
+        }:
+            self.public = self.public or (
+                PublicFixtures()
+                if self.synthetic
+                else PublicTransport(cache_path=self.view_path.parent / "public-cache.sqlite3")
+            )
             result = self.public_data(q)
         elif q.dataset == "companies":
             result = self.companies(q)
@@ -301,13 +458,15 @@ class ResearchService:
             result = (statement_data if q.dataset == "statements" else ratio_data)(
                 self.sec_factory(), q
             )
+        elif q.dataset == "financial_analytics":
+            result = analytics_data(self.sec_factory(), q)
         elif q.dataset == "compare":
             result = self.compare(q)
         elif q.dataset in {"insider_transactions", "institutional_holdings"}:
             result = self.xml_filing(q)
         else:
             result = self.filings(q)
-        source_id = DATASETS[q.dataset][1]
+        source_id = result.get("source_id", DATASETS[q.dataset][1])
         result.setdefault("limitations", [])
         result["limitations"].extend(
             [
@@ -329,12 +488,13 @@ class ResearchService:
         result.setdefault(
             "coverage", {"returned_records": len(result["records"]), "truncated": False}
         )
-        return {
+        result = {
             "schema_version": "0.2.0",
             "dataset": q.dataset,
-            "query": q.model_dump(exclude_unset=True),
+            "query": q.model_dump(exclude_unset=True, exclude={"response"}),
             "source_id": source_id,
             "source_terms_url": SOURCE_CATALOG[source_id]["terms"],
+            "documentation": research_documentation(q.dataset),
             "upstream_data_cost": "0",
             "is_synthetic": self.synthetic,
             "source_text_is_untrusted": True,
@@ -343,6 +503,12 @@ class ResearchService:
             ),
             **result,
         }
+        ResearchResult.model_validate(result)
+        if q.requirements is not None:
+            result["quality"] = enforce_requirements(result, q.requirements)
+        if q.response.view == "compact" or q.response.fields or q.response.page_size:
+            return self.views.render(q, result)
+        return result
 
     def companies(self, q: ResearchQuery) -> dict[str, Any]:
         source = self.sec_factory()
@@ -554,41 +720,7 @@ class ResearchService:
         }
 
     def compare(self, q: ResearchQuery) -> dict[str, Any]:
-        results, sources, errors = [], [], []
-        for identifier in q.identifiers:
-            child = ResearchQuery(
-                dataset="statements",
-                identifier=identifier,
-                metrics=q.metrics,
-                period=q.period,
-                count=1,
-                allow_partial=q.allow_partial,
-            )
-            try:
-                result = statement_data(self.sec_factory(), child)
-                results.append({"identifier": identifier, **result})
-                sources.extend(result["sources"])
-            except AtlasError as exc:
-                if not q.allow_partial:
-                    raise
-                errors.append({"identifier": identifier, "code": exc.code, "message": exc.message})
-        return {
-            "records": results,
-            "errors": errors,
-            "sources": sources,
-            "coverage": {
-                "requested_issuers": len(q.identifiers),
-                "returned_issuers": len(results),
-                "partial": bool(errors) or any(r["coverage"]["partial"] for r in results),
-            },
-            "limitations": [
-                (
-                    "Explicit universe, maximum ten issuers; latest reported periods "
-                    "can differ across companies. No global-universe screen or "
-                    "survivorship-free backtest."
-                )
-            ],
-        }
+        return comparison_data(self.sec_factory(), q)
 
     def xml_filing(self, q: ResearchQuery) -> dict[str, Any]:
         company, history, refs, truncated = self.filing_inputs(q.identifier or "")
@@ -821,6 +953,14 @@ class ResearchService:
 
     def public_data(self, q: ResearchQuery) -> dict[str, Any]:
         assert self.public is not None
+        if q.dataset == "fx_rates":
+            return fx_rates(self.public, q)
+        if q.dataset == "reference_rates":
+            return reference_rates(self.public, q)
+        if q.dataset == "treasury_real_yields":
+            return real_yields(self.public, q)
+        if q.dataset == "macro_analytics":
+            return macro_analytics(self.public, q, self.economics)
         records: list[dict[str, Any]]
         if q.dataset == "economics":
             return self.economics(q)

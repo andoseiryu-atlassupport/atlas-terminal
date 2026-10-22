@@ -1,0 +1,7 @@
+{
+  "preset": "fx_context",
+  "base_currency": "USD",
+  "quote_currency": "JPY",
+  "year": 2026,
+  "view": "compact"
+}

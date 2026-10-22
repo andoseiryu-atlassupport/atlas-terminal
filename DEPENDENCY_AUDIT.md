@@ -1,6 +1,6 @@
 # Dependency and specification audit
 
-Recorded on 2026-10-20 with Python 3.12.14, uv 0.12.23 and Node.js 24.19.0. Versions were checked against PyPI metadata, the resolver and installed distributions, then locked in `pyproject.toml` and `uv.lock`. Package-name availability and publication eligibility have not been checked.
+Recorded on 2026-10-21 with Python 3.12.14, uv 0.12.23 and Node.js 24.19.0. Python versions were checked against PyPI metadata, the resolver and installed distributions, then locked in `pyproject.toml` and `uv.lock`. TypeScript interoperability dependencies were checked against npm metadata and installed exports, and locked in `package-lock.json`. Package-name availability and publication eligibility have not been checked.
 
 ## Direct dependencies
 
@@ -27,6 +27,8 @@ Live SEC access and current official pages are unverified. Mock HTTP tests cover
 The [official README](https://github.com/modelcontextprotocol/python-sdk) and installed 2.3.0 source were checked. The removed `mcp.server.fastmcp.FastMCP` API is not used; the server imports `MCPServer` from `mcp.server`.
 
 Verified imports include `mcp.server.MCPServer`, `mcp.client.session.ClientSession`, `mcp.client.stdio.StdioServerParameters/stdio_client` and `mcp.types.CallToolResult/ToolAnnotations`. Python fields use snake_case and official SDK aliases define wire names. Middleware validates raw financial/research requests before coercion, rejecting unknown fields, PIT requests and boolean counts. The official client verifies initialize/list/call against a separate server process.
+
+MCP 2.3.0 also supports `Annotated[CallToolResult, OutputModel]`, used to publish and validate research/evidence output schemas while preserving structured content and error results. The actual official stdio client exercises typed dataset queries, compact pages, evidence retrieval and sanitized errors. These features add no runtime dependencies.
 
 ## Official x402 SDK
 
@@ -61,6 +63,12 @@ The selected SDK's `mechanisms/evm/default_assets.py` defines USDC network `eip1
 
 Offline tests cover official 402 models, local EIP-3009 signing, eth-account signature recovery, Facilitator `/supported` / `/verify` / `/settle` wire handling and a generic official x402 client's purchase. They do not establish live Facilitator availability, authentication, chain inclusion or balances.
 
+The official Python `x402_httpx_transport` and TypeScript `wrapFetchWithPayment` wrappers are exercised through complete offline HTTP exchanges. Native MCP uses `x402/payment` and `x402/payment-response` metadata. The pinned x402 MCP client expects camelCase result attributes and timedelta timeouts; MCP 2.3.0 exposes snake_case and numeric seconds. `payments/mcp_client.py` adapts those transport details without replacing official payment creation or signing.
+
+Development-only npm packages `@x402/core`, `@x402/evm`, `@x402/extensions` and `@x402/fetch` are pinned to 2.25.0; `viem` is pinned to 2.48.11. These packages are not Python runtime dependencies. Their installed exports and licenses, plus transitive packages, are recorded in the notices inventory. The test bridge uses private pipes, no network fetches and ephemeral wallet keys.
+
+Reconciliation uses bounded read-only Ethereum JSON-RPC against a separately configured trusted Base Sepolia RPC. It verifies finalized canonical blocks, EIP-1898 authorization state and USDC transfer/authorization events. RPC compatibility and finality are verified with mock transports; a live RPC and real token transfer remain unverified. No Facilitator status endpoint is assumed.
+
 Service-specific AuthProvider integration, live connectivity, real Base Sepolia transfers and public transaction evidence remain unverified. Configuration failures do not fall back to mock mode. Explicit smoke opt-ins distinguish missing settings from actual execution.
 
 ## Licensing and CI
@@ -71,4 +79,8 @@ The code uses Apache-2.0. The full license text is included in [LICENSE](LICENSE
 
 ## Free research connectors
 
-Research uses existing httpx, Pydantic, FastAPI and MCP dependencies plus standard-library `xml.etree.ElementTree`. Shared transport implements HTTP caching, rate limits and retries for SEC and other public sources. Parsing rejects DTD/entity declarations, UTF-16 and oversized XML. BLS, Treasury and Federal Reserve live access and current terms are unverified; connector evidence is limited to fixtures and mock HTTP. See [sources](DATA_SOURCES.md) and the [research guide](docs/research.md).
+Research uses existing httpx, Pydantic, FastAPI and MCP dependencies plus standard-library `xml.etree.ElementTree`. Shared transport implements HTTP caching, rate limits and retries for SEC and other public sources. Parsing rejects DTD/entity declarations, UTF-16 and oversized XML. ECB FX, New York Fed EFFR/SOFR and Treasury real-yield parsing add no dependencies. The nominal Treasury XML path was corrected to match its developer notice and is reused for the same-day 10Y–2Y calculation.
+
+ECB reference-rate documentation/conditions, New York Fed reference-rate terms and Treasury XML documentation were inspected for this expansion. Live source responses remain unverified, and the New York Fed API documentation page could not be read fully. Connector response-shape evidence comes from fictional fixtures and mock HTTP, not retrieved production payloads. Other current source terms and final redistribution checks remain unverified. See [sources](DATA_SOURCES.md), [macro methodology](docs/macro.md) and [validation scope](docs/verification.md).
+
+Research requirements, ordered batches and operator source checks add no dependencies. They reuse existing Pydantic contracts, SQLite, exact source snapshots, JSON/XML parsers and transport quotas. Explicit source revalidation preserves conditional HTTP and shared BLS attempt counters. JSON/XML structural fingerprints and last-success comparisons are tested with mock transports; no live-source availability follows from those tests. The separate manual source-check workflow reuses the already pinned checkout/setup-python actions and does not add network access to default offline CI.

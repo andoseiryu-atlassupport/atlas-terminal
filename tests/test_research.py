@@ -59,6 +59,10 @@ def query(dataset, **extra):
         "federal_debt",
         "policy_news",
         "compare",
+        "fx_rates",
+        "reference_rates",
+        "treasury_real_yields",
+        "macro_analytics",
     }:
         q["identifier"] = "ATLASDEMO"
     return q | extra
@@ -66,8 +70,9 @@ def query(dataset, **extra):
 
 def test_catalog_reports_actual_scope_zero_cost_sources_and_coverage_gaps():
     catalog = Atlas.research_catalog()
-    assert len(catalog["datasets"]) == 16
-    assert len(catalog["sources"]) == 5
+    assert len(catalog["datasets"]) == 21
+    assert len(catalog["analytics_metrics"]) == 7
+    assert len(catalog["sources"]) == 7
     assert len(catalog["statement_metrics"]) == 37
     assert len(catalog["economic_series"]) == 8
     assert all(
@@ -82,12 +87,16 @@ def test_catalog_reports_actual_scope_zero_cost_sources_and_coverage_gaps():
 @pytest.mark.parametrize("dataset", DATASETS)
 def test_every_dataset_runs_offline_from_source_bytes(dataset):
     extra = {}
-    if dataset in {"statements", "ratios"}:
+    if dataset in {"statements", "ratios", "financial_analytics"}:
         extra["allow_partial"] = True
     if dataset == "economics":
         extra["series"] = "cpi"
-    if dataset == "treasury_yields":
+    if dataset in {"treasury_yields", "treasury_real_yields"}:
         extra["year"] = 2026
+    if dataset == "fx_rates":
+        extra.update(base_currency="USD", quote_currency="JPY")
+    if dataset in {"reference_rates", "macro_analytics"}:
+        extra["series"] = "sofr" if dataset == "reference_rates" else "cpi_yoy"
     if dataset == "compare":
         extra.update(identifiers=["ATLASDEMO"], allow_partial=True)
     with Atlas("fixture") as atlas:
@@ -506,7 +515,7 @@ def test_cli_and_http_research_match_sdk_and_never_require_payment(tmp_path):
         r = client.post("/v1/research", json=q)
         assert r.status_code == 200 and r.json() == expected
         assert "PAYMENT-REQUIRED" not in r.headers and "Atlas-Recovery-Token" not in r.headers
-        assert len(client.get("/v1/research/catalog").json()["datasets"]) == 16
+        assert len(client.get("/v1/research/catalog").json()["datasets"]) == 21
         bad = client.post("/v1/research", json=q | {"as_of": "2020-01-01"})
         assert (
             bad.status_code == 400 and bad.json()["error"]["code"] == "UNSUPPORTED_HISTORICAL_QUERY"
@@ -525,11 +534,19 @@ async def test_mcp_research_schema_catalog_get_and_pit_rejection(tmp_path):
     ):
         await session.initialize()
         catalog = await session.call_tool("atlas_research_catalog", {})
-        assert len(catalog.structured_content["datasets"]) == 16
+        assert len(catalog.structured_content["datasets"]) == 21
         result = await session.call_tool(
             "atlas_get_research", {"query": {"dataset": "economics", "series": "cpi"}}
         )
         assert not result.is_error and result.structured_content["records"][0]["value"] == "321.500"
+        for q in [
+            query("financial_analytics", metrics=["revenue_growth_yoy"], count=1),
+            query("compare", identifiers=["ATLASDEMO"], metrics=["revenue_growth_yoy"]),
+        ]:
+            result = await session.call_tool("atlas_get_research", {"query": q})
+            assert not result.is_error
+            with Atlas("fixture") as atlas:
+                assert result.structured_content == atlas.get_research(q)
         for q in [
             {"dataset": "economics", "series": "cpi", "as_of": "2020-01-01"},
             query("statements", count=True),

@@ -3,7 +3,8 @@
 import json
 import os
 import sys
-from typing import Any
+from pathlib import Path
+from typing import Any, Literal
 
 import typer
 from pydantic import BaseModel, ValidationError
@@ -11,7 +12,10 @@ from typer.exceptions import TyperException
 
 from atlas_terminal.client import Atlas
 from atlas_terminal.errors import AtlasError
+from atlas_terminal.macro_catalog import Currency
 from atlas_terminal.models import parse_query
+from atlas_terminal.research_batch import MAX_BATCH_REQUEST_BYTES
+from atlas_terminal.research_models import Dataset
 
 app = typer.Typer(no_args_is_help=True, add_completion=False, pretty_exceptions_enable=False)
 company_app, financials_app, filings_app, quote_app, mcp_app = (typer.Typer() for _ in range(5))
@@ -50,9 +54,13 @@ def demo(json_output: bool = typer.Option(False, "--json")) -> None:
 
 
 @research_app.command("catalog")
-def research_catalog(json_output: bool = typer.Option(False, "--json")) -> None:
+def research_catalog(
+    dataset: Dataset | None = None,
+    view: Literal["full", "compact"] = "full",
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
     """List free sources, datasets, units, query schema and unavailable coverage."""
-    output(Atlas.research_catalog())
+    output(Atlas.research_catalog(dataset, view=view))
 
 
 @research_app.command("get")
@@ -72,6 +80,17 @@ def research_get(
     accession: str | None = None,
     series: str | None = None,
     year: int | None = None,
+    base_currency: Currency | None = None,
+    quote_currency: Currency | None = None,
+    max_source_age_seconds: int | None = None,
+    min_observation_date: str | None = None,
+    allow_missing: bool | None = None,
+    allow_derived: bool | None = None,
+    allow_truncated: bool | None = None,
+    view: str = "full",
+    fields: str | None = None,
+    page_size: int | None = None,
+    cursor: str | None = None,
     provider: str = "public",
     json_output: bool = typer.Option(False, "--json"),
 ) -> None:
@@ -89,6 +108,8 @@ def research_get(
         "accession": accession,
         "series": series,
         "year": year,
+        "base_currency": base_currency,
+        "quote_currency": quote_currency,
     }
     data.update({k: v for k, v in options.items() if v is not None})
     if metrics is not None:
@@ -97,8 +118,162 @@ def research_get(
         data["identifiers"] = identifiers.split(",")
     if allow_partial:
         data["allow_partial"] = True
+    requirements = {
+        "max_source_age_seconds": max_source_age_seconds,
+        "min_observation_date": min_observation_date,
+        "allow_missing": allow_missing,
+        "allow_derived": allow_derived,
+        "allow_truncated": allow_truncated,
+    }
+    if any(value is not None for value in requirements.values()):
+        data["requirements"] = {
+            key: value for key, value in requirements.items() if value is not None
+        }
+    if view != "full" or fields is not None or page_size is not None or cursor is not None:
+        response: dict[str, Any] = {"view": view}
+        if fields is not None:
+            response["fields"] = fields.split(",")
+        if page_size is not None:
+            response["page_size"] = page_size
+        if cursor is not None:
+            response["cursor"] = cursor
+        data["response"] = response
     with Atlas(provider) as atlas:
         output(atlas.get_research(data))
+
+
+@research_app.command("batch")
+def research_batch(
+    input_file: str = typer.Option(..., "--input"),
+    provider: str = "public",
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """Read independent research queries from a bounded JSON file, or stdin with --input -."""
+    try:
+        if input_file == "-":
+            body = sys.stdin.buffer.read(MAX_BATCH_REQUEST_BYTES + 1)
+        else:
+            with Path(input_file).open("rb") as file:
+                body = file.read(MAX_BATCH_REQUEST_BYTES + 1)
+        if len(body) > MAX_BATCH_REQUEST_BYTES:
+            raise ValueError("Request exceeds bounds")
+        data = json.loads(body)
+    except (OSError, ValueError):
+        raise AtlasError(
+            "INVALID_INPUT", "Read a valid batch JSON object of at most 16 KiB."
+        ) from None
+    with Atlas(provider) as atlas:
+        result = atlas.get_research_batch(data)
+    output(result)
+    if result["summary"]["failed"]:
+        raise SystemExit(1)
+
+
+@research_app.command("preset")
+def research_preset(
+    preset: str | None = typer.Argument(None),
+    identifier: str | None = None,
+    period: str | None = None,
+    count: int | None = None,
+    year: int | None = None,
+    base_currency: Currency | None = None,
+    quote_currency: Currency | None = None,
+    include: str | None = None,
+    view: Literal["full", "compact"] | None = None,
+    preview: bool = False,
+    input_file: str | None = typer.Option(None, "--input"),
+    provider: str = "public",
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """Preview/execute a named recipe, or load its reusable JSON query with --input FILE/- ."""
+    options = {
+        "preset": preset,
+        "identifier": identifier,
+        "period": period,
+        "count": count,
+        "year": year,
+        "base_currency": base_currency,
+        "quote_currency": quote_currency,
+        "include": include.split(",") if include is not None else None,
+        "view": view,
+    }
+    data = {key: value for key, value in options.items() if value is not None}
+    if input_file is not None:
+        if data:
+            raise AtlasError("INVALID_INPUT", "Use either --input or preset query arguments.")
+        try:
+            if input_file == "-":
+                body = sys.stdin.buffer.read(MAX_BATCH_REQUEST_BYTES + 1)
+            else:
+                with Path(input_file).open("rb") as file:
+                    body = file.read(MAX_BATCH_REQUEST_BYTES + 1)
+            if len(body) > MAX_BATCH_REQUEST_BYTES:
+                raise ValueError("Request exceeds bounds")
+            data = json.loads(body)
+            if not isinstance(data, dict):
+                raise ValueError("Use an object")
+        except (OSError, ValueError):
+            raise AtlasError(
+                "INVALID_INPUT", "Read a preset JSON object of at most 16 KiB."
+            ) from None
+    if preview:
+        data["preview"] = True
+    with Atlas(provider) as atlas:
+        result = atlas.get_research_preset(data)
+    output(result)
+    if result["batch"] is not None and result["batch"]["summary"]["failed"]:
+        raise SystemExit(1)
+
+
+@research_app.command("doctor")
+def research_doctor(
+    sources: str = "all",
+    allow_network: bool = False,
+    provider: str = "public",
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """Check configuration; --allow-network explicitly runs fixed official-source probes."""
+    with Atlas(provider) as atlas:
+        result = atlas.research_diagnostics(
+            {
+                "sources": None if sources == "all" else sources.split(","),
+                "allow_network": allow_network,
+            }
+        )
+    output(result)
+    if result["status"] in {"action_required", "degraded"}:
+        raise SystemExit(4 if result["status"] == "action_required" else 3)
+
+
+@research_app.command("evidence")
+def research_evidence(
+    evidence_id: str,
+    provider: str = "public",
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """Read saved provenance for a compact result; never fetches or pays."""
+    with Atlas(provider) as atlas:
+        output(atlas.get_evidence(evidence_id))
+
+
+@research_app.command("check-sources")
+def research_check_sources(
+    sources: str = "all",
+    allow_network: bool = False,
+    max_observation_lag_days: int | None = None,
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """Opt-in official-source checks; save private last-success shape/date baselines."""
+    from atlas_terminal.source_checks import check_sources
+
+    result = check_sources(
+        None if sources == "all" else sources.split(","),
+        allow_network=allow_network,
+        max_observation_lag_days=max_observation_lag_days,
+    )
+    output(result)
+    if result["status"] != "PASS":
+        raise SystemExit(4 if result["status"] == "NOT_RUN" else 3)
 
 
 @company_app.command("resolve")
@@ -164,11 +339,55 @@ def purchase_status(quote_id: str, json_output: bool = typer.Option(False, "--js
         output(atlas.purchase_status(quote_id))
 
 
+@app.command("purchase-reconcile")
+def purchase_reconcile(
+    quote_id: str,
+    transaction: str | None = None,
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """Reconcile finalized testnet evidence; never signs or sends another payment."""
+    with Atlas("hosted") as atlas:
+        output(atlas.reconcile_purchase(quote_id, transaction=transaction))
+
+
 @mcp_app.command("serve")
-def serve_mcp(provider: str = "sec") -> None:
+def serve_mcp(provider: str = "sec", research_only: bool = False) -> None:
     from atlas_terminal.mcp_server import create_mcp
 
-    create_mcp(provider).run(transport="stdio")
+    create_mcp(provider, research_only=research_only).run(transport="stdio")
+
+
+@mcp_app.command("http")
+def serve_remote_mcp(
+    provider: str = "public",
+    host: str = "127.0.0.1",
+    port: int = 8001,
+    allow_anonymous: bool = False,
+) -> None:
+    """Serve research-only Streamable HTTP behind operator-managed HTTPS."""
+    import uvicorn
+
+    from atlas_terminal.remote_mcp import create_remote_mcp
+
+    if host not in {"127.0.0.1", "localhost", "::1", "0.0.0.0"} or not 1 <= port <= 65535:
+        raise AtlasError("CONFIG_REQUIRED", "Choose an explicit bind address and valid port.")
+    public_origin = os.environ.get("ATLAS_MCP_PUBLIC_ORIGIN")
+    if not public_origin:
+        if host == "0.0.0.0":
+            raise AtlasError("CONFIG_REQUIRED", "Configure the external HTTPS MCP origin.")
+        public_origin = f"http://{'[::1]' if host == '::1' else host}:{port}"
+    if host == "0.0.0.0" and not public_origin.startswith("https://"):
+        raise AtlasError("CONFIG_REQUIRED", "External MCP binding requires an HTTPS origin.")
+    api = create_remote_mcp(
+        provider=provider,
+        public_origin=public_origin,
+        token=os.environ.get("ATLAS_MCP_AUTH_TOKEN"),
+        allow_anonymous=allow_anonymous,
+        allowed_origins=[
+            value for value in os.environ.get("ATLAS_MCP_ALLOWED_ORIGINS", "").split(",") if value
+        ],
+    )
+    uvicorn.run(api, host=host, port=port, workers=1, access_log=False, log_level="critical")
 
 
 @app.command()

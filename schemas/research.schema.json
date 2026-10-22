@@ -1,292 +1,1288 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.atlas.invalid/research-0.2.schema.json",
-  "title": "Atlas free research query and common result envelope; dataset fields documented in the catalog",
+  "title": "Atlas free research queries, presentation, provenance and common result contracts",
   "$defs": {
+    "ResearchRequirements": {
+      "additionalProperties": false,
+      "properties": {
+        "max_source_age_seconds": {
+          "anyOf": [
+            {
+              "maximum": 31536000,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Maximum age of the oldest source retrieval/check used, including inputs. Does not force refresh.",
+          "title": "Max Source Age Seconds"
+        },
+        "min_observation_date": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Minimum date for the latest usable selected output observation or period end, not its publication time.",
+          "format": "date",
+          "title": "Min Observation Date"
+        },
+        "allow_missing": {
+          "default": true,
+          "description": "Permit Atlas-marked unavailable/ambiguous cells, null value/primary amount fields and partial coverage; optional metadata is not certified.",
+          "title": "Allow Missing",
+          "type": "boolean"
+        },
+        "allow_derived": {
+          "default": true,
+          "description": "Permit output/dependency records marked as derived.",
+          "title": "Allow Derived",
+          "type": "boolean"
+        },
+        "allow_truncated": {
+          "default": true,
+          "description": "Permit explicit record, archive or footnote truncation. A fixed upstream window alone is not truncation.",
+          "title": "Allow Truncated",
+          "type": "boolean"
+        }
+      },
+      "title": "ResearchRequirements",
+      "type": "object"
+    },
+    "ResponseOptions": {
+      "additionalProperties": false,
+      "description": "Presentation only: does not expand upstream retrieval or relax coverage.",
+      "properties": {
+        "view": {
+          "default": "full",
+          "enum": ["full", "compact"],
+          "title": "View",
+          "type": "string"
+        },
+        "fields": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 40,
+          "title": "Fields",
+          "type": "array"
+        },
+        "page_size": {
+          "anyOf": [
+            {
+              "maximum": 500,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Page Size"
+        },
+        "cursor": {
+          "anyOf": [
+            {
+              "pattern": "^r1_[0-9a-f]{64}_[1-9][0-9]{0,5}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cursor"
+        }
+      },
+      "title": "ResponseOptions",
+      "type": "object"
+    },
     "ResearchQuery": {
       "additionalProperties": false,
-      "allOf": [
+      "oneOf": [
         {
-          "if": {
-            "properties": {
-              "dataset": {
-                "const": "companies"
-              }
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "companies",
+              "type": "string"
             },
-            "required": ["dataset"]
+            "identifier": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Identifier"
+            },
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
           },
-          "then": {
-            "propertyNames": {
-              "enum": ["dataset", "identifier", "limit"]
-            },
-            "required": []
-          }
+          "required": ["dataset"],
+          "type": "object"
         },
         {
-          "if": {
-            "properties": {
-              "dataset": {
-                "const": "profile"
-              }
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "profile",
+              "type": "string"
             },
-            "required": ["dataset"]
+            "identifier": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
           },
-          "then": {
-            "propertyNames": {
-              "enum": ["dataset", "identifier"]
-            },
-            "required": ["identifier"]
-          }
+          "required": ["dataset", "identifier"],
+          "type": "object"
         },
         {
-          "if": {
-            "properties": {
-              "dataset": {
-                "const": "statements"
-              }
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "statements",
+              "type": "string"
             },
-            "required": ["dataset"]
+            "allow_partial": {
+              "default": false,
+              "title": "Allow Partial",
+              "type": "boolean"
+            },
+            "count": {
+              "default": 3,
+              "maximum": 20,
+              "minimum": 1,
+              "title": "Count",
+              "type": "integer"
+            },
+            "identifier": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            "metrics": {
+              "items": {
+                "enum": [
+                  "accounts_payable",
+                  "accounts_receivable",
+                  "assets",
+                  "capital_expenditure",
+                  "cash_and_equivalents",
+                  "cost_of_revenue",
+                  "current_assets",
+                  "current_liabilities",
+                  "depreciation_amortization",
+                  "dividends_paid",
+                  "dividends_per_share",
+                  "eps_basic",
+                  "eps_diluted",
+                  "financing_cash_flow",
+                  "goodwill",
+                  "gross_profit",
+                  "income_tax_expense",
+                  "interest_expense",
+                  "inventory",
+                  "investing_cash_flow",
+                  "liabilities",
+                  "long_term_debt_noncurrent",
+                  "net_income",
+                  "operating_cash_flow",
+                  "operating_income",
+                  "property_plant_equipment",
+                  "research_and_development",
+                  "retained_earnings",
+                  "revenue",
+                  "selling_general_administrative",
+                  "share_repurchases",
+                  "shares_outstanding",
+                  "short_term_investments",
+                  "stock_based_compensation",
+                  "stockholders_equity",
+                  "weighted_average_shares_basic",
+                  "weighted_average_shares_diluted"
+                ],
+                "type": "string"
+              },
+              "maxItems": 40,
+              "title": "Metrics",
+              "type": "array"
+            },
+            "period": {
+              "default": "annual",
+              "enum": ["annual", "quarterly", "ytd"],
+              "title": "Period",
+              "type": "string"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
           },
-          "then": {
-            "propertyNames": {
+          "required": ["dataset", "identifier"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "ratios",
+              "type": "string"
+            },
+            "allow_partial": {
+              "default": false,
+              "title": "Allow Partial",
+              "type": "boolean"
+            },
+            "count": {
+              "default": 3,
+              "maximum": 20,
+              "minimum": 1,
+              "title": "Count",
+              "type": "integer"
+            },
+            "identifier": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            "period": {
+              "default": "annual",
+              "enum": ["annual", "quarterly", "ytd"],
+              "title": "Period",
+              "type": "string"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": ["dataset", "identifier"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "financial_analytics",
+              "type": "string"
+            },
+            "allow_partial": {
+              "default": false,
+              "title": "Allow Partial",
+              "type": "boolean"
+            },
+            "count": {
+              "default": 3,
+              "maximum": 20,
+              "minimum": 1,
+              "title": "Count",
+              "type": "integer"
+            },
+            "identifier": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            "metrics": {
+              "items": {
+                "enum": [
+                  "eps_basic_growth_yoy",
+                  "eps_diluted_growth_yoy",
+                  "free_cash_flow",
+                  "free_cash_flow_margin",
+                  "net_income_growth_yoy",
+                  "operating_income_growth_yoy",
+                  "revenue_growth_yoy"
+                ],
+                "type": "string"
+              },
+              "maxItems": 40,
+              "title": "Metrics",
+              "type": "array"
+            },
+            "period": {
+              "default": "annual",
+              "enum": ["annual", "quarterly", "ytd"],
+              "title": "Period",
+              "type": "string"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": ["dataset", "identifier"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "company_facts",
+              "type": "string"
+            },
+            "concept": {
+              "anyOf": [
+                {
+                  "pattern": "^[A-Za-z][A-Za-z0-9_]{0,199}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Concept"
+            },
+            "identifier": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "taxonomy": {
+              "default": "us-gaap",
+              "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,79}$",
+              "title": "Taxonomy",
+              "type": "string"
+            },
+            "unit": {
+              "anyOf": [
+                {
+                  "pattern": "^[A-Za-z][A-Za-z0-9_/-]{0,49}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Unit"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": ["dataset", "identifier"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "filings",
+              "type": "string"
+            },
+            "form": {
+              "default": "all",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9 /-]{0,29}$",
+              "title": "Form",
+              "type": "string"
+            },
+            "identifier": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": ["dataset", "identifier"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "insider_transactions",
+              "type": "string"
+            },
+            "accession": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{10}-[0-9]{2}-[0-9]{6}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Accession"
+            },
+            "identifier": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": ["dataset", "identifier"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "institutional_holdings",
+              "type": "string"
+            },
+            "accession": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{10}-[0-9]{2}-[0-9]{6}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Accession"
+            },
+            "identifier": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": ["dataset", "identifier"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "ownership_filings",
+              "type": "string"
+            },
+            "identifier": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": ["dataset", "identifier"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "fund_filings",
+              "type": "string"
+            },
+            "identifier": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": ["dataset", "identifier"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "corporate_action_filings",
+              "type": "string"
+            },
+            "identifier": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": ["dataset", "identifier"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "economics",
+              "type": "string"
+            },
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "series": {
               "enum": [
-                "dataset",
-                "allow_partial",
-                "count",
-                "identifier",
-                "metrics",
-                "period"
-              ]
+                "CES0000000001",
+                "CES0500000003",
+                "CUSR0000SA0",
+                "CUUR0000SA0",
+                "CUUR0000SA0L1E",
+                "JTS000000000000000JOL",
+                "LNS11300000",
+                "LNS14000000",
+                "core_cpi",
+                "cpi",
+                "cpi_sa",
+                "hourly_earnings",
+                "job_openings",
+                "participation",
+                "payrolls",
+                "unemployment"
+              ],
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
             },
-            "required": ["identifier"]
-          }
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": ["dataset", "series"],
+          "type": "object"
         },
         {
-          "if": {
-            "properties": {
-              "dataset": {
-                "const": "ratios"
-              }
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "treasury_yields",
+              "type": "string"
             },
-            "required": ["dataset"]
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "year": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 1990,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Year"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
           },
-          "then": {
-            "propertyNames": {
+          "required": ["dataset"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "federal_debt",
+              "type": "string"
+            },
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": ["dataset"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "policy_news",
+              "type": "string"
+            },
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": ["dataset"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "compare",
+              "type": "string"
+            },
+            "allow_partial": {
+              "default": false,
+              "title": "Allow Partial",
+              "type": "boolean"
+            },
+            "identifiers": {
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 10,
+              "minItems": 1,
+              "title": "Identifiers",
+              "type": "array"
+            },
+            "metrics": {
+              "items": {
+                "enum": [
+                  "accounts_payable",
+                  "accounts_receivable",
+                  "assets",
+                  "capital_expenditure",
+                  "cash_and_equivalents",
+                  "cost_of_revenue",
+                  "current_assets",
+                  "current_liabilities",
+                  "depreciation_amortization",
+                  "dividends_paid",
+                  "dividends_per_share",
+                  "eps_basic",
+                  "eps_basic_growth_yoy",
+                  "eps_diluted",
+                  "eps_diluted_growth_yoy",
+                  "financing_cash_flow",
+                  "free_cash_flow",
+                  "free_cash_flow_margin",
+                  "goodwill",
+                  "gross_profit",
+                  "income_tax_expense",
+                  "interest_expense",
+                  "inventory",
+                  "investing_cash_flow",
+                  "liabilities",
+                  "long_term_debt_noncurrent",
+                  "net_income",
+                  "net_income_growth_yoy",
+                  "operating_cash_flow",
+                  "operating_income",
+                  "operating_income_growth_yoy",
+                  "property_plant_equipment",
+                  "research_and_development",
+                  "retained_earnings",
+                  "revenue",
+                  "revenue_growth_yoy",
+                  "selling_general_administrative",
+                  "share_repurchases",
+                  "shares_outstanding",
+                  "short_term_investments",
+                  "stock_based_compensation",
+                  "stockholders_equity",
+                  "weighted_average_shares_basic",
+                  "weighted_average_shares_diluted"
+                ],
+                "type": "string"
+              },
+              "maxItems": 40,
+              "title": "Metrics",
+              "type": "array"
+            },
+            "period": {
+              "default": "annual",
+              "enum": ["annual", "quarterly", "ytd"],
+              "title": "Period",
+              "type": "string"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": ["dataset", "identifiers"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "not": {
+            "anyOf": [
+              {
+                "properties": {
+                  "base_currency": {
+                    "const": "EUR"
+                  },
+                  "quote_currency": {
+                    "const": "EUR"
+                  }
+                },
+                "required": ["base_currency", "quote_currency"]
+              },
+              {
+                "properties": {
+                  "base_currency": {
+                    "const": "USD"
+                  },
+                  "quote_currency": {
+                    "const": "USD"
+                  }
+                },
+                "required": ["base_currency", "quote_currency"]
+              },
+              {
+                "properties": {
+                  "base_currency": {
+                    "const": "JPY"
+                  },
+                  "quote_currency": {
+                    "const": "JPY"
+                  }
+                },
+                "required": ["base_currency", "quote_currency"]
+              },
+              {
+                "properties": {
+                  "base_currency": {
+                    "const": "GBP"
+                  },
+                  "quote_currency": {
+                    "const": "GBP"
+                  }
+                },
+                "required": ["base_currency", "quote_currency"]
+              },
+              {
+                "properties": {
+                  "base_currency": {
+                    "const": "CHF"
+                  },
+                  "quote_currency": {
+                    "const": "CHF"
+                  }
+                },
+                "required": ["base_currency", "quote_currency"]
+              },
+              {
+                "properties": {
+                  "base_currency": {
+                    "const": "AUD"
+                  },
+                  "quote_currency": {
+                    "const": "AUD"
+                  }
+                },
+                "required": ["base_currency", "quote_currency"]
+              },
+              {
+                "properties": {
+                  "base_currency": {
+                    "const": "CAD"
+                  },
+                  "quote_currency": {
+                    "const": "CAD"
+                  }
+                },
+                "required": ["base_currency", "quote_currency"]
+              },
+              {
+                "properties": {
+                  "base_currency": {
+                    "const": "NZD"
+                  },
+                  "quote_currency": {
+                    "const": "NZD"
+                  }
+                },
+                "required": ["base_currency", "quote_currency"]
+              },
+              {
+                "properties": {
+                  "base_currency": {
+                    "const": "CNY"
+                  },
+                  "quote_currency": {
+                    "const": "CNY"
+                  }
+                },
+                "required": ["base_currency", "quote_currency"]
+              }
+            ]
+          },
+          "properties": {
+            "dataset": {
+              "const": "fx_rates",
+              "type": "string"
+            },
+            "base_currency": {
               "enum": [
-                "dataset",
-                "allow_partial",
-                "count",
-                "identifier",
-                "period"
-              ]
+                "EUR",
+                "USD",
+                "JPY",
+                "GBP",
+                "CHF",
+                "AUD",
+                "CAD",
+                "NZD",
+                "CNY"
+              ],
+              "type": "string"
             },
-            "required": ["identifier"]
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "dataset": {
-                "const": "company_facts"
-              }
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
             },
-            "required": ["dataset"]
-          },
-          "then": {
-            "propertyNames": {
+            "quote_currency": {
+              "description": "Units of quote currency per one base currency; must differ from base_currency.",
               "enum": [
-                "dataset",
-                "concept",
-                "identifier",
-                "limit",
-                "taxonomy",
-                "unit"
-              ]
+                "EUR",
+                "USD",
+                "JPY",
+                "GBP",
+                "CHF",
+                "AUD",
+                "CAD",
+                "NZD",
+                "CNY"
+              ],
+              "type": "string"
             },
-            "required": ["identifier"]
-          }
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": ["dataset", "base_currency", "quote_currency"],
+          "type": "object"
         },
         {
-          "if": {
-            "properties": {
-              "dataset": {
-                "const": "filings"
-              }
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "reference_rates",
+              "type": "string"
             },
-            "required": ["dataset"]
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "series": {
+              "enum": ["effr", "sofr"],
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
           },
-          "then": {
-            "propertyNames": {
-              "enum": ["dataset", "form", "identifier", "limit"]
-            },
-            "required": ["identifier"]
-          }
+          "required": ["dataset", "series"],
+          "type": "object"
         },
         {
-          "if": {
-            "properties": {
-              "dataset": {
-                "const": "insider_transactions"
-              }
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "treasury_real_yields",
+              "type": "string"
             },
-            "required": ["dataset"]
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "year": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 2003,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Year"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
           },
-          "then": {
-            "propertyNames": {
-              "enum": ["dataset", "accession", "identifier", "limit"]
-            },
-            "required": ["identifier"]
-          }
+          "required": ["dataset"],
+          "type": "object"
         },
         {
-          "if": {
-            "properties": {
-              "dataset": {
-                "const": "institutional_holdings"
-              }
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "macro_analytics",
+              "type": "string"
             },
-            "required": ["dataset"]
-          },
-          "then": {
-            "propertyNames": {
-              "enum": ["dataset", "accession", "identifier", "limit"]
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
             },
-            "required": ["identifier"]
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "dataset": {
-                "const": "ownership_filings"
-              }
-            },
-            "required": ["dataset"]
-          },
-          "then": {
-            "propertyNames": {
-              "enum": ["dataset", "identifier", "limit"]
-            },
-            "required": ["identifier"]
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "dataset": {
-                "const": "fund_filings"
-              }
-            },
-            "required": ["dataset"]
-          },
-          "then": {
-            "propertyNames": {
-              "enum": ["dataset", "identifier", "limit"]
-            },
-            "required": ["identifier"]
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "dataset": {
-                "const": "corporate_action_filings"
-              }
-            },
-            "required": ["dataset"]
-          },
-          "then": {
-            "propertyNames": {
-              "enum": ["dataset", "identifier", "limit"]
-            },
-            "required": ["identifier"]
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "dataset": {
-                "const": "economics"
-              }
-            },
-            "required": ["dataset"]
-          },
-          "then": {
-            "propertyNames": {
-              "enum": ["dataset", "limit", "series"]
-            },
-            "required": ["series"]
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "dataset": {
-                "const": "treasury_yields"
-              }
-            },
-            "required": ["dataset"]
-          },
-          "then": {
-            "propertyNames": {
-              "enum": ["dataset", "limit", "year"]
-            },
-            "required": []
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "dataset": {
-                "const": "federal_debt"
-              }
-            },
-            "required": ["dataset"]
-          },
-          "then": {
-            "propertyNames": {
-              "enum": ["dataset", "limit"]
-            },
-            "required": []
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "dataset": {
-                "const": "policy_news"
-              }
-            },
-            "required": ["dataset"]
-          },
-          "then": {
-            "propertyNames": {
-              "enum": ["dataset", "limit"]
-            },
-            "required": []
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "dataset": {
-                "const": "compare"
-              }
-            },
-            "required": ["dataset"]
-          },
-          "then": {
-            "propertyNames": {
+            "series": {
               "enum": [
-                "dataset",
-                "allow_partial",
-                "identifiers",
-                "metrics",
-                "period"
-              ]
+                "core_cpi_yoy",
+                "cpi_yoy",
+                "payrolls_change_mom",
+                "yield_spread_10y_2y"
+              ],
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
             },
-            "required": ["identifiers"]
-          }
+            "year": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 1990,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Year"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": ["dataset", "series"],
+          "type": "object"
         }
       ],
       "properties": {
@@ -296,6 +1292,7 @@
             "profile",
             "statements",
             "ratios",
+            "financial_analytics",
             "company_facts",
             "filings",
             "insider_transactions",
@@ -307,7 +1304,11 @@
             "treasury_yields",
             "federal_debt",
             "policy_news",
-            "compare"
+            "compare",
+            "fx_rates",
+            "reference_rates",
+            "treasury_real_yields",
+            "macro_analytics"
           ],
           "title": "Dataset",
           "type": "string"
@@ -442,50 +1443,433 @@
           ],
           "default": null,
           "title": "Year"
+        },
+        "base_currency": {
+          "anyOf": [
+            {
+              "enum": [
+                "EUR",
+                "USD",
+                "JPY",
+                "GBP",
+                "CHF",
+                "AUD",
+                "CAD",
+                "NZD",
+                "CNY"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Base Currency"
+        },
+        "quote_currency": {
+          "anyOf": [
+            {
+              "enum": [
+                "EUR",
+                "USD",
+                "JPY",
+                "GBP",
+                "CHF",
+                "AUD",
+                "CAD",
+                "NZD",
+                "CNY"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quote Currency"
+        },
+        "response": {
+          "$ref": "#/$defs/ResponseOptions"
+        },
+        "requirements": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ResearchRequirements"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": ["dataset"],
       "title": "ResearchQuery",
       "type": "object"
     },
-    "ResearchSource": {
-      "type": "object",
+    "ResearchBatchItem": {
+      "additionalProperties": false,
       "properties": {
-        "raw_source_url": {
-          "type": "string",
-          "format": "uri"
-        },
-        "raw_sha256": {
-          "type": "string",
-          "pattern": "^[0-9a-f]{64}$"
-        },
-        "retrieved_at": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "json_pointer": {
+        "id": {
+          "pattern": "^[A-Za-z0-9_-]{1,64}$",
+          "title": "Id",
           "type": "string"
         },
-        "xml_local_path": {
+        "query": {
+          "additionalProperties": true,
+          "description": "One dataset-specific ResearchQuery from atlas_research_catalog. Queries are validated independently; invalid queries produce per-item errors.",
+          "title": "Query",
+          "type": "object"
+        }
+      },
+      "required": ["id", "query"],
+      "title": "ResearchBatchItem",
+      "type": "object"
+    },
+    "ResearchBatchQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "items": {
+          "items": {
+            "$ref": "#/$defs/ResearchBatchItem"
+          },
+          "maxItems": 10,
+          "minItems": 1,
+          "title": "Items",
+          "type": "array"
+        }
+      },
+      "required": ["items"],
+      "title": "ResearchBatchQuery",
+      "type": "object"
+    },
+    "ErrorPayload": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "retryable": {
+          "title": "Retryable",
+          "type": "boolean"
+        },
+        "details": {
+          "additionalProperties": true,
+          "title": "Details",
+          "type": "object"
+        },
+        "request_id": {
+          "title": "Request Id",
+          "type": "string"
+        },
+        "next_action": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/NextAction"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "retry_after_seconds": {
+          "anyOf": [
+            {
+              "maximum": 86400,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retry After Seconds"
+        }
+      },
+      "required": ["code", "message", "retryable", "details", "request_id"],
+      "title": "ErrorPayload",
+      "type": "object"
+    },
+    "EvidenceReference": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Evidence Id",
           "type": "string"
         }
       },
-      "required": ["raw_source_url", "raw_sha256", "retrieved_at"],
-      "anyOf": [
-        {
-          "required": ["json_pointer"]
+      "required": ["evidence_id"],
+      "title": "EvidenceReference",
+      "type": "object"
+    },
+    "NextAction": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "enum": [
+            "fix_query",
+            "inspect_catalog",
+            "resolve_company",
+            "review_coverage",
+            "review_requirements",
+            "retry_read",
+            "request_quote",
+            "wait",
+            "check_purchase_status",
+            "contact_operator",
+            "restart_query",
+            "stop"
+          ],
+          "title": "Action",
+          "type": "string"
         },
-        {
-          "required": ["xml_local_path"]
+        "tool": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tool"
+        },
+        "fields": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Fields",
+          "type": "array"
+        },
+        "automatic": {
+          "default": false,
+          "title": "Automatic",
+          "type": "boolean"
         }
+      },
+      "required": ["action"],
+      "title": "NextAction",
+      "type": "object"
+    },
+    "QualityCheck": {
+      "additionalProperties": false,
+      "properties": {
+        "requirement": {
+          "enum": [
+            "max_source_age_seconds",
+            "min_observation_date",
+            "allow_missing",
+            "allow_derived",
+            "allow_truncated"
+          ],
+          "title": "Requirement",
+          "type": "string"
+        },
+        "passed": {
+          "title": "Passed",
+          "type": "boolean"
+        },
+        "required": {
+          "title": "Required"
+        },
+        "actual": {
+          "title": "Actual"
+        }
+      },
+      "required": ["requirement", "passed", "required", "actual"],
+      "title": "QualityCheck",
+      "type": "object"
+    },
+    "ResearchBatchFailure": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "status": {
+          "const": "error",
+          "default": "error",
+          "title": "Status",
+          "type": "string"
+        },
+        "error": {
+          "$ref": "#/$defs/ErrorPayload"
+        }
+      },
+      "required": ["id", "error"],
+      "title": "ResearchBatchFailure",
+      "type": "object"
+    },
+    "ResearchBatchSuccess": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "status": {
+          "const": "ok",
+          "default": "ok",
+          "title": "Status",
+          "type": "string"
+        },
+        "result": {
+          "$ref": "#/$defs/ResearchResult"
+        }
+      },
+      "required": ["id", "result"],
+      "title": "ResearchBatchSuccess",
+      "type": "object"
+    },
+    "ResearchBatchSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "requested": {
+          "title": "Requested",
+          "type": "integer"
+        },
+        "successful": {
+          "title": "Successful",
+          "type": "integer"
+        },
+        "failed": {
+          "title": "Failed",
+          "type": "integer"
+        },
+        "retryable_read_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Retryable Read Ids",
+          "type": "array"
+        }
+      },
+      "required": ["requested", "successful", "failed", "retryable_read_ids"],
+      "title": "ResearchBatchSummary",
+      "type": "object"
+    },
+    "ResearchQuality": {
+      "additionalProperties": false,
+      "properties": {
+        "evaluated_at": {
+          "title": "Evaluated At",
+          "type": "string"
+        },
+        "scope": {
+          "const": "complete_selected_result",
+          "default": "complete_selected_result",
+          "title": "Scope",
+          "type": "string"
+        },
+        "oldest_source_retrieved_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Oldest Source Retrieved At"
+        },
+        "newest_source_retrieved_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Newest Source Retrieved At"
+        },
+        "max_source_age_seconds": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Max Source Age Seconds"
+        },
+        "latest_observation_date": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Latest Observation Date"
+        },
+        "missing_value_count": {
+          "minimum": 0,
+          "title": "Missing Value Count",
+          "type": "integer"
+        },
+        "derived_record_count": {
+          "minimum": 0,
+          "title": "Derived Record Count",
+          "type": "integer"
+        },
+        "partial_coverage": {
+          "title": "Partial Coverage",
+          "type": "boolean"
+        },
+        "truncated": {
+          "title": "Truncated",
+          "type": "boolean"
+        },
+        "meets_requirements": {
+          "title": "Meets Requirements",
+          "type": "boolean"
+        },
+        "checks": {
+          "items": {
+            "$ref": "#/$defs/QualityCheck"
+          },
+          "title": "Checks",
+          "type": "array"
+        }
+      },
+      "required": [
+        "evaluated_at",
+        "oldest_source_retrieved_at",
+        "newest_source_retrieved_at",
+        "max_source_age_seconds",
+        "latest_observation_date",
+        "missing_value_count",
+        "derived_record_count",
+        "partial_coverage",
+        "truncated",
+        "meets_requirements",
+        "checks"
       ],
-      "additionalProperties": true
+      "title": "ResearchQuality",
+      "type": "object"
     },
     "ResearchResult": {
-      "type": "object",
+      "additionalProperties": true,
+      "description": "Common envelope; dataset-specific records and metadata remain extensible.",
       "properties": {
         "schema_version": {
-          "const": "0.2.0"
+          "title": "Schema Version",
+          "type": "string"
         },
         "dataset": {
           "enum": [
@@ -493,6 +1877,7 @@
             "profile",
             "statements",
             "ratios",
+            "financial_analytics",
             "company_facts",
             "filings",
             "insider_transactions",
@@ -504,55 +1889,118 @@
             "treasury_yields",
             "federal_debt",
             "policy_news",
-            "compare"
-          ]
+            "compare",
+            "fx_rates",
+            "reference_rates",
+            "treasury_real_yields",
+            "macro_analytics"
+          ],
+          "title": "Dataset",
+          "type": "string"
         },
         "query": {
-          "$ref": "#/$defs/ResearchQuery"
+          "additionalProperties": true,
+          "title": "Query",
+          "type": "object"
         },
         "source_id": {
-          "enum": ["sec", "bls", "treasury", "fiscaldata", "federal_reserve"]
+          "title": "Source Id",
+          "type": "string"
         },
         "source_terms_url": {
-          "type": "string",
-          "format": "uri"
+          "title": "Source Terms Url",
+          "type": "string"
+        },
+        "documentation": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Documentation"
         },
         "upstream_data_cost": {
-          "const": "0"
+          "const": "0",
+          "title": "Upstream Data Cost",
+          "type": "string"
         },
         "is_synthetic": {
+          "title": "Is Synthetic",
           "type": "boolean"
         },
         "source_text_is_untrusted": {
-          "const": true
+          "const": true,
+          "title": "Source Text Is Untrusted",
+          "type": "boolean"
         },
         "retrieved_at": {
-          "type": "string",
-          "format": "date-time"
+          "title": "Retrieved At",
+          "type": "string"
         },
         "records": {
-          "type": "array",
           "items": {
+            "additionalProperties": true,
             "type": "object"
-          }
+          },
+          "title": "Records",
+          "type": "array"
         },
         "sources": {
-          "type": "array",
           "items": {
-            "$ref": "#/$defs/ResearchSource"
-          }
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SourceEvidence"
+              },
+              {
+                "$ref": "#/$defs/EvidenceReference"
+              }
+            ]
+          },
+          "title": "Sources",
+          "type": "array"
         },
         "coverage": {
+          "additionalProperties": true,
+          "title": "Coverage",
           "type": "object"
         },
         "limitations": {
-          "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "title": "Limitations",
+          "type": "array"
+        },
+        "response": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ResponseMetadata"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "quality": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ResearchQuality"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
-      "additionalProperties": true,
       "required": [
         "schema_version",
         "dataset",
@@ -567,7 +2015,1370 @@
         "sources",
         "coverage",
         "limitations"
-      ]
+      ],
+      "title": "ResearchResult",
+      "type": "object"
+    },
+    "ResponseMetadata": {
+      "additionalProperties": false,
+      "properties": {
+        "view": {
+          "enum": ["full", "compact"],
+          "title": "View",
+          "type": "string"
+        },
+        "fields": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Fields",
+          "type": "array"
+        },
+        "snapshot_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Snapshot Id",
+          "type": "string"
+        },
+        "result_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Result Sha256",
+          "type": "string"
+        },
+        "expires_at": {
+          "title": "Expires At",
+          "type": "string"
+        },
+        "total_records": {
+          "minimum": 0,
+          "title": "Total Records",
+          "type": "integer"
+        },
+        "returned_records": {
+          "minimum": 0,
+          "title": "Returned Records",
+          "type": "integer"
+        },
+        "offset": {
+          "minimum": 0,
+          "title": "Offset",
+          "type": "integer"
+        },
+        "page_size": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Page Size"
+        },
+        "next_cursor": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Next Cursor"
+        },
+        "evidence_count": {
+          "minimum": 0,
+          "title": "Evidence Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "view",
+        "fields",
+        "snapshot_id",
+        "result_sha256",
+        "expires_at",
+        "total_records",
+        "returned_records",
+        "offset",
+        "page_size",
+        "next_cursor",
+        "evidence_count"
+      ],
+      "title": "ResponseMetadata",
+      "type": "object"
+    },
+    "SourceEvidence": {
+      "additionalProperties": true,
+      "anyOf": [
+        {
+          "properties": {
+            "json_pointer": {
+              "type": "string"
+            }
+          },
+          "required": ["json_pointer"]
+        },
+        {
+          "properties": {
+            "xml_local_path": {
+              "type": "string"
+            }
+          },
+          "required": ["xml_local_path"]
+        }
+      ],
+      "properties": {
+        "raw_source_url": {
+          "format": "uri",
+          "title": "Raw Source Url",
+          "type": "string"
+        },
+        "raw_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Raw Sha256",
+          "type": "string"
+        },
+        "retrieved_at": {
+          "format": "date-time",
+          "title": "Retrieved At",
+          "type": "string"
+        },
+        "json_pointer": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Json Pointer"
+        },
+        "xml_local_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Xml Local Path"
+        }
+      },
+      "required": ["raw_source_url", "raw_sha256", "retrieved_at"],
+      "title": "SourceEvidence",
+      "type": "object"
+    },
+    "ResearchBatchResult": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.2.0",
+          "default": "0.2.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "status": {
+          "enum": ["ok", "partial", "error"],
+          "title": "Status",
+          "type": "string"
+        },
+        "execution": {
+          "const": "sequential_independent_reads",
+          "default": "sequential_independent_reads",
+          "title": "Execution",
+          "type": "string"
+        },
+        "upstream_data_cost": {
+          "const": "0",
+          "default": "0",
+          "title": "Upstream Data Cost",
+          "type": "string"
+        },
+        "requires_wallet": {
+          "const": false,
+          "default": false,
+          "title": "Requires Wallet",
+          "type": "boolean"
+        },
+        "items": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "error": "#/$defs/ResearchBatchFailure",
+                "ok": "#/$defs/ResearchBatchSuccess"
+              },
+              "propertyName": "status"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/ResearchBatchSuccess"
+              },
+              {
+                "$ref": "#/$defs/ResearchBatchFailure"
+              }
+            ]
+          },
+          "title": "Items",
+          "type": "array"
+        },
+        "summary": {
+          "$ref": "#/$defs/ResearchBatchSummary"
+        }
+      },
+      "required": ["status", "items", "summary"],
+      "title": "ResearchBatchResult",
+      "type": "object"
+    },
+    "ResearchPresetQuery": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "count": {
+              "default": 1,
+              "maximum": 20,
+              "minimum": 1,
+              "title": "Count",
+              "type": "integer"
+            },
+            "identifier": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            "include": {
+              "anyOf": [
+                {
+                  "items": {
+                    "enum": ["profile", "statements", "analytics", "filings"]
+                  },
+                  "maxItems": 10,
+                  "minItems": 1,
+                  "type": "array",
+                  "uniqueItems": true
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Include"
+            },
+            "period": {
+              "default": "quarterly",
+              "enum": ["annual", "quarterly", "ytd"],
+              "title": "Period",
+              "type": "string"
+            },
+            "preset": {
+              "const": "company_overview",
+              "type": "string"
+            },
+            "preview": {
+              "default": false,
+              "title": "Preview",
+              "type": "boolean"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "requirements_by_item": {
+              "additionalProperties": {
+                "$ref": "#/$defs/ResearchRequirements"
+              },
+              "maxProperties": 10,
+              "propertyNames": {
+                "enum": ["profile", "statements", "analytics", "filings"]
+              },
+              "title": "Requirements By Item",
+              "type": "object"
+            },
+            "view": {
+              "default": "compact",
+              "enum": ["full", "compact"],
+              "title": "View",
+              "type": "string"
+            }
+          },
+          "required": ["preset", "identifier"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "include": {
+              "anyOf": [
+                {
+                  "items": {
+                    "enum": [
+                      "cpi",
+                      "cpi_yoy",
+                      "payrolls",
+                      "unemployment",
+                      "treasury_yields",
+                      "effr",
+                      "sofr"
+                    ]
+                  },
+                  "maxItems": 10,
+                  "minItems": 1,
+                  "type": "array",
+                  "uniqueItems": true
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Include"
+            },
+            "preset": {
+              "const": "us_macro_overview",
+              "type": "string"
+            },
+            "preview": {
+              "default": false,
+              "title": "Preview",
+              "type": "boolean"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "requirements_by_item": {
+              "additionalProperties": {
+                "$ref": "#/$defs/ResearchRequirements"
+              },
+              "maxProperties": 10,
+              "propertyNames": {
+                "enum": [
+                  "cpi",
+                  "cpi_yoy",
+                  "payrolls",
+                  "unemployment",
+                  "treasury_yields",
+                  "effr",
+                  "sofr"
+                ]
+              },
+              "title": "Requirements By Item",
+              "type": "object"
+            },
+            "view": {
+              "default": "compact",
+              "enum": ["full", "compact"],
+              "title": "View",
+              "type": "string"
+            },
+            "year": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 1990,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Year"
+            }
+          },
+          "required": ["preset"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "not": {
+            "anyOf": [
+              {
+                "properties": {
+                  "base_currency": {
+                    "const": "EUR"
+                  },
+                  "quote_currency": {
+                    "const": "EUR"
+                  }
+                },
+                "required": ["base_currency", "quote_currency"]
+              },
+              {
+                "properties": {
+                  "base_currency": {
+                    "const": "USD"
+                  },
+                  "quote_currency": {
+                    "const": "USD"
+                  }
+                },
+                "required": ["base_currency", "quote_currency"]
+              },
+              {
+                "properties": {
+                  "base_currency": {
+                    "const": "JPY"
+                  },
+                  "quote_currency": {
+                    "const": "JPY"
+                  }
+                },
+                "required": ["base_currency", "quote_currency"]
+              },
+              {
+                "properties": {
+                  "base_currency": {
+                    "const": "GBP"
+                  },
+                  "quote_currency": {
+                    "const": "GBP"
+                  }
+                },
+                "required": ["base_currency", "quote_currency"]
+              },
+              {
+                "properties": {
+                  "base_currency": {
+                    "const": "CHF"
+                  },
+                  "quote_currency": {
+                    "const": "CHF"
+                  }
+                },
+                "required": ["base_currency", "quote_currency"]
+              },
+              {
+                "properties": {
+                  "base_currency": {
+                    "const": "AUD"
+                  },
+                  "quote_currency": {
+                    "const": "AUD"
+                  }
+                },
+                "required": ["base_currency", "quote_currency"]
+              },
+              {
+                "properties": {
+                  "base_currency": {
+                    "const": "CAD"
+                  },
+                  "quote_currency": {
+                    "const": "CAD"
+                  }
+                },
+                "required": ["base_currency", "quote_currency"]
+              },
+              {
+                "properties": {
+                  "base_currency": {
+                    "const": "NZD"
+                  },
+                  "quote_currency": {
+                    "const": "NZD"
+                  }
+                },
+                "required": ["base_currency", "quote_currency"]
+              },
+              {
+                "properties": {
+                  "base_currency": {
+                    "const": "CNY"
+                  },
+                  "quote_currency": {
+                    "const": "CNY"
+                  }
+                },
+                "required": ["base_currency", "quote_currency"]
+              }
+            ]
+          },
+          "properties": {
+            "base_currency": {
+              "enum": [
+                "EUR",
+                "USD",
+                "JPY",
+                "GBP",
+                "CHF",
+                "AUD",
+                "CAD",
+                "NZD",
+                "CNY"
+              ],
+              "type": "string"
+            },
+            "include": {
+              "anyOf": [
+                {
+                  "items": {
+                    "enum": [
+                      "fx",
+                      "us_cpi",
+                      "us_treasury_yields",
+                      "us_effr",
+                      "us_sofr"
+                    ]
+                  },
+                  "maxItems": 10,
+                  "minItems": 1,
+                  "type": "array",
+                  "uniqueItems": true
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Include"
+            },
+            "preset": {
+              "const": "fx_context",
+              "type": "string"
+            },
+            "preview": {
+              "default": false,
+              "title": "Preview",
+              "type": "boolean"
+            },
+            "quote_currency": {
+              "enum": [
+                "EUR",
+                "USD",
+                "JPY",
+                "GBP",
+                "CHF",
+                "AUD",
+                "CAD",
+                "NZD",
+                "CNY"
+              ],
+              "type": "string"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "requirements_by_item": {
+              "additionalProperties": {
+                "$ref": "#/$defs/ResearchRequirements"
+              },
+              "maxProperties": 10,
+              "propertyNames": {
+                "enum": [
+                  "fx",
+                  "us_cpi",
+                  "us_treasury_yields",
+                  "us_effr",
+                  "us_sofr"
+                ]
+              },
+              "title": "Requirements By Item",
+              "type": "object"
+            },
+            "view": {
+              "default": "compact",
+              "enum": ["full", "compact"],
+              "title": "View",
+              "type": "string"
+            },
+            "year": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 1990,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Year"
+            }
+          },
+          "required": ["preset", "base_currency", "quote_currency"],
+          "type": "object"
+        }
+      ],
+      "properties": {
+        "preset": {
+          "enum": ["company_overview", "us_macro_overview", "fx_context"],
+          "title": "Preset",
+          "type": "string"
+        },
+        "identifier": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Identifier"
+        },
+        "period": {
+          "default": "quarterly",
+          "enum": ["annual", "quarterly", "ytd"],
+          "title": "Period",
+          "type": "string"
+        },
+        "count": {
+          "default": 1,
+          "maximum": 20,
+          "minimum": 1,
+          "title": "Count",
+          "type": "integer"
+        },
+        "year": {
+          "anyOf": [
+            {
+              "maximum": 2100,
+              "minimum": 1990,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Year"
+        },
+        "base_currency": {
+          "anyOf": [
+            {
+              "enum": [
+                "EUR",
+                "USD",
+                "JPY",
+                "GBP",
+                "CHF",
+                "AUD",
+                "CAD",
+                "NZD",
+                "CNY"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Base Currency"
+        },
+        "quote_currency": {
+          "anyOf": [
+            {
+              "enum": [
+                "EUR",
+                "USD",
+                "JPY",
+                "GBP",
+                "CHF",
+                "AUD",
+                "CAD",
+                "NZD",
+                "CNY"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quote Currency"
+        },
+        "include": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 10,
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Include"
+        },
+        "requirements": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ResearchRequirements"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "requirements_by_item": {
+          "additionalProperties": {
+            "$ref": "#/$defs/ResearchRequirements"
+          },
+          "maxProperties": 10,
+          "title": "Requirements By Item",
+          "type": "object"
+        },
+        "view": {
+          "default": "compact",
+          "enum": ["full", "compact"],
+          "title": "View",
+          "type": "string"
+        },
+        "preview": {
+          "default": false,
+          "title": "Preview",
+          "type": "boolean"
+        }
+      },
+      "required": ["preset"],
+      "title": "ResearchPresetQuery",
+      "type": "object"
+    },
+    "PresetPlanItem": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "source_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Ids",
+          "type": "array"
+        },
+        "query": {
+          "additionalProperties": true,
+          "title": "Query",
+          "type": "object"
+        }
+      },
+      "required": ["id", "source_ids", "query"],
+      "title": "PresetPlanItem",
+      "type": "object"
+    },
+    "ResearchItemOverview": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "dataset": {
+          "title": "Dataset",
+          "type": "string"
+        },
+        "source_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Ids",
+          "type": "array"
+        },
+        "cadence_and_limits": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Cadence And Limits",
+          "type": "object"
+        },
+        "availability": {
+          "enum": ["available", "partial", "unavailable", "error"],
+          "title": "Availability",
+          "type": "string"
+        },
+        "is_synthetic": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Is Synthetic"
+        },
+        "returned_records": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Returned Records"
+        },
+        "usable_records": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Usable Records"
+        },
+        "units": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Units",
+          "type": "array"
+        },
+        "observation_dates": {
+          "$ref": "#/$defs/TimeRange"
+        },
+        "publication_times": {
+          "$ref": "#/$defs/TimeRange"
+        },
+        "publication_time_known_records": {
+          "default": 0,
+          "title": "Publication Time Known Records",
+          "type": "integer"
+        },
+        "publication_time_unknown_records": {
+          "default": 0,
+          "title": "Publication Time Unknown Records",
+          "type": "integer"
+        },
+        "source_retrieval_times": {
+          "$ref": "#/$defs/TimeRange"
+        },
+        "quality": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ResearchQuality"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "error_code": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Error Code"
+        }
+      },
+      "required": [
+        "id",
+        "dataset",
+        "source_ids",
+        "cadence_and_limits",
+        "availability"
+      ],
+      "title": "ResearchItemOverview",
+      "type": "object"
+    },
+    "ResearchPresetPlan": {
+      "additionalProperties": false,
+      "properties": {
+        "preset": {
+          "enum": ["company_overview", "us_macro_overview", "fx_context"],
+          "title": "Preset",
+          "type": "string"
+        },
+        "items": {
+          "items": {
+            "$ref": "#/$defs/PresetPlanItem"
+          },
+          "maxItems": 10,
+          "minItems": 1,
+          "title": "Items",
+          "type": "array"
+        },
+        "excluded_items": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Excluded Items",
+          "type": "array"
+        },
+        "year_basis": {
+          "anyOf": [
+            {
+              "enum": ["explicit", "current_utc_year"],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Year Basis"
+        },
+        "execution": {
+          "const": "sequential_independent_reads",
+          "default": "sequential_independent_reads",
+          "title": "Execution",
+          "type": "string"
+        }
+      },
+      "required": ["preset", "items", "excluded_items", "year_basis"],
+      "title": "ResearchPresetPlan",
+      "type": "object"
+    },
+    "TimeRange": {
+      "additionalProperties": false,
+      "properties": {
+        "earliest": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Earliest"
+        },
+        "latest": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Latest"
+        }
+      },
+      "title": "TimeRange",
+      "type": "object"
+    },
+    "ResearchPresetResult": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.2.0",
+          "default": "0.2.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "mode": {
+          "enum": ["preview", "executed"],
+          "title": "Mode",
+          "type": "string"
+        },
+        "status": {
+          "enum": ["preview", "ok", "partial", "error"],
+          "title": "Status",
+          "type": "string"
+        },
+        "generated_at": {
+          "title": "Generated At",
+          "type": "string"
+        },
+        "is_synthetic": {
+          "title": "Is Synthetic",
+          "type": "boolean"
+        },
+        "upstream_data_cost": {
+          "const": "0",
+          "default": "0",
+          "title": "Upstream Data Cost",
+          "type": "string"
+        },
+        "requires_wallet": {
+          "const": false,
+          "default": false,
+          "title": "Requires Wallet",
+          "type": "boolean"
+        },
+        "point_in_time": {
+          "const": false,
+          "default": false,
+          "title": "Point In Time",
+          "type": "boolean"
+        },
+        "atomic_snapshot": {
+          "const": false,
+          "default": false,
+          "title": "Atomic Snapshot",
+          "type": "boolean"
+        },
+        "source_text_is_untrusted": {
+          "const": true,
+          "default": true,
+          "title": "Source Text Is Untrusted",
+          "type": "boolean"
+        },
+        "plan": {
+          "$ref": "#/$defs/ResearchPresetPlan"
+        },
+        "overview": {
+          "items": {
+            "$ref": "#/$defs/ResearchItemOverview"
+          },
+          "title": "Overview",
+          "type": "array"
+        },
+        "batch": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ResearchBatchResult"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Limitations",
+          "type": "array"
+        }
+      },
+      "required": [
+        "mode",
+        "status",
+        "generated_at",
+        "is_synthetic",
+        "plan",
+        "overview",
+        "batch",
+        "limitations"
+      ],
+      "title": "ResearchPresetResult",
+      "type": "object"
+    },
+    "ResearchDiagnosticsQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "sources": {
+          "anyOf": [
+            {
+              "items": {
+                "enum": [
+                  "sec",
+                  "bls",
+                  "treasury",
+                  "fiscaldata",
+                  "federal_reserve",
+                  "ecb",
+                  "new_york_fed"
+                ],
+                "type": "string"
+              },
+              "maxItems": 7,
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sources"
+        },
+        "allow_network": {
+          "default": false,
+          "title": "Allow Network",
+          "type": "boolean"
+        }
+      },
+      "title": "ResearchDiagnosticsQuery",
+      "type": "object"
+    },
+    "SourceDiagnostic": {
+      "additionalProperties": false,
+      "properties": {
+        "source_id": {
+          "title": "Source Id",
+          "type": "string"
+        },
+        "configuration": {
+          "enum": ["ready", "configuration_required", "synthetic"],
+          "title": "Configuration",
+          "type": "string"
+        },
+        "connectivity": {
+          "enum": ["not_checked", "pass", "fail", "not_run"],
+          "title": "Connectivity",
+          "type": "string"
+        },
+        "next_action": {
+          "title": "Next Action",
+          "type": "string"
+        },
+        "api_key_required": {
+          "const": false,
+          "default": false,
+          "title": "Api Key Required",
+          "type": "boolean"
+        },
+        "contact_user_agent_required": {
+          "title": "Contact User Agent Required",
+          "type": "boolean"
+        },
+        "cadence_and_limits": {
+          "title": "Cadence And Limits",
+          "type": "string"
+        },
+        "source_terms_url": {
+          "title": "Source Terms Url",
+          "type": "string"
+        },
+        "checks": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Checks",
+          "type": "array"
+        }
+      },
+      "required": [
+        "source_id",
+        "configuration",
+        "connectivity",
+        "next_action",
+        "contact_user_agent_required",
+        "cadence_and_limits",
+        "source_terms_url"
+      ],
+      "title": "SourceDiagnostic",
+      "type": "object"
+    },
+    "ResearchDiagnosticsResult": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.2.0",
+          "default": "0.2.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "checked_at": {
+          "title": "Checked At",
+          "type": "string"
+        },
+        "provider": {
+          "title": "Provider",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "configured",
+            "action_required",
+            "verified",
+            "degraded",
+            "synthetic"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "scope": {
+          "const": "configuration_and_optional_fixed_source_probes",
+          "default": "configuration_and_optional_fixed_source_probes",
+          "title": "Scope",
+          "type": "string"
+        },
+        "allow_network": {
+          "title": "Allow Network",
+          "type": "boolean"
+        },
+        "network_checks_executed": {
+          "title": "Network Checks Executed",
+          "type": "boolean"
+        },
+        "is_synthetic": {
+          "title": "Is Synthetic",
+          "type": "boolean"
+        },
+        "requires_wallet": {
+          "const": false,
+          "default": false,
+          "title": "Requires Wallet",
+          "type": "boolean"
+        },
+        "real_transfer": {
+          "const": false,
+          "default": false,
+          "title": "Real Transfer",
+          "type": "boolean"
+        },
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/SourceDiagnostic"
+          },
+          "title": "Sources",
+          "type": "array"
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Limitations",
+          "type": "array"
+        }
+      },
+      "required": [
+        "checked_at",
+        "provider",
+        "status",
+        "allow_network",
+        "network_checks_executed",
+        "is_synthetic",
+        "sources",
+        "limitations"
+      ],
+      "title": "ResearchDiagnosticsResult",
+      "type": "object"
+    },
+    "ResearchSource": {
+      "additionalProperties": true,
+      "anyOf": [
+        {
+          "properties": {
+            "json_pointer": {
+              "type": "string"
+            }
+          },
+          "required": ["json_pointer"]
+        },
+        {
+          "properties": {
+            "xml_local_path": {
+              "type": "string"
+            }
+          },
+          "required": ["xml_local_path"]
+        }
+      ],
+      "properties": {
+        "raw_source_url": {
+          "format": "uri",
+          "title": "Raw Source Url",
+          "type": "string"
+        },
+        "raw_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Raw Sha256",
+          "type": "string"
+        },
+        "retrieved_at": {
+          "format": "date-time",
+          "title": "Retrieved At",
+          "type": "string"
+        },
+        "json_pointer": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Json Pointer"
+        },
+        "xml_local_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Xml Local Path"
+        }
+      },
+      "required": ["raw_source_url", "raw_sha256", "retrieved_at"],
+      "title": "SourceEvidence",
+      "type": "object"
+    },
+    "EvidenceResult": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.2.0",
+          "default": "0.2.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "evidence_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Evidence Id",
+          "type": "string"
+        },
+        "evidence": {
+          "$ref": "#/$defs/SourceEvidence"
+        },
+        "expires_at": {
+          "title": "Expires At",
+          "type": "string"
+        },
+        "source_text_is_untrusted": {
+          "const": true,
+          "default": true,
+          "title": "Source Text Is Untrusted",
+          "type": "boolean"
+        }
+      },
+      "required": ["evidence_id", "evidence", "expires_at"],
+      "title": "EvidenceResult",
+      "type": "object"
     }
   }
 }

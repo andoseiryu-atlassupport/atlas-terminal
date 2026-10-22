@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "atlas-terminal"
-version = "0.2.0"
-description = "Free public-source US equity research, financial statements, ownership and macro data"
+version = "0.3.0"
+description = "Source-backed company financials, US macro and reference FX through one MCP connection"
 readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
@@ -22,12 +22,21 @@ dependencies = [
 
 [project.scripts]
 atlas = "atlas_terminal.cli:main"
+atlas-terminal = "atlas_terminal.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/andoseiryu-atlassupport/atlas-terminal"
+Documentation = "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/index.md"
+Repository = "https://github.com/andoseiryu-atlassupport/atlas-terminal"
+Issues = "https://github.com/andoseiryu-atlassupport/atlas-terminal/issues"
+Changelog = "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/CHANGELOG.md"
 
 [dependency-groups]
 dev = [
   "build==1.6.1",
   "hatchling==1.32.4",
   "jsonschema==4.26.0",
+  "markdown-it-py==4.2.0",
   "mypy==2.4.0",
   "pytest==9.1.1",
   "pytest-asyncio==1.4.0",

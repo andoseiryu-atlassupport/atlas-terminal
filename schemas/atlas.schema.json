@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.atlas.invalid/atlas-0.1.schema.json",
-  "title": "Atlas application contract — design specification, not x402 wire schema",
+  "title": "Atlas application contract \u2014 design specification, not x402 wire schema",
   "$defs": {
     "FinancialQuery": {
       "type": "object",
@@ -588,33 +588,206 @@
       "additionalProperties": false
     },
     "Error": {
-      "type": "object",
+      "additionalProperties": false,
       "properties": {
         "error": {
-          "type": "object",
-          "properties": {
-            "code": {
-              "type": "string"
-            },
-            "message": {
-              "type": "string"
-            },
-            "retryable": {
-              "type": "boolean"
-            },
-            "details": {
-              "type": "object"
-            },
-            "request_id": {
-              "type": "string"
-            }
-          },
-          "required": ["code", "message", "retryable", "details", "request_id"],
-          "additionalProperties": false
+          "$ref": "#/$defs/ErrorPayload"
         }
       },
       "required": ["error"],
-      "additionalProperties": false
+      "title": "ErrorEnvelope",
+      "type": "object"
+    },
+    "ReconcileRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "transaction": {
+          "anyOf": [
+            {
+              "pattern": "^0x[0-9a-fA-F]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Transaction"
+        }
+      },
+      "title": "ReconcileRequest",
+      "type": "object"
+    },
+    "ReconciliationResult": {
+      "additionalProperties": false,
+      "properties": {
+        "quote_id": {
+          "title": "Quote Id",
+          "type": "string"
+        },
+        "state": {
+          "enum": [
+            "QUOTED",
+            "EXPIRED",
+            "SETTLED",
+            "NOT_REQUIRED",
+            "FAILED",
+            "SETTLEMENT_UNKNOWN"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "outcome": {
+          "enum": [
+            "settled",
+            "failed",
+            "pending",
+            "not_started",
+            "not_required"
+          ],
+          "title": "Outcome",
+          "type": "string"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        },
+        "checked_at": {
+          "title": "Checked At",
+          "type": "string"
+        },
+        "evidence_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Evidence Sha256"
+        },
+        "receipt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Receipt"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": ["quote_id", "state", "outcome", "reason", "checked_at"],
+      "title": "ReconciliationResult",
+      "type": "object"
+    },
+    "ErrorPayload": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "retryable": {
+          "title": "Retryable",
+          "type": "boolean"
+        },
+        "details": {
+          "additionalProperties": true,
+          "title": "Details",
+          "type": "object"
+        },
+        "request_id": {
+          "title": "Request Id",
+          "type": "string"
+        },
+        "next_action": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/NextAction"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "retry_after_seconds": {
+          "anyOf": [
+            {
+              "maximum": 86400,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retry After Seconds"
+        }
+      },
+      "required": ["code", "message", "retryable", "details", "request_id"],
+      "title": "ErrorPayload",
+      "type": "object"
+    },
+    "NextAction": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "enum": [
+            "fix_query",
+            "inspect_catalog",
+            "resolve_company",
+            "review_coverage",
+            "review_requirements",
+            "retry_read",
+            "request_quote",
+            "wait",
+            "check_purchase_status",
+            "contact_operator",
+            "restart_query",
+            "stop"
+          ],
+          "title": "Action",
+          "type": "string"
+        },
+        "tool": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tool"
+        },
+        "fields": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Fields",
+          "type": "array"
+        },
+        "automatic": {
+          "default": false,
+          "title": "Automatic",
+          "type": "boolean"
+        }
+      },
+      "required": ["action"],
+      "title": "NextAction",
+      "type": "object"
     }
   }
 }

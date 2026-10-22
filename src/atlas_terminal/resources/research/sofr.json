@@ -1,0 +1,7 @@
+{
+  "fixture_notice": "SYNTHETIC reference rates, not actual observations",
+  "refRates": [
+    {"effectiveDate": "2026-10-19", "type": "SOFR", "percentRate": 1.30, "revisionIndicator": ""},
+    {"effectiveDate": "2026-10-16", "type": "SOFR", "percentRate": 1.28, "revisionIndicator": ""}
+  ]
+}
