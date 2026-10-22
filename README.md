@@ -29,7 +29,7 @@ Values retain their units, periods, source hashes, retrieval times and JSON poin
 Use Python 3.12+ and [uv](https://docs.astral.sh/uv/). Install the tagged GitHub source distribution; the package is not yet published on PyPI:
 
 ```sh
-uv tool install 'git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.3.0'
+uv tool install 'git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.3.1'
 atlas research preset fx_context --base-currency USD --quote-currency JPY --include fx,us_sofr --provider fixture --json
 ```
 
