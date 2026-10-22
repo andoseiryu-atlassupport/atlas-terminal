@@ -1,7 +1,7 @@
 """Stable documentation links, separate from original data-source attribution."""
 
 DOCUMENTATION_ORIGIN = "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main"
-SITE_ORIGIN = "https://andoseiryu-atlassupport.github.io/atlas-terminal"
+SITE_ORIGIN = "https://atlas-terminal-docs.citrus-genet-7815.chatgpt.site"
 
 
 def research_documentation(dataset: str) -> dict[str, str]:

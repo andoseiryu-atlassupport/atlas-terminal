@@ -4,7 +4,7 @@
 
 Atlas Terminal gives AI agents company financials, US macro indicators and reference FX through one MCP connection, using free public primary sources. The same retrieval, calculation and evidence services are available through a CLI, Python SDK and HTTP API.
 
-[Documentation](docs/index.md) · [Connect Codex](docs/codex.md) · [Examples](docs/use-cases.md) · [Capabilities](IMPLEMENTATION_STATUS.md) · [Data sources](DATA_SOURCES.md)
+[Documentation website](https://atlas-terminal-docs.citrus-genet-7815.chatgpt.site) · [Connect Codex](docs/codex.md) · [Examples](docs/use-cases.md) · [Capabilities](IMPLEMENTATION_STATUS.md) · [Data sources](DATA_SOURCES.md)
 
 ## Available data
 
