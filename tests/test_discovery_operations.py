@@ -30,9 +30,14 @@ def public_site(*, robots=None, page_change=None, sitemap=None):
     def handle(request):
         requests.append(request)
         assert "authorization" not in request.headers
+        assert "cookie" not in request.headers
         path = request.url.path
         if path == "/robots.txt":
-            return httpx.Response(200, text=robots or "User-agent: *\nAllow: /\n")
+            return httpx.Response(
+                200,
+                text=robots or "User-agent: *\nAllow: /\n",
+                headers={"Set-Cookie": "audit_cookie=fictional; Path=/"},
+            )
         if path == "/sitemap.xml":
             content = sitemap or (
                 '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'

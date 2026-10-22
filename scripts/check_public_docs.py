@@ -108,6 +108,8 @@ def robots_allows(text, agent, path):
 
 def read_response(client, url, agent):
     # Never follow redirects to a different origin, send credentials, or expose response bodies.
+    # Each crawler simulation starts without cookies from earlier agent/page requests.
+    client.cookies.clear()
     try:
         with client.stream("GET", url, headers={"User-Agent": agent + "/1.0"}) as response:
             if response.status_code != 200:
