@@ -70,6 +70,7 @@ jobs:
           uv run --offline pytest
           npm run check
           python scripts/scan_public_files.py
+          uv run --offline python scripts/run_research_workflow.py --output build/evals/fixture-workflow.json
       - name: Build packages, documentation and research plugin
         run: |
           uv run --offline python -m build --no-isolation
@@ -88,12 +89,13 @@ jobs:
           plugin = f"atlas-terminal-{version}-plugin.zip"
           shutil.copyfile(Path("build/distribution") / plugin, assets / plugin)
           shutil.copyfile("build/distribution/server.json", assets / f"atlas-terminal-{version}-registry-draft.json")
+          shutil.copyfile("build/evals/fixture-workflow.json", assets / f"atlas-terminal-{version}-fixture-workflow.json")
           shutil.make_archive(str(assets / f"atlas-terminal-{version}-docs"), "zip", "build/site")
           checksums = "".join(hashlib.sha256(p.read_bytes()).hexdigest() + "  " + p.name + "\n" for p in sorted(assets.iterdir()))
           (assets / f"SHA256SUMS-{version}.txt").write_text(checksums)
           notes = Path("CHANGELOG.md").read_text()
           notes += "\n\nThe plugin ZIP is for compatible local/desktop clients; Registry metadata is a draft. "
-          notes += "No PyPI release, official Registry/plugin listing, public remote endpoint or standalone documentation-site deployment is claimed. "
+          notes += "Public documentation is linked from README. No PyPI release, official Registry/plugin listing or public remote endpoint is claimed. "
           notes += "Fixture checks do not verify live sources or real transfers.\n"
           (output / "notes.md").write_text(notes)
           PY

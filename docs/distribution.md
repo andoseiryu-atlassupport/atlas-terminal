@@ -4,7 +4,7 @@ Atlas Terminal can be installed from a tagged GitHub source distribution or rele
 
 ## GitHub installation and releases
 
-Use the [Codex setup](codex.md) for a version-pinned installation. A release contains a wheel, source distribution, research plugin ZIP and static-documentation archive. Python 3.12+ and uv are required for the documented Git source workflow. The plugin bundles only the focused research skill and a research-only MCP connection; it has no payment workflow or lifecycle hooks.
+Use the [Codex setup](codex.md) for a version-pinned installation. A release contains a wheel, source distribution, research plugin ZIP, static-documentation archive and fictional MCP contract report. Python 3.12+ and uv are required for the documented Git source workflow. The plugin bundles only the focused research skill and a research-only MCP connection; it has no payment workflow or lifecycle hooks.
 
 Build the local package without publishing:
 

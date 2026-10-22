@@ -1,0 +1,49 @@
+{
+  "items": [
+    {
+      "id": "revenue",
+      "query": {
+        "dataset": "statements",
+        "identifier": "ATLASDEMO",
+        "metrics": ["revenue"],
+        "period": "annual",
+        "count": 1,
+        "requirements": { "allow_missing": false },
+        "response": { "view": "compact" }
+      }
+    },
+    {
+      "id": "free_cash_flow",
+      "query": {
+        "dataset": "financial_analytics",
+        "identifier": "ATLASDEMO",
+        "metrics": ["free_cash_flow"],
+        "period": "annual",
+        "count": 1,
+        "requirements": { "allow_missing": false },
+        "response": { "view": "compact" }
+      }
+    },
+    {
+      "id": "cpi",
+      "query": {
+        "dataset": "economics",
+        "series": "cpi",
+        "limit": 1,
+        "requirements": { "allow_missing": false },
+        "response": { "view": "compact" }
+      }
+    },
+    {
+      "id": "usd_jpy",
+      "query": {
+        "dataset": "fx_rates",
+        "base_currency": "USD",
+        "quote_currency": "JPY",
+        "limit": 1,
+        "requirements": { "allow_missing": false },
+        "response": { "view": "compact" }
+      }
+    }
+  ]
+}

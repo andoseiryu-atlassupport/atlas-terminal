@@ -1,0 +1,35 @@
+[Unit]
+Description=Atlas Terminal research-only MCP
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+DynamicUser=yes
+StateDirectory=atlas-terminal
+StateDirectoryMode=0700
+WorkingDirectory=/var/lib/atlas-terminal
+Environment=ATLAS_STATE_DIR=/var/lib/atlas-terminal
+Environment=ATLAS_MCP_PUBLIC_ORIGIN=__ORIGIN__
+Environment=WEB_CONCURRENCY=1
+Environment=UVICORN_WORKERS=1
+EnvironmentFile=/etc/atlas-terminal/mcp.env
+ExecStart=/opt/atlas-terminal/.venv/bin/atlas mcp http --provider __PROVIDER__ --host 127.0.0.1 --port 8001 __AUTH_ARGUMENT__
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+UMask=0077
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+
+[Install]
+WantedBy=multi-user.target

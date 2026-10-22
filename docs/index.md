@@ -12,6 +12,8 @@ Atlas Terminal connects AI agents to company financials, US macro indicators and
 
 Select only the preset items you need. A preview shows the exact queries without source access. Results preserve units, observation periods, source retrieval times, explicit missingness and original source references. [Runnable examples](use-cases.md) · [Preset contracts](presets.md).
 
+The [company, CPI and USD/JPY example](company-macro-fx.md) retrieves four datasets through one official MCP session and resolves every returned evidence ID. Its fictional run and explicit public-data mode are separate. [Public HTTP and remote checks](public-checks.md) explain how to verify a published deployment.
+
 ## Connect an agent
 
 Start with the [Codex setup](codex.md) or [general MCP quickstart](quickstart.md). Local stdio is available for compatible desktop clients. A separate [research-only Streamable HTTP service](remote-mcp.md) supports operator-hosted deployments. No official public Atlas remote endpoint is currently operated; local installation is available from the tagged source distribution.
@@ -19,7 +21,7 @@ Start with the [Codex setup](codex.md) or [general MCP quickstart](quickstart.md
 Try the packaged fictional data before making any public-source requests:
 
 ```sh
-uvx --from 'git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.3.1' atlas research preset fx_context --base-currency USD --quote-currency JPY --include fx,us_sofr --provider fixture --json
+uvx --from 'git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.3.2' atlas research preset fx_context --base-currency USD --quote-currency JPY --include fx,us_sofr --provider fixture --json
 ```
 
 This example uses synthetic data, not current market observations. It needs Python 3.12+ and uv, and its first installation needs network access. The Python package is not yet published on PyPI.

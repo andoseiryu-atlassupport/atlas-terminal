@@ -51,6 +51,13 @@ jobs:
           uv run --offline python examples/free_research.py
           uv run --offline atlas research batch --input examples/research_batch.json --provider fixture --json
           uv run --offline python examples/mock_purchase.py
+          uv run --offline python scripts/run_research_workflow.py --output build/evals/fixture-workflow.json
+      - name: Retain fixture MCP contract report
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: fixture-mcp-workflow
+          path: build/evals/fixture-workflow.json
+          retention-days: 14
       - name: Build distribution
         run: |
           uv run --offline python -m build --no-isolation

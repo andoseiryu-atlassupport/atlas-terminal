@@ -4,10 +4,10 @@ Connect Atlas Terminal as an MCP server to retrieve free primary-source company 
 
 ## Install a tagged version
 
-Install Python 3.12+, uv and your MCP client. This command installs the v0.3.1 source distribution from GitHub; PyPI publication is not yet available:
+Install Python 3.12+, uv and your MCP client. This command installs the v0.3.2 source distribution from GitHub; PyPI publication is not yet available:
 
 ```sh
-uv tool install 'git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.3.1'
+uv tool install 'git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.3.2'
 atlas research catalog --json
 atlas research preset fx_context --base-currency USD --quote-currency JPY --include fx,us_sofr --provider fixture --json
 ```
@@ -19,7 +19,7 @@ The first installation needs network access. The fixture command then runs witho
 Use the same environment in which `uv` is available:
 
 ```sh
-codex mcp add atlas-terminal -- uvx --from 'git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.3.1' atlas mcp serve --provider public --research-only
+codex mcp add atlas-terminal -- uvx --from 'git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.3.2' atlas mcp serve --provider public --research-only
 codex mcp list
 ```
 
@@ -30,7 +30,7 @@ For SEC company data, configure `SEC_USER_AGENT` privately with your application
 ```toml
 [mcp_servers.atlas-terminal]
 command = "uvx"
-args = ["--from", "git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.3.1", "atlas", "mcp", "serve", "--provider", "public", "--research-only"]
+args = ["--from", "git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.3.2", "atlas", "mcp", "serve", "--provider", "public", "--research-only"]
 env_vars = ["SEC_USER_AGENT", "ATLAS_STATE_DIR"]
 ```
 

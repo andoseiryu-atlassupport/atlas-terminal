@@ -4,6 +4,8 @@ Atlas Terminal provides three presets for common research tasks. Discover their 
 
 ## Company financials and free cash flow
 
+For a complete workflow spanning company financials, CPI and USD/JPY in one batch, use the [runnable MCP example](company-macro-fx.md). It includes exact fictional output, saved queries, evidence resolution and an explicit public-source mode.
+
 ```sh
 uv run --offline atlas research preset company_overview --identifier ATLASDEMO --period quarterly --count 1 --provider fixture --json
 ```
