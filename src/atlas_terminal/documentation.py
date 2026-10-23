@@ -2,6 +2,7 @@
 
 DOCUMENTATION_ORIGIN = "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main"
 SITE_ORIGIN = "https://atlas-terminal-docs.citrus-genet-7815.chatgpt.site"
+PROJECT_TAGLINE = "Free financial data for AI agents through one MCP connection."
 
 
 def research_documentation(dataset: str) -> dict[str, str]:

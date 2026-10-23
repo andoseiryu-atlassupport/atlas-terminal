@@ -2,6 +2,8 @@
 
 Atlas Terminal can be installed from a tagged GitHub source distribution or release wheel. The Python package is not yet published on PyPI, and no official public remote MCP endpoint or OpenAI plugin listing is currently operated. Prepared metadata, local plugin installation and public listing are different states.
 
+The [publication and search-ownership guide](publication-setup.md) supplies exact trusted-publisher settings, the manual release workflow and search verification steps. External account ownership is required before those registrations can be completed.
+
 ## GitHub installation and releases
 
 Use the [Codex setup](codex.md) for a version-pinned installation. A release contains a wheel, source distribution, research plugin ZIP, static-documentation archive and fictional MCP contract report. Python 3.12+ and uv are required for the documented Git source workflow. The plugin bundles only the focused research skill and a research-only MCP connection; it has no payment workflow or lifecycle hooks.

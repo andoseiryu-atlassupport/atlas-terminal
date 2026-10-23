@@ -4,11 +4,13 @@ import argparse
 import json
 import shutil
 from pathlib import Path
+from typing import get_args
 from zipfile import ZIP_DEFLATED, ZipFile
 
 from atlas_terminal import __version__
-from atlas_terminal.documentation import DOCUMENTATION_ORIGIN
+from atlas_terminal.documentation import PROJECT_TAGLINE, SITE_ORIGIN
 from atlas_terminal.remote_mcp import validated_origin
+from atlas_terminal.research_models import Dataset
 
 ROOT = Path(__file__).resolve().parents[1]
 REPOSITORY = "https://github.com/andoseiryu-atlassupport/atlas-terminal"
@@ -26,10 +28,8 @@ def prepare(directory: Path, remote_url: str | None = None) -> None:
         "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
         "name": "atlas-terminal",
         "version": __version__,
-        "description": (
-            "Company financials, US/Japan macro and reference FX through one connection."
-        ),
-        "homepage": DOCUMENTATION_ORIGIN + "/docs/index.md",
+        "description": PROJECT_TAGLINE,
+        "homepage": SITE_ORIGIN + "/",
         "repository": REPOSITORY,
         "license": "Apache-2.0",
         "keywords": ["financial-data", "mcp", "sec", "macro", "foreign-exchange"],
@@ -39,7 +39,8 @@ def prepare(directory: Path, remote_url: str | None = None) -> None:
                     "displayName": "Atlas Terminal",
                     "shortDescription": "Financials, US/Japan macro and FX with original sources",
                     "longDescription": (
-                        "Retrieve 23 free primary-source datasets through one MCP connection. "
+                        f"Retrieve {len(get_args(Dataset))} free primary-source datasets "
+                        "through one MCP connection. "
                         "Use company, US/Japan macro and FX-context presets with explicit "
                         "units, dates, "
                         "missingness and evidence. No real-time prices, PIT history or trading."
@@ -47,10 +48,10 @@ def prepare(directory: Path, remote_url: str | None = None) -> None:
                     "developerName": "Atlas Terminal contributors",
                     "category": "Productivity",
                     "capabilities": ["Read"],
-                    "websiteURL": DOCUMENTATION_ORIGIN + "/docs/index.md",
-                    "supportURL": DOCUMENTATION_ORIGIN + "/docs/support.md",
-                    "privacyPolicyURL": DOCUMENTATION_ORIGIN + "/docs/privacy.md",
-                    "termsOfServiceURL": DOCUMENTATION_ORIGIN + "/docs/terms.md",
+                    "websiteURL": SITE_ORIGIN + "/",
+                    "supportURL": SITE_ORIGIN + "/docs/support",
+                    "privacyPolicyURL": SITE_ORIGIN + "/docs/privacy",
+                    "termsOfServiceURL": SITE_ORIGIN + "/docs/terms",
                     "defaultPrompt": [
                         "Retrieve quarterly financials and free cash flow with sources.",
                         "Get US inflation, employment and rates with observation dates.",
@@ -110,11 +111,9 @@ def prepare(directory: Path, remote_url: str | None = None) -> None:
         "name": SERVER_NAME,
         "title": "Atlas Terminal",
         "version": __version__,
-        "description": (
-            "Free company financials, US/Japan macro and reference FX with source evidence."
-        ),
+        "description": PROJECT_TAGLINE,
         "repository": {"url": REPOSITORY, "source": "github"},
-        "websiteUrl": DOCUMENTATION_ORIGIN + "/docs/index.md",
+        "websiteUrl": SITE_ORIGIN + "/",
     }
     if remote_url:
         registry["remotes"] = [{"type": "streamable-http", "url": remote_url}]

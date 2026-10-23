@@ -1,0 +1,15 @@
+cff-version: 1.2.0
+message: "Cite Atlas Terminal for its software and methods. Cite original publishers for data observations."
+type: software
+title: Atlas Terminal
+version: 0.6.0
+authors:
+  - name: Atlas Terminal contributors
+repository-code: "https://github.com/andoseiryu-atlassupport/atlas-terminal"
+url: "https://atlas-terminal-docs.citrus-genet-7815.chatgpt.site/"
+license: Apache-2.0
+keywords:
+  - financial data
+  - MCP
+  - macroeconomics
+  - source evidence

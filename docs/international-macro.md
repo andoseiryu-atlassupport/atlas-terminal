@@ -1,6 +1,6 @@
 # Discover and align macro series
 
-Series search, IMF/OECD retrieval and macro panels use the same SDK, CLI, MCP and HTTP research service. These additions are available in the current source checkout, ahead of the next tagged release. No wallet, subscription or LLM is required. Live IMF/OECD compatibility remains unverified; examples marked `fixture` use fictional source bytes.
+Series search, IMF/OECD retrieval and macro panels use the same SDK, CLI, MCP and HTTP research service. No wallet, subscription or LLM is required. Live IMF/OECD compatibility remains unverified; examples marked `fixture` use fictional source bytes.
 
 ## Search existing series
 

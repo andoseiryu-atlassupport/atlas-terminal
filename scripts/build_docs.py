@@ -16,6 +16,7 @@ from xml.etree.ElementTree import Element, SubElement, tostring
 from markdown_it import MarkdownIt
 
 from atlas_terminal import __version__
+from atlas_terminal.documentation import PROJECT_TAGLINE
 from atlas_terminal.documentation import SITE_ORIGIN as DOCUMENTATION_ORIGIN
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -92,7 +93,13 @@ def verify(directory: Path) -> None:
         raise ValueError("\n".join(failures))
 
 
-def build(directory: Path, *, html_suffix: bool = False) -> None:
+def build(
+    directory: Path,
+    *,
+    html_suffix: bool = False,
+    google_verification: str | None = None,
+    bing_verification: str | None = None,
+) -> None:
     directory.mkdir(parents=True, exist_ok=True)
     sources = [*ROOT_PAGES, *sorted(str(p.relative_to(ROOT)) for p in (ROOT / "docs").glob("*.md"))]
     pages = {source: output_path(source) for source in sources}
@@ -106,7 +113,7 @@ def build(directory: Path, *, html_suffix: bool = False) -> None:
         ("docs/index.md", "Home"),
         ("docs/quickstart.md", "Quickstart"),
         ("docs/codex.md", "Codex"),
-        ("docs/use-cases.md", "Examples"),
+        ("docs/research-examples.md", "Examples"),
         ("docs/presets.md", "Presets"),
         ("DATA_SOURCES.md", "Sources"),
         ("docs/methodology.md", "Methodology"),
@@ -116,7 +123,7 @@ def build(directory: Path, *, html_suffix: bool = False) -> None:
     llms = [
         "# Atlas Terminal",
         "",
-        "> Free company financials, US/Japan macro and reference FX through one MCP connection.",
+        "> " + PROJECT_TAGLINE,
         "",
         "Current snapshots are not PIT history or real-time prices. Fixtures are fictional.",
         "Cite original publishers for numerical facts; Atlas documents selection and calculations.",
@@ -155,7 +162,11 @@ def build(directory: Path, *, html_suffix: bool = False) -> None:
                     )
                     + suffix
                 )
-            if resolved.startswith(("schemas/", "examples/")) or resolved == "LICENSE":
+            if (
+                resolved.startswith(("schemas/", "examples/", "evals/"))
+                or (resolved.startswith("docs/") and resolved.endswith(".json"))
+                or resolved == "LICENSE"
+            ):
                 src = ROOT / resolved
                 if src.is_file() and src.resolve().is_relative_to(ROOT):
                     dest = directory / resolved
@@ -213,11 +224,21 @@ def build(directory: Path, *, html_suffix: bool = False) -> None:
             )
         css = posixpath.relpath("assets/docs.css", posixpath.dirname(output) or ".")
         markdown = posixpath.relpath(source, posixpath.dirname(output) or ".")
+        verification = ""
+        for name, value in (
+            ("google-site-verification", google_verification),
+            ("msvalidate.01", bing_verification),
+        ):
+            if value:
+                if not re.fullmatch(r"[A-Za-z0-9_-]{8,256}", value):
+                    raise ValueError("Invalid public search ownership verification token.")
+                verification += f'<meta name="{name}" content="{value}">'
         rendered = f'''<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{html.escape(title)} | Atlas Terminal</title>
 <meta name="description" content="{html.escape(description, quote=True)}">
+{verification}
 <link rel="canonical" href="{canonical}"><meta name="robots" content="index,follow">
 <meta property="og:title" content="{html.escape(title, quote=True)}">
 <meta property="og:description" content="{html.escape(description, quote=True)}">
@@ -276,10 +297,17 @@ def build(directory: Path, *, html_suffix: bool = False) -> None:
 if __name__ == "__main__":
     cli = argparse.ArgumentParser(description=__doc__)
     cli.add_argument("--output", type=Path, default=ROOT / "build/site")
+    cli.add_argument("--google-verification", help="Public Search Console ownership token")
+    cli.add_argument("--bing-verification", help="Public Bing Webmaster ownership token")
     cli.add_argument(
         "--html-suffix",
         action="store_true",
         help="Use .html URLs on hosts that require file suffixes",
     )
     args = cli.parse_args()
-    build(args.output.resolve(), html_suffix=args.html_suffix)
+    build(
+        args.output.resolve(),
+        html_suffix=args.html_suffix,
+        google_verification=args.google_verification,
+        bing_verification=args.bing_verification,
+    )

@@ -2,6 +2,10 @@
 
 Attribute numerical facts to the original publisher. Atlas Terminal retrieves and normalizes public data; its documentation explains selection rules, calculations, coverage and interfaces. A documentation link is not the original source of an observation and does not prove a successful live retrieval.
 
+## Cite the software or method
+
+Use [CITATION.cff](../CITATION.cff) for the software citation. Include the actual version used and the relevant [financial](methodology.md) or [macro](macro.md) methodology page. [Reproducible captures](research-examples.md) preserve complete queries, dated results and resolved evidence under content-addressed filenames. A software citation supplements original data attribution.
+
 ## Cite a reported observation
 
 1. Preserve the metric or series, value, unit and actual observation period.

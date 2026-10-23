@@ -2,6 +2,10 @@
 
 Two distinct case sets are provided. `discovery-questions.json` measures whether a search-enabled assistant finds or cites public Atlas documentation. `research-workflows.json` checks whether an installed skill and MCP connection complete supported tasks and respect coverage limits. Neither file contains measured model results or triggers model requests.
 
+Use the [controlled observation guide](../docs/discovery-measurement.md) and `scripts/summarize_discovery.py` to prepare and summarize actual answer records. Pending cases and unknown rates remain explicit. The [three research captures](../docs/research-examples.md) preserve complete queries/results and resolved evidence through one official MCP session.
+
+The [2026-10-23 search probes](search-probes-2026-10-23.json) record twenty successful connected web-search queries. No exact Atlas repository/documentation URL appeared in the returned results. This is a bounded search-result observation, not evidence that the project is unindexed and not a model citation-rate measurement.
+
 For a manual observation record the date, product/client version, model, search setting, question ID, exact prompt, Atlas mention, cited URLs and result notes. Compare branded questions separately from unbranded questions. Search availability, personalization and nondeterministic retrieval limit comparisons; do not treat a single answer as a stable ranking.
 
 For installed-tool cases record the configured provider, skill/MCP version, actual tools called, per-item outcomes, evidence resolution, unsupported-request handling and task completion. Keep fixture-only success separate from live source access. Do not store personal prompts, credentials or raw private logs in public results.
