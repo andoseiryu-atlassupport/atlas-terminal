@@ -19,6 +19,7 @@ Atlas Terminal retrieves company financials, US macro data and reference FX from
 - Research requires no data subscription, API key, wallet or LLM. SEC requests use a private, operator-supplied User-Agent with an actual contact email.
 - Immutable snapshots of five annual metrics and an optional x402 API. Payments default to off; testnet is restricted to Base Sepolia USDC, and mainnet is rejected.
 - On-demand reconciliation reads finalized chain evidence without signing or settling again. Hosted MCP supports external-wallet payment metadata; official Python and TypeScript clients have offline interoperability checks.
+- Purchase preflight and budget summaries support agent planning without signing or reserving funds. Optional task IDs and private replay capabilities preserve the same quote across response loss, restart and concurrent preparation.
 
 ## Stack
 

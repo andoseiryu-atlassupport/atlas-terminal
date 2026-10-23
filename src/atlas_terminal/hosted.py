@@ -2,26 +2,32 @@
 
 import os
 import re
+import secrets
+from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import httpx
 from pydantic import ValidationError
 
 from atlas_terminal.errors import AtlasError, NextAction
 from atlas_terminal.models import (
+    BudgetStatus,
     Company,
     FinancialQuery,
+    PreflightCode,
+    PurchasePreflight,
     PurchaseResult,
     Quote,
     ReconcileRequest,
     ReconciliationResult,
 )
-from atlas_terminal.payments.common import fingerprint, origin
+from atlas_terminal.payments.common import fingerprint, origin, validate_testnet
+from atlas_terminal.payments.intents import INTENT_ACK_HEADER, INTENT_HEADER, intent_identifier
 from atlas_terminal.payments.mock import MockAdapter
 from atlas_terminal.payments.policy import BudgetLedger, SpendingPolicy
 from atlas_terminal.security import private_library_logs
-from atlas_terminal.util import Database, canonical, digest, state_dir
+from atlas_terminal.util import Database, canonical, digest, state_dir, utcnow
 
 CLIENT_SCHEMA = """
 CREATE TABLE IF NOT EXISTS saved_quotes (
@@ -29,6 +35,10 @@ CREATE TABLE IF NOT EXISTS saved_quotes (
 );
 CREATE TABLE IF NOT EXISTS client_payment_claims (
  quote_id TEXT PRIMARY KEY, kind TEXT NOT NULL, proof_sha256 TEXT
+);
+CREATE TABLE IF NOT EXISTS client_purchase_intents (
+ origin TEXT NOT NULL, intent_id TEXT NOT NULL, query_hash TEXT NOT NULL,
+ capability TEXT NOT NULL, quote_id TEXT, PRIMARY KEY(origin,intent_id)
 );
 """
 
@@ -48,6 +58,7 @@ class HostedClient:
         client: Any = None,
         policy_path: Path | None = None,
         session: str = "default",
+        payer_address: str | None = None,
     ) -> None:
         private_library_logs()
         self.origin = origin(base_origin)
@@ -57,6 +68,7 @@ class HostedClient:
         self.client = client or httpx.Client(timeout=30, follow_redirects=False)
         self.policy_path = policy_path
         self.session = session
+        self.payer_address = payer_address
 
     @classmethod
     def from_env(cls) -> "HostedClient":
@@ -68,6 +80,7 @@ class HostedClient:
             url,
             policy_path=Path(path) if path else None,
             session=os.environ.get("ATLAS_SESSION_ID", "default"),
+            payer_address=os.environ.get("ATLAS_TESTNET_PAYER_ADDRESS") or None,
         )
 
     def request(self, method: str, path: str, **kwargs: Any) -> Any:
@@ -124,6 +137,10 @@ class HostedClient:
                 "PAYMENT_REQUIRED",
                 "CONFIG_REQUIRED",
                 "LEDGER_UNAVAILABLE",
+                "INTENT_CONFLICT",
+                "INTENT_RETIRED",
+                "CACHE_FULL",
+                "INVALID_INPUT",
             }
             if code not in known:
                 code = "SOURCE_UNAVAILABLE"
@@ -151,9 +168,52 @@ class HostedClient:
             )
         )
 
-    def quote(self, query: FinancialQuery) -> Quote:
-        response = self.request("POST", "/v1/quotes", json=query.model_dump(mode="json"))
+    def quote(self, query: FinancialQuery, *, intent_id: str | None = None) -> Quote:
+        capability = None
+        if intent_id is not None:
+            intent_identifier(intent_id)
+            query_hash = digest(canonical(query))
+            with self.db.connect(write=True) as conn:
+                saved = conn.execute(
+                    "SELECT * FROM client_purchase_intents WHERE origin=? AND intent_id=?",
+                    (self.origin, intent_id),
+                ).fetchone()
+                if saved:
+                    if saved["query_hash"] != query_hash:
+                        raise AtlasError(
+                            "INTENT_CONFLICT",
+                            "Intent is already bound to a different query.",
+                            status=409,
+                        )
+                    capability = saved["capability"]
+                    saved_id = saved["quote_id"]
+                else:
+                    if (
+                        conn.execute("SELECT count(*) FROM client_purchase_intents").fetchone()[0]
+                        >= 10000
+                    ):
+                        raise AtlasError("CACHE_FULL", "Private intent storage is full.")
+                    capability, saved_id = secrets.token_urlsafe(32), None
+                    conn.execute(
+                        "INSERT INTO client_purchase_intents VALUES (?,?,?,?,NULL)",
+                        (self.origin, intent_id, query_hash, capability),
+                    )
+            if saved_id:
+                quote, _ = self.saved(saved_id)
+                if quote.query != query:
+                    raise AtlasError("QUOTE_MISMATCH", "Saved intent query is inconsistent.")
+                return quote
+        response = self.request(
+            "POST",
+            "/v1/quotes",
+            json=query.model_dump(mode="json"),
+            headers={INTENT_HEADER: capability} if capability else {},
+        )
         try:
+            if capability and response.headers.get(INTENT_ACK_HEADER) != "v1":
+                # Old servers must not silently weaken replay protection.
+                self.body(response)
+                raise ValueError("Intent protocol not acknowledged")
             quote = Quote.model_validate(self.body(response))
             quote_identifier(quote.quote_id)
             if quote.query != query or quote.resource_path != f"/v1/quotes/{quote.quote_id}/result":
@@ -166,11 +226,113 @@ class HostedClient:
                 "QUOTE_MISMATCH", "Hosted quote failed contract or request validation."
             ) from None
         with self.db.connect(write=True) as conn:
+            if capability:
+                saved = conn.execute(
+                    "SELECT quote_id FROM client_purchase_intents WHERE origin=? AND intent_id=?",
+                    (self.origin, intent_id),
+                ).fetchone()
+                if not saved or (
+                    saved["quote_id"] is not None and saved["quote_id"] != quote.quote_id
+                ):
+                    raise AtlasError("QUOTE_MISMATCH", "Intent returned a different quote.")
+                conn.execute(
+                    "UPDATE client_purchase_intents SET quote_id=? WHERE origin=? AND intent_id=?",
+                    (quote.quote_id, self.origin, intent_id),
+                )
+            existing = conn.execute(
+                "SELECT quote,recovery,origin FROM saved_quotes WHERE id=?", (quote.quote_id,)
+            ).fetchone()
+            if existing:
+                if (
+                    existing["quote"] != canonical(quote).decode()
+                    or existing["recovery"] != token
+                    or existing["origin"] != self.origin
+                ):
+                    raise AtlasError("QUOTE_MISMATCH", "Stored quote or capability changed.")
+                return quote
             conn.execute(
                 "INSERT INTO saved_quotes VALUES (?,?,?,?)",
                 (quote.quote_id, self.origin, canonical(quote).decode(), token),
             )
         return quote
+
+    def _budget_context(self) -> tuple[SpendingPolicy, str]:
+        if self.policy_path is None:
+            raise AtlasError("PAYMENTS_DISABLED", "Configure an operator spending policy.")
+        policy = SpendingPolicy.load(self.policy_path)
+        if policy.mode == "mock":
+            if policy.network != "mock:0" or policy.asset != "fixture:USDC":
+                raise AtlasError("POLICY_DENIED", "Mock policy requires fictional assets.")
+            return policy, "fixture:agent"
+        validate_testnet(policy.network, policy.asset, policy.pay_to)
+        if not self.payer_address or not re.fullmatch(r"0x[0-9a-fA-F]{40}", self.payer_address):
+            raise AtlasError(
+                "WALLET_NOT_CONFIGURED",
+                "Configure the public testnet payer address for budget reads.",
+            )
+        return policy, self.payer_address
+
+    def budget_status(self) -> BudgetStatus:
+        policy, owner = self._budget_context()
+        return self.budgets.summary(policy, owner, self.session)
+
+    def preflight(self, quote_id: str, *, max_cost: str | None = None) -> PurchasePreflight:
+        quote, token = self.saved(quote_id)
+        response = self.request(
+            "GET", f"/v1/quotes/{quote_id}/preflight", headers={"Authorization": "Bearer " + token}
+        )
+        try:
+            result = PurchasePreflight.model_validate(self.body(response))
+            if (
+                result.scope != "order"
+                or result.budget is not None
+                or result.quote_id != quote_id
+                or result.pricing != quote.pricing
+                or result.result_sha256 != quote.result_sha256
+                or result.expires_at != quote.expires_at
+            ):
+                raise ValueError("Preflight mismatch")
+        except (ValueError, ValidationError):
+            raise AtlasError(
+                "QUOTE_MISMATCH", "Order preflight differs from the saved quote."
+            ) from None
+        result.scope = "local_wallet"
+        if result.decision != "ready":
+            return result
+        if result.state != "QUOTED":
+            raise AtlasError("QUOTE_MISMATCH", "Only an unstarted quote can be ready.")
+        if datetime.fromisoformat(quote.expires_at.replace("Z", "+00:00")) <= utcnow():
+            result.decision, result.code = "blocked", "QUOTE_EXPIRED"
+            return result
+        if quote.pricing.mode == "off":
+            return result
+        with self.db.connect() as conn:
+            claim = conn.execute(
+                "SELECT kind FROM client_payment_claims WHERE quote_id=?", (quote_id,)
+            ).fetchone()
+        reservation = self.budgets.get(quote_id)
+        if reservation or (claim and claim["kind"] == "external"):
+            result.decision, result.code = "wait", "PURCHASE_ALREADY_STARTED"
+            return result
+        try:
+            policy, owner = self._budget_context()
+            result.budget = self.budgets.summary(policy, owner, self.session)
+            policy.authorize(quote, self.origin, max_cost)
+            if int(quote.pricing.amount_atomic) > min(
+                int(result.budget.session.remaining_atomic), int(result.budget.day.remaining_atomic)
+            ):
+                raise AtlasError("BUDGET_EXCEEDED", "Remaining budget is insufficient.")
+        except AtlasError as exc:
+            if exc.code not in {
+                "PAYMENTS_DISABLED",
+                "POLICY_DENIED",
+                "WALLET_NOT_CONFIGURED",
+                "BUDGET_EXCEEDED",
+                "QUOTE_EXPIRED",
+            }:
+                raise
+            result.decision, result.code = "blocked", cast(PreflightCode, exc.code)
+        return result
 
     def saved(self, quote_id: str) -> tuple[Quote, str]:
         quote_identifier(quote_id)
@@ -450,6 +612,10 @@ class HostedClient:
 
             signer = TestnetSigner()
             owner = signer.address
+            if self.payer_address is not None and owner.lower() != self.payer_address.lower():
+                raise AtlasError(
+                    "POLICY_DENIED", "Signer differs from the configured budget payer."
+                )
         with self.db.connect(write=True) as conn:
             conn.execute(
                 "INSERT OR IGNORE INTO client_payment_claims VALUES (?,'local',NULL)", (quote_id,)

@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any, Literal
 from urllib.parse import urlsplit
 
-from fastapi import FastAPI, Query, Request
+from fastapi import FastAPI, Header, Query, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
@@ -17,6 +17,7 @@ from atlas_terminal.errors import AtlasError, ErrorEnvelope
 from atlas_terminal.models import (
     Company,
     FinancialQuery,
+    PurchasePreflight,
     PurchaseResult,
     Quote,
     ReconcileRequest,
@@ -31,6 +32,7 @@ from atlas_terminal.payments.common import (
     origin,
     validate_testnet,
 )
+from atlas_terminal.payments.intents import INTENT_ACK_HEADER, INTENT_HEADER
 from atlas_terminal.payments.mock import MockAdapter
 from atlas_terminal.payments.orders import OrderService
 from atlas_terminal.payments.reconciliation import BaseSepoliaReconciler, SettlementReconciler
@@ -301,11 +303,30 @@ def create_app(
             }
         },
     )
-    def quote_financials(body: dict[str, Any]) -> JSONResponse:
-        quote, recovery = orders.prepare(parse_query(body))
+    def quote_financials(
+        body: dict[str, Any],
+        intent_key: str | None = Header(
+            default=None,
+            alias=INTENT_HEADER,
+            description=(
+                "Private random replay capability, at least 32 characters. "
+                "Never put a public task ID here."
+            ),
+        ),
+    ) -> JSONResponse:
+        quote, recovery = orders.prepare(parse_query(body), intent_key=intent_key)
         return JSONResponse(
-            quote.model_dump(mode="json"), headers={"Atlas-Recovery-Token": recovery}
+            quote.model_dump(mode="json"),
+            headers={
+                "Atlas-Recovery-Token": recovery,
+                **({INTENT_ACK_HEADER: "v1"} if intent_key is not None else {}),
+            },
         )
+
+    @app.get("/v1/quotes/{quote_id}/preflight", response_model=PurchasePreflight)
+    def purchase_preflight(quote_id: str, request: Request) -> PurchasePreflight:
+        """Check order readiness only; the caller's wallet enforces its own budget."""
+        return orders.preflight(quote_id, bearer(request))
 
     @app.get("/v1/quotes/{quote_id}/status")
     def purchase_status(quote_id: str, request: Request) -> dict[str, Any]:

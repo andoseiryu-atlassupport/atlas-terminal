@@ -67,6 +67,8 @@ async def test_real_mcp_subprocess_initialize_list_call_and_structured_content(t
             "atlas_quote",
             "atlas_purchase",
             "atlas_purchase_status",
+            "atlas_budget_status",
+            "atlas_purchase_preflight",
             "atlas_research_catalog",
             "atlas_get_research",
             "atlas_get_research_batch",
@@ -75,7 +77,7 @@ async def test_real_mcp_subprocess_initialize_list_call_and_structured_content(t
             "atlas_get_evidence",
         }
         purchase = next(t for t in tools if t.name == "atlas_purchase")
-        assert set(purchase.input_schema["properties"]) == {"quote_id"}
+        assert set(purchase.input_schema["properties"]) == {"quote_id", "max_cost"}
         assert "SPENDS" in purchase.description
         result = await session.call_tool("atlas_get_financials", QUERY)
         assert not result.is_error

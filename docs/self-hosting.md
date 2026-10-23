@@ -25,6 +25,7 @@ For SEC retrieval, use `--provider sec` and a private `SEC_USER_AGENT`. Set `ATL
 | POST   | /v1/quotes                                   | Prepare data, save an immutable artifact and return a free quote |
 | GET    | /v1/quotes/{quote_id}/result                 | Authenticated delivery; positive-price modes require settlement  |
 | GET    | /v1/quotes/{quote_id}/status                 | Authenticated status recovery                                    |
+| GET    | /v1/quotes/{quote_id}/preflight              | Authenticated order readiness; no client wallet or budget access |
 | POST   | /v1/quotes/{quote_id}/reconcile              | Authenticated finalized-chain reconciliation without payment     |
 
 Example body for `POST /v1/quotes`:
@@ -39,7 +40,7 @@ Example body for `POST /v1/quotes`:
 }
 ```
 
-`Atlas-Recovery-Token` is returned once in a response header, never in JSON, MCP output or logs. Use it as `Authorization: Bearer` to retrieve status and purchased results. A quote ID alone does not grant access. The token does not authorize a new purchase or bypass payment for an unpaid result.
+`Atlas-Recovery-Token` is returned in a response header, never in JSON, MCP output or logs. Use it as `Authorization: Bearer` to retrieve status, order preflight and purchased results. A quote ID alone does not grant access. The token does not authorize a new purchase or bypass payment for an unpaid result. Optional private `Atlas-Intent-Key` capabilities replay the same quote and recovery header after a lost response; see [task-bound quote replay](payments.md#reuse-a-tasks-quote-safely).
 
 `/openapi.json` exposes the generated FastAPI specification. Domain contracts use [annual snapshot and reconciliation JSON Schema](../schemas/atlas.schema.json) and [research JSON Schema](../schemas/research.schema.json). Official SDK models define x402 wire payloads.
 
@@ -52,6 +53,8 @@ Optional server-only `ATLAS_TESTNET_RPC_URL` enables capability-authenticated re
 ## Limits and retention
 
 Quotes expire after five minutes. Preparation is limited to 30 requests/minute across the service, 128 stored quotes and 64 MiB of snapshots. Each artifact is limited to 2 MiB; POST bodies are limited to 16 KiB. Purchased snapshots remain available for at least 24 hours after confirmed settlement. Quote expiry and purchased-artifact retention are separate. Unknown settlements are not automatically deleted.
+
+The server retains at most 10,000 private intent-hash bindings independently of quote cleanup. Replays do not consume new quote capacity or renew expiry; retired bindings remain tombstones. Exhaustion rejects new intent bindings without erasing existing recovery state. Budgets remain on the caller's private client volume and are not exposed by this server.
 
 Optional research presentation uses a separate `research-responses.sqlite3` database on the same private state volume. Its 24-hour snapshots/evidence are bounded to 64 MiB of logical payloads, 128 snapshots and 20,000 evidence objects, with a 4 MiB per-snapshot limit. Expired entries are pruned on writes. Full unpaginated research does not use this store. Expiry or capacity failures never release payment reservations or remove purchase state.
 

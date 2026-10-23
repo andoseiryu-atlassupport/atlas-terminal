@@ -369,38 +369,49 @@
       "additionalProperties": false
     },
     "Pricing": {
-      "type": "object",
+      "additionalProperties": false,
       "properties": {
         "mode": {
-          "enum": ["off", "mock", "testnet"]
+          "enum": ["off", "mock", "testnet"],
+          "title": "Mode",
+          "type": "string"
         },
         "scheme": {
-          "enum": ["none", "exact"]
+          "enum": ["none", "exact"],
+          "title": "Scheme",
+          "type": "string"
         },
         "network": {
+          "title": "Network",
           "type": "string"
         },
         "asset": {
+          "title": "Asset",
           "type": "string"
         },
         "pay_to": {
+          "title": "Pay To",
           "type": "string"
         },
         "symbol": {
+          "title": "Symbol",
           "type": "string"
         },
         "decimals": {
-          "type": "integer",
+          "maximum": 18,
           "minimum": 0,
-          "maximum": 18
+          "title": "Decimals",
+          "type": "integer"
         },
         "amount_atomic": {
-          "type": "string",
-          "pattern": "^(0|[1-9][0-9]*)$"
+          "maxLength": 40,
+          "pattern": "^(0|[1-9][0-9]*)$",
+          "title": "Amount Atomic",
+          "type": "string"
         },
         "display_amount": {
-          "type": "string",
-          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+          "title": "Display Amount",
+          "type": "string"
         }
       },
       "required": [
@@ -414,7 +425,8 @@
         "amount_atomic",
         "display_amount"
       ],
-      "additionalProperties": false
+      "title": "Pricing",
+      "type": "object"
     },
     "Quote": {
       "type": "object",
@@ -787,6 +799,218 @@
       },
       "required": ["action"],
       "title": "NextAction",
+      "type": "object"
+    },
+    "BudgetWindow": {
+      "additionalProperties": false,
+      "properties": {
+        "limit_atomic": {
+          "maxLength": 40,
+          "pattern": "^(0|[1-9][0-9]*)$",
+          "title": "Limit Atomic",
+          "type": "string"
+        },
+        "spent_atomic": {
+          "maxLength": 40,
+          "pattern": "^(0|[1-9][0-9]*)$",
+          "title": "Spent Atomic",
+          "type": "string"
+        },
+        "reserved_atomic": {
+          "maxLength": 40,
+          "pattern": "^(0|[1-9][0-9]*)$",
+          "title": "Reserved Atomic",
+          "type": "string"
+        },
+        "remaining_atomic": {
+          "maxLength": 40,
+          "pattern": "^(0|[1-9][0-9]*)$",
+          "title": "Remaining Atomic",
+          "type": "string"
+        }
+      },
+      "required": [
+        "limit_atomic",
+        "spent_atomic",
+        "reserved_atomic",
+        "remaining_atomic"
+      ],
+      "title": "BudgetWindow",
+      "type": "object"
+    },
+    "BudgetStatus": {
+      "additionalProperties": false,
+      "properties": {
+        "scope": {
+          "const": "local_wallet",
+          "default": "local_wallet",
+          "title": "Scope",
+          "type": "string"
+        },
+        "enabled": {
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "mode": {
+          "enum": ["mock", "testnet"],
+          "title": "Mode",
+          "type": "string"
+        },
+        "network": {
+          "title": "Network",
+          "type": "string"
+        },
+        "asset": {
+          "title": "Asset",
+          "type": "string"
+        },
+        "decimals": {
+          "const": 6,
+          "default": 6,
+          "title": "Decimals",
+          "type": "integer"
+        },
+        "per_purchase_atomic": {
+          "maxLength": 40,
+          "pattern": "^(0|[1-9][0-9]*)$",
+          "title": "Per Purchase Atomic",
+          "type": "string"
+        },
+        "session": {
+          "$ref": "#/$defs/BudgetWindow"
+        },
+        "day": {
+          "$ref": "#/$defs/BudgetWindow"
+        },
+        "utc_day": {
+          "title": "Utc Day",
+          "type": "string"
+        },
+        "checked_at": {
+          "title": "Checked At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "enabled",
+        "mode",
+        "network",
+        "asset",
+        "per_purchase_atomic",
+        "session",
+        "day",
+        "utc_day",
+        "checked_at"
+      ],
+      "title": "BudgetStatus",
+      "type": "object"
+    },
+    "PurchasePreflight": {
+      "additionalProperties": false,
+      "description": "Advisory only: no reservation, wallet access or payment authorization.",
+      "properties": {
+        "scope": {
+          "enum": ["order", "local_wallet"],
+          "title": "Scope",
+          "type": "string"
+        },
+        "advisory": {
+          "const": true,
+          "default": true,
+          "title": "Advisory",
+          "type": "boolean"
+        },
+        "quote_id": {
+          "title": "Quote Id",
+          "type": "string"
+        },
+        "state": {
+          "enum": [
+            "QUOTED",
+            "EXPIRED",
+            "SETTLED",
+            "NOT_REQUIRED",
+            "FAILED",
+            "SETTLEMENT_UNKNOWN"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "decision": {
+          "enum": ["ready", "recover", "wait", "blocked"],
+          "title": "Decision",
+          "type": "string"
+        },
+        "code": {
+          "enum": [
+            "READY",
+            "PAYMENT_NOT_REQUIRED",
+            "ALREADY_SETTLED",
+            "RESULT_EXPIRED",
+            "QUOTE_EXPIRED",
+            "PAYMENT_FAILED",
+            "SETTLEMENT_UNKNOWN",
+            "PURCHASE_ALREADY_STARTED",
+            "PAYMENTS_DISABLED",
+            "POLICY_DENIED",
+            "WALLET_NOT_CONFIGURED",
+            "BUDGET_EXCEEDED"
+          ],
+          "title": "Code",
+          "type": "string"
+        },
+        "pricing": {
+          "$ref": "#/$defs/Pricing"
+        },
+        "result_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Result Sha256",
+          "type": "string"
+        },
+        "expires_at": {
+          "title": "Expires At",
+          "type": "string"
+        },
+        "retained_until": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retained Until"
+        },
+        "checked_at": {
+          "title": "Checked At",
+          "type": "string"
+        },
+        "budget": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BudgetStatus"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "scope",
+        "quote_id",
+        "state",
+        "decision",
+        "code",
+        "pricing",
+        "result_sha256",
+        "expires_at",
+        "checked_at"
+      ],
+      "title": "PurchasePreflight",
       "type": "object"
     }
   }

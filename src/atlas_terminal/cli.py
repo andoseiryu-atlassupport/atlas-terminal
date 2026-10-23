@@ -318,11 +318,28 @@ def quote_financials(
     period: str = "annual",
     count: int = 3,
     allow_partial: bool = False,
+    intent_id: str | None = None,
     json_output: bool = typer.Option(False, "--json"),
 ) -> None:
     parsed = query(identifier, metrics, period, count, allow_partial)
     with Atlas("hosted") as atlas:
-        output(atlas.quote(parsed))
+        output(atlas.quote(parsed, intent_id=intent_id))
+
+
+@app.command("budget-status")
+def budget_status(json_output: bool = typer.Option(False, "--json")) -> None:
+    """Read delegated budget totals without loading a wallet or reserving funds."""
+    with Atlas("hosted") as atlas:
+        output(atlas.budget_status())
+
+
+@app.command("purchase-preflight")
+def purchase_preflight(
+    quote_id: str, max_cost: str | None = None, json_output: bool = typer.Option(False, "--json")
+) -> None:
+    """Check saved order and local policy without signing or authorizing a payment."""
+    with Atlas("hosted") as atlas:
+        output(atlas.purchase_preflight(quote_id, max_cost=max_cost))
 
 
 @app.command()

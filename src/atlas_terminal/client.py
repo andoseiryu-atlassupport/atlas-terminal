@@ -8,9 +8,11 @@ from typing import Any, Literal
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.models import (
     METRICS,
+    BudgetStatus,
     Company,
     FinancialQuery,
     FinancialResult,
+    PurchasePreflight,
     PurchaseResult,
     Quote,
     ReconciliationResult,
@@ -201,14 +203,28 @@ class Atlas:
             "is_synthetic": source.transport.synthetic,
         }
 
-    def quote(self, query: FinancialQuery | dict[str, Any]) -> Quote:
+    def quote(
+        self, query: FinancialQuery | dict[str, Any], *, intent_id: str | None = None
+    ) -> Quote:
         if not self._hosted:
             raise AtlasError(
                 "CONFIG_REQUIRED", "Quote uses the explicitly configured hosted provider."
             )
         return self._hosted.quote(
-            query if isinstance(query, FinancialQuery) else parse_query(query)
+            query if isinstance(query, FinancialQuery) else parse_query(query), intent_id=intent_id
         )
+
+    def budget_status(self) -> BudgetStatus:
+        if not self._hosted:
+            raise AtlasError("CONFIG_REQUIRED", "Budget reads require a configured hosted client.")
+        return self._hosted.budget_status()
+
+    def purchase_preflight(
+        self, quote_id: str, *, max_cost: str | None = None
+    ) -> PurchasePreflight:
+        if not self._hosted:
+            raise AtlasError("CONFIG_REQUIRED", "Preflight requires a configured hosted client.")
+        return self._hosted.preflight(quote_id, max_cost=max_cost)
 
     def purchase(self, quote_id: str, *, max_cost: str | None = None) -> PurchaseResult:
         if not self._hosted:

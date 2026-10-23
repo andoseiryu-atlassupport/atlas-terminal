@@ -24,13 +24,13 @@ Run `atlas research catalog --json` for identifiers, query fields, units and lim
 
 ## Interfaces
 
-| Interface        | Entry points                                                                                                               |
-| ---------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| CLI              | `atlas research catalog` / `atlas research get`                                                                            |
-| Python SDK       | `Atlas.research_catalog()` / `Atlas.get_research(query)`                                                                   |
-| MCP              | Six research-only tools over stdio or Streamable HTTP; twelve in full stdio mode, plus hosted payment/reconciliation tools |
-| HTTP             | `GET /v1/research/catalog` / `POST /v1/research`                                                                           |
-| Annual snapshots | `financials get` / `Atlas.get_financials`, covering five annual metrics                                                    |
+| Interface        | Entry points                                                                                                                 |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| CLI              | `atlas research catalog` / `atlas research get`                                                                              |
+| Python SDK       | `Atlas.research_catalog()` / `Atlas.get_research(query)`                                                                     |
+| MCP              | Six research-only tools over stdio or Streamable HTTP; fourteen in full stdio mode, plus hosted payment/reconciliation tools |
+| HTTP             | `GET /v1/research/catalog` / `POST /v1/research`                                                                             |
+| Annual snapshots | `financials get` / `Atlas.get_financials`, covering five annual metrics                                                      |
 
 Research requires no data subscription, API key, wallet or LLM. SEC retrieval requires a private `SEC_USER_AGENT` containing the application name and an actual contact email. The `fixture` provider returns fictional data without network access.
 
@@ -64,6 +64,10 @@ Opt-in source checks cover seven official source families with ten fixed probes.
 Immutable snapshots of five annual metrics support explicit quotes, purchases and authenticated recovery. Payments default to off. `mock` uses fictional payments; `testnet` uses x402 V2 exact/EIP-3009 with Base Sepolia USDC. Policy checks, budget reservations before signing and authenticated recovery protect the payment path. A configured trusted RPC supports on-demand reconciliation: finalized matching USDC/nonce evidence recovers settled artifacts; finalized expiry plus an unused nonce establishes failure. Other evidence remains pending. Hashed audit records and terminal-state guards cover concurrent recovery. Research endpoints do not charge for retrieval.
 
 Official Python and TypeScript HTTP clients are exercised offline. Hosted MCP accepts standard payment metadata from an external wallet, with a transport compatibility adapter for the pinned Python SDKs. Its external-wallet path does not sign with the local Atlas wallet. Local/external purchase claims are durable and exclusive per quote.
+
+Read-only local budget summaries distinguish confirmed spending, unresolved reservations and remaining session/UTC-day allowances. Hosted purchase preflight combines authenticated HTTP order readiness with operator policy and budget checks; it does not load a signing key, reserve funds or authorize payment. A public testnet payer address is required for budget inspection, and configured addresses must match the eventual local signer. HTTP exposes order readiness only, never the caller's wallet budget.
+
+Optional task `intent_id` values bind an exact validated annual query to one quote within a private client state volume and service origin. A private capability persisted before HTTP preparation recovers the same quote after response loss; atomic server publication handles concurrent preparation. Changed queries conflict, and expiry/retention cleanup never silently replaces an order. Persistent intent tombstones are bounded to 10,000 entries per client/server store; there is no global identity or guarantee across deleted or independent state volumes. CLI, SDK and full MCP expose these contracts; research-only MCP remains free of payment handlers.
 
 ## Coverage limits
 

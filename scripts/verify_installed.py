@@ -78,6 +78,32 @@ def verify_batch_result(result):
     assert result["items"][2]["error"]["code"] == "INVALID_INPUT"
 
 
+async def payment_planning_mcp(root, env, quote_id):
+    params = StdioServerParameters(
+        command=sys.executable,
+        args=["-m", "atlas_terminal", "mcp", "serve", "--provider", "hosted"],
+        cwd=root,
+        env=env,
+    )
+    async with (
+        stdio_client(params) as streams,
+        ClientSession(*streams, read_timeout_seconds=15) as session,
+    ):
+        await session.initialize()
+        quote = await session.call_tool(
+            "atlas_quote", QUERY.model_dump(mode="json") | {"intent_id": "installed-workflow"}
+        )
+        assert not quote.is_error and quote.structured_content["quote_id"] == quote_id
+        budget = await session.call_tool("atlas_budget_status", {})
+        assert not budget.is_error and budget.structured_content["day"]["spent_atomic"] == "0"
+        checked = await session.call_tool("atlas_purchase_preflight", {"quote_id": quote_id})
+        assert not checked.is_error and checked.structured_content["decision"] == "ready"
+        denied = await session.call_tool(
+            "atlas_purchase", {"quote_id": quote_id, "max_cost": "9999"}
+        )
+        assert denied.is_error and denied.structured_content["error"]["code"] == "BUDGET_EXCEEDED"
+
+
 async def mcp_smoke(root, macro_expected):
     params = StdioServerParameters(
         command=sys.executable,
@@ -90,7 +116,7 @@ async def mcp_smoke(root, macro_expected):
         ClientSession(*streams, read_timeout_seconds=15) as session,
     ):
         await session.initialize()
-        assert len((await session.list_tools()).tools) == 12
+        assert len((await session.list_tools()).tools) == 14
         preset = await session.call_tool("atlas_get_research_preset", {"query": PRESET_QUERY})
         assert not preset.is_error
         verify_preset_result(preset.structured_content)
@@ -362,10 +388,43 @@ with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
             client=httpx.Client(trust_env=False, timeout=10),
             policy_path=policy,
         )
-        q = client.quote(QUERY)
+        q = client.quote(QUERY, intent_id="installed-workflow")
+        assert client.quote(QUERY, intent_id="installed-workflow") == q
+        assert client.budget_status().day.spent_atomic == "0"
+        assert client.preflight(q.quote_id).decision == "ready"
+        assert client.preflight(q.quote_id, max_cost="9999").code == "BUDGET_EXCEEDED"
+        planning_env = dict(
+            os.environ,
+            ATLAS_HOSTED_ORIGIN=base,
+            ATLAS_STATE_DIR=str(root / "client"),
+            ATLAS_POLICY_FILE=str(policy),
+            ATLAS_SESSION_ID="default",
+            NO_PROXY=os.environ.get("NO_PROXY", "") + ",127.0.0.1,localhost",
+        )
+        for command, key, value in (
+            (
+                ["quote", "financials", "ATLASDEMO", "--intent-id", "installed-workflow"],
+                "quote_id",
+                q.quote_id,
+            ),
+            (["purchase-preflight", q.quote_id, "--max-cost", "9999"], "code", "BUDGET_EXCEEDED"),
+        ):
+            cli_result = subprocess.run(
+                [sys.executable, "-m", "atlas_terminal", *command, "--json"],
+                cwd=root,
+                env=planning_env,
+                capture_output=True,
+                text=True,
+                timeout=20,
+                check=True,
+            )
+            assert not cli_result.stderr and json.loads(cli_result.stdout)[key] == value
+        asyncio.run(payment_planning_mcp(root, planning_env, q.quote_id))
         first = client.purchase(q.quote_id)
         assert client.purchase(q.quote_id) == first
         assert client.status(q.quote_id)["state"] == "SETTLED"
+        assert client.budget_status().day.spent_atomic == "10000"
+        assert client.preflight(q.quote_id).decision == "recover"
         assert first.data.model_dump(mode="json") == expected
         assert first.receipt.simulated and first.receipt.transaction is None
         client.close()
@@ -379,6 +438,7 @@ with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
             client=httpx.Client(trust_env=False, timeout=10),
             policy_path=policy,
         )
+        assert client.quote(QUERY, intent_id="installed-workflow") == q
         assert client.purchase(q.quote_id) == first
         assert digest(canonical(first.data)) == q.result_sha256
         client.close()
@@ -398,6 +458,7 @@ with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
                 "wheel_mcp_subprocess": mcp_status,
                 "wheel_agent_compact_paging_evidence": "PASS",
                 "real_loopback_http_mock_purchase": "PASS",
+                "wheel_payment_preflight_budget_intent": "PASS",
                 "server_restart_recovery": "PASS",
                 "result_sha256": q.result_sha256,
                 "external_network": False,

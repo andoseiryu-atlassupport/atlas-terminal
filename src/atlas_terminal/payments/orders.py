@@ -17,6 +17,7 @@ from atlas_terminal.models import (
     FinancialResult,
     Missing,
     Pricing,
+    PurchasePreflight,
     PurchaseResult,
     Quote,
     Receipt,
@@ -29,6 +30,7 @@ from atlas_terminal.payments.common import (
     fingerprint,
     origin,
 )
+from atlas_terminal.payments.intents import intent_binding
 from atlas_terminal.payments.reconciliation import SettlementReconciler, settlement_header
 from atlas_terminal.util import Database, canonical, digest, stamp, utcnow
 
@@ -53,6 +55,9 @@ CREATE TABLE IF NOT EXISTS reconciliation_audit (
  previous_state TEXT NOT NULL, state TEXT NOT NULL, checked_at TEXT NOT NULL,
  evidence TEXT NOT NULL, sha256 TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS purchase_intents (
+ key_hash TEXT PRIMARY KEY, query_hash TEXT NOT NULL, quote_id TEXT NOT NULL UNIQUE
+);
 """
 
 
@@ -70,11 +75,13 @@ class OrderService:
         ttl_seconds: int = 300,
         max_snapshots: int = 128,
         max_storage_bytes: int = 64 * 1024 * 1024,
+        max_intents: int = 10000,
     ) -> None:
         self.atlas, self.pricing, self.adapter = atlas, pricing, adapter
         self.reconciler = reconciler
         self.base_origin, self.clock, self.ttl = origin(base_origin), clock, ttl_seconds
         self.max_snapshots, self.max_storage_bytes = max_snapshots, max_storage_bytes
+        self.max_intents = max_intents
         self.db = Database(path.resolve(), ORDER_SCHEMA)
         # Legacy attempts have no deadline and cannot be declared expired-unused.
         with self.db.connect(write=True) as conn:
@@ -84,10 +91,50 @@ class OrderService:
         if pricing.mode != "off" and adapter is None:
             raise AtlasError("CONFIG_REQUIRED", "Paid mode requires its explicit adapter.")
 
-    def prepare(self, query: FinancialQuery) -> tuple[Quote, str]:
+    def _replay_intent(
+        self, conn: sqlite3.Connection, binding: tuple[str, str, str] | None
+    ) -> tuple[Quote, str] | None:
+        if binding is None:
+            return None
+        key_hash, query_hash, token = binding
+        intent = conn.execute(
+            "SELECT * FROM purchase_intents WHERE key_hash=?", (key_hash,)
+        ).fetchone()
+        if intent is None:
+            return None
+        if intent["query_hash"] != query_hash:
+            raise AtlasError(
+                "INTENT_CONFLICT", "Intent is already bound to a different query.", status=409
+            )
+        row = conn.execute("SELECT * FROM quotes WHERE id=?", (intent["quote_id"],)).fetchone()
+        if row is None:
+            raise AtlasError(
+                "INTENT_RETIRED",
+                "Original quote is no longer retained; intent cannot be reused.",
+                status=410,
+            )
+        if not hmac.compare_digest(row["recovery_hash"], digest(token.encode())):
+            raise AtlasError("LEDGER_UNAVAILABLE", "Intent recovery binding is inconsistent.")
+        return Quote.model_validate_json(row["metadata"]), token
+
+    def prepare(self, query: FinancialQuery, *, intent_key: str | None = None) -> tuple[Quote, str]:
+        binding = (
+            intent_binding(intent_key, query, self.base_origin) if intent_key is not None else None
+        )
         now = self.clock()
         # Global rate and storage bounds, shared by all callers. No IP/header trust.
         with self.db.connect(write=True) as conn:
+            replay = self._replay_intent(conn, binding)
+            if replay:
+                return replay
+            if (
+                binding
+                and conn.execute("SELECT count(*) FROM purchase_intents").fetchone()[0]
+                >= self.max_intents
+            ):
+                raise AtlasError(
+                    "CACHE_FULL", "Intent storage is full; existing intents remain valid."
+                )
             conn.execute("DELETE FROM quote_rate WHERE created < ?", (now.timestamp() - 60,))
             if conn.execute("SELECT count(*) FROM quote_rate").fetchone()[0] >= 30:
                 raise AtlasError(
@@ -109,7 +156,7 @@ class OrderService:
         if len(body) > 2 * 1024 * 1024:
             raise AtlasError("SOURCE_UNAVAILABLE", "Normalized snapshot exceeds size limit.")
         quote_id, snapshot_id = uuid4().hex, digest(body)
-        token = secrets.token_urlsafe(32)
+        token = binding[2] if binding else secrets.token_urlsafe(32)
         missing = [
             Missing(metric=f.metric, period_end=f.period.end, reason=f.reason or f.status)
             for f in result.facts
@@ -132,6 +179,18 @@ class OrderService:
             is_synthetic=result.is_synthetic,
         )
         with self.db.connect(write=True) as conn:
+            # Publish one quote even when concurrent requests fetched different source bytes.
+            replay = self._replay_intent(conn, binding)
+            if replay:
+                return replay
+            if (
+                binding
+                and conn.execute("SELECT count(*) FROM purchase_intents").fetchone()[0]
+                >= self.max_intents
+            ):
+                raise AtlasError(
+                    "CACHE_FULL", "Intent storage is full; existing intents remain valid."
+                )
             # Recheck after preparation to cover concurrent quote creation.
             count = conn.execute("SELECT count(*) FROM quotes").fetchone()[0]
             total = conn.execute(
@@ -156,6 +215,10 @@ class OrderService:
                     quote.expires_at,
                 ),
             )
+            if binding:
+                conn.execute(
+                    "INSERT INTO purchase_intents VALUES (?,?,?)", (*binding[:2], quote_id)
+                )
         return quote, token
 
     def row(self, quote_id: str) -> dict[str, Any]:
@@ -192,6 +255,41 @@ class OrderService:
             "state": state,
             "receipt": json.loads(row["receipt"]) if row["receipt"] else None,
         }
+
+    def preflight(self, quote_id: str, bearer: str | None) -> PurchasePreflight:
+        row = self.row(quote_id)
+        if not self.authorized(row, bearer):
+            raise AtlasError("UNAUTHORIZED", "Recovery capability is required.", status=401)
+        quote = Quote.model_validate_json(row["metadata"])
+        state = row["state"]
+        decision, code = "ready", "PAYMENT_NOT_REQUIRED" if quote.pricing.mode == "off" else "READY"
+        now = stamp(self.clock())
+        if state in {"SETTLED", "NOT_REQUIRED"}:
+            decision, code = "recover", "ALREADY_SETTLED"
+            if row["retained_until"] and row["retained_until"] <= now:
+                decision, code = "blocked", "RESULT_EXPIRED"
+        elif state == "EXPIRED" or (state == "QUOTED" and row["expires"] <= now):
+            state, decision, code = "EXPIRED", "blocked", "QUOTE_EXPIRED"
+        elif state == "FAILED":
+            decision, code = "blocked", "PAYMENT_FAILED"
+        elif state != "QUOTED":
+            state, decision, code = "SETTLEMENT_UNKNOWN", "wait", "SETTLEMENT_UNKNOWN"
+        if decision in {"ready", "recover"}:
+            self.snapshot(row)
+        return PurchasePreflight.model_validate(
+            {
+                "scope": "order",
+                "quote_id": quote_id,
+                "state": state,
+                "decision": decision,
+                "code": code,
+                "pricing": quote.pricing,
+                "result_sha256": quote.result_sha256,
+                "expires_at": quote.expires_at,
+                "retained_until": row["retained_until"],
+                "checked_at": now,
+            }
+        )
 
     def artifact(self, row: dict[str, Any]) -> PurchaseResult:
         body = self.snapshot(row)

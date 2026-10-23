@@ -445,7 +445,7 @@ async def test_real_stdio_mcp_exposes_typed_presets_diagnostics_and_safe_errors(
     ):
         await session.initialize()
         tools = {tool.name: tool for tool in (await session.list_tools()).tools}
-        assert len(tools) == 12
+        assert len(tools) == 14
         for name in ["atlas_get_research_preset", "atlas_research_diagnostics"]:
             assert tools[name].annotations.read_only_hint and tools[name].output_schema
         data = FX | {"include": ["fx", "us_sofr"]}

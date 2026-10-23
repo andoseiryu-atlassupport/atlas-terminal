@@ -1,10 +1,12 @@
 # Validation scope
 
-Recorded on 2026-10-22 for Atlas Terminal 0.3.3 with Python 3.12.14 and Node.js 24.19.0 on Linux.
+Recorded on 2026-10-23 for Atlas Terminal 0.4.0 with Python 3.12.14 and Node.js 24.19.0 on Linux.
 
 ## Verified behavior
 
-459 offline tests pass; two live tests are deselected. Default tests prohibit IP sockets and do not retrieve live sources or transfer funds.
+499 offline tests pass; two live tests are deselected. Default tests prohibit IP sockets and do not retrieve live sources or transfer funds.
+
+Forty payment-planning tests cover non-spending budget/preflight reads, policy denials, UTC-day and session accounting, changes between preflight and purchase, public-payer/signing-wallet mismatch, exact-query intent conflicts, concurrent publication, response loss, client commit rollback, restart, expiry/tombstones, capacity, secret redaction, old-server rejection, HTTP authorization and official MCP contracts. Preflight does not load a signing key or prove an on-chain balance. These tests use fictional sources and mocked settlement only.
 
 | Area                         | Coverage                                                                                                                                                                                                                                                                                                                                                                 |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -52,7 +54,9 @@ The free-research and mock-purchase examples run successfully. The built wheel w
 
 The installed-wheel verifier also checks requirement-gated batches and independent invalid-query errors through CLI, SDK, real stdio MCP and loopback HTTP, plus the source-check command's network opt-in guard. The packaged four-query batch example succeeds offline. Source-check fingerprints and persistence are exercised only with mock HTTP; no mocked PASS is recorded as live verification.
 
-The fresh installed wheel also passes named FX-context preset execution through CLI, SDK, real stdio MCP and loopback HTTP, including original values and missingness/publication-time reporting. SDK preview returns no batch; configuration diagnostics work through all four interfaces without live source access. All three saved preset examples execute against fictional packaged sources. The MCP server exposes twelve default tools. No external network or real transfers are used by these checks.
+The fresh installed wheel also passes named FX-context preset execution through CLI, SDK, real stdio MCP and loopback HTTP, including original values and missingness/publication-time reporting. SDK preview returns no batch; configuration diagnostics work through all four interfaces without live source access. All three saved preset examples execute against fictional packaged sources. The MCP server exposes fourteen default tools. No external network or real transfers are used by these checks.
+
+The 0.4.0 wheel was installed in a fresh environment from locked runtime requirements and checked outside the checkout. The installed CLI, SDK and actual hosted stdio MCP session reuse one task quote through a loopback HTTP server, inspect budgets/preflight and reject a lower cost ceiling before signing. A mock purchase is recovered after server restart with the same intent and artifact. The updated mock example reports spending and remaining allowance without emitting payment capabilities.
 
 Research-only Streamable HTTP is exercised with the pinned official MCP client using an offline ASGI transport. Tests cover initialize/list/call, six research tools without payment handlers, preset execution, compact evidence and state-volume recovery, unknown input fields, authentication, exact Host/Origin checks, body-size and body-read timeout limits, ingress quotas, default-port normalization and multiple-worker rejection. These tests use fictional data and do not establish a public deployment or live source availability.
 
