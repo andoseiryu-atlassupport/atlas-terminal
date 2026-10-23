@@ -29,7 +29,7 @@ Values retain their units, periods, source hashes, retrieval times and JSON poin
 Use Python 3.12+ and [uv](https://docs.astral.sh/uv/). Install the tagged GitHub source distribution; the package is not yet published on PyPI:
 
 ```sh
-uv tool install 'git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.3.3'
+uv tool install 'git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.4.0'
 atlas research preset fx_context --base-currency USD --quote-currency JPY --include fx,us_sofr --provider fixture --json
 ```
 
@@ -91,7 +91,7 @@ Research-only mode exposes six tools for datasets, presets, batches, connection 
 
 The [company, CPI and USD/JPY example](docs/company-macro-fx.md) uses one official MCP session to retrieve four datasets and resolve all evidence IDs. Its executable contract evaluation reports explicit quality and unsupported-dataset rejection without an LLM. [Public checks](docs/public-checks.md) separately inspect published documentation HTTP/crawler signals and an optionally configured actual remote endpoint.
 
-The original full stdio mode, without `--research-only`, exposes twelve tools including company resolution, annual snapshots, filings and separately configured quote/purchase recovery. Research-only Streamable HTTP is available for [self-hosting](docs/remote-mcp.md). No official public remote endpoint or public ChatGPT plugin is currently operated.
+The original full stdio mode, without `--research-only`, exposes fourteen tools including company resolution, annual snapshots, filings, budget/preflight inspection and separately configured quote/purchase recovery. Research-only Streamable HTTP is available for [self-hosting](docs/remote-mcp.md). No official public remote endpoint or public ChatGPT plugin is currently operated.
 
 Research accepts optional `response` settings for compact provenance references, field selection and snapshot pagination. `atlas_get_evidence` retrieves the original provenance by ID. Errors include a structured next action and a retry delay when known. The same contracts work through CLI, SDK and HTTP. [Agent usage](docs/agents.md).
 
@@ -133,6 +133,8 @@ uv run atlas serve --provider fixture --payments off --host 127.0.0.1 --port 800
 `financials get` and `Atlas.get_financials` provide annual US-GAAP USD snapshots for `revenue`, `net_income`, `assets`, `liabilities` and `operating_cash_flow`. Use `research get statements` for the full metric set and quarterly or YTD periods.
 
 The HTTP API also supports immutable annual snapshots with explicit quote, purchase and recovery steps. Payment modes are `off`, `mock` and `testnet`; payments default to off. Testnet uses x402 V2 exact/EIP-3009 with Base Sepolia USDC. Optional finalized-chain reconciliation recovers unknown orders without signing or settling again. Mainnet is unsupported. Research retrieval does not purchase snapshots. [Payment configuration](docs/payments.md).
+
+Use a stable `intent_id` when preparing a quote to recover the same order after response loss or restart. `purchase-preflight` and `budget-status` expose order readiness, policy denials, spending and reserved amounts without signing or reserving funds. Preflight is advisory; purchase still enforces the operator's policy atomically. [Planning and task replay](docs/payments.md#inspect-a-purchase-before-spending).
 
 ## Sources and coverage
 

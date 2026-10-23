@@ -26,6 +26,48 @@ Atlas validates the operator-configured origin, scheme, network, asset, recipien
 
 A SQLite write transaction checks total reservations and makes the `RESERVED → SIGNING` transition once before signing. The EIP-712 domain, chain, contract, recipient, amount, types and validity window are also checked before invoking the official signer. Ledger failures stop payment. Signatures and recovery tokens are never returned to the model.
 
+## Inspect a purchase before spending
+
+The hosted SDK, CLI and full stdio MCP expose read-only purchase planning:
+
+| Interface | Budget totals                     | Purchase preflight                                             |
+| --------- | --------------------------------- | -------------------------------------------------------------- |
+| SDK       | `Atlas.budget_status()`           | `Atlas.purchase_preflight(quote_id, max_cost=None)`            |
+| CLI       | `atlas budget-status --json`      | `atlas purchase-preflight QUOTE_ID --max-cost 10000 --json`    |
+| MCP       | `atlas_budget_status()`           | `atlas_purchase_preflight(quote_id, max_cost=None)`            |
+| HTTP      | Wallet budgets remain client-side | `GET /v1/quotes/{quote_id}/preflight` with the recovery bearer |
+
+Budget totals distinguish confirmed spending, reserved/uncertain amounts and remaining delegated allowance for the configured session and UTC day. Daily reservations include unresolved attempts from earlier days and other sessions. Session totals include earlier confirmed spending in that session. These are local policy allowances, not on-chain wallet balances. Independent client state volumes and external wallets have independent ledgers.
+
+Preflight returns `decision=ready`, `recover`, `wait` or `blocked`, a bounded reason `code`, the original price/hash/expiry, and optional budget totals. HTTP reports `scope=order`; the hosted client additionally checks local policy and reports `scope=local_wallet`. A successfully returned planning result uses HTTP 200 and CLI exit 0 even when its decision is `blocked`; callers must inspect `decision`. Invalid requests, missing orders and storage failures remain errors.
+
+Preflight never signs, reserves funds, settles, reconciles, loads a private key or calls a source, chain RPC or Facilitator. HTTP order preflight makes one authenticated read of the configured Atlas service. `ready` is advisory: it does not authorize automatic payment, guarantee wallet funds or Facilitator availability, or reserve an allowance. Purchase rechecks policy and reserves atomically. Reuse `max_cost` on the eventual purchase; both CLI and MCP accept this atomic-unit ceiling, which can only lower the operator's limit.
+
+Mock budget reads need only the existing mock policy. Testnet budget reads additionally require the operator-configured public `ATLAS_TESTNET_PAYER_ADDRESS` (or `HostedClient(..., payer_address=...)`), so inspection never loads the signing key. When that address is configured, actual local purchases refuse a different signer. Tools cannot set the payer, policy, session or service origin. External MCP wallets continue to enforce their own budgets; local preflight does not inspect or delegate them.
+
+## Reuse a task's quote safely
+
+Provide a stable, non-secret `intent_id` for one intended purchase. Retrying with that ID and the same validated query returns the original quote, price and artifact, including after a lost quote response or a process restart. Each client stores a random private capability before the first request. The server commits its hashed binding and quote together. Concurrent preparation may read sources twice, but publishes only one bound order.
+
+```python
+from atlas_terminal.client import Atlas
+
+with Atlas("hosted") as atlas:
+    quote = atlas.quote(
+        {"identifier": "ATLASDEMO", "metrics": ["revenue", "net_income"], "count": 3},
+        intent_id="annual-review-001",
+    )
+    plan = atlas.purchase_preflight(quote.quote_id, max_cost="10000")
+    print(plan.model_dump(mode="json"))
+    # An authorized caller can then explicitly purchase with the same max_cost.
+```
+
+CLI: `atlas quote financials ATLASDEMO --intent-id annual-review-001 --json`. MCP: supply `intent_id` to `atlas_quote`, then inspect `atlas_purchase_preflight`. The ID supports 1-128 ASCII letters, digits, underscores, hyphens, dots and colons, starting with a letter or digit. It is scoped to the configured origin and persistent private client state, not a global agent identity. The exact validated query is bound; changing it returns `INTENT_CONFLICT`. Omitting the optional ID retains the original new-quote behavior.
+
+A replay does not renew quote expiry, change the price, extend artifact retention, clear an uncertain settlement or create a fresh signature. After server cleanup removes the original quote, replay returns `INTENT_RETIRED`; the saved client quote may still be inspected locally, but cannot restore removed server data. Persistent tombstones prevent silent replacement. Client and server intent stores each allow 10,000 bindings; full stores reject new intents without evicting old ones. Protect and back up both private state volumes. Deleted/restored-to-older client state or a different state directory cannot establish the original task binding. Creating a new ID is a new purchase intent, not a recovery operation.
+
+Direct HTTP clients can send `Atlas-Intent-Key` on `POST /v1/quotes`. Generate at least 32 cryptographically random bytes, encode as unpadded base64url, persist privately before sending, and reuse exactly that capability and query. The accepted header grammar is 32-128 ASCII base64url characters; format validation cannot establish entropy. Never use the public task ID as this header. Require `Atlas-Intent-Accepted: v1` in a successful response. The response repeats the same `Atlas-Recovery-Token` privately in a header, enabling recovery after response loss. The server stores only capability/recovery hashes; neither secret belongs in URLs, JSON, model context or logs. A capability permits quote replay and result recovery, not payment authorization. There is no public task-ID lookup endpoint.
+
 ## Retries and unknown settlement
 
 The server stores the verified payer, nonce, payment identifier and quote/query/resource/price fingerprint, with uniqueness constraints for nonces and orders. It commits `SETTLEMENT_SUBMITTED` before settlement, allowing only one competing request to proceed. Only confirmed success publishes a receipt and data.
@@ -63,7 +105,7 @@ The hosted SDK validates the recovered immutable artifact before marking its bud
 
 Official Python `x402_httpx_transport` and TypeScript `wrapFetchWithPayment` clients can buy a prepared quote's HTTP result resource. Atlas requires the standard `payment-identifier` extension, so configure the official client hook to attach an identifier before creating payment. Save the quote and recovery bearer privately for status/reconciliation; do not create a new authorization for an unknown existing order.
 
-With `atlas mcp serve --provider hosted`, two additional tools extend the nine default tools:
+With `atlas mcp serve --provider hosted`, two additional tools extend the fourteen default tools:
 
 - `atlas_purchase_x402(quote_id)` returns V2 `PaymentRequired` in both structured content and JSON text. The wallet retries with `_meta["x402/payment"]`; successful settlement is returned in `_meta["x402/payment-response"]`.
 - `atlas_purchase_reconcile(quote_id, transaction=None)` performs the same capability-authenticated reconciliation without signing or paying.

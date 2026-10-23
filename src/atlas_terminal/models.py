@@ -186,6 +186,60 @@ class PurchaseResult(Model):
     receipt: Receipt
 
 
+class BudgetWindow(Model):
+    limit_atomic: Atomic
+    spent_atomic: Atomic
+    reserved_atomic: Atomic
+    remaining_atomic: Atomic
+
+
+class BudgetStatus(Model):
+    scope: Literal["local_wallet"] = "local_wallet"
+    enabled: bool
+    mode: Literal["mock", "testnet"]
+    network: str
+    asset: str
+    decimals: Literal[6] = 6
+    per_purchase_atomic: Atomic
+    session: BudgetWindow
+    day: BudgetWindow
+    utc_day: str
+    checked_at: str
+
+
+PreflightCode = Literal[
+    "READY",
+    "PAYMENT_NOT_REQUIRED",
+    "ALREADY_SETTLED",
+    "RESULT_EXPIRED",
+    "QUOTE_EXPIRED",
+    "PAYMENT_FAILED",
+    "SETTLEMENT_UNKNOWN",
+    "PURCHASE_ALREADY_STARTED",
+    "PAYMENTS_DISABLED",
+    "POLICY_DENIED",
+    "WALLET_NOT_CONFIGURED",
+    "BUDGET_EXCEEDED",
+]
+
+
+class PurchasePreflight(Model):
+    """Advisory only: no reservation, wallet access or payment authorization."""
+
+    scope: Literal["order", "local_wallet"]
+    advisory: Literal[True] = True
+    quote_id: str
+    state: Literal["QUOTED", "EXPIRED", "SETTLED", "NOT_REQUIRED", "FAILED", "SETTLEMENT_UNKNOWN"]
+    decision: Literal["ready", "recover", "wait", "blocked"]
+    code: PreflightCode
+    pricing: Pricing
+    result_sha256: Hash
+    expires_at: str
+    retained_until: str | None = None
+    checked_at: str
+    budget: BudgetStatus | None = None
+
+
 class ReconcileRequest(Model):
     transaction: str | None = Field(default=None, pattern=r"^0x[0-9a-fA-F]{64}$")
 

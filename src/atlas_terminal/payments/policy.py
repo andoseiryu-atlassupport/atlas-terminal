@@ -8,7 +8,7 @@ from typing import Any, Literal
 from pydantic import Field, ValidationError
 
 from atlas_terminal.errors import AtlasError
-from atlas_terminal.models import Atomic, Model, Quote
+from atlas_terminal.models import Atomic, BudgetStatus, BudgetWindow, Model, Quote
 from atlas_terminal.payments.common import fingerprint, origin, validate_testnet
 from atlas_terminal.util import Database, stamp, utcnow
 
@@ -93,6 +93,47 @@ class BudgetLedger:
             ).fetchone()
         return dict(row) if row else None
 
+    @staticmethod
+    def _summary(
+        conn: sqlite3.Connection, policy: SpendingPolicy, owner: str, session: str, now: datetime
+    ) -> BudgetStatus:
+        rows = conn.execute(
+            "SELECT day,session,amount,state FROM client_orders WHERE owner=? AND state!='FAILED'",
+            (owner.lower(),),
+        ).fetchall()
+        day = now.date().isoformat()
+
+        def window(limit: str, *, daily: bool) -> BudgetWindow:
+            selected = rows if daily else [r for r in rows if r["session"] == session]
+            spent = sum(
+                int(r["amount"])
+                for r in selected
+                if r["state"] == "SPENT" and (not daily or r["day"] == day)
+            )
+            reserved = sum(int(r["amount"]) for r in selected if r["state"] != "SPENT")
+            return BudgetWindow(
+                limit_atomic=limit,
+                spent_atomic=str(spent),
+                reserved_atomic=str(reserved),
+                remaining_atomic=str(max(0, int(limit) - spent - reserved)),
+            )
+
+        return BudgetStatus(
+            enabled=policy.enabled,
+            mode=policy.mode,
+            network=policy.network,
+            asset=policy.asset,
+            per_purchase_atomic=policy.per_purchase_atomic,
+            session=window(policy.per_session_atomic, daily=False),
+            day=window(policy.per_day_atomic, daily=True),
+            utc_day=day,
+            checked_at=stamp(now),
+        )
+
+    def summary(self, policy: SpendingPolicy, owner: str, session: str) -> BudgetStatus:
+        with self.db.connect() as conn:
+            return self._summary(conn, policy, owner, session, utcnow())
+
     def reserve(
         self,
         quote: Quote,
@@ -105,7 +146,8 @@ class BudgetLedger:
     ) -> bool:
         policy.authorize(quote, base_origin, max_cost)
         fp = fingerprint(quote, base_origin)
-        day = utcnow().date().isoformat()
+        now = utcnow()
+        day = now.date().isoformat()
         amount = int(quote.pricing.amount_atomic)
         try:
             with self.db.connect(write=True) as conn:
@@ -118,17 +160,9 @@ class BudgetLedger:
                             "QUOTE_MISMATCH", "Saved purchase differs from this quote."
                         )
                     return False
-                rows = conn.execute(
-                    "SELECT day,session,amount,state FROM client_orders "
-                    "WHERE owner=? AND state!='FAILED'",
-                    (owner.lower(),),
-                ).fetchall()
-                daily = sum(
-                    int(r["amount"]) for r in rows if r["day"] == day or r["state"] != "SPENT"
-                )
-                session_total = sum(int(r["amount"]) for r in rows if r["session"] == session)
-                if daily + amount > int(policy.per_day_atomic) or session_total + amount > int(
-                    policy.per_session_atomic
+                summary = self._summary(conn, policy, owner, session, now)
+                if amount > int(summary.day.remaining_atomic) or amount > int(
+                    summary.session.remaining_atomic
                 ):
                     raise AtlasError(
                         "BUDGET_EXCEEDED", "Atomic daily or session budget is exhausted."

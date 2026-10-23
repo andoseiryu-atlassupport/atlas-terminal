@@ -15,7 +15,8 @@ from atlas_terminal import __version__
 from atlas_terminal.client import Atlas
 from atlas_terminal.documentation import DOCUMENTATION_ORIGIN
 from atlas_terminal.errors import AtlasError
-from atlas_terminal.models import Hash, parse_query
+from atlas_terminal.models import BudgetStatus, Hash, PurchasePreflight, parse_query
+from atlas_terminal.payments.intents import intent_identifier
 from atlas_terminal.research_batch import ResearchBatchQuery, ResearchBatchResult, parse_batch
 from atlas_terminal.research_diagnostics import (
     ResearchDiagnosticsQuery,
@@ -45,7 +46,12 @@ def create_mcp(
                 if not isinstance(arguments, dict):
                     raise AtlasError("INVALID_INPUT", "Tool arguments must be an object.")
                 if name in {"atlas_get_financials", "atlas_quote"}:
-                    parse_query(dict(arguments))
+                    query_args = dict(arguments)
+                    if name == "atlas_quote":
+                        intent_id = query_args.pop("intent_id", None)
+                        if intent_id is not None:
+                            intent_identifier(intent_id)
+                    parse_query(query_args)
                 elif name == "atlas_get_research":
                     if set(arguments) != {"query"} or not isinstance(arguments["query"], dict):
                         raise AtlasError(
@@ -72,7 +78,9 @@ def create_mcp(
                     allowed = {
                         "atlas_resolve_company": {"query"},
                         "atlas_list_filings": {"identifier", "form", "limit"},
-                        "atlas_purchase": {"quote_id"},
+                        "atlas_purchase": {"quote_id", "max_cost"},
+                        "atlas_purchase_preflight": {"quote_id", "max_cost"},
+                        "atlas_budget_status": set(),
                         "atlas_purchase_status": {"quote_id"},
                         "atlas_purchase_reconcile": {"quote_id", "transaction"},
                         "atlas_purchase_x402": {"quote_id"},
@@ -253,8 +261,13 @@ def create_mcp(
         period: str = "annual",
         count: int = 3,
         allow_partial: bool = False,
+        intent_id: str | None = None,
     ) -> CallToolResult:
-        """Prepare and save a hosted snapshot quote. Does not authorize payment."""
+        """Prepare a hosted quote without payment. Reuse intent_id for retries of one task.
+
+        Intent IDs are scoped to this private client state and service origin. A changed query
+        conflicts; an expired or retired intent never creates a replacement purchase.
+        """
         return execute(
             lambda: atlas.quote(
                 parse_query(
@@ -265,21 +278,42 @@ def create_mcp(
                         "count": count,
                         "allow_partial": allow_partial,
                     }
-                )
+                ),
+                intent_id=intent_id,
             )
         )
+
+    @server.tool(annotations=read)
+    def atlas_budget_status() -> Annotated[CallToolResult, BudgetStatus]:
+        """Read local delegated spend, reservations and remaining session/UTC-day budgets.
+
+        No wallet loading, network request, signing or reservation. External wallets keep
+        their own budgets. Testnet reads require an operator-configured public payer address.
+        """
+        return execute(atlas.budget_status)
+
+    @server.tool(annotations=read)
+    def atlas_purchase_preflight(
+        quote_id: str, max_cost: str | None = None
+    ) -> Annotated[CallToolResult, PurchasePreflight]:
+        """Inspect order readiness and local budget without signing or reserving funds.
+
+        Advisory only; purchase rechecks policy and reserves atomically. max_cost is atomic
+        units and only lowers the policy limit. No wallet balance or Facilitator check.
+        """
+        return execute(lambda: atlas.purchase_preflight(quote_id, max_cost=max_cost))
 
     @server.tool(
         annotations=ToolAnnotations(
             read_only_hint=False, destructive_hint=True, idempotent_hint=True
         )
     )
-    def atlas_purchase(quote_id: str) -> CallToolResult:
+    def atlas_purchase(quote_id: str, max_cost: str | None = None) -> CallToolResult:
         """SPENDS delegated funds for a saved quote under operator-configured policy.
 
         Uses the durable budget and never changes policy.
         """
-        return execute(lambda: atlas.purchase(quote_id))
+        return execute(lambda: atlas.purchase(quote_id, max_cost=max_cost))
 
     @server.tool(annotations=read)
     def atlas_purchase_status(quote_id: str) -> CallToolResult:

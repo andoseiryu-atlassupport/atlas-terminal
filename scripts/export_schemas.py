@@ -7,6 +7,7 @@ from tempfile import TemporaryDirectory
 from pydantic import BaseModel
 
 from atlas_terminal.errors import ErrorEnvelope
+from atlas_terminal.models import BudgetStatus, PurchasePreflight
 from atlas_terminal.research_batch import ResearchBatchQuery, ResearchBatchResult
 from atlas_terminal.research_diagnostics import ResearchDiagnosticsQuery, ResearchDiagnosticsResult
 from atlas_terminal.research_models import ResearchQuery
@@ -50,7 +51,15 @@ def main() -> None:
     write(research, schema)
     application = ROOT / "schemas/atlas.schema.json"
     schema = json.loads(application.read_bytes())
-    schema["$defs"].update(definitions([("Error", ErrorEnvelope)]))
+    schema["$defs"].update(
+        definitions(
+            [
+                ("Error", ErrorEnvelope),
+                ("BudgetStatus", BudgetStatus),
+                ("PurchasePreflight", PurchasePreflight),
+            ]
+        )
+    )
     write(application, schema)
     with TemporaryDirectory(prefix="atlas-schema-") as directory:
         app = create_app(provider="fixture", directory=Path(directory))

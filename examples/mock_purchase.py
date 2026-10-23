@@ -35,12 +35,14 @@ def main() -> None:
             client = HostedClient(
                 "http://127.0.0.1:8000", directory=root / "client", client=http, policy_path=policy
             )
-            quote = client.quote(
-                parse_query(
-                    {"identifier": "ATLASDEMO", "metrics": ["revenue", "net_income"], "count": 3}
-                )
+            query = parse_query(
+                {"identifier": "ATLASDEMO", "metrics": ["revenue", "net_income"], "count": 3}
             )
-            result = client.purchase(quote.quote_id)
+            quote = client.quote(query, intent_id="mock-annual-review")
+            assert client.quote(query, intent_id="mock-annual-review") == quote
+            preflight = client.preflight(quote.quote_id, max_cost="10000")
+            assert preflight.decision == "ready"
+            result = client.purchase(quote.quote_id, max_cost="10000")
             recovered = client.purchase(quote.quote_id)
             assert recovered == result
             print(
@@ -52,6 +54,9 @@ def main() -> None:
                         "transaction": result.receipt.transaction,
                         "result_sha256": result.receipt.result_sha256,
                         "recovery_same_artifact": True,
+                        "intent_replay_same_quote": True,
+                        "preflight_decision": preflight.decision,
+                        "budget_after": client.budget_status().day.model_dump(mode="json"),
                     }
                 ).decode()
             )

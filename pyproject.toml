@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "atlas-terminal"
-version = "0.3.3"
+version = "0.4.0"
 description = "Source-backed company financials, US macro and reference FX through one MCP connection"
 readme = "README.md"
 license = "Apache-2.0"

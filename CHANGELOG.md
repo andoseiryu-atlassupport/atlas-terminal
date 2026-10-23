@@ -1,5 +1,12 @@
 # Release notes
 
+## 0.4.0
+
+- Inspect local delegated spending, unresolved reservations and remaining session/UTC-day budgets without loading a signing key. Purchase preflight combines authenticated order readiness with local policy checks without signing or reserving funds; actual purchases still enforce limits atomically.
+- Bind a stable task intent to an immutable annual snapshot quote using a private replay capability. Recover the same order after response loss or restart, publish only one quote under concurrent preparation, reject changed queries and retain tombstones after quote cleanup.
+- Expose budget/preflight tools and task IDs through SDK, CLI and full MCP, and capability-authenticated order preflight/replay through HTTP. MCP purchases accept a cost ceiling that can only lower the operator limit. Research-only MCP continues to expose six non-payment tools.
+- Testnet budget inspection uses an operator-configured public payer address; a configured address must match the actual signer. Payments remain off by default and real Base Sepolia transfers remain unverified.
+
 ## 0.3.3
 
 - Use extensionless documentation URLs for the active static host so canonical URLs, sitemap entries and internal links match the served pages. Retain an explicit `.html` mode for hosts that require file suffixes.
