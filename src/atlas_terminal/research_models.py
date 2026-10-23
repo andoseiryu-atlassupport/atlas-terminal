@@ -1,10 +1,12 @@
 """Validated, bounded queries for free public research datasets."""
 
 from copy import deepcopy
+from datetime import date
 from typing import Any, Literal
 
 from pydantic import ConfigDict, Field, ValidationError, field_validator, model_validator
 
+from atlas_terminal.economic_catalog import JAPAN_SERIES, NATIONAL_ACCOUNTS
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.macro_catalog import FX_CURRENCIES, MACRO_SERIES, REFERENCE_SERIES, Currency
 from atlas_terminal.models import Model, identifier
@@ -32,6 +34,8 @@ Dataset = Literal[
     "reference_rates",
     "treasury_real_yields",
     "macro_analytics",
+    "national_accounts",
+    "japan_economics",
 ]
 
 FIELDS = {
@@ -47,22 +51,30 @@ FIELDS = {
     "ownership_filings": {"identifier", "limit"},
     "fund_filings": {"identifier", "limit"},
     "corporate_action_filings": {"identifier", "limit"},
-    "economics": {"series", "limit"},
+    "economics": {"series", "limit", "start_date", "end_date"},
     "treasury_yields": {"year", "limit"},
     "federal_debt": {"limit"},
     "policy_news": {"limit"},
     "compare": {"identifiers", "metrics", "period", "allow_partial"},
-    "fx_rates": {"base_currency", "quote_currency", "limit"},
+    "fx_rates": {"base_currency", "quote_currency", "limit", "start_date", "end_date"},
     "reference_rates": {"series", "limit"},
     "treasury_real_yields": {"year", "limit"},
-    "macro_analytics": {"series", "year", "limit"},
+    "macro_analytics": {"series", "year", "limit", "start_date", "end_date"},
+    "national_accounts": {"series", "limit", "start_date", "end_date"},
+    "japan_economics": {"series", "limit", "start_date", "end_date"},
 }
 
 
 def dataset_required(name: str) -> list[str]:
     if name == "compare":
         return ["identifiers"]
-    if name in {"economics", "reference_rates", "macro_analytics"}:
+    if name in {
+        "economics",
+        "reference_rates",
+        "macro_analytics",
+        "national_accounts",
+        "japan_economics",
+    }:
         return ["series"]
     if name == "fx_rates":
         return ["base_currency", "quote_currency"]
@@ -141,6 +153,10 @@ def dataset_schema(schema: dict[str, Any]) -> None:
             properties["series"]["enum"] = sorted(
                 REFERENCE_SERIES if name == "reference_rates" else MACRO_SERIES
             )
+        if name in {"national_accounts", "japan_economics"}:
+            properties["series"]["enum"] = sorted(
+                NATIONAL_ACCOUNTS if name == "national_accounts" else JAPAN_SERIES
+            )
         if name == "fx_rates":
             for key in ("base_currency", "quote_currency"):
                 properties[key] = {"type": "string", "enum": list(FX_CURRENCIES)}
@@ -155,6 +171,8 @@ def dataset_schema(schema: dict[str, Any]) -> None:
             "required": ["dataset", *dataset_required(name)],
             "additionalProperties": False,
         }
+        if "start_date" in fields:
+            branch["dependentRequired"] = {"start_date": ["end_date"], "end_date": ["start_date"]}
         if name == "fx_rates":
             branch["not"] = {
                 "anyOf": [
@@ -191,8 +209,17 @@ class ResearchQuery(Model):
     year: int | None = Field(default=None, ge=1990, le=2100, strict=True)
     base_currency: Currency | None = None
     quote_currency: Currency | None = None
+    start_date: str | None = Field(default=None, pattern=r"^[0-9]{4}-[0-9]{2}-[0-9]{2}$")
+    end_date: str | None = Field(default=None, pattern=r"^[0-9]{4}-[0-9]{2}-[0-9]{2}$")
     response: ResponseOptions = Field(default_factory=ResponseOptions)
     requirements: ResearchRequirements | None = None
+
+    @field_validator("start_date", "end_date")
+    @classmethod
+    def calendar_date(cls, value: str | None) -> str | None:
+        if value is not None and not 1900 <= date.fromisoformat(value).year <= 2100:
+            raise ValueError("Observation dates must be between 1900 and 2100")
+        return value
 
     @field_validator("identifier")
     @classmethod
@@ -216,6 +243,24 @@ class ResearchQuery(Model):
 
     @model_validator(mode="after")
     def check_dataset(self) -> "ResearchQuery":
+        if (self.start_date is None) != (self.end_date is None) or (
+            self.start_date
+            and self.end_date
+            and (
+                self.start_date > self.end_date
+                or int(self.end_date[:4]) - int(self.start_date[:4]) > 29
+                or self.year is not None
+                or self.series == "yield_spread_10y_2y"
+            )
+        ):
+            raise AtlasError(
+                "INVALID_INPUT",
+                (
+                    "Provide both ordered observation dates spanning at most 30 "
+                    "calendar years; do not combine with year or yield-spread queries."
+                ),
+                fields=["start_date", "end_date"],
+            )
         if self.model_fields_set - (FIELDS[self.dataset] | {"dataset", "response", "requirements"}):
             raise AtlasError(
                 "INVALID_INPUT",
@@ -253,6 +298,12 @@ class ResearchQuery(Model):
                     "INVALID_INPUT",
                     "Choose a registered series for this dataset.",
                     fields=["series"],
+                )
+        if self.dataset in {"national_accounts", "japan_economics"}:
+            selected = NATIONAL_ACCOUNTS if self.dataset == "national_accounts" else JAPAN_SERIES
+            if self.series not in selected:
+                raise AtlasError(
+                    "INVALID_INPUT", "Choose a series from the dataset catalog.", fields=["series"]
                 )
         if self.dataset == "fx_rates" and (
             self.base_currency is None

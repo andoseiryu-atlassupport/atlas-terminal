@@ -39,6 +39,7 @@ jobs:
         env:
           SOURCE_IDS: ${{ inputs.sources }}
           SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
+          BEA_API_KEY: ${{ secrets.BEA_API_KEY }}
           ATLAS_STATE_DIR: ${{ runner.temp }}/atlas-source-checks
         run: uv run --offline atlas research check-sources --sources "$SOURCE_IDS" --allow-network --json > source-checks.json
       - name: Print structured verification report

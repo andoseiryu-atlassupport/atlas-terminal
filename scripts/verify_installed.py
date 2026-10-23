@@ -26,6 +26,18 @@ MACRO_QUERIES = [
     {"dataset": "reference_rates", "series": "sofr"},
     {"dataset": "treasury_real_yields", "year": 2026},
     {"dataset": "macro_analytics", "series": "yield_spread_10y_2y", "year": 2026},
+    {
+        "dataset": "national_accounts",
+        "series": "gdp_real",
+        "start_date": "2025-01-01",
+        "end_date": "2026-12-31",
+    },
+    {
+        "dataset": "japan_economics",
+        "series": "cpi",
+        "start_date": "2025-01-01",
+        "end_date": "2026-12-31",
+    },
 ]
 BATCH_QUERY = {
     "items": [

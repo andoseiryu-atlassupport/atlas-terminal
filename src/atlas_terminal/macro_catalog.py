@@ -2,7 +2,39 @@
 
 from typing import Literal, TypedDict, get_args
 
-Currency = Literal["EUR", "USD", "JPY", "GBP", "CHF", "AUD", "CAD", "NZD", "CNY"]
+Currency = Literal[
+    "EUR",
+    "USD",
+    "JPY",
+    "GBP",
+    "CHF",
+    "AUD",
+    "CAD",
+    "NZD",
+    "CNY",
+    "CZK",
+    "DKK",
+    "HUF",
+    "NOK",
+    "PLN",
+    "SEK",
+    "ISK",
+    "TRY",
+    "BRL",
+    "HKD",
+    "IDR",
+    "ILS",
+    "INR",
+    "KRW",
+    "MXN",
+    "MYR",
+    "PHP",
+    "SGD",
+    "THB",
+    "ZAR",
+    "RON",
+    "BGN",
+]
 FX_CURRENCIES = get_args(Currency)
 REFERENCE_SERIES = {
     "effr": {"type": "EFFR", "rate_type": "overnight_unsecured"},

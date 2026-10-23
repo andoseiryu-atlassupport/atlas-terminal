@@ -6,6 +6,7 @@ from datetime import date, datetime
 from decimal import Context, Decimal, InvalidOperation, localcontext
 from typing import Any
 
+from atlas_terminal.economic_dates import window_metadata, within
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.macro_catalog import MACRO_SERIES, REFERENCE_SERIES
 from atlas_terminal.normalize import number
@@ -96,7 +97,7 @@ def fx_rates(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
     root = xml_root(snapshot.body)
     if root.tag != f"{{{GESMES_NS}}}Envelope":
         raise source_error("Expected an ECB reference-rate envelope.")
-    if len(root.findall(f"{{{ECB_NS}}}Cube/{{{ECB_NS}}}Cube")) > 90:
+    if len(root.findall(f"{{{ECB_NS}}}Cube/{{{ECB_NS}}}Cube")) > 12000:
         raise source_error("ECB reference window exceeds the selected feed bounds.")
     records: list[dict[str, Any]] = []
     dates: set[str] = set()
@@ -105,6 +106,8 @@ def fx_rates(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
         if observed in dates:
             raise source_error("Duplicate ECB reference observation date.")
         dates.add(observed)
+        if not within(observed, q.start_date, q.end_date):
+            continue
         rates: dict[str, dict[str, Any]] = {}
         day_path = f"/Envelope/Cube/Cube[{index}]"
         for position, entry in enumerate(day.findall(f"{{{ECB_NS}}}Cube"), 1):
@@ -187,15 +190,18 @@ def fx_rates(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
             }
         )
     records.sort(key=lambda row: row["date"], reverse=True)
-    return result_page(
+    result = result_page(
         records,
         [reference(snapshot, "/Envelope/Cube", xml=True)],
         q.limit,
-        window="ECB last 90 calendar days",
+        window="ECB full published reference history, filtered by inclusive observation dates",
         limitations=[
             "ECB information-purpose daily reference fixing, "
             "not real-time, bid/ask or executable FX quotes.",
-            "Only the feed's last-90-day window; absent currencies/dates are not filled.",
+            (
+                "Coverage starts and ends separately for each currency; absent "
+                "currencies/dates are not filled."
+            ),
             "Cross and inverse rates are Atlas calculations using inputs from the same ECB date.",
         ],
         attributions=[
@@ -210,6 +216,8 @@ def fx_rates(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
             }
         ],
     )
+    result["coverage"].update(window_metadata(records, q.start_date, q.end_date))
+    return result
 
 
 def reference_rates(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
@@ -387,6 +395,8 @@ def monthly_analytics(
     for key, current in sorted(months.items(), reverse=True):
         if q.year is not None and current["year"] != str(q.year):
             continue
+        if not within(current["date"], q.start_date, q.end_date):
+            continue
         prior = months.get(key - spec["lag_months"])
         role = "prior_year" if spec["lag_months"] == 12 else "previous_month"
         inputs = [{**current, "role": "current"}]
@@ -416,6 +426,7 @@ def monthly_analytics(
             {
                 "series": q.series,
                 "year": current["year"],
+                "date": current["date"],
                 "period": current["period"],
                 "period_kind": "month",
                 "comparison_period": {
@@ -437,11 +448,11 @@ def monthly_analytics(
                 "published_at": None,
             }
         )
-    return result_page(
+    result = result_page(
         records,
         data["sources"],
         q.limit,
-        window="BLS V1 latest three years",
+        window=data["coverage"]["upstream_window"],
         source_id="bls",
         limitations=[
             "Derived from current/revised BLS snapshots, not release-time vintages or PIT data.",
@@ -452,6 +463,8 @@ def monthly_analytics(
             "no interpolation, annualization or seasonal conversion.",
         ],
     )
+    result["coverage"].update(window_metadata(records, q.start_date, q.end_date))
+    return result
 
 
 def macro_analytics(
@@ -461,9 +474,22 @@ def macro_analytics(
 ) -> dict[str, Any]:
     assert q.series in MACRO_SERIES
     if q.series != "yield_spread_10y_2y":
+        dates = {}
+        if q.start_date and q.end_date:
+            start = date.fromisoformat(q.start_date)
+            # Fetch the full prior calendar year: the first requested monthly value
+            # needs its exact lag, including when the selected interval starts midyear.
+            dates = {"start_date": f"{max(1900, start.year - 1)}-01-01", "end_date": q.end_date}
+        elif q.year is not None:
+            dates = {"start_date": f"{q.year - 1}-01-01", "end_date": f"{q.year}-12-31"}
         underlying = ResearchQuery(
-            dataset="economics", series=MACRO_SERIES[q.series]["source_series"], limit=500
+            dataset="economics",
+            series=MACRO_SERIES[q.series]["source_series"],
+            limit=500,
         )
+        # Internally include one additional baseline year beyond the public 30-year bound.
+        # Each source request is still validated and bounded to ten years.
+        underlying = underlying.model_copy(update=dates)
         return monthly_analytics(q, economics(underlying))
     year = q.year or date.today().year
     snapshot = transport.get(TREASURY_BASE + str(year), 21600)

@@ -26,7 +26,9 @@ def prepare(directory: Path, remote_url: str | None = None) -> None:
         "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
         "name": "atlas-terminal",
         "version": __version__,
-        "description": "Company financials, US macro and reference FX through one connection.",
+        "description": (
+            "Company financials, US/Japan macro and reference FX through one connection."
+        ),
         "homepage": DOCUMENTATION_ORIGIN + "/docs/index.md",
         "repository": REPOSITORY,
         "license": "Apache-2.0",
@@ -35,10 +37,11 @@ def prepare(directory: Path, remote_url: str | None = None) -> None:
             "com.openai": {
                 "interface": {
                     "displayName": "Atlas Terminal",
-                    "shortDescription": "Financials, US macro and FX with original sources",
+                    "shortDescription": "Financials, US/Japan macro and FX with original sources",
                     "longDescription": (
-                        "Retrieve 21 free primary-source datasets through one MCP connection. "
-                        "Use company, US macro and FX-context presets with explicit units, dates, "
+                        "Retrieve 23 free primary-source datasets through one MCP connection. "
+                        "Use company, US/Japan macro and FX-context presets with explicit "
+                        "units, dates, "
                         "missingness and evidence. No real-time prices, PIT history or trading."
                     ),
                     "developerName": "Atlas Terminal contributors",
@@ -107,7 +110,9 @@ def prepare(directory: Path, remote_url: str | None = None) -> None:
         "name": SERVER_NAME,
         "title": "Atlas Terminal",
         "version": __version__,
-        "description": "Free company financials, US macro and reference FX with source evidence.",
+        "description": (
+            "Free company financials, US/Japan macro and reference FX with source evidence."
+        ),
         "repository": {"url": REPOSITORY, "source": "github"},
         "websiteUrl": DOCUMENTATION_ORIGIN + "/docs/index.md",
     }

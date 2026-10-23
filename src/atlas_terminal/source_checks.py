@@ -52,6 +52,21 @@ PROBES: dict[str, tuple[str, dict[str, Any]]] = {
     ),
     "federal_debt": ("fiscaldata", {"dataset": "federal_debt", "limit": 5}),
     "fed_releases": ("federal_reserve", {"dataset": "policy_news", "limit": 5}),
+    "bea_gdp": ("bea", {"dataset": "national_accounts", "series": "gdp_real", "limit": 1}),
+    "bea_pce": (
+        "bea",
+        {"dataset": "national_accounts", "series": "core_pce_price_index", "limit": 1},
+    ),
+    "boj_call_rate": ("boj", {"dataset": "japan_economics", "series": "call_rate", "limit": 1}),
+    "boj_tankan": (
+        "boj",
+        {"dataset": "japan_economics", "series": "tankan_manufacturing", "limit": 1},
+    ),
+    "estat_cpi": ("estat", {"dataset": "japan_economics", "series": "cpi", "limit": 1}),
+    "estat_unemployment": (
+        "estat",
+        {"dataset": "japan_economics", "series": "unemployment", "limit": 1},
+    ),
 }
 
 SCHEMA = """

@@ -2,11 +2,11 @@
 
 ## What is Atlas Terminal?
 
-Atlas Terminal is an open-source financial-data toolkit for AI agents. One MCP connection provides company financials, US macro indicators and reference FX from free primary sources. A Python SDK, CLI and HTTP API share the same services. It has 21 datasets and three multi-source presets.
+Atlas Terminal is an open-source financial-data toolkit for AI agents. One MCP connection provides company financials, US/Japan macro indicators and reference FX from free primary sources. A Python SDK, CLI and HTTP API share the same services. It has 23 datasets and five multi-source presets.
 
 ## Is the research data free?
 
-Research requires no data subscription, API key, wallet or LLM. Upstream publishers set their own access limits and reuse terms. SEC requests require an operator-supplied identifying User-Agent with an actual contact email. Operating your own remote server can incur hosting costs. The optional snapshot-payment path is separate and defaults to off.
+Research requires no data subscription, wallet or LLM. BEA GDP/PCE/income data require a free registered API key; Japanese macro data need no registration. Upstream publishers set their own access limits and reuse terms. SEC requests require an operator-supplied identifying User-Agent with an actual contact email. Operating your own remote server can incur hosting costs. The optional snapshot-payment path is separate and defaults to off.
 
 ## Can I get company data, macro data and FX through one MCP server?
 
@@ -18,7 +18,7 @@ Local stdio MCP can be configured in compatible Codex and desktop clients. A res
 
 ## Does Atlas provide live prices or real-time FX?
 
-No. Atlas does not provide consolidated equity quotes, trading, order books or executable currency prices. Its FX connector uses ECB daily reference rates for nine currencies within the latest 90-calendar-day reference window. EFFR and SOFR cover the latest 90 effective observations. See [macro and FX limits](macro.md).
+No. Atlas does not provide consolidated equity quotes, trading, order books or executable currency prices. Its FX connector uses ECB daily reference rates for 31 currencies from the full published history, with per-currency availability. EFFR and SOFR cover the latest 90 effective observations. See [macro and FX limits](macro.md).
 
 ## Can I query what was known at a past date?
 

@@ -1,6 +1,6 @@
 # Free public-source research
 
-`atlas research`, `Atlas.get_research`, MCP `atlas_get_research` and HTTP `POST /v1/research` use the same service. Sources are free public primary sources. No API key, data subscription, model or wallet is required. SEC alone requires a private `SEC_USER_AGENT` with the operator's actual contact details.
+`atlas research`, `Atlas.get_research`, MCP `atlas_get_research` and HTTP `POST /v1/research` use the same service. Sources are free public primary sources. No data subscription, model or wallet is required. BEA national accounts require a free registered `BEA_API_KEY`; other sources need no data API key. SEC alone requires a private `SEC_USER_AGENT` with the operator's actual contact details.
 
 Queries can include optional `response` settings for compact evidence references, field selection and snapshot-bound pages. The default response is unchanged. See [agent contracts](agents.md) for typed MCP schemas, evidence retrieval and structured recovery hints.
 
@@ -157,7 +157,7 @@ XML discovery uses filing history and safe directory filenames, examining at mos
 
 ## Economics and policy
 
-BLS `series` accepts `cpi`, `cpi_sa`, `core_cpi`, `unemployment`, `participation`, `payrolls`, `hourly_earnings` and `job_openings`, or their registered series IDs. Unregistered V1 retrieval covers the latest three years. Units, seasonal adjustment, footnotes and M13 annual averages are preserved. The raw `economics` dataset does not calculate changes or reconstruct release-time vintages. `macro_analytics` calculates changes from exact monthly inputs in that current source window. A shared cache and private database enforce 25 HTTP attempts per UTC day. Other programs and users sharing an IP may consume the upstream allowance first.
+BLS `series` accepts `cpi`, `cpi_sa`, `core_cpi`, `unemployment`, `participation`, `payrolls`, `hourly_earnings` and `job_openings`, or their registered series IDs. Unregistered V1 retrieval defaults to the latest three years; paired `start_date`/`end_date` select up to 30 calendar years in ten-year POST requests. Units, seasonal adjustment, footnotes and M13 annual averages are preserved. The raw `economics` dataset does not calculate changes or reconstruct release-time vintages. `macro_analytics` calculates changes from exact monthly inputs in the selected current/revised source history. A shared cache and private database enforce 25 HTTP attempts per UTC day. Other programs and users sharing an IP may consume the upstream allowance first.
 
 Treasury yields use the selected year's nominal par curve. Each record is one date/maturity pair, so a record limit can truncate a day's curve; coverage identifies truncation. Fiscal Data returns one page of at most 500 recent records. Federal Reserve output contains retained official headlines and links, not general company news or article bodies.
 
@@ -170,3 +170,7 @@ Raw bytes stay in a private cache. Values carry `raw_sha256`, `retrieved_at` and
 Retrieving an observation for an earlier year does not establish what was available then. `as_of` / `pit` requests are rejected. Comparisons require common actual periods; issuers with different fiscal calendars may have no comparable values.
 
 Consolidated prices, daily prices and adjustment factors, order books, options, consensus estimates, complete news/transcript coverage, a historical security master and PIT are unavailable. Private APIs or scraping with unclear terms do not fill those gaps. See [DATA_SOURCES](../DATA_SOURCES.md) for source conditions and [validation scope](verification.md) for test evidence. Catalog `live_verified=false` distinguishes offline validation from live access.
+
+## National accounts and Japanese macro
+
+`national_accounts` adds eight BEA series: nominal/real GDP, annualized GDP growth, PCE/core PCE indexes, personal/disposable income and personal consumption. Public retrieval requires a free registered `BEA_API_KEY`. `japan_economics` adds ten BOJ/Statistical Dashboard series without registration: prices, unemployment, short rates, Tokyo FX, Tankan and money/credit statistics. Both support paired observation dates, exact units and original byte evidence. See the [series catalog, history rules and examples](macro.md).

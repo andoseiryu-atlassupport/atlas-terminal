@@ -1,0 +1,31 @@
+{
+  "STATUS": 200,
+  "MESSAGEID": "M181000I",
+  "MESSAGE": "Fictional test data.",
+  "DATE": "2026-10-20T09:00:00+09:00",
+  "PARAMETER": {
+    "DB": "FM09"
+  },
+  "NEXTPOSITION": null,
+  "DATA": [
+    {
+      "SERIES_CODE": "FX180110002",
+      "NAME_OF_TIME_SERIES": "Real effective exchange rate index",
+      "UNIT": "2020=100",
+      "FREQUENCY": "MONTHLY",
+      "LAST_UPDATE": "20261020",
+      "VALUES": {
+        "SURVEY_DATES": [
+          "202509",
+          "202608",
+          "202609"
+        ],
+        "VALUES": [
+          "100.00",
+          "102.25",
+          "103.50"
+        ]
+      }
+    }
+  ]
+}

@@ -19,3 +19,5 @@ The original optional snapshot-payment service has additional private order and 
 ## Documentation support
 
 Public GitHub issues are visible to others. Report reproducible technical problems without contact settings, credentials, private databases or personal data. Use the [support guidance](support.md) and GitHub's own account/privacy controls when sharing material.
+
+BEA national accounts require a private `BEA_API_KEY`. It is sent only to the official BEA API and excluded from returned query/provenance URLs and application logs. The official response can echo the key, so the raw source cache is sensitive even though the observations are public; never publish or attach that database. A fixture run does not require or send a key.

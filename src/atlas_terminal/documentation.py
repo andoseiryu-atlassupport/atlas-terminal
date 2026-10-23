@@ -14,6 +14,8 @@ def research_documentation(dataset: str) -> dict[str, str]:
         "fx_rates",
         "macro_analytics",
         "policy_news",
+        "national_accounts",
+        "japan_economics",
     }
     methodology = "macro" if dataset in macro else "methodology"
     return {
