@@ -58,6 +58,7 @@ from atlas_terminal.research_financials import (
 from atlas_terminal.research_macro import fx_rates, macro_analytics, real_yields, reference_rates
 from atlas_terminal.research_models import (
     FIELDS,
+    CatalogQuery,
     Dataset,
     ResearchQuery,
     dataset_required,
@@ -116,6 +117,21 @@ FAMILIES = {
     "institutional_holdings": {"13F-HR", "13F-HR/A"},
 }
 DATASETS = {
+    "sdmx_catalog": (
+        "IMF/OECD dataflows, ordered dimensions and source code lists",
+        "imf",
+        "source_metadata",
+    ),
+    "international_economics": (
+        "Metadata-selected IMF/OECD monthly, quarterly and annual series",
+        "imf",
+        "observations",
+    ),
+    "macro_panel": (
+        "Calendar-aligned macro/FX with explicit aggregation and original inputs",
+        "bls",
+        "aligned_observations",
+    ),
     "national_accounts": (
         "BEA GDP, PCE prices, personal income and consumption",
         "bea",
@@ -227,7 +243,31 @@ GAPS = {
 def research_catalog(
     dataset: Dataset | None = None,
     view: Literal["full", "compact"] = "full",
+    *,
+    search: str | None = None,
+    country: str | None = None,
+    frequency: Literal["daily", "monthly", "quarterly", "annual"] | None = None,
+    source_id: str | None = None,
+    unit: str | None = None,
 ) -> dict[str, Any]:
+    from pydantic import ValidationError
+
+    from atlas_terminal.series_catalog import series_catalog
+
+    try:
+        filters = CatalogQuery(
+            dataset=dataset,
+            view=view,
+            search=search,
+            country=country,
+            frequency=frequency,
+            source_id=source_id,
+            unit=unit,
+        )
+    except ValidationError:
+        raise AtlasError("INVALID_INPUT", "Invalid catalog filters.") from None
+    if source_id is not None and source_id not in SOURCE_CATALOG:
+        raise AtlasError("INVALID_INPUT", "Unknown catalog source.", fields=["source_id"])
     from atlas_terminal.research_batch import (
         MAX_BATCH_ITEMS,
         MAX_BATCH_REQUEST_BYTES,
@@ -256,12 +296,17 @@ def research_catalog(
             "citations": DOCUMENTATION_ORIGIN + "/docs/citations.md",
         },
         "sources": SOURCE_CATALOG,
+        "series_search": series_catalog(filters),
         "datasets": [
             {
                 "id": name,
                 "description": title,
                 "source": source,
-                "source_ids": ["bls", "treasury"]
+                "source_ids": ["imf", "oecd"]
+                if name in {"sdmx_catalog", "international_economics"}
+                else ["bls", "bea", "boj", "estat", "ecb", "new_york_fed", "imf", "oecd"]
+                if name == "macro_panel"
+                else ["bls", "treasury"]
                 if name == "macro_analytics"
                 else ["boj", "estat"]
                 if name == "japan_economics"
@@ -462,7 +507,11 @@ class ResearchService:
         q = query if isinstance(query, ResearchQuery) else parse_research(query)
         if q.response.cursor:
             return self.views.render(q)
-        if q.dataset in {
+        if q.dataset == "macro_panel":
+            from atlas_terminal.research_panel import macro_panel
+
+            result = macro_panel(q, self.get)
+        elif q.dataset in {
             "economics",
             "treasury_yields",
             "federal_debt",
@@ -473,6 +522,8 @@ class ResearchService:
             "macro_analytics",
             "national_accounts",
             "japan_economics",
+            "sdmx_catalog",
+            "international_economics",
         }:
             self.public = self.public or (
                 PublicFixtures()
@@ -525,7 +576,9 @@ class ResearchService:
             "dataset": q.dataset,
             "query": q.model_dump(exclude_unset=True, exclude={"response"}),
             "source_id": source_id,
-            "source_terms_url": SOURCE_CATALOG[source_id]["terms"],
+            "source_terms_url": DOCUMENTATION_ORIGIN + "/DATA_SOURCES.md"
+            if source_id == "multiple"
+            else SOURCE_CATALOG[source_id]["terms"],
             "documentation": research_documentation(q.dataset),
             "upstream_data_cost": "0",
             "is_synthetic": self.synthetic,
@@ -985,6 +1038,12 @@ class ResearchService:
 
     def public_data(self, q: ResearchQuery) -> dict[str, Any]:
         assert self.public is not None
+        if q.dataset in {"sdmx_catalog", "international_economics"}:
+            from atlas_terminal.research_sdmx import international_economics, sdmx_catalog
+
+            return (sdmx_catalog if q.dataset == "sdmx_catalog" else international_economics)(
+                self.public, q
+            )
         if q.dataset == "national_accounts":
             return national_accounts(self.public, q)
         if q.dataset == "japan_economics":

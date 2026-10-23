@@ -1,0 +1,34 @@
+{
+  "dataset": "macro_panel",
+  "start_date": "2026-01-01",
+  "end_date": "2026-12-31",
+  "frequency": "monthly",
+  "allow_partial": true,
+  "items": [
+    {
+      "id": "us_cpi",
+      "query": {
+        "dataset": "economics",
+        "series": "cpi"
+      },
+      "aggregation": "last"
+    },
+    {
+      "id": "jp_cpi",
+      "query": {
+        "dataset": "japan_economics",
+        "series": "cpi"
+      },
+      "aggregation": "last"
+    },
+    {
+      "id": "usd_jpy",
+      "query": {
+        "dataset": "fx_rates",
+        "base_currency": "USD",
+        "quote_currency": "JPY"
+      },
+      "aggregation": "mean"
+    }
+  ]
+}

@@ -35,6 +35,8 @@ The private `ATLAS_STATE_DIR/source-checks.sqlite3` stores only the last success
 
 Root/probe statuses are `PASS`, `FAIL` and `NOT_RUN`. A fixture result is always `NOT_RUN` as live evidence. CLI exits 0 for all-pass, 3 when any probe fails and 4 when checks are incomplete/not run. Probe failures include the ordinary sanitized error contract; network restrictions, upstream errors and private-configuration requirements must be interpreted in their execution context. No paid fallback occurs.
 
+IMF and OECD each add a dataflow-catalogue probe. A PASS for those probes checks metadata access/parser behavior, not observation retrieval; they have no observation date and cannot satisfy an observation-lag requirement. OECD reads share the persistent rolling hourly attempt counter with ordinary queries.
+
 ## Manual workflow
 
 [Official source checks](../.github/workflows/source-checks.yml) is a separate `workflow_dispatch` workflow with an explicit `allow_network` boolean and selected source IDs. It uses pinned actions, read-only repository permissions and locked dependencies. The default source list excludes SEC; selecting it requires the repository's private `SEC_USER_AGENT` secret. Selecting BEA requires the private `BEA_API_KEY` secret. Structured reports are printed even when a probe step fails. Default offline CI and pull-request tests make no live source requests.
@@ -45,6 +47,6 @@ Runner-local baselines are temporary in this workflow. Persistent cross-run comp
 
 Parser, fingerprint, failure-isolation, source-contact separation, baseline persistence and integrity tests use fictional inputs and HTTP MockTransport. They do not establish actual source connectivity. In the recorded implementation environment, the enforced outbound allowlist excludes official data hosts, so live probes remain unverified. An operator must allow the intended endpoints before running them; SEC additionally needs its private contact setting, and BEA needs its free registered key.
 
-The required direct-request hosts are `www.ecb.europa.eu`, `markets.newyorkfed.org`, `api.bls.gov`, `home.treasury.gov`, `api.fiscaldata.treasury.gov`, `www.federalreserve.gov`, `www.sec.gov` `data.sec.gov`, `apps.bea.gov`, `www.stat-search.boj.or.jp` and `dashboard.e-stat.go.jp`. Atlas still enforces its narrower fixed URL catalog and refuses redirects. Keep TLS verification and the execution environment's proxy path enabled.
+The required direct-request hosts are `www.ecb.europa.eu`, `markets.newyorkfed.org`, `api.bls.gov`, `home.treasury.gov`, `api.fiscaldata.treasury.gov`, `www.federalreserve.gov`, `www.sec.gov` `data.sec.gov`, `apps.bea.gov`, `www.stat-search.boj.or.jp` `dashboard.e-stat.go.jp`, `api.imf.org` and `sdmx.oecd.org`. Atlas still enforces its narrower fixed URL catalog and refuses redirects. Keep TLS verification and the execution environment's proxy path enabled.
 
 [Agent requirements](agents.md#require-data-quality-explicitly) · [Source conditions](../DATA_SOURCES.md) · [Validation scope](verification.md)

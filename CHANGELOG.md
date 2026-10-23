@@ -1,5 +1,12 @@
 # Release notes
 
+## Unreleased
+
+- Search registered macro/FX query templates by text, country, frequency, source and unit through existing catalog interfaces.
+- Discover IMF/OECD dataflows and classification codes, validate exact series dimensions and retrieve monthly, quarterly or annual SDMX observations with original XML evidence.
+- Align up to ten macro/FX queries into calendar panels with explicit last/mean aggregation, source inputs, missing cells and independent error handling. Add bounded saved-query CLI execution and persistent OECD hourly attempt limits.
+- Extend offline parser, aggregation, HTTP/SDK/CLI and actual MCP contract checks. Live upstream compatibility remains unverified.
+
 ## 0.5.0
 
 - Add eight BEA national-account series and ten Japanese macro series through CLI, SDK, MCP and HTTP. BEA uses a private free registered key; BOJ and Statistical Dashboard require no registration.

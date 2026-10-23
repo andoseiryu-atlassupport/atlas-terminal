@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Fictional observations; original bytes used for provenance tests. -->
+<m:StructureSpecificData xmlns:m="http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message"><m:DataSet><Series FREQUENCY="M" COUNTRY="USA" INDICATOR="CPI" UNIT_MEASURE="IX" UNIT_MULT="0" ADJUSTMENT="N" BASE_PER="2020"><Obs TIME_PERIOD="2026-01" OBS_VALUE="110.1000" OBS_STATUS="A"/><Obs TIME_PERIOD="2026-02" OBS_VALUE="111.2000" OBS_STATUS="P"/><Obs TIME_PERIOD="2026-03" OBS_VALUE="112.3000" OBS_STATUS="F"/></Series></m:DataSet></m:StructureSpecificData>

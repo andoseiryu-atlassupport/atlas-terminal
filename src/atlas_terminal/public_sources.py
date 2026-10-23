@@ -1,5 +1,6 @@
 """Free primary-source registry and allowlisted public HTTP transport."""
 
+import math
 import re
 import xml.etree.ElementTree as ET
 from datetime import UTC, datetime
@@ -20,6 +21,7 @@ from atlas_terminal.economic_sources import (
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.macro_catalog import REFERENCE_SERIES
 from atlas_terminal.providers import CachedHTTPTransport, Snapshot, decode_json
+from atlas_terminal.sdmx_sources import BASES, SDMX_SOURCES, sdmx_source, valid_sdmx_url
 from atlas_terminal.util import state_dir
 
 BLS_BASE = "https://api.bls.gov/publicAPI/v1/timeseries/data/"
@@ -161,6 +163,7 @@ SOURCE_CATALOG = {
     },
 }
 SOURCE_CATALOG.update(ECONOMIC_SOURCES)
+SOURCE_CATALOG.update(SDMX_SOURCES)
 
 
 def bls_url(series_id: str, first: int, last: int) -> str:
@@ -214,6 +217,8 @@ class PublicTransport(CachedHTTPTransport):
             **kwargs,
         )
         self.interval = max(1.0, self.interval)
+        with self.db.connect(write=True) as conn:
+            conn.execute("CREATE TABLE IF NOT EXISTS oecd_attempts (attempted_at REAL NOT NULL)")
 
     @staticmethod
     def validate_url(url: str) -> None:
@@ -221,6 +226,7 @@ class PublicTransport(CachedHTTPTransport):
             url in {DEBT_URL, FED_NEWS, ECB_FX_URL, *NYFED_RATES.values()}
             or valid_bls_url(url)
             or validate_economic_url(url)
+            or valid_sdmx_url(url)
             or re.fullmatch(re.escape(TREASURY_BASE) + r"(?:199[0-9]|20[0-9]{2}|2100)", url)
             or re.fullmatch(re.escape(TREASURY_REAL_BASE) + r"(?:200[3-9]|20[1-9][0-9]|2100)", url)
         ):
@@ -247,6 +253,16 @@ class PublicTransport(CachedHTTPTransport):
 
     def request(self, url: str, headers: dict[str, str]) -> Any:
         self.validate_url(url)
+        if sdmx_source(url):
+            headers = {
+                **headers,
+                "Accept": (
+                    "application/vnd.sdmx.structure+xml;version=2.1"
+                    if "/dataflow/" in url
+                    and not url.startswith("https://api.imf.org/external/sdmx/3.0/data/")
+                    else "application/xml"
+                ),
+            }
         if url.startswith(BEA_BASE + "?"):
             # Only the outbound request receives the key. Provenance and cache keys never do.
             return self.client.stream(
@@ -268,6 +284,22 @@ class PublicTransport(CachedHTTPTransport):
         return super().request(url, headers)
 
     def before_request(self, url: str) -> None:
+        if url.startswith(BASES["oecd"] + "/"):
+            now = self.clock()
+            with self.db.connect(write=True) as conn:
+                conn.execute("DELETE FROM oecd_attempts WHERE attempted_at <= ?", (now - 3600,))
+                row = conn.execute(
+                    "SELECT COUNT(*) AS used, MIN(attempted_at) AS oldest FROM oecd_attempts"
+                ).fetchone()
+                if row["used"] >= 60:
+                    raise AtlasError(
+                        "SOURCE_RATE_LIMITED",
+                        "Local OECD rolling hourly quota reached.",
+                        retryable=True,
+                        status=429,
+                        retry_after_seconds=max(1, math.ceil(row["oldest"] + 3600 - now)),
+                    )
+                conn.execute("INSERT INTO oecd_attempts VALUES (?)", (now,))
         if url.startswith(BLS_BASE):
             day = datetime.fromtimestamp(self.clock(), UTC).date().isoformat()
             with self.db.connect(write=True) as conn:
@@ -296,7 +328,10 @@ class PublicFixtures:
 
     def get(self, url: str, ttl: int) -> Snapshot:
         PublicTransport.validate_url(url)
-        if url.startswith(BLS_BASE):
+        if source := sdmx_source(url):
+            kind = "structure" if url.startswith(BASES[source] + "/dataflow/") else "data"
+            name = f"sdmx_{source}_{kind}.xml"
+        elif url.startswith(BLS_BASE):
             name = "bls_" + url.removeprefix(BLS_BASE).split("?")[0] + ".json"
         elif url.startswith(BEA_BASE + "?"):
             name = "bea_" + parse_qs(url.split("?", 1)[1])["TableName"][0] + ".json"

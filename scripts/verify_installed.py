@@ -22,6 +22,18 @@ from atlas_terminal.util import canonical, digest
 QUERY = parse_query({"identifier": "ATLASDEMO", "metrics": ["revenue", "net_income"], "count": 3})
 expected = Atlas("fixture").get_financials(QUERY).model_dump(mode="json")
 MACRO_QUERIES = [
+    {"dataset": "sdmx_catalog", "source_id": "imf"},
+    {
+        "dataset": "international_economics",
+        "source_id": "imf",
+        "dataflow": "IMF.DEMO,ATLAS_MACRO,1.0",
+        "dimensions": {"FREQUENCY": "M", "COUNTRY": "USA", "INDICATOR": "CPI"},
+        "start_date": "2026-01-01",
+        "end_date": "2026-03-31",
+    },
+    json.loads(
+        (Path(__file__).resolve().parents[1] / "examples/research_panels/us_japan.json").read_text()
+    ),
     {"dataset": "fx_rates", "base_currency": "USD", "quote_currency": "JPY"},
     {"dataset": "reference_rates", "series": "sofr"},
     {"dataset": "treasury_real_yields", "year": 2026},
@@ -268,15 +280,21 @@ with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
     assert any(row["value"] == "-0.10" for row in macro_expected["treasury_real_yields"]["records"])
     assert macro_expected["macro_analytics"]["records"][0]["value"] == "25.00"
     for query in MACRO_QUERIES:
-        args = [sys.executable, "-m", "atlas_terminal", "research", "get", query["dataset"]]
-        for key, value in query.items():
-            if key != "dataset":
-                args.extend(["--" + key.replace("_", "-"), str(value)])
+        saved_query = any(isinstance(value, (dict, list)) for value in query.values())
+        args = [sys.executable, "-m", "atlas_terminal", "research"]
+        if saved_query:
+            args.extend(["run", "--input", "-"])
+        else:
+            args.extend(["get", query["dataset"]])
+            for key, value in query.items():
+                if key != "dataset":
+                    args.extend(["--" + key.replace("_", "-"), str(value)])
         macro_cli = subprocess.run(
             [*args, "--provider", "fixture"],
             cwd=root,
             capture_output=True,
             text=True,
+            input=json.dumps(query) if saved_query else None,
             timeout=20,
             check=True,
         )

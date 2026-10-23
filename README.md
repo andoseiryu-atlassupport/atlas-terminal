@@ -8,7 +8,7 @@ Atlas Terminal gives AI agents company financials, US/Japan macro indicators and
 
 ## Available data
 
-Atlas provides 23 datasets from SEC EDGAR, BLS, US Treasury yields, Treasury Fiscal Data, the Federal Reserve, the ECB, the New York Fed, BEA, the Bank of Japan and Japan's Statistical Dashboard.
+Atlas provides 26 datasets from SEC EDGAR, BLS, US Treasury yields, Treasury Fiscal Data, the Federal Reserve, the ECB, the New York Fed, BEA, the Bank of Japan, Japan's Statistical Dashboard, IMF and OECD.
 
 | Area        | Information                                                                                                                           |
 | ----------- | ------------------------------------------------------------------------------------------------------------------------------------- |
@@ -25,6 +25,8 @@ Atlas provides 23 datasets from SEC EDGAR, BLS, US Treasury yields, Treasury Fis
 | Policy      | Federal Reserve release headlines, publication times and original links                                                               |
 
 Values retain their units, periods, source hashes, retrieval times and JSON pointers or XML paths. Missing or ambiguous values are explicit. Derived metrics include their formulas and reported inputs.
+
+Series search filters registered macro/FX templates by text, country, frequency, source and unit. IMF/OECD metadata discovery retrieves new series without indicator-specific adapters; macro panels align observations with explicit aggregation, gaps and source evidence. For these additions, use a source checkout until the next tagged release. [Discovery and panel guide](docs/international-macro.md).
 
 ## Get started
 

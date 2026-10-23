@@ -1,6 +1,6 @@
 # Financial data for AI agents through one MCP connection
 
-Atlas Terminal connects AI agents to company financials, US/Japan macro indicators and reference foreign exchange data from free public primary sources. One MCP connection exposes 23 datasets, five multi-source presets and traceable evidence. A Python SDK, CLI and HTTP API use the same services. Research needs no data subscription, wallet or built-in LLM. BEA national accounts require a free registered API key.
+Atlas Terminal connects AI agents to company financials, US/Japan and international macro indicators and reference foreign exchange data from free public primary sources. One MCP connection exposes 26 datasets, five multi-source presets and traceable evidence. A Python SDK, CLI and HTTP API use the same services. Research needs no data subscription, wallet or built-in LLM. BEA national accounts require a free registered API key.
 
 ## Start with a task
 
@@ -13,6 +13,8 @@ Atlas Terminal connects AI agents to company financials, US/Japan macro indicato
 Select only the preset items you need. A preview shows the exact queries without source access. Results preserve units, observation periods, source retrieval times, explicit missingness and original source references. [Runnable examples](use-cases.md) · [Preset contracts](presets.md).
 
 The [company, CPI and USD/JPY example](company-macro-fx.md) retrieves four datasets through one official MCP session and resolves every returned evidence ID. Its fictional run and explicit public-data mode are separate. [Public HTTP and remote checks](public-checks.md) explain how to verify a published deployment.
+
+[Series discovery and macro panels](international-macro.md) explain IMF/OECD dataflows, metadata-selected series and explicit calendar aggregation. These additions are available from the current source checkout ahead of the next release.
 
 ## Connect an agent
 
@@ -30,6 +32,6 @@ This example uses synthetic data, not current market observations. It needs Pyth
 
 Use [source and citation guidance](citations.md) to attribute numerical facts to their original publishers. Atlas documents its normalization, [financial calculations](methodology.md), [macro and FX calculations](macro.md), and [coverage limits](../IMPLEMENTATION_STATUS.md). Data freshness and publication time are distinct.
 
-Current or revised source snapshots are not point-in-time history. Atlas does not provide real-time prices, consolidated market quotes, forecasts, trading or complete news coverage. ECB reference FX is daily reference data. Source availability and redistribution terms remain source-specific. See [sources and terms](../DATA_SOURCES.md), [FAQ](faq.md) and [verification scope](verification.md).
+Current or revised source snapshots are not point-in-time history. Atlas does not provide real-time prices, consolidated market quotes, analyst consensus, trading or complete news coverage. ECB reference FX is daily reference data. Source availability and redistribution terms remain source-specific. See [sources and terms](../DATA_SOURCES.md), [FAQ](faq.md) and [verification scope](verification.md).
 
 [GitHub repository](https://github.com/andoseiryu-atlassupport/atlas-terminal) · [Release notes](../CHANGELOG.md) · [Support](support.md) · [Privacy](privacy.md) · [Terms](terms.md)
