@@ -147,6 +147,10 @@ class CachedHTTPTransport:
     def before_request(self, url: str) -> None:
         """Source-specific quotas, charged for network attempts rather than cache hits."""
 
+    def request(self, url: str, headers: dict[str, str]) -> Any:
+        """Subclasses may inject private credentials or a documented read-only POST."""
+        return self.client.stream("GET", url, headers=headers)
+
     @contextmanager
     def request_permit(self, url: str) -> Iterator[None]:
         with self.permit():
@@ -200,7 +204,7 @@ class CachedHTTPTransport:
             try:
                 with (
                     self.request_permit(url),
-                    self.client.stream("GET", url, headers=headers) as response,
+                    self.request(url, headers) as response,
                 ):
                     response_started = self.clock()
                     if response.status_code in {429, 503}:

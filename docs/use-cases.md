@@ -1,6 +1,6 @@
 # Retrieve company financials, macro data and FX through one connection
 
-Atlas Terminal provides three presets for common research tasks. Discover their accepted fields in `atlas_research_catalog`, preview the exact plan, then inspect every item and its evidence. These examples use the packaged fictional fixture provider. They do not show current observations or establish live source availability.
+Atlas Terminal provides five presets for common research tasks. Discover their accepted fields in `atlas_research_catalog`, preview the exact plan, then inspect every item and its evidence. These examples use the packaged fictional fixture provider. They do not show current observations or establish live source availability.
 
 ## Company financials and free cash flow
 
@@ -107,3 +107,14 @@ with Atlas("fixture") as atlas:
 ```
 
 [Saved JSON queries](../examples/research_presets/fx_context.json) · [Setup](codex.md) · [Preset contracts](presets.md) · [Sources](../DATA_SOURCES.md)
+
+## Japanese and US/Japan macro context
+
+The Japan preset combines national CPI, unemployment, the BOJ overnight call rate, large-manufacturer Tankan, M2 and Tokyo USD/JPY. It needs no data registration. The US/Japan preset adds US GDP and PCE through BEA, which requires a free private API key.
+
+```sh
+atlas research preset --input examples/research_presets/japan_macro_overview.json --provider fixture --json
+atlas research preset --input examples/research_presets/us_japan_overview.json --provider fixture --json
+```
+
+Use `--provider public` for actual retrieval after configuring any required key. These examples select 2025–2026 observation periods and return one latest selected observation per item. Index levels, annualized flows and percentage rates have different units; inspect each item's metadata. The preset does not align publication times or reconstruct historical release vintages. See [macro series and history](macro.md).

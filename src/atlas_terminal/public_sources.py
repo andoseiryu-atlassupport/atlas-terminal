@@ -6,13 +6,23 @@ from datetime import UTC, datetime
 from importlib.resources import files
 from pathlib import Path
 from typing import Any
+from urllib.parse import parse_qs, urlencode
 
+from atlas_terminal.economic_catalog import JAPAN_SERIES
+from atlas_terminal.economic_sources import (
+    BEA_BASE,
+    BOJ_BASE,
+    ECONOMIC_SOURCES,
+    ESTAT_BASE,
+    bea_key,
+    validate_economic_url,
+)
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.macro_catalog import REFERENCE_SERIES
 from atlas_terminal.providers import CachedHTTPTransport, Snapshot, decode_json
 from atlas_terminal.util import state_dir
 
-BLS_BASE = "https://api.bls.gov/publicAPI/v1/timeseries/"
+BLS_BASE = "https://api.bls.gov/publicAPI/v1/timeseries/data/"
 TREASURY_BASE = (
     "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml"
     "?data=daily_treasury_yield_curve&field_tdr_date_value="
@@ -22,7 +32,7 @@ DEBT_URL = (
     "debt_to_penny?format=json&sort=-record_date&page%5Bsize%5D=500"
 )
 FED_NEWS = "https://www.federalreserve.gov/feeds/press_all.xml"
-ECB_FX_URL = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist-90d.xml"
+ECB_FX_URL = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist.xml"
 TREASURY_REAL_BASE = TREASURY_BASE.replace(
     "daily_treasury_yield_curve", "daily_treasury_real_yield_curve"
 )
@@ -31,7 +41,7 @@ NYFED_RATES = {
     for name, kind in [("effr", "unsecured"), ("sofr", "secured")]
 }
 
-# V1 is registration-free: the latest three years, with source-defined revisions.
+# V1 is registration-free: three years by default, at most ten years per dated POST.
 BLS_SERIES = {
     "cpi": ("CUUR0000SA0", "Consumer price index, all urban consumers", "index_1982_84_100", False),
     "cpi_sa": (
@@ -66,8 +76,8 @@ SOURCE_CATALOG = {
             "information-purpose reference rates, not executable quotes."
         ),
         "cadence": (
-            "European working-day reference observations; fixed "
-            "last-90-calendar-day XML window, no holiday filling."
+            "European working-day reference observations; full published XML history, "
+            "currency-specific start/end dates and no holiday filling."
         ),
     },
     "new_york_fed": {
@@ -104,14 +114,15 @@ SOURCE_CATALOG = {
         "upstream_price": "0",
         "api_key_required": False,
         "contact_user_agent_required": False,
-        "documentation": "https://www.bls.gov/developers/api_signature_v1.htm",
+        "documentation": "https://www.bls.gov/developers/api_signature.htm",
         "terms": "https://www.bls.gov/bls/linksite.htm",
         "use": (
             "US government statistics with source attribution; preserve series"
             " and revision caveats."
         ),
         "cadence": (
-            "Release schedule; unregistered V1 latest three years, 25 "
+            "Release schedule; unregistered V1 defaults to three years; dated requests use "
+            "ten-year chunks, 25 "
             "queries/day per upstream policy."
         ),
     },
@@ -149,10 +160,33 @@ SOURCE_CATALOG = {
         "cadence": "Feed publication; limited to entries retained by the upstream feed.",
     },
 }
+SOURCE_CATALOG.update(ECONOMIC_SOURCES)
+
+
+def bls_url(series_id: str, first: int, last: int) -> str:
+    return BLS_BASE + series_id + "?" + urlencode({"startyear": first, "endyear": last})
+
+
+def valid_bls_url(url: str) -> bool:
+    base, sep, query = url.partition("?")
+    if base not in {BLS_BASE + item[0] for item in BLS_SERIES.values()}:
+        return False
+    if not sep:
+        return True
+    try:
+        parts = parse_qs(query, strict_parsing=True)
+        first, last = int(parts["startyear"][0]), int(parts["endyear"][0])
+        return (
+            1900 <= first <= last <= 2100
+            and last - first <= 9
+            and url == bls_url(base.removeprefix(BLS_BASE), first, last)
+        )
+    except (ValueError, KeyError, IndexError):
+        return False
 
 
 def xml_root(body: bytes) -> ET.Element:
-    if len(body) > 16 * 1024 * 1024 or re.search(rb"<!\s*(DOCTYPE|ENTITY)", body, re.I):
+    if len(body) > 32 * 1024 * 1024 or re.search(rb"<!\s*(DOCTYPE|ENTITY)", body, re.I):
         raise AtlasError("SOURCE_UNAVAILABLE", "XML declarations or oversized documents rejected.")
     # Reject other encodings before parsing so UTF-16 cannot bypass the declaration check.
     if b"\x00" in body:
@@ -161,7 +195,7 @@ def xml_root(body: bytes) -> ET.Element:
         root = ET.fromstring(body)
     except ET.ParseError:
         raise AtlasError("SOURCE_UNAVAILABLE", "Malformed source XML.", status=502) from None
-    if sum(1 for _ in root.iter()) > 200_000:
+    if sum(1 for _ in root.iter()) > 400_000:
         raise AtlasError("SOURCE_UNAVAILABLE", "XML element limit exceeded.", status=502)
     return root
 
@@ -179,12 +213,14 @@ class PublicTransport(CachedHTTPTransport):
             cache_path=cache_path or state_dir() / "public-cache.sqlite3",
             **kwargs,
         )
+        self.interval = max(1.0, self.interval)
 
     @staticmethod
     def validate_url(url: str) -> None:
         if (
             url in {DEBT_URL, FED_NEWS, ECB_FX_URL, *NYFED_RATES.values()}
-            or url in {BLS_BASE + item[0] for item in BLS_SERIES.values()}
+            or valid_bls_url(url)
+            or validate_economic_url(url)
             or re.fullmatch(re.escape(TREASURY_BASE) + r"(?:199[0-9]|20[0-9]{2}|2100)", url)
             or re.fullmatch(re.escape(TREASURY_REAL_BASE) + r"(?:200[3-9]|20[1-9][0-9]|2100)", url)
         ):
@@ -193,11 +229,43 @@ class PublicTransport(CachedHTTPTransport):
 
     @staticmethod
     def validate_body(url: str, body: bytes) -> None:
-        if url.startswith(BLS_BASE) or url == DEBT_URL or url in NYFED_RATES.values():
+        if (
+            url.startswith((BLS_BASE, BEA_BASE + "?", BOJ_BASE + "?"))
+            or url == DEBT_URL
+            or url in NYFED_RATES.values()
+        ):
             if not isinstance(decode_json(body), dict):
                 raise ValueError("Expected JSON object")
         else:
             xml_root(body)
+
+    def get(self, url: str, ttl: int, *, force_refresh: bool = False) -> Snapshot:
+        self.validate_url(url)
+        if url.startswith(BEA_BASE + "?"):
+            bea_key()
+        return super().get(url, ttl, force_refresh=force_refresh)
+
+    def request(self, url: str, headers: dict[str, str]) -> Any:
+        self.validate_url(url)
+        if url.startswith(BEA_BASE + "?"):
+            # Only the outbound request receives the key. Provenance and cache keys never do.
+            return self.client.stream(
+                "GET", url + "&" + urlencode({"UserID": bea_key()}), headers=headers
+            )
+        if url.startswith(BLS_BASE) and "?" in url:
+            base, query = url.split("?", 1)
+            p = parse_qs(query)
+            return self.client.stream(
+                "POST",
+                BLS_BASE,
+                headers=headers,
+                json={
+                    "seriesid": [base.removeprefix(BLS_BASE)],
+                    "startyear": p["startyear"][0],
+                    "endyear": p["endyear"][0],
+                },
+            )
+        return super().request(url, headers)
 
     def before_request(self, url: str) -> None:
         if url.startswith(BLS_BASE):
@@ -229,7 +297,31 @@ class PublicFixtures:
     def get(self, url: str, ttl: int) -> Snapshot:
         PublicTransport.validate_url(url)
         if url.startswith(BLS_BASE):
-            name = "bls_" + url.removeprefix(BLS_BASE) + ".json"
+            name = "bls_" + url.removeprefix(BLS_BASE).split("?")[0] + ".json"
+        elif url.startswith(BEA_BASE + "?"):
+            name = "bea_" + parse_qs(url.split("?", 1)[1])["TableName"][0] + ".json"
+        elif url.startswith(BOJ_BASE + "?"):
+            p = parse_qs(url.split("?", 1)[1])
+            key = next(
+                k
+                for k, s in JAPAN_SERIES.items()
+                if s["source_id"] == "boj"
+                and s["database"] == p["db"][0]
+                and s["code"] == p["code"][0]
+            )
+            name = "boj_" + key + ".json"
+        elif url.startswith(ESTAT_BASE):
+            p = parse_qs(url.split("?", 1)[1])
+            if "getIndicatorInfo?" in url:
+                key = next(
+                    k
+                    for k, s in JAPAN_SERIES.items()
+                    if s["source_id"] == "estat" and s["code"] == p["SearchIndicatorWord"][0]
+                )
+                name = "estat_" + key + "_metadata.xml"
+            else:
+                key = "cpi" if p["IndicatorCode"] == ["9900000000000000001"] else "unemployment"
+                name = "estat_" + key + ".xml"
         elif url == ECB_FX_URL:
             name = "fx.xml"
         elif url in NYFED_RATES.values():

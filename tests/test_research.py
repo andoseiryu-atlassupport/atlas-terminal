@@ -55,6 +55,8 @@ def query(dataset, **extra):
     if dataset not in {
         "companies",
         "economics",
+        "national_accounts",
+        "japan_economics",
         "treasury_yields",
         "federal_debt",
         "policy_news",
@@ -70,15 +72,13 @@ def query(dataset, **extra):
 
 def test_catalog_reports_actual_scope_zero_cost_sources_and_coverage_gaps():
     catalog = Atlas.research_catalog()
-    assert len(catalog["datasets"]) == 21
+    assert len(catalog["datasets"]) == 23
     assert len(catalog["analytics_metrics"]) == 7
-    assert len(catalog["sources"]) == 7
+    assert len(catalog["sources"]) == 10
     assert len(catalog["statement_metrics"]) == 37
     assert len(catalog["economic_series"]) == 8
-    assert all(
-        s["upstream_price"] == "0" and not s["api_key_required"]
-        for s in catalog["sources"].values()
-    )
+    assert all(s["upstream_price"] == "0" for s in catalog["sources"].values())
+    assert {k for k, s in catalog["sources"].items() if s["api_key_required"]} == {"bea"}
     assert all(not d["live_verified"] for d in catalog["datasets"])
     assert "daily_equity_prices_and_adjustments" in catalog["not_available"]
     assert not catalog["requires_wallet"] and not catalog["point_in_time"]
@@ -89,8 +89,10 @@ def test_every_dataset_runs_offline_from_source_bytes(dataset):
     extra = {}
     if dataset in {"statements", "ratios", "financial_analytics"}:
         extra["allow_partial"] = True
-    if dataset == "economics":
+    if dataset in {"economics", "japan_economics"}:
         extra["series"] = "cpi"
+    if dataset == "national_accounts":
+        extra["series"] = "gdp_real"
     if dataset in {"treasury_yields", "treasury_real_yields"}:
         extra["year"] = 2026
     if dataset == "fx_rates":
@@ -515,7 +517,7 @@ def test_cli_and_http_research_match_sdk_and_never_require_payment(tmp_path):
         r = client.post("/v1/research", json=q)
         assert r.status_code == 200 and r.json() == expected
         assert "PAYMENT-REQUIRED" not in r.headers and "Atlas-Recovery-Token" not in r.headers
-        assert len(client.get("/v1/research/catalog").json()["datasets"]) == 21
+        assert len(client.get("/v1/research/catalog").json()["datasets"]) == 23
         bad = client.post("/v1/research", json=q | {"as_of": "2020-01-01"})
         assert (
             bad.status_code == 400 and bad.json()["error"]["code"] == "UNSUPPORTED_HISTORICAL_QUERY"
@@ -534,7 +536,7 @@ async def test_mcp_research_schema_catalog_get_and_pit_rejection(tmp_path):
     ):
         await session.initialize()
         catalog = await session.call_tool("atlas_research_catalog", {})
-        assert len(catalog.structured_content["datasets"]) == 21
+        assert len(catalog.structured_content["datasets"]) == 23
         result = await session.call_tool(
             "atlas_get_research", {"query": {"dataset": "economics", "series": "cpi"}}
         )

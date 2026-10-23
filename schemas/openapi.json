@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Atlas Terminal reference API",
-    "version": "0.4.0"
+    "version": "0.5.0"
   },
   "paths": {
     "/healthz": {
@@ -320,7 +320,9 @@
                     "fx_rates",
                     "reference_rates",
                     "treasury_real_yields",
-                    "macro_analytics"
+                    "macro_analytics",
+                    "national_accounts",
+                    "japan_economics"
                   ],
                   "type": "string"
                 },
@@ -3738,7 +3740,13 @@
         "properties": {
           "preset": {
             "type": "string",
-            "enum": ["company_overview", "us_macro_overview", "fx_context"],
+            "enum": [
+              "company_overview",
+              "us_macro_overview",
+              "fx_context",
+              "japan_macro_overview",
+              "us_japan_overview"
+            ],
             "title": "Preset"
           },
           "items": {
@@ -4011,7 +4019,9 @@
               "fx_rates",
               "reference_rates",
               "treasury_real_yields",
-              "macro_analytics"
+              "macro_analytics",
+              "national_accounts",
+              "japan_economics"
             ],
             "title": "Dataset"
           },
@@ -4320,7 +4330,6 @@
           },
           "api_key_required": {
             "type": "boolean",
-            "const": false,
             "title": "Api Key Required",
             "default": false
           },
@@ -5180,10 +5189,27 @@
           },
           {
             "additionalProperties": false,
+            "dependentRequired": {
+              "end_date": ["start_date"],
+              "start_date": ["end_date"]
+            },
             "properties": {
               "dataset": {
                 "const": "economics",
                 "type": "string"
+              },
+              "end_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "End Date"
               },
               "limit": {
                 "default": 100,
@@ -5214,6 +5240,19 @@
                 "maxLength": 100,
                 "minLength": 1,
                 "type": "string"
+              },
+              "start_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Start Date"
               },
               "response": {
                 "$ref": "#/components/schemas/ResponseOptions"
@@ -5444,6 +5483,10 @@
           },
           {
             "additionalProperties": false,
+            "dependentRequired": {
+              "end_date": ["start_date"],
+              "start_date": ["end_date"]
+            },
             "not": {
               "anyOf": [
                 {
@@ -5544,6 +5587,248 @@
                     }
                   },
                   "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "CZK"
+                    },
+                    "quote_currency": {
+                      "const": "CZK"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "DKK"
+                    },
+                    "quote_currency": {
+                      "const": "DKK"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "HUF"
+                    },
+                    "quote_currency": {
+                      "const": "HUF"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "NOK"
+                    },
+                    "quote_currency": {
+                      "const": "NOK"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "PLN"
+                    },
+                    "quote_currency": {
+                      "const": "PLN"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "SEK"
+                    },
+                    "quote_currency": {
+                      "const": "SEK"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "ISK"
+                    },
+                    "quote_currency": {
+                      "const": "ISK"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "TRY"
+                    },
+                    "quote_currency": {
+                      "const": "TRY"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "BRL"
+                    },
+                    "quote_currency": {
+                      "const": "BRL"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "HKD"
+                    },
+                    "quote_currency": {
+                      "const": "HKD"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "IDR"
+                    },
+                    "quote_currency": {
+                      "const": "IDR"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "ILS"
+                    },
+                    "quote_currency": {
+                      "const": "ILS"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "INR"
+                    },
+                    "quote_currency": {
+                      "const": "INR"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "KRW"
+                    },
+                    "quote_currency": {
+                      "const": "KRW"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "MXN"
+                    },
+                    "quote_currency": {
+                      "const": "MXN"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "MYR"
+                    },
+                    "quote_currency": {
+                      "const": "MYR"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "PHP"
+                    },
+                    "quote_currency": {
+                      "const": "PHP"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "SGD"
+                    },
+                    "quote_currency": {
+                      "const": "SGD"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "THB"
+                    },
+                    "quote_currency": {
+                      "const": "THB"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "ZAR"
+                    },
+                    "quote_currency": {
+                      "const": "ZAR"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "RON"
+                    },
+                    "quote_currency": {
+                      "const": "RON"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "BGN"
+                    },
+                    "quote_currency": {
+                      "const": "BGN"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
                 }
               ]
             },
@@ -5562,9 +5847,44 @@
                   "AUD",
                   "CAD",
                   "NZD",
-                  "CNY"
+                  "CNY",
+                  "CZK",
+                  "DKK",
+                  "HUF",
+                  "NOK",
+                  "PLN",
+                  "SEK",
+                  "ISK",
+                  "TRY",
+                  "BRL",
+                  "HKD",
+                  "IDR",
+                  "ILS",
+                  "INR",
+                  "KRW",
+                  "MXN",
+                  "MYR",
+                  "PHP",
+                  "SGD",
+                  "THB",
+                  "ZAR",
+                  "RON",
+                  "BGN"
                 ],
                 "type": "string"
+              },
+              "end_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "End Date"
               },
               "limit": {
                 "default": 100,
@@ -5584,9 +5904,44 @@
                   "AUD",
                   "CAD",
                   "NZD",
-                  "CNY"
+                  "CNY",
+                  "CZK",
+                  "DKK",
+                  "HUF",
+                  "NOK",
+                  "PLN",
+                  "SEK",
+                  "ISK",
+                  "TRY",
+                  "BRL",
+                  "HKD",
+                  "IDR",
+                  "ILS",
+                  "INR",
+                  "KRW",
+                  "MXN",
+                  "MYR",
+                  "PHP",
+                  "SGD",
+                  "THB",
+                  "ZAR",
+                  "RON",
+                  "BGN"
                 ],
                 "type": "string"
+              },
+              "start_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Start Date"
               },
               "response": {
                 "$ref": "#/components/schemas/ResponseOptions"
@@ -5692,10 +6047,27 @@
           },
           {
             "additionalProperties": false,
+            "dependentRequired": {
+              "end_date": ["start_date"],
+              "start_date": ["end_date"]
+            },
             "properties": {
               "dataset": {
                 "const": "macro_analytics",
                 "type": "string"
+              },
+              "end_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "End Date"
               },
               "limit": {
                 "default": 100,
@@ -5715,6 +6087,19 @@
                 "minLength": 1,
                 "type": "string"
               },
+              "start_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Start Date"
+              },
               "year": {
                 "anyOf": [
                   {
@@ -5728,6 +6113,162 @@
                 ],
                 "default": null,
                 "title": "Year"
+              },
+              "response": {
+                "$ref": "#/components/schemas/ResponseOptions"
+              },
+              "requirements": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ResearchRequirements"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              }
+            },
+            "required": ["dataset", "series"],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "dependentRequired": {
+              "end_date": ["start_date"],
+              "start_date": ["end_date"]
+            },
+            "properties": {
+              "dataset": {
+                "const": "national_accounts",
+                "type": "string"
+              },
+              "end_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "End Date"
+              },
+              "limit": {
+                "default": 100,
+                "maximum": 500,
+                "minimum": 1,
+                "title": "Limit",
+                "type": "integer"
+              },
+              "series": {
+                "enum": [
+                  "core_pce_price_index",
+                  "disposable_personal_income",
+                  "gdp_growth",
+                  "gdp_nominal",
+                  "gdp_real",
+                  "pce_price_index",
+                  "personal_consumption",
+                  "personal_income"
+                ],
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string"
+              },
+              "start_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Start Date"
+              },
+              "response": {
+                "$ref": "#/components/schemas/ResponseOptions"
+              },
+              "requirements": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ResearchRequirements"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              }
+            },
+            "required": ["dataset", "series"],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "dependentRequired": {
+              "end_date": ["start_date"],
+              "start_date": ["end_date"]
+            },
+            "properties": {
+              "dataset": {
+                "const": "japan_economics",
+                "type": "string"
+              },
+              "end_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "End Date"
+              },
+              "limit": {
+                "default": 100,
+                "maximum": 500,
+                "minimum": 1,
+                "title": "Limit",
+                "type": "integer"
+              },
+              "series": {
+                "enum": [
+                  "bank_loans",
+                  "call_rate",
+                  "cpi",
+                  "monetary_base",
+                  "money_stock_m2",
+                  "real_effective_exchange_rate",
+                  "tankan_manufacturing",
+                  "tankan_nonmanufacturing",
+                  "unemployment",
+                  "usd_jpy_tokyo"
+                ],
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string"
+              },
+              "start_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Start Date"
               },
               "response": {
                 "$ref": "#/components/schemas/ResponseOptions"
@@ -5771,7 +6312,9 @@
               "fx_rates",
               "reference_rates",
               "treasury_real_yields",
-              "macro_analytics"
+              "macro_analytics",
+              "national_accounts",
+              "japan_economics"
             ],
             "title": "Dataset",
             "type": "string"
@@ -5919,7 +6462,29 @@
                   "AUD",
                   "CAD",
                   "NZD",
-                  "CNY"
+                  "CNY",
+                  "CZK",
+                  "DKK",
+                  "HUF",
+                  "NOK",
+                  "PLN",
+                  "SEK",
+                  "ISK",
+                  "TRY",
+                  "BRL",
+                  "HKD",
+                  "IDR",
+                  "ILS",
+                  "INR",
+                  "KRW",
+                  "MXN",
+                  "MYR",
+                  "PHP",
+                  "SGD",
+                  "THB",
+                  "ZAR",
+                  "RON",
+                  "BGN"
                 ],
                 "type": "string"
               },
@@ -5942,7 +6507,29 @@
                   "AUD",
                   "CAD",
                   "NZD",
-                  "CNY"
+                  "CNY",
+                  "CZK",
+                  "DKK",
+                  "HUF",
+                  "NOK",
+                  "PLN",
+                  "SEK",
+                  "ISK",
+                  "TRY",
+                  "BRL",
+                  "HKD",
+                  "IDR",
+                  "ILS",
+                  "INR",
+                  "KRW",
+                  "MXN",
+                  "MYR",
+                  "PHP",
+                  "SGD",
+                  "THB",
+                  "ZAR",
+                  "RON",
+                  "BGN"
                 ],
                 "type": "string"
               },
@@ -5952,6 +6539,32 @@
             ],
             "default": null,
             "title": "Quote Currency"
+          },
+          "start_date": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Start Date"
+          },
+          "end_date": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "End Date"
           },
           "response": {
             "$ref": "#/components/schemas/ResponseOptions"
@@ -6285,6 +6898,248 @@
                     }
                   },
                   "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "CZK"
+                    },
+                    "quote_currency": {
+                      "const": "CZK"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "DKK"
+                    },
+                    "quote_currency": {
+                      "const": "DKK"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "HUF"
+                    },
+                    "quote_currency": {
+                      "const": "HUF"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "NOK"
+                    },
+                    "quote_currency": {
+                      "const": "NOK"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "PLN"
+                    },
+                    "quote_currency": {
+                      "const": "PLN"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "SEK"
+                    },
+                    "quote_currency": {
+                      "const": "SEK"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "ISK"
+                    },
+                    "quote_currency": {
+                      "const": "ISK"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "TRY"
+                    },
+                    "quote_currency": {
+                      "const": "TRY"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "BRL"
+                    },
+                    "quote_currency": {
+                      "const": "BRL"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "HKD"
+                    },
+                    "quote_currency": {
+                      "const": "HKD"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "IDR"
+                    },
+                    "quote_currency": {
+                      "const": "IDR"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "ILS"
+                    },
+                    "quote_currency": {
+                      "const": "ILS"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "INR"
+                    },
+                    "quote_currency": {
+                      "const": "INR"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "KRW"
+                    },
+                    "quote_currency": {
+                      "const": "KRW"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "MXN"
+                    },
+                    "quote_currency": {
+                      "const": "MXN"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "MYR"
+                    },
+                    "quote_currency": {
+                      "const": "MYR"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "PHP"
+                    },
+                    "quote_currency": {
+                      "const": "PHP"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "SGD"
+                    },
+                    "quote_currency": {
+                      "const": "SGD"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "THB"
+                    },
+                    "quote_currency": {
+                      "const": "THB"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "ZAR"
+                    },
+                    "quote_currency": {
+                      "const": "ZAR"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "RON"
+                    },
+                    "quote_currency": {
+                      "const": "RON"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
+                },
+                {
+                  "properties": {
+                    "base_currency": {
+                      "const": "BGN"
+                    },
+                    "quote_currency": {
+                      "const": "BGN"
+                    }
+                  },
+                  "required": ["base_currency", "quote_currency"]
                 }
               ]
             },
@@ -6299,7 +7154,29 @@
                   "AUD",
                   "CAD",
                   "NZD",
-                  "CNY"
+                  "CNY",
+                  "CZK",
+                  "DKK",
+                  "HUF",
+                  "NOK",
+                  "PLN",
+                  "SEK",
+                  "ISK",
+                  "TRY",
+                  "BRL",
+                  "HKD",
+                  "IDR",
+                  "ILS",
+                  "INR",
+                  "KRW",
+                  "MXN",
+                  "MYR",
+                  "PHP",
+                  "SGD",
+                  "THB",
+                  "ZAR",
+                  "RON",
+                  "BGN"
                 ],
                 "type": "string"
               },
@@ -6346,7 +7223,29 @@
                   "AUD",
                   "CAD",
                   "NZD",
-                  "CNY"
+                  "CNY",
+                  "CZK",
+                  "DKK",
+                  "HUF",
+                  "NOK",
+                  "PLN",
+                  "SEK",
+                  "ISK",
+                  "TRY",
+                  "BRL",
+                  "HKD",
+                  "IDR",
+                  "ILS",
+                  "INR",
+                  "KRW",
+                  "MXN",
+                  "MYR",
+                  "PHP",
+                  "SGD",
+                  "THB",
+                  "ZAR",
+                  "RON",
+                  "BGN"
                 ],
                 "type": "string"
               },
@@ -6401,11 +7300,237 @@
             },
             "required": ["preset", "base_currency", "quote_currency"],
             "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "dependentRequired": {
+              "end_date": ["start_date"],
+              "start_date": ["end_date"]
+            },
+            "properties": {
+              "end_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "End Date"
+              },
+              "include": {
+                "anyOf": [
+                  {
+                    "items": {
+                      "enum": [
+                        "cpi",
+                        "unemployment",
+                        "call_rate",
+                        "tankan",
+                        "money_stock_m2",
+                        "usd_jpy_tokyo"
+                      ]
+                    },
+                    "maxItems": 10,
+                    "minItems": 1,
+                    "type": "array",
+                    "uniqueItems": true
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Include"
+              },
+              "preset": {
+                "const": "japan_macro_overview",
+                "type": "string"
+              },
+              "preview": {
+                "default": false,
+                "title": "Preview",
+                "type": "boolean"
+              },
+              "requirements": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ResearchRequirements"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              },
+              "requirements_by_item": {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/ResearchRequirements"
+                },
+                "maxProperties": 10,
+                "propertyNames": {
+                  "enum": [
+                    "cpi",
+                    "unemployment",
+                    "call_rate",
+                    "tankan",
+                    "money_stock_m2",
+                    "usd_jpy_tokyo"
+                  ]
+                },
+                "title": "Requirements By Item",
+                "type": "object"
+              },
+              "start_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Start Date"
+              },
+              "view": {
+                "default": "compact",
+                "enum": ["full", "compact"],
+                "title": "View",
+                "type": "string"
+              }
+            },
+            "required": ["preset"],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "dependentRequired": {
+              "end_date": ["start_date"],
+              "start_date": ["end_date"]
+            },
+            "properties": {
+              "end_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "End Date"
+              },
+              "include": {
+                "anyOf": [
+                  {
+                    "items": {
+                      "enum": [
+                        "us_cpi",
+                        "us_unemployment",
+                        "us_gdp",
+                        "us_pce",
+                        "us_core_pce",
+                        "jp_cpi",
+                        "jp_unemployment",
+                        "jp_call_rate",
+                        "jp_tankan",
+                        "fx"
+                      ]
+                    },
+                    "maxItems": 10,
+                    "minItems": 1,
+                    "type": "array",
+                    "uniqueItems": true
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Include"
+              },
+              "preset": {
+                "const": "us_japan_overview",
+                "type": "string"
+              },
+              "preview": {
+                "default": false,
+                "title": "Preview",
+                "type": "boolean"
+              },
+              "requirements": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ResearchRequirements"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              },
+              "requirements_by_item": {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/ResearchRequirements"
+                },
+                "maxProperties": 10,
+                "propertyNames": {
+                  "enum": [
+                    "us_cpi",
+                    "us_unemployment",
+                    "us_gdp",
+                    "us_pce",
+                    "us_core_pce",
+                    "jp_cpi",
+                    "jp_unemployment",
+                    "jp_call_rate",
+                    "jp_tankan",
+                    "fx"
+                  ]
+                },
+                "title": "Requirements By Item",
+                "type": "object"
+              },
+              "start_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Start Date"
+              },
+              "view": {
+                "default": "compact",
+                "enum": ["full", "compact"],
+                "title": "View",
+                "type": "string"
+              }
+            },
+            "required": ["preset"],
+            "type": "object"
           }
         ],
         "properties": {
           "preset": {
-            "enum": ["company_overview", "us_macro_overview", "fx_context"],
+            "enum": [
+              "company_overview",
+              "us_macro_overview",
+              "fx_context",
+              "japan_macro_overview",
+              "us_japan_overview"
+            ],
             "title": "Preset",
             "type": "string"
           },
@@ -6462,7 +7587,29 @@
                   "AUD",
                   "CAD",
                   "NZD",
-                  "CNY"
+                  "CNY",
+                  "CZK",
+                  "DKK",
+                  "HUF",
+                  "NOK",
+                  "PLN",
+                  "SEK",
+                  "ISK",
+                  "TRY",
+                  "BRL",
+                  "HKD",
+                  "IDR",
+                  "ILS",
+                  "INR",
+                  "KRW",
+                  "MXN",
+                  "MYR",
+                  "PHP",
+                  "SGD",
+                  "THB",
+                  "ZAR",
+                  "RON",
+                  "BGN"
                 ],
                 "type": "string"
               },
@@ -6485,7 +7632,29 @@
                   "AUD",
                   "CAD",
                   "NZD",
-                  "CNY"
+                  "CNY",
+                  "CZK",
+                  "DKK",
+                  "HUF",
+                  "NOK",
+                  "PLN",
+                  "SEK",
+                  "ISK",
+                  "TRY",
+                  "BRL",
+                  "HKD",
+                  "IDR",
+                  "ILS",
+                  "INR",
+                  "KRW",
+                  "MXN",
+                  "MYR",
+                  "PHP",
+                  "SGD",
+                  "THB",
+                  "ZAR",
+                  "RON",
+                  "BGN"
                 ],
                 "type": "string"
               },
@@ -6495,6 +7664,32 @@
             ],
             "default": null,
             "title": "Quote Currency"
+          },
+          "start_date": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Start Date"
+          },
+          "end_date": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "End Date"
           },
           "include": {
             "anyOf": [
@@ -6562,11 +7757,14 @@
                     "fiscaldata",
                     "federal_reserve",
                     "ecb",
-                    "new_york_fed"
+                    "new_york_fed",
+                    "bea",
+                    "boj",
+                    "estat"
                   ],
                   "type": "string"
                 },
-                "maxItems": 7,
+                "maxItems": 10,
                 "minItems": 1,
                 "type": "array"
               },

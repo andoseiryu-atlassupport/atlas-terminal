@@ -6,20 +6,32 @@ from typing import Any, Literal
 
 from pydantic import Field, ValidationError, field_validator
 
+from atlas_terminal.economic_sources import bea_key
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.models import Model
 from atlas_terminal.providers import validate_sec_user_agent
 from atlas_terminal.public_sources import SOURCE_CATALOG
 from atlas_terminal.util import stamp
 
-SourceId = Literal["sec", "bls", "treasury", "fiscaldata", "federal_reserve", "ecb", "new_york_fed"]
+SourceId = Literal[
+    "sec",
+    "bls",
+    "treasury",
+    "fiscaldata",
+    "federal_reserve",
+    "ecb",
+    "new_york_fed",
+    "bea",
+    "boj",
+    "estat",
+]
 ConfigurationState = Literal["ready", "configuration_required", "synthetic"]
 ConnectivityState = Literal["not_checked", "pass", "fail", "not_run"]
 DiagnosticStatus = Literal["configured", "action_required", "verified", "degraded", "synthetic"]
 
 
 class ResearchDiagnosticsQuery(Model):
-    sources: list[SourceId] | None = Field(default=None, min_length=1, max_length=7)
+    sources: list[SourceId] | None = Field(default=None, min_length=1, max_length=10)
     allow_network: bool = Field(default=False, strict=True)
 
     @field_validator("sources")
@@ -35,7 +47,7 @@ class SourceDiagnostic(Model):
     configuration: ConfigurationState
     connectivity: ConnectivityState
     next_action: str
-    api_key_required: Literal[False] = False
+    api_key_required: bool = False
     contact_user_agent_required: bool
     cadence_and_limits: str
     source_terms_url: str
@@ -85,6 +97,12 @@ def research_diagnostics(
     )
     synthetic = provider == "fixture"
     sec_ready = True
+    bea_ready = True
+    if "bea" in selected and not synthetic:
+        try:
+            bea_key()
+        except AtlasError:
+            bea_ready = False
     if "sec" in selected and not synthetic:
         try:
             validate_sec_user_agent(os.environ.get("SEC_USER_AGENT", ""))
@@ -100,7 +118,7 @@ def research_diagnostics(
     connectivity: ConnectivityState
     for name in selected:
         spec = SOURCE_CATALOG[name]
-        ready = name != "sec" or sec_ready
+        ready = (name != "sec" or sec_ready) and (name != "bea" or bea_ready)
         source_checks = [check for check in checks if check["source_id"] == name]
         if synthetic:
             configuration, connectivity = "synthetic", "not_run"
@@ -111,6 +129,11 @@ def research_diagnostics(
             configuration, connectivity = "configuration_required", "not_run"
             action = (
                 "Set SEC_USER_AGENT privately with your application name and actual contact email."
+                if name == "sec"
+                else (
+                    "Set BEA_API_KEY privately after free registration at "
+                    "https://apps.bea.gov/api/signup/."
+                )
             )
         elif source_checks:
             configuration = "ready"
@@ -140,6 +163,7 @@ def research_diagnostics(
                     "connectivity": connectivity,
                     "next_action": action,
                     "contact_user_agent_required": spec["contact_user_agent_required"],
+                    "api_key_required": spec["api_key_required"],
                     "cadence_and_limits": spec["cadence"],
                     "source_terms_url": spec["terms"],
                     "checks": source_checks,

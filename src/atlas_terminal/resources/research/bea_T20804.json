@@ -1,0 +1,104 @@
+{
+  "BEAAPI": {
+    "Request": {
+      "RequestParam": []
+    },
+    "Results": {
+      "Data": [
+        {
+          "TableName": "T20804",
+          "SeriesCode": "SYNTHPCE",
+          "LineNumber": "1",
+          "LineDescription": "Personal consumption expenditures (PCE)",
+          "TimePeriod": "2025M09",
+          "Metric_Name": "Fisher Price Index",
+          "CL_UNIT": "Index 2017=100",
+          "UNIT_MULT": "0",
+          "DataValue": "100.25"
+        },
+        {
+          "TableName": "T20804",
+          "SeriesCode": "SYNTHPCE",
+          "LineNumber": "1",
+          "LineDescription": "Personal consumption expenditures (PCE)",
+          "TimePeriod": "2026M07",
+          "Metric_Name": "Fisher Price Index",
+          "CL_UNIT": "Index 2017=100",
+          "UNIT_MULT": "0",
+          "DataValue": "102.25"
+        },
+        {
+          "TableName": "T20804",
+          "SeriesCode": "SYNTHPCE",
+          "LineNumber": "1",
+          "LineDescription": "Personal consumption expenditures (PCE)",
+          "TimePeriod": "2026M08",
+          "Metric_Name": "Fisher Price Index",
+          "CL_UNIT": "Index 2017=100",
+          "UNIT_MULT": "0",
+          "DataValue": "104.25"
+        },
+        {
+          "TableName": "T20804",
+          "SeriesCode": "SYNTHPCE",
+          "LineNumber": "1",
+          "LineDescription": "Personal consumption expenditures (PCE)",
+          "TimePeriod": "2026M09",
+          "Metric_Name": "Fisher Price Index",
+          "CL_UNIT": "Index 2017=100",
+          "UNIT_MULT": "0",
+          "DataValue": "106.25"
+        },
+        {
+          "TableName": "T20804",
+          "SeriesCode": "SYNTHCORE",
+          "LineNumber": "25",
+          "LineDescription": "PCE excluding food and energy",
+          "TimePeriod": "2025M09",
+          "Metric_Name": "Fisher Price Index",
+          "CL_UNIT": "Index 2017=100",
+          "UNIT_MULT": "0",
+          "DataValue": "100.25"
+        },
+        {
+          "TableName": "T20804",
+          "SeriesCode": "SYNTHCORE",
+          "LineNumber": "25",
+          "LineDescription": "PCE excluding food and energy",
+          "TimePeriod": "2026M07",
+          "Metric_Name": "Fisher Price Index",
+          "CL_UNIT": "Index 2017=100",
+          "UNIT_MULT": "0",
+          "DataValue": "102.25"
+        },
+        {
+          "TableName": "T20804",
+          "SeriesCode": "SYNTHCORE",
+          "LineNumber": "25",
+          "LineDescription": "PCE excluding food and energy",
+          "TimePeriod": "2026M08",
+          "Metric_Name": "Fisher Price Index",
+          "CL_UNIT": "Index 2017=100",
+          "UNIT_MULT": "0",
+          "DataValue": "104.25"
+        },
+        {
+          "TableName": "T20804",
+          "SeriesCode": "SYNTHCORE",
+          "LineNumber": "25",
+          "LineDescription": "PCE excluding food and energy",
+          "TimePeriod": "2026M09",
+          "Metric_Name": "Fisher Price Index",
+          "CL_UNIT": "Index 2017=100",
+          "UNIT_MULT": "0",
+          "DataValue": "106.25"
+        }
+      ],
+      "Notes": [
+        {
+          "NoteText": "Fictional test data; not BEA observations."
+        }
+      ]
+    }
+  }
+}

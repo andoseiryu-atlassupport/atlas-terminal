@@ -1,6 +1,6 @@
 # Financial data for AI agents through one MCP connection
 
-Atlas Terminal connects AI agents to company financials, US macro indicators and reference foreign exchange data from free public primary sources. One MCP connection exposes 21 datasets, three multi-source presets and traceable evidence. A Python SDK, CLI and HTTP API use the same services. Research needs no data subscription, API key, wallet or built-in LLM.
+Atlas Terminal connects AI agents to company financials, US/Japan macro indicators and reference foreign exchange data from free public primary sources. One MCP connection exposes 23 datasets, five multi-source presets and traceable evidence. A Python SDK, CLI and HTTP API use the same services. Research needs no data subscription, wallet or built-in LLM. BEA national accounts require a free registered API key.
 
 ## Start with a task
 
@@ -21,7 +21,7 @@ Start with the [Codex setup](codex.md) or [general MCP quickstart](quickstart.md
 Try the packaged fictional data before making any public-source requests:
 
 ```sh
-uvx --from 'git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.4.0' atlas research preset fx_context --base-currency USD --quote-currency JPY --include fx,us_sofr --provider fixture --json
+uvx --from 'git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.5.0' atlas research preset fx_context --base-currency USD --quote-currency JPY --include fx,us_sofr --provider fixture --json
 ```
 
 This example uses synthetic data, not current market observations. It needs Python 3.12+ and uv, and its first installation needs network access. The Python package is not yet published on PyPI.

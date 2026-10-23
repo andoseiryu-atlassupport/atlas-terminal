@@ -14,7 +14,7 @@ uv run --offline atlas research get statements --identifier ATLASDEMO --period q
 uv run --offline atlas research get economics --series cpi --provider fixture --json
 ```
 
-For SEC retrieval, configure `SEC_USER_AGENT` privately with your identifying application name and actual contact email. Use a real issuer identifier and the `sec` provider for company/annual commands, or `public` for research commands. No API key, wallet or model key is required. `.env.example` lists variable names; Atlas does not load it automatically. Keep contact details out of chat and logs.
+For SEC retrieval, configure `SEC_USER_AGENT` privately with your identifying application name and actual contact email. Use a real issuer identifier and the `sec` provider for company/annual commands, or `public` for research commands. No wallet or model key is required. BEA national accounts need a free registered `BEA_API_KEY`; other data sources need no API key. `.env.example` lists variable names; Atlas does not load it automatically. Keep contact details out of chat and logs.
 
 ## Connect an MCP host
 

@@ -82,6 +82,8 @@ def research_get(
     year: int | None = None,
     base_currency: Currency | None = None,
     quote_currency: Currency | None = None,
+    start_date: str | None = None,
+    end_date: str | None = None,
     max_source_age_seconds: int | None = None,
     min_observation_date: str | None = None,
     allow_missing: bool | None = None,
@@ -110,6 +112,8 @@ def research_get(
         "year": year,
         "base_currency": base_currency,
         "quote_currency": quote_currency,
+        "start_date": start_date,
+        "end_date": end_date,
     }
     data.update({k: v for k, v in options.items() if v is not None})
     if metrics is not None:
@@ -178,6 +182,8 @@ def research_preset(
     year: int | None = None,
     base_currency: Currency | None = None,
     quote_currency: Currency | None = None,
+    start_date: str | None = None,
+    end_date: str | None = None,
     include: str | None = None,
     view: Literal["full", "compact"] | None = None,
     preview: bool = False,
@@ -195,6 +201,8 @@ def research_preset(
         "base_currency": base_currency,
         "quote_currency": quote_currency,
         "include": include.split(",") if include is not None else None,
+        "start_date": start_date,
+        "end_date": end_date,
         "view": view,
     }
     data = {key: value for key, value in options.items() if value is not None}

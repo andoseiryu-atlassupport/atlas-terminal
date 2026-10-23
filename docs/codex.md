@@ -1,13 +1,13 @@
 # Use Atlas Terminal with Codex and ChatGPT desktop
 
-Connect Atlas Terminal as an MCP server to retrieve free primary-source company financials, US macro indicators and reference FX. One connection provides dataset discovery, exact research queries, batches, presets, evidence lookup and configuration diagnostics. Local installation does not register a public ChatGPT plugin.
+Connect Atlas Terminal as an MCP server to retrieve free primary-source company financials, US/Japan macro indicators and reference FX. One connection provides dataset discovery, exact research queries, batches, presets, evidence lookup and configuration diagnostics. Local installation does not register a public ChatGPT plugin.
 
 ## Install a tagged version
 
-Install Python 3.12+, uv and your MCP client. This command installs the v0.4.0 source distribution from GitHub; PyPI publication is not yet available:
+Install Python 3.12+, uv and your MCP client. This command installs the v0.5.0 source distribution from GitHub; PyPI publication is not yet available:
 
 ```sh
-uv tool install 'git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.4.0'
+uv tool install 'git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.5.0'
 atlas research catalog --json
 atlas research preset fx_context --base-currency USD --quote-currency JPY --include fx,us_sofr --provider fixture --json
 ```
@@ -19,7 +19,7 @@ The first installation needs network access. The fixture command then runs witho
 Use the same environment in which `uv` is available:
 
 ```sh
-codex mcp add atlas-terminal -- uvx --from 'git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.4.0' atlas mcp serve --provider public --research-only
+codex mcp add atlas-terminal -- uvx --from 'git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.5.0' atlas mcp serve --provider public --research-only
 codex mcp list
 ```
 
@@ -30,11 +30,11 @@ For SEC company data, configure `SEC_USER_AGENT` privately with your application
 ```toml
 [mcp_servers.atlas-terminal]
 command = "uvx"
-args = ["--from", "git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.4.0", "atlas", "mcp", "serve", "--provider", "public", "--research-only"]
+args = ["--from", "git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.5.0", "atlas", "mcp", "serve", "--provider", "public", "--research-only"]
 env_vars = ["SEC_USER_AGENT", "ATLAS_STATE_DIR"]
 ```
 
-Choose either the CLI registration or this configuration for a given server name. Never publish real contact settings or credentials. BLS, Treasury, Federal Reserve, ECB and New York Fed research do not require the SEC setting or a data API key.
+Choose either the CLI registration or this configuration for a given server name. Never publish real contact settings or credentials. BLS, Treasury, Federal Reserve, ECB, New York Fed and Japan macro research do not require the SEC setting or a data API key. BEA national accounts require `BEA_API_KEY` in the MCP server process environment after free registration. Never put it in tool arguments.
 
 ## Add the research skill
 

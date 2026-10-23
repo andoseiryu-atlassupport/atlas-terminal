@@ -8,7 +8,7 @@ uv run atlas research check-sources --sources bls,treasury --allow-network --jso
 uv run atlas research check-sources --sources ecb --max-observation-lag-days 7 --allow-network --json
 ```
 
-`--sources all` includes every source family. SEC requires a privately configured, identifying `SEC_USER_AGENT`; missing/invalid configuration reports `NOT_RUN`, independently of other probes. Keep contact values outside model inputs, source control and logs.
+`--sources all` includes every source family. SEC requires a privately configured, identifying `SEC_USER_AGENT`; missing/invalid configuration reports `NOT_RUN`, independently of other probes. BEA requires a private free registered `BEA_API_KEY` and also reports `NOT_RUN` without it. Keep contact values and keys outside model inputs, source control and logs.
 
 | Source ID         | Fixed probes                                                     |
 | ----------------- | ---------------------------------------------------------------- |
@@ -19,6 +19,9 @@ uv run atlas research check-sources --sources ecb --max-observation-lag-days 7 -
 | `treasury`        | Current-year nominal curve, real curve and 10Y–2Y spread         |
 | `fiscaldata`      | Debt to the Penny                                                |
 | `federal_reserve` | Retained official release RSS metadata                           |
+| `bea`             | Real GDP and core PCE price index                                |
+| `boj`             | Overnight call rate and large-manufacturer Tankan                |
+| `estat`           | National CPI and seasonally adjusted unemployment                |
 
 Each run conditionally revalidates every used URL through the same private SEC/public cache stores, rate limits and BLS daily-attempt counter as ordinary research. A prior unexpired cache entry alone cannot satisfy the check; HTTP 304 is valid revalidation. Within a run, repeated URLs share the newly checked snapshot, including nominal Treasury data reused for the spread. Checked source bodies remain in the normal private cache with their original byte hashes and refreshed check times. Payment state is unaffected. Use the same `ATLAS_STATE_DIR` as ordinary research to share local quotas.
 
@@ -34,14 +37,14 @@ Root/probe statuses are `PASS`, `FAIL` and `NOT_RUN`. A fixture result is always
 
 ## Manual workflow
 
-[Official source checks](../.github/workflows/source-checks.yml) is a separate `workflow_dispatch` workflow with an explicit `allow_network` boolean and selected source IDs. It uses pinned actions, read-only repository permissions and locked dependencies. The default source list excludes SEC; selecting it requires the repository's private `SEC_USER_AGENT` secret. Structured reports are printed even when a probe step fails. Default offline CI and pull-request tests make no live source requests.
+[Official source checks](../.github/workflows/source-checks.yml) is a separate `workflow_dispatch` workflow with an explicit `allow_network` boolean and selected source IDs. It uses pinned actions, read-only repository permissions and locked dependencies. The default source list excludes SEC; selecting it requires the repository's private `SEC_USER_AGENT` secret. Selecting BEA requires the private `BEA_API_KEY` secret. Structured reports are printed even when a probe step fails. Default offline CI and pull-request tests make no live source requests.
 
 Runner-local baselines are temporary in this workflow. Persistent cross-run comparison uses the operator command on a persistent private state volume. No recurring schedule, external monitoring service or public status endpoint is installed.
 
 ## Recorded verification limits
 
-Parser, fingerprint, failure-isolation, source-contact separation, baseline persistence and integrity tests use fictional inputs and HTTP MockTransport. They do not establish actual source connectivity. In the recorded implementation environment, the enforced outbound allowlist excludes official data hosts, so live probes remain unverified. An operator must allow the intended endpoints before running them; SEC additionally needs its private contact setting.
+Parser, fingerprint, failure-isolation, source-contact separation, baseline persistence and integrity tests use fictional inputs and HTTP MockTransport. They do not establish actual source connectivity. In the recorded implementation environment, the enforced outbound allowlist excludes official data hosts, so live probes remain unverified. An operator must allow the intended endpoints before running them; SEC additionally needs its private contact setting, and BEA needs its free registered key.
 
-The required direct-request hosts are `www.ecb.europa.eu`, `markets.newyorkfed.org`, `api.bls.gov`, `home.treasury.gov`, `api.fiscaldata.treasury.gov`, `www.federalreserve.gov`, `www.sec.gov` and `data.sec.gov`. Atlas still enforces its narrower fixed URL catalog and refuses redirects. Keep TLS verification and the execution environment's proxy path enabled.
+The required direct-request hosts are `www.ecb.europa.eu`, `markets.newyorkfed.org`, `api.bls.gov`, `home.treasury.gov`, `api.fiscaldata.treasury.gov`, `www.federalreserve.gov`, `www.sec.gov` `data.sec.gov`, `apps.bea.gov`, `www.stat-search.boj.or.jp` and `dashboard.e-stat.go.jp`. Atlas still enforces its narrower fixed URL catalog and refuses redirects. Keep TLS verification and the execution environment's proxy path enabled.
 
 [Agent requirements](agents.md#require-data-quality-explicitly) · [Source conditions](../DATA_SOURCES.md) · [Validation scope](verification.md)

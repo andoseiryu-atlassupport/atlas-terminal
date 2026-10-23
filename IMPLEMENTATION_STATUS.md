@@ -17,10 +17,12 @@ Atlas Terminal retrieves US equity research, macro data and reference FX from fr
 | Economics      | Eight BLS series covering consumer prices, employment, unemployment, wages and job openings            |
 | Treasury       | Daily nominal and TIPS-based real par yield curves; federal Debt to the Penny observations             |
 | Macro analysis | CPI/core CPI YoY, payroll monthly changes and the same-day 10Y–2Y nominal spread, with original inputs |
-| Rates / FX     | Overnight EFFR/SOFR; ECB daily reference FX for EUR, USD, JPY, GBP, CHF, AUD, CAD, NZD and CNY         |
+| Rates / FX     | Overnight EFFR/SOFR; ECB daily reference FX for 31 currencies, with per-currency history limits        |
 | Policy         | Federal Reserve release headlines, publication times and original links                                |
 
-Run `atlas research catalog --json` for identifiers, query fields, units and limits for all 21 datasets. The [research guide](docs/research.md) includes examples for each dataset.
+US national accounts add eight BEA series; Japanese macro adds ten BOJ/Statistical Dashboard series. `japan_macro_overview` and `us_japan_overview` expand through the shared batch service with dates, source IDs and per-item failures.
+
+Run `atlas research catalog --json` for identifiers, query fields, units and limits for all 23 datasets. The [research guide](docs/research.md) includes examples for each dataset.
 
 ## Interfaces
 
@@ -32,7 +34,7 @@ Run `atlas research catalog --json` for identifiers, query fields, units and lim
 | HTTP             | `GET /v1/research/catalog` / `POST /v1/research`                                                                             |
 | Annual snapshots | `financials get` / `Atlas.get_financials`, covering five annual metrics                                                      |
 
-Research requires no data subscription, API key, wallet or LLM. SEC retrieval requires a private `SEC_USER_AGENT` containing the application name and an actual contact email. The `fixture` provider returns fictional data without network access.
+Research requires no data subscription, wallet or LLM. BEA national accounts require a free registered `BEA_API_KEY`; Japanese macro retrieval needs no registration. SEC retrieval requires a private `SEC_USER_AGENT` containing the application name and an actual contact email. The `fixture` provider returns fictional data without network access.
 
 MCP research publishes dataset-specific query schemas and a validated common response schema. Optional compact responses replace repeated provenance with content-addressed evidence IDs; field projection preserves interpretation and calculation context. Snapshot-bound cursors resume without refetching upstream data. CLI, SDK and HTTP share these services. Catalogs support dataset filtering and compact discovery. Error envelopes expose safe field hints, next actions and known retry delays. See the [agent contracts](docs/agents.md) for retention and paging limits.
 
@@ -40,7 +42,7 @@ Optional requirements enforce the oldest source age, latest usable observation d
 
 Research batches support up to ten ordered independent queries, 16 KiB requests and a 4 MiB response budget. Each item has a caller ID, result or safe error, with explicit retryable read IDs. Malformed envelopes execute no items. CLI, SDK, MCP and HTTP share the service; batches never purchase, sign or retry failed items automatically.
 
-Three named presets (`company_overview`, `us_macro_overview`, `fx_context`) expand into the same independent research reads. Preview returns the expanded plan without source access. Item selection, common/per-item requirements, compact/full evidence and reusable JSON queries work across all interfaces. An overview separates observation, explicit publication and source retrieval times, units, source cadence, missingness and coverage flags. Original batch records and attributions are retained. The envelope is bounded to 5 MiB including the existing 4 MiB batch budget. Read success does not imply complete observations or synchronized source dates. [Preset contracts](docs/presets.md).
+Five named presets (`company_overview`, `us_macro_overview`, `fx_context`, `japan_macro_overview`, `us_japan_overview`) expand into the same independent research reads. Preview returns the expanded plan without source access. Item selection, common/per-item requirements, compact/full evidence and reusable JSON queries work across all interfaces. An overview separates observation, explicit publication and source retrieval times, units, source cadence, missingness and coverage flags. Original batch records and attributions are retained. The envelope is bounded to 5 MiB including the existing 4 MiB batch budget. Read success does not imply complete observations or synchronized source dates. [Preset contracts](docs/presets.md).
 
 Connection diagnostics validate selected source configuration without creating source clients or echoing contact settings. Explicit network opt-in reuses fixed source probes, caches/quotas and private baselines in the configured state directory. Configuration readiness, probe status and synthetic mode remain distinct. Fixture diagnostics never run network probes.
 
@@ -73,7 +75,7 @@ Optional task `intent_id` values bind an exact validated annual query to one quo
 
 Consolidated equity prices, daily prices and adjustment factors, order books, options, analyst consensus, newswire articles, earnings-call transcripts, a complete security master or corporate-action history, PIT and trading are unavailable.
 
-FX covers the ECB's latest 90-calendar-day reference window. EFFR/SOFR covers the latest 90 effective observations. Real Treasury yields cover one selected year from 2003 onward; BLS calculations use the registration-free latest-three-year source window. No holiday filling, real-time FX, term SOFR, historical release vintages or GDP/PCE connector is provided. See [macro coverage](docs/macro.md).
+FX uses the full published ECB history for 31 currencies with per-currency gaps. BLS observation-date queries span up to 30 calendar years in ten-year requests; the default remains the latest three years. Eight BEA national-account series and ten Japanese macro series use explicit units and periods. EFFR/SOFR still covers the latest 90 effective observations. Real Treasury yields cover one selected year from 2003 onward. No holiday filling, real-time FX, term SOFR or historical release vintages are provided. See [macro coverage](docs/macro.md).
 
 The reference HTTP API supports one process, one private SQLite volume and loopback connections. The separate research-only MCP HTTP service adds exact host/origin validation, explicit bearer or anonymous access, request-size/rate/concurrency limits and stateless JSON Streamable HTTP. It requires one process and a persistent state volume behind operator-managed HTTPS. It has no payment handlers, OAuth, tenant isolation or distributed limiter. No official public remote endpoint is operated. Mainnet, distributed budgets and background reconciliation are unsupported. Reconciliation may remain unresolved for legacy deadlines, old nonce logs without a transaction hint, ambiguous batched receipts and pre-submission crashes. Live RPC/Facilitator behavior and real transfers remain unverified.
 

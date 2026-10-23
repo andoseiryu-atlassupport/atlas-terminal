@@ -25,7 +25,13 @@ from atlas_terminal.research_quality import (
 )
 from atlas_terminal.util import canonical, stamp, utcnow
 
-PresetName = Literal["company_overview", "us_macro_overview", "fx_context"]
+PresetName = Literal[
+    "company_overview",
+    "us_macro_overview",
+    "fx_context",
+    "japan_macro_overview",
+    "us_japan_overview",
+]
 PRESETS: dict[str, dict[str, Any]] = {
     "company_overview": {
         "description": "Issuer profile, reported financials, growth/FCF and filing metadata.",
@@ -78,6 +84,58 @@ PRESETS: dict[str, dict[str, Any]] = {
             "us_sofr": {"dataset": "reference_rates", "series": "sofr", "limit": 1},
         },
     },
+    "japan_macro_overview": {
+        "description": (
+            "Japan national prices and unemployment, BOJ overnight rates, Tankan and money stock."
+        ),
+        "fields": ["start_date", "end_date"],
+        "required": [],
+        "items": {
+            "cpi": {"dataset": "japan_economics", "series": "cpi", "limit": 1},
+            "unemployment": {"dataset": "japan_economics", "series": "unemployment", "limit": 1},
+            "call_rate": {"dataset": "japan_economics", "series": "call_rate", "limit": 1},
+            "tankan": {"dataset": "japan_economics", "series": "tankan_manufacturing", "limit": 1},
+            "money_stock_m2": {
+                "dataset": "japan_economics",
+                "series": "money_stock_m2",
+                "limit": 1,
+            },
+            "usd_jpy_tokyo": {"dataset": "japan_economics", "series": "usd_jpy_tokyo", "limit": 1},
+        },
+    },
+    "us_japan_overview": {
+        "description": (
+            "US/Japan inflation and employment, US GDP/PCE, Japanese rates and "
+            "ECB USD/JPY; BEA requires a free key."
+        ),
+        "fields": ["start_date", "end_date"],
+        "required": [],
+        "items": {
+            "us_cpi": {"dataset": "economics", "series": "cpi", "limit": 1},
+            "us_unemployment": {"dataset": "economics", "series": "unemployment", "limit": 1},
+            "us_gdp": {"dataset": "national_accounts", "series": "gdp_real", "limit": 1},
+            "us_pce": {"dataset": "national_accounts", "series": "pce_price_index", "limit": 1},
+            "us_core_pce": {
+                "dataset": "national_accounts",
+                "series": "core_pce_price_index",
+                "limit": 1,
+            },
+            "jp_cpi": {"dataset": "japan_economics", "series": "cpi", "limit": 1},
+            "jp_unemployment": {"dataset": "japan_economics", "series": "unemployment", "limit": 1},
+            "jp_call_rate": {"dataset": "japan_economics", "series": "call_rate", "limit": 1},
+            "jp_tankan": {
+                "dataset": "japan_economics",
+                "series": "tankan_manufacturing",
+                "limit": 1,
+            },
+            "fx": {
+                "dataset": "fx_rates",
+                "base_currency": "USD",
+                "quote_currency": "JPY",
+                "limit": 1,
+            },
+        },
+    },
 }
 COMMON_FIELDS = {"preset", "include", "requirements", "requirements_by_item", "view", "preview"}
 
@@ -116,6 +174,8 @@ def preset_schema(schema: dict[str, Any]) -> None:
                     for currency in FX_CURRENCIES
                 ]
             }
+        if "start_date" in spec["fields"]:
+            branch["dependentRequired"] = {"start_date": ["end_date"], "end_date": ["start_date"]}
         branches.append(branch)
     schema["oneOf"] = branches
 
@@ -129,6 +189,8 @@ class ResearchPresetQuery(Model):
     year: int | None = Field(default=None, ge=1990, le=2100, strict=True)
     base_currency: Currency | None = None
     quote_currency: Currency | None = None
+    start_date: str | None = Field(default=None, pattern=r"^[0-9]{4}-[0-9]{2}-[0-9]{2}$")
+    end_date: str | None = Field(default=None, pattern=r"^[0-9]{4}-[0-9]{2}-[0-9]{2}$")
     include: list[str] | None = Field(default=None, min_length=1, max_length=10)
     requirements: ResearchRequirements | None = None
     requirements_by_item: dict[str, ResearchRequirements] = Field(
@@ -144,6 +206,15 @@ class ResearchPresetQuery(Model):
 
     @model_validator(mode="after")
     def applicable_fields(self) -> "ResearchPresetQuery":
+        if self.start_date is not None or self.end_date is not None:
+            parse_research(
+                {
+                    "dataset": "economics",
+                    "series": "cpi",
+                    "start_date": self.start_date,
+                    "end_date": self.end_date,
+                }
+            )
         spec = PRESETS[self.preset]
         if self.model_fields_set - (COMMON_FIELDS | set(spec["fields"])):
             raise ValueError("Parameter does not apply to this preset")
@@ -256,11 +327,13 @@ def preset_plan(query: ResearchPresetQuery) -> ResearchPresetPlan:
     year_basis: Literal["explicit", "current_utc_year"] | None = None
     for name in selected:
         data = deepcopy(spec["items"][name])
+        if query.start_date is not None:
+            data.update(start_date=query.start_date, end_date=query.end_date)
         if query.preset == "company_overview":
             data["identifier"] = query.identifier
             if data["dataset"] in {"statements", "financial_analytics"}:
                 data.update(period=query.period, count=query.count)
-        if data["dataset"] == "fx_rates":
+        if data["dataset"] == "fx_rates" and query.preset == "fx_context":
             data.update(base_currency=query.base_currency, quote_currency=query.quote_currency)
         if data["dataset"] == "treasury_yields":
             data["year"] = query.year if query.year is not None else utcnow().year
@@ -273,7 +346,12 @@ def preset_plan(query: ResearchPresetQuery) -> ResearchPresetPlan:
             requirements.update(query.requirements_by_item[name].model_dump(exclude_unset=True))
         data.update(requirements=requirements, response={"view": query.view})
         parse_research(data)
-        items.append(PresetPlanItem(id=name, query=data, source_ids=[DATASETS[data["dataset"]][1]]))
+        source_id = DATASETS[data["dataset"]][1]
+        if data["dataset"] == "japan_economics":
+            from atlas_terminal.economic_catalog import JAPAN_SERIES
+
+            source_id = JAPAN_SERIES[data["series"]]["source_id"]
+        items.append(PresetPlanItem(id=name, query=data, source_ids=[source_id]))
     parse_batch({"items": [{"id": item.id, "query": item.query} for item in items]})
     return ResearchPresetPlan(
         preset=query.preset,

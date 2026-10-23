@@ -116,7 +116,7 @@ def build(directory: Path, *, html_suffix: bool = False) -> None:
     llms = [
         "# Atlas Terminal",
         "",
-        "> Free company financials, US macro and reference FX through one MCP connection.",
+        "> Free company financials, US/Japan macro and reference FX through one MCP connection.",
         "",
         "Current snapshots are not PIT history or real-time prices. Fixtures are fictional.",
         "Cite original publishers for numerical facts; Atlas documents selection and calculations.",

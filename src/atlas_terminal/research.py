@@ -13,6 +13,7 @@ from urllib.parse import urlsplit
 from xml.etree.ElementTree import Element
 
 from atlas_terminal.documentation import DOCUMENTATION_ORIGIN, research_documentation
+from atlas_terminal.economic_catalog import JAPAN_SERIES, NATIONAL_ACCOUNTS
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.macro_catalog import FX_CURRENCIES, MACRO_SERIES, REFERENCE_SERIES
 from atlas_terminal.normalize import number
@@ -28,7 +29,6 @@ from atlas_terminal.providers import (
     Transport,
 )
 from atlas_terminal.public_sources import (
-    BLS_BASE,
     BLS_SERIES,
     DEBT_URL,
     FED_NEWS,
@@ -41,6 +41,12 @@ from atlas_terminal.public_sources import (
 )
 from atlas_terminal.research_analytics import analytics_catalog, analytics_data
 from atlas_terminal.research_comparison import comparison_data
+from atlas_terminal.research_economics import (
+    bls_economics,
+    boj_economics,
+    estat_economics,
+    national_accounts,
+)
 from atlas_terminal.research_financials import (
     RATIOS,
     metric_catalog,
@@ -110,6 +116,16 @@ FAMILIES = {
     "institutional_holdings": {"13F-HR", "13F-HR/A"},
 }
 DATASETS = {
+    "national_accounts": (
+        "BEA GDP, PCE prices, personal income and consumption",
+        "bea",
+        "observations",
+    ),
+    "japan_economics": (
+        "Japan official prices, employment, money, surveys, rates and FX",
+        "boj",
+        "observations",
+    ),
     "companies": ("Current SEC issuer directory search", "sec", "reference"),
     "profile": ("Issuer profile, industry, exchanges and fiscal year end", "sec", "reference"),
     "statements": (
@@ -245,7 +261,11 @@ def research_catalog(
                 "id": name,
                 "description": title,
                 "source": source,
-                "source_ids": ["bls", "treasury"] if name == "macro_analytics" else [source],
+                "source_ids": ["bls", "treasury"]
+                if name == "macro_analytics"
+                else ["boj", "estat"]
+                if name == "japan_economics"
+                else [source],
                 "output_type": kind,
                 "implementation": "implemented",
                 "validation": "offline_fixtures_and_mock_http",
@@ -264,6 +284,14 @@ def research_catalog(
         "economic_series": {
             k: {"series_id": v[0], "title": v[1], "unit": v[2], "seasonally_adjusted": v[3]}
             for k, v in BLS_SERIES.items()
+        },
+        "national_accounts_series": NATIONAL_ACCOUNTS,
+        "japan_series": JAPAN_SERIES,
+        "history": {
+            "date_selection": "inclusive_observation_period_end",
+            "max_calendar_years": 30,
+            "requires_both_dates": True,
+            "point_in_time": False,
         },
         "fx_currencies": list(FX_CURRENCIES),
         "reference_rate_series": REFERENCE_SERIES,
@@ -325,6 +353,8 @@ def research_catalog(
             "analytics_metrics",
             "ratios",
             "economic_series",
+            "national_accounts_series",
+            "japan_series",
             "reference_rate_series",
             "macro_series",
         ]:
@@ -441,6 +471,8 @@ class ResearchService:
             "reference_rates",
             "treasury_real_yields",
             "macro_analytics",
+            "national_accounts",
+            "japan_economics",
         }:
             self.public = self.public or (
                 PublicFixtures()
@@ -953,6 +985,13 @@ class ResearchService:
 
     def public_data(self, q: ResearchQuery) -> dict[str, Any]:
         assert self.public is not None
+        if q.dataset == "national_accounts":
+            return national_accounts(self.public, q)
+        if q.dataset == "japan_economics":
+            assert q.series in JAPAN_SERIES
+            return (
+                boj_economics if JAPAN_SERIES[q.series]["source_id"] == "boj" else estat_economics
+            )(self.public, q)
         if q.dataset == "fx_rates":
             return fx_rates(self.public, q)
         if q.dataset == "reference_rates":
@@ -1111,71 +1150,4 @@ class ResearchService:
 
     def economics(self, q: ResearchQuery) -> dict[str, Any]:
         assert self.public is not None
-        match = next(
-            ((key, meta) for key, meta in BLS_SERIES.items() if q.series in {key, meta[0]}), None
-        )
-        if match is None:
-            raise AtlasError(
-                "INVALID_INPUT", "Choose a BLS economic series from the research catalog."
-            )
-        key, (series_id, title, unit, adjusted) = match
-        snapshot = self.public.get(BLS_BASE + series_id, 21600)
-        raw = snapshot.data
-        if raw.get("status") != "REQUEST_SUCCEEDED":
-            raise AtlasError(
-                "SOURCE_UNAVAILABLE", "BLS rejected or could not fulfill the request.", status=502
-            )
-        series = raw.get("Results", {}).get("series", [])
-        if len(series) != 1 or series[0].get("seriesID") != series_id:
-            raise AtlasError(
-                "SOURCE_UNAVAILABLE", "BLS response series does not match the request."
-            )
-        records = []
-        for i, row in enumerate(series[0].get("data", [])):
-            if not re.fullmatch(r"M(?:0[1-9]|1[0-3])", row.get("period", "")) or not re.fullmatch(
-                r"[0-9]{4}", row.get("year", "")
-            ):
-                raise AtlasError("SOURCE_UNAVAILABLE", "Unsupported BLS observation period.")
-            missing = row.get("value") in {"-", "", None}
-            records.append(
-                {
-                    "series": key,
-                    "series_id": series_id,
-                    "year": row["year"],
-                    "period": row["period"],
-                    "period_kind": "annual_average" if row["period"] == "M13" else "month",
-                    "value": None if missing else exact_text(row["value"]),
-                    "status": "unavailable" if missing else "reported",
-                    "unit": unit,
-                    "seasonally_adjusted": adjusted,
-                    "footnotes": row.get("footnotes", []),
-                    "latest": row.get("latest"),
-                    "source": reference(snapshot, f"/Results/series/0/data/{i}"),
-                }
-            )
-        records.sort(key=lambda r: (r["year"], r["period"]), reverse=True)
-        return {
-            "series_title": title,
-            "records": records[: q.limit],
-            "sources": [reference(snapshot, "")],
-            "coverage": {
-                "observed_records": len(records),
-                "returned_records": min(q.limit, len(records)),
-                "truncated": len(records) > q.limit,
-                "upstream_window_limited": True,
-            },
-            "limitations": [
-                (
-                    "Unregistered BLS V1 latest-three-year observations, with "
-                    "revisions; not release-time vintage data."
-                ),
-                (
-                    "M13 annual averages are labeled separately from monthly "
-                    "observations. No implicit percent-change calculation."
-                ),
-                (
-                    "A shared local request quota supplements the upstream per-IP "
-                    "limits; other programs may consume the same upstream allowance."
-                ),
-            ],
-        }
+        return bls_economics(self.public, q)

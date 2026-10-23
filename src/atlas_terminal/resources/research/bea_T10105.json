@@ -1,0 +1,60 @@
+{
+  "BEAAPI": {
+    "Request": {
+      "RequestParam": []
+    },
+    "Results": {
+      "Data": [
+        {
+          "TableName": "T10105",
+          "SeriesCode": "SYNTHGDP",
+          "LineNumber": "1",
+          "LineDescription": "Gross domestic product",
+          "TimePeriod": "2025Q4",
+          "Metric_Name": "Current Dollars",
+          "CL_UNIT": "Billions of dollars",
+          "UNIT_MULT": "9",
+          "DataValue": "100.25"
+        },
+        {
+          "TableName": "T10105",
+          "SeriesCode": "SYNTHGDP",
+          "LineNumber": "1",
+          "LineDescription": "Gross domestic product",
+          "TimePeriod": "2026Q1",
+          "Metric_Name": "Current Dollars",
+          "CL_UNIT": "Billions of dollars",
+          "UNIT_MULT": "9",
+          "DataValue": "102.25"
+        },
+        {
+          "TableName": "T10105",
+          "SeriesCode": "SYNTHGDP",
+          "LineNumber": "1",
+          "LineDescription": "Gross domestic product",
+          "TimePeriod": "2026Q2",
+          "Metric_Name": "Current Dollars",
+          "CL_UNIT": "Billions of dollars",
+          "UNIT_MULT": "9",
+          "DataValue": "104.25"
+        },
+        {
+          "TableName": "T10105",
+          "SeriesCode": "SYNTHGDP",
+          "LineNumber": "1",
+          "LineDescription": "Gross domestic product",
+          "TimePeriod": "2026Q3",
+          "Metric_Name": "Current Dollars",
+          "CL_UNIT": "Billions of dollars",
+          "UNIT_MULT": "9",
+          "DataValue": "106.25"
+        }
+      ],
+      "Notes": [
+        {
+          "NoteText": "Fictional test data; not BEA observations."
+        }
+      ]
+    }
+  }
+}

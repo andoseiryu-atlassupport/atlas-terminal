@@ -1,5 +1,12 @@
 # Release notes
 
+## 0.5.0
+
+- Add eight BEA national-account series and ten Japanese macro series through CLI, SDK, MCP and HTTP. BEA uses a private free registered key; BOJ and Statistical Dashboard require no registration.
+- Add paired observation-date filters, bounded BLS history POSTs, exact prior-period macro inputs and the full ECB reference-rate history with 31 currencies. Preserve source units, scales, periods and original byte evidence.
+- Add Japan and US/Japan presets, configuration diagnostics and fixed probes for the three new source families. Current revised data remain distinct from historical release vintages.
+- Include fictional source fixtures and offline wire-contract/parser/interface tests. Live new-source connectivity remains unverified.
+
 ## 0.4.0
 
 - Inspect local delegated spending, unresolved reservations and remaining session/UTC-day budgets without loading a signing key. Purchase preflight combines authenticated order readiness with local policy checks without signing or reserving funds; actual purchases still enforce limits atomically.

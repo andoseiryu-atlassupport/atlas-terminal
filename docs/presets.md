@@ -1,16 +1,20 @@
 # Research presets and connection diagnostics
 
-One Atlas MCP connection exposes company, US macro and reference FX data. Named presets expand into ordinary free research queries and execute through the shared batch service. The same service is available in the Python SDK, CLI and local HTTP API. There is no LLM dependency, data subscription or wallet requirement.
+One Atlas MCP connection exposes company, US/Japan macro and reference FX data. Named presets expand into ordinary free research queries and execute through the shared batch service. The same service is available in the Python SDK, CLI and local HTTP API. There is no LLM dependency, data subscription or wallet requirement.
 
 ## Discover and preview
 
 `atlas_research_catalog` includes a `presets` section with preset names, accepted parameters, required fields and item IDs. The full catalog includes input and output schemas; `view="compact"` omits them. Discovery and preview make no source requests.
 
-| Preset              | Parameters                                                                             | Included item IDs                                                               |
-| ------------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| `company_overview`  | Required `identifier`; optional `period` (default `quarterly`) and `count` (default 1) | `profile`, `statements`, `analytics`, `filings`                                 |
-| `us_macro_overview` | Optional Treasury `year`                                                               | `cpi`, `cpi_yoy`, `payrolls`, `unemployment`, `treasury_yields`, `effr`, `sofr` |
-| `fx_context`        | Required distinct `base_currency` and `quote_currency`; optional Treasury `year`       | `fx`, `us_cpi`, `us_treasury_yields`, `us_effr`, `us_sofr`                      |
+| Preset                 | Parameters                                                                             | Included item IDs                                                                                                              |
+| ---------------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `company_overview`     | Required `identifier`; optional `period` (default `quarterly`) and `count` (default 1) | `profile`, `statements`, `analytics`, `filings`                                                                                |
+| `us_macro_overview`    | Optional Treasury `year`                                                               | `cpi`, `cpi_yoy`, `payrolls`, `unemployment`, `treasury_yields`, `effr`, `sofr`                                                |
+| `fx_context`           | Required distinct `base_currency` and `quote_currency`; optional Treasury `year`       | `fx`, `us_cpi`, `us_treasury_yields`, `us_effr`, `us_sofr`                                                                     |
+| `japan_macro_overview` | Optional paired `start_date`, `end_date`                                               | `cpi`, `unemployment`, `call_rate`, `tankan`, `money_stock_m2`, `usd_jpy_tokyo`                                                |
+| `us_japan_overview`    | Optional paired `start_date`, `end_date`; BEA free key for US accounts                 | `us_cpi`, `us_unemployment`, `us_gdp`, `us_pce`, `us_core_pce`, `jp_cpi`, `jp_unemployment`, `jp_call_rate`, `jp_tankan`, `fx` |
+
+The Japanese and US/Japan presets return one latest selected observation per item. Paired dates filter observation period ends, not release dates, and span at most 30 calendar years. Japan data need no registration. The US/Japan preset uses BEA for GDP and PCE; missing `BEA_API_KEY` fails those items independently while other reads continue. A CPI or PCE index level is not an inflation percentage. Ordinary dataset queries retrieve histories; presets provide current/selected context. No common publication-time snapshot is implied.
 
 Company statements request revenue, net income, assets, liabilities and operating cash flow. Analytics request revenue YoY growth, FCF and FCF margin. Both use the requested reported period and count, with explicit partial coverage permitted. Filings return up to five discovery records, not filing text. Each dataset selects its own available records; the preset does not align every financial metric to a common date.
 
@@ -120,7 +124,7 @@ uv run --offline atlas research doctor --sources ecb,new_york_fed --json
 uv run --offline atlas research doctor --json
 ```
 
-The public provider reports SEC as `configuration_required` until its private `SEC_USER_AGENT` passes the same validator as SEC retrieval. Other sources need no API key. `configured` only means the selected source configuration is ready; connectivity is `not_checked`. The default all-source diagnostic exits 4 if SEC configuration is missing, even when non-SEC sources are configured.
+The public provider reports SEC as `configuration_required` until its private `SEC_USER_AGENT` passes the same validator as SEC retrieval. BEA is `configuration_required` until its private free registered `BEA_API_KEY` is present. Other sources need no API key. `configured` only means the selected source configuration is ready; connectivity is `not_checked`. The default all-source diagnostic exits 4 if SEC or BEA configuration is missing, even when non-SEC sources are configured.
 
 Explicitly opt in to fixed read-only connectivity probes:
 

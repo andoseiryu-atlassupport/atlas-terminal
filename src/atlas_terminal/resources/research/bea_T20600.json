@@ -1,0 +1,148 @@
+{
+  "BEAAPI": {
+    "Request": {
+      "RequestParam": []
+    },
+    "Results": {
+      "Data": [
+        {
+          "TableName": "T20600",
+          "SeriesCode": "SYNTHINCOME",
+          "LineNumber": "1",
+          "LineDescription": "Personal income",
+          "TimePeriod": "2025M09",
+          "Metric_Name": "Current Dollars",
+          "CL_UNIT": "Billions of dollars",
+          "UNIT_MULT": "9",
+          "DataValue": "100.25"
+        },
+        {
+          "TableName": "T20600",
+          "SeriesCode": "SYNTHINCOME",
+          "LineNumber": "1",
+          "LineDescription": "Personal income",
+          "TimePeriod": "2026M07",
+          "Metric_Name": "Current Dollars",
+          "CL_UNIT": "Billions of dollars",
+          "UNIT_MULT": "9",
+          "DataValue": "102.25"
+        },
+        {
+          "TableName": "T20600",
+          "SeriesCode": "SYNTHINCOME",
+          "LineNumber": "1",
+          "LineDescription": "Personal income",
+          "TimePeriod": "2026M08",
+          "Metric_Name": "Current Dollars",
+          "CL_UNIT": "Billions of dollars",
+          "UNIT_MULT": "9",
+          "DataValue": "104.25"
+        },
+        {
+          "TableName": "T20600",
+          "SeriesCode": "SYNTHINCOME",
+          "LineNumber": "1",
+          "LineDescription": "Personal income",
+          "TimePeriod": "2026M09",
+          "Metric_Name": "Current Dollars",
+          "CL_UNIT": "Billions of dollars",
+          "UNIT_MULT": "9",
+          "DataValue": "106.25"
+        },
+        {
+          "TableName": "T20600",
+          "SeriesCode": "SYNTHDPI",
+          "LineNumber": "26",
+          "LineDescription": "Disposable personal income",
+          "TimePeriod": "2025M09",
+          "Metric_Name": "Current Dollars",
+          "CL_UNIT": "Billions of dollars",
+          "UNIT_MULT": "9",
+          "DataValue": "100.25"
+        },
+        {
+          "TableName": "T20600",
+          "SeriesCode": "SYNTHDPI",
+          "LineNumber": "26",
+          "LineDescription": "Disposable personal income",
+          "TimePeriod": "2026M07",
+          "Metric_Name": "Current Dollars",
+          "CL_UNIT": "Billions of dollars",
+          "UNIT_MULT": "9",
+          "DataValue": "102.25"
+        },
+        {
+          "TableName": "T20600",
+          "SeriesCode": "SYNTHDPI",
+          "LineNumber": "26",
+          "LineDescription": "Disposable personal income",
+          "TimePeriod": "2026M08",
+          "Metric_Name": "Current Dollars",
+          "CL_UNIT": "Billions of dollars",
+          "UNIT_MULT": "9",
+          "DataValue": "104.25"
+        },
+        {
+          "TableName": "T20600",
+          "SeriesCode": "SYNTHDPI",
+          "LineNumber": "26",
+          "LineDescription": "Disposable personal income",
+          "TimePeriod": "2026M09",
+          "Metric_Name": "Current Dollars",
+          "CL_UNIT": "Billions of dollars",
+          "UNIT_MULT": "9",
+          "DataValue": "106.25"
+        },
+        {
+          "TableName": "T20600",
+          "SeriesCode": "SYNTHSPENDING",
+          "LineNumber": "28",
+          "LineDescription": "Personal consumption expenditures",
+          "TimePeriod": "2025M09",
+          "Metric_Name": "Current Dollars",
+          "CL_UNIT": "Billions of dollars",
+          "UNIT_MULT": "9",
+          "DataValue": "100.25"
+        },
+        {
+          "TableName": "T20600",
+          "SeriesCode": "SYNTHSPENDING",
+          "LineNumber": "28",
+          "LineDescription": "Personal consumption expenditures",
+          "TimePeriod": "2026M07",
+          "Metric_Name": "Current Dollars",
+          "CL_UNIT": "Billions of dollars",
+          "UNIT_MULT": "9",
+          "DataValue": "102.25"
+        },
+        {
+          "TableName": "T20600",
+          "SeriesCode": "SYNTHSPENDING",
+          "LineNumber": "28",
+          "LineDescription": "Personal consumption expenditures",
+          "TimePeriod": "2026M08",
+          "Metric_Name": "Current Dollars",
+          "CL_UNIT": "Billions of dollars",
+          "UNIT_MULT": "9",
+          "DataValue": "104.25"
+        },
+        {
+          "TableName": "T20600",
+          "SeriesCode": "SYNTHSPENDING",
+          "LineNumber": "28",
+          "LineDescription": "Personal consumption expenditures",
+          "TimePeriod": "2026M09",
+          "Metric_Name": "Current Dollars",
+          "CL_UNIT": "Billions of dollars",
+          "UNIT_MULT": "9",
+          "DataValue": "106.25"
+        }
+      ],
+      "Notes": [
+        {
+          "NoteText": "Fictional test data; not BEA observations."
+        }
+      ]
+    }
+  }
+}

@@ -37,6 +37,8 @@ def query(dataset="statements", **extra):
         result[key] = (
             ["ATLASDEMO"] if key == "identifiers" else "cpi" if key == "series" else "ATLASDEMO"
         )
+    if dataset == "national_accounts":
+        result["series"] = "gdp_real"
     if dataset == "fx_rates":
         result.update(base_currency="USD", quote_currency="JPY")
     if dataset in {"reference_rates", "macro_analytics"}:
@@ -346,7 +348,9 @@ def test_http_compact_evidence_and_rate_limit_guidance_share_the_core_service(tm
         with transport.db.connect(write=True) as conn:
             conn.execute("INSERT OR REPLACE INTO source_daily_usage VALUES ('bls','1970-01-01',25)")
         quota = http.post("/v1/research", json=query("economics"))
-        assert quota.status_code == 429 and quota.json()["error"]["retry_after_seconds"] == 76400
+        assert quota.status_code == 429 and quota.json()["error"][
+            "retry_after_seconds"
+        ] == 86400 - int(moment[0])
 
 
 def test_cli_compact_paging_and_evidence_across_separate_processes():
