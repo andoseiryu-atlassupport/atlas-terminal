@@ -9,7 +9,7 @@ The native cross-sectional estimator supports one country and local currency per
 | `KR`               | `KRW`      | `ksic10_section` or `ksic11_section`       | One uppercase `industry_code` from `A` through `U`  | `atlas-kr-fundamental-v1` |
 | `GB`               | `GBP`      | `uksic2007_section` or `uksic2026_section` | Uppercase `industry_code`: A–U (2007) or A–V (2026) | `atlas-gb-fundamental-v1` |
 
-No price feed, issuer-to-industry database, verified filing-vintage archive or external financial framework is bundled. The extension is experimental and unreleased. Supplied historical inputs can be used, but source rights and historical availability remain operator assertions. These models do not establish numerical or forecast equivalence with a proprietary vendor model.
+No price feed, issuer-to-industry database, verified filing-vintage archive or external financial framework is bundled. The extension is experimental. Supplied historical inputs can be used, but source rights and historical availability remain operator assertions. These models do not establish numerical or forecast equivalence with a proprietary vendor model.
 
 ## Run a complete local example
 

@@ -57,6 +57,23 @@ def demo(json_output: bool = typer.Option(False, "--json")) -> None:
         output(atlas.get_financials(query("ATLASDEMO", "revenue,net_income", "annual", 3, False)))
 
 
+@app.command()
+def showcase(
+    scenario: Literal["research", "japan-risk"],
+    provider: Literal["fixture", "public"] = "fixture",
+    allow_network: bool = False,
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """Try one complete research or Japanese risk workflow through an actual MCP session."""
+    from atlas_terminal.showcase import run_showcase, transcript
+
+    result = run_showcase(scenario, provider, allow_network=allow_network)
+    if json_output:
+        output(result)
+    else:
+        typer.echo(transcript(result))
+
+
 def risk_file(path: Path, limit: int) -> dict[str, Any]:
     try:
         with path.open("rb") as stream:

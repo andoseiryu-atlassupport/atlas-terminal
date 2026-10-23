@@ -61,7 +61,7 @@ Install a version-pinned Atlas environment at `/opt/atlas-terminal/.venv`, using
 ```sh
 sudo install -d -m 0755 /opt/atlas-terminal
 sudo /usr/bin/python3.12 -m venv /opt/atlas-terminal/.venv
-sudo uv pip install --python /opt/atlas-terminal/.venv/bin/python 'git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.6.0'
+sudo uv pip install --python /opt/atlas-terminal/.venv/bin/python 'git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.7.0'
 sudo install -d -m 0700 /etc/atlas-terminal
 sudo install -m 0600 build/remote-deploy/.env.example /etc/atlas-terminal/mcp.env
 sudoedit /etc/atlas-terminal/mcp.env

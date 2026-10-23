@@ -8,6 +8,8 @@ The [publication and search-ownership guide](publication-setup.md) supplies exac
 
 Use the [Codex setup](codex.md) for a version-pinned installation. A release contains a wheel, source distribution, research plugin ZIP, static-documentation archive and fictional MCP contract report. Python 3.12+ and uv are required for the documented Git source workflow. The plugin bundles only the focused research skill and a research-only MCP connection; it has no payment workflow or lifecycle hooks.
 
+Version 0.7.0 also includes a showcase archive with executed fictional research/Japanese-risk JSON reports, readable transcripts, MP4 replays, captions and SHA-256 checksums. Both workflows run directly from the installed package with `atlas showcase research` and `atlas showcase japan-risk`. No source checkout or LLM is needed for those commands. Source checkouts can regenerate the records with `uv run --offline python scripts/record_showcases.py --output build/showcases --video`; MP4 rendering additionally requires ffmpeg with drawtext/libx264. `scripts/verify_showcases.py` verifies the committed version and exact recorded bytes before release.
+
 Build the local package without publishing:
 
 ```sh

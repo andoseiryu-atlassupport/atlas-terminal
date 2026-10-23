@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0.0",
+  "is_synthetic": true,
+  "recordings": [
+    {
+      "scenario": "research",
+      "atlas_version": "0.7.0",
+      "command": "atlas showcase research --json",
+      "is_synthetic": true,
+      "recorded_at": "2026-10-23T15:18:35.179769+00:00",
+      "mcp_sessions": 1,
+      "video_replay_seconds": 60,
+      "runtime_benchmark": false,
+      "sha256": {
+        "research.json": "7e3fd0ea6adf7eada3dee7480befce542ca31fb1c346e0f61ec3fb8152d622f4",
+        "research.mp4": "c77c4c0c5d29db2d5ab089d10d655c76786f4d2a0a83bcbf6fbef5a70eb5313f",
+        "research.txt": "4fd7e3ba87742144f5d7fcf3cafd346ad0700eb0d3f8d0b44e2a06fdbc410ccb",
+        "research.vtt": "d9722ea6b3d1111e48e445a58ff20d7fec4ebb91f5cd420c7536e9001fdb1db6"
+      }
+    },
+    {
+      "scenario": "japan-risk",
+      "atlas_version": "0.7.0",
+      "command": "atlas showcase japan-risk --json",
+      "is_synthetic": true,
+      "recorded_at": "2026-10-23T15:18:39.974765+00:00",
+      "mcp_sessions": 1,
+      "video_replay_seconds": 60,
+      "runtime_benchmark": false,
+      "sha256": {
+        "japan-risk.json": "ad21636ac3a3e8c630ced2f2e6bd411a0363ece9a1dfa9e924678a3279d29845",
+        "japan-risk.mp4": "a45c0870220653000b891d96dc41936c6e9988e8bc5a9b9fb9a7ff114a9ea5ab",
+        "japan-risk.txt": "242aebc9e9461f59b2e038a737aa79e3882a6c04361abc4c6912050114903cb1",
+        "japan-risk.vtt": "d509c37bddfc9a3cbacf01f021d8da0f6f5ba37b5bb7377ee7f2e19d31a2ebac"
+      }
+    }
+  ]
+}

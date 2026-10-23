@@ -1,8 +1,8 @@
 # Validation scope
 
-Recorded on 2026-10-23 for Atlas Terminal 0.6.0, with Python 3.12.14 and Node.js 24.19.0 on Linux. Local verification, GitHub Actions, public deployment, official-source access and model observations are distinct evidence.
+Recorded on 2026-10-23 (UTC) for Atlas Terminal 0.7.0, with Python 3.12.14 and Node.js 24.19.0 on Linux. Local verification, GitHub Actions, public deployment, official-source access and model observations are distinct evidence.
 
-The current source tree additionally includes the unreleased experimental native factor risk extension described below. The published 0.6.0 release does not include that extension; source-tree checks and a locally built wheel are separate from release publication.
+Version 0.7.0 includes the experimental native factor risk extension and installed walkthroughs described below. The prior 0.6.0 release did not include risk estimation. Local wheel checks remain separate evidence from a published GitHub release.
 
 ## Current local checks
 
@@ -10,18 +10,23 @@ The current source tree additionally includes the unreleased experimental native
 | --------------------------------------------------------- | ----------------------------------------------------------- |
 | `uv run --offline ruff check .`                           | PASS                                                        |
 | `uv run --offline ruff format --check .`                  | PASS                                                        |
-| `uv run --offline mypy`                                   | PASS; 54 source files                                       |
-| `uv run --offline pytest`                                 | PASS; 802 tests, 2 live tests deselected                    |
+| `uv run --offline mypy`                                   | PASS; 55 source files                                       |
+| `uv run --offline pytest`                                 | PASS; 813 tests, 2 live tests deselected                    |
 | `uv run --offline python -m build --no-isolation`         | PASS; wheel and source distribution                         |
 | `uv run --offline python scripts/verify_distribution.py`  | PASS; metadata, required contents and forbidden paths       |
-| `uv run --offline python scripts/build_docs.py`           | PASS; 43 HTML pages and internal file/section links         |
+| `uv run --offline python scripts/build_docs.py`           | PASS; 45 HTML pages and internal file/section links         |
+| `uv run --offline python scripts/verify_showcases.py`     | PASS; both recorded versions, data modes and checksums      |
 | `uv run --offline python scripts/prepare_distribution.py` | PREPARED; versioned plugin ZIP and Registry draft           |
 | `npm run check`                                           | PASS; Prettier and whitespace                               |
 | `python scripts/scan_public_files.py`                     | PASS; heuristic working-file and reachable-history patterns |
 
 Default tests prohibit IP sockets and use fictional sources or mocked transports. They do not retrieve live official data or transfer funds. Archive validation rejects private/runtime paths, dependency trees, unsafe paths and links; source archives contain project source and verification material rather than installed dependencies. The credential-pattern scan is a heuristic, not a guarantee against every secret format.
 
+Test cases use isolated private state directories so repeated verification does not consume an operator's persistent cache quota. The numerical and protocol assertions remain unchanged.
+
 ## Installed distributions and MCP execution
+
+The 0.7.0 wheel was installed offline into a fresh virtual environment from locked runtime dependencies. Both `showcase` commands passed outside the checkout with isolated Python imports from that installed package. Each used an actual official stdio MCP session. The installed `verify_installed.py` and `verify_remote_installed.py` checks also passed for CLI/SDK/MCP/loopback HTTP, restart, evidence and mock recovery without external source requests or real transfers.
 
 The 0.6.0 wheel was installed offline into a fresh virtual environment from locked runtime requirements. Run outside the repository, `scripts/verify_installed.py` passed installed CLI, SDK, actual stdio MCP and loopback HTTP checks. Covered behavior includes SDMX discovery/international observations, macro panels, company/macro/FX research, compact evidence and saved pagination, quality gates, presets, configuration diagnosis and source-check network opt-in. Payment checks used mock quotes, preflight/budget/task replay and restart recovery without real transfers.
 
@@ -29,7 +34,9 @@ The installed `scripts/verify_remote_installed.py` also passed against an actual
 
 `scripts/run_research_workflow.py` completes seven contract checks through one official stdio MCP session: tool discovery, configuration, four independent company/CPI/FX reads, original evidence resolution, explicit quality rejection and unsupported-dataset rejection. It makes no LLM requests.
 
-`scripts/capture_research_examples.py` completes three cases in one actual research-only stdio MCP session and retains compact results and every resolved evidence reference. The executed captures are fictional. Nineteen publication/measurement tests cover content-addressed bytes, overwrite rejection, synthetic/failed/incomplete/evidence-mismatched export rejection, complete public JSON links, search ownership tags, controlled prompts, unknown rates, reviewed/unknown outcomes and invalid/duplicate/credential-bearing observation rejection. Mock non-synthetic metadata exists only inside an offline publication-format test and is not live-source evidence.
+`scripts/capture_research_examples.py` completes three cases in one actual research-only stdio MCP session and retains compact results and every resolved evidence reference. The executed captures are fictional. Twenty-three publication/measurement tests cover content-addressed bytes, overwrite rejection, synthetic/failed/incomplete/evidence-mismatched export rejection, complete public JSON links, search ownership tags, controlled prompts, unknown rates, reviewed/unknown outcomes, invalid/duplicate/credential-bearing observation rejection, captioned media delivery and recording integrity. Mock non-synthetic metadata exists only inside an offline publication-format test and is not live-source evidence.
+
+Seven walkthrough tests execute both scenarios through actual MCP, independently recalculate the same-day FX cross, check units and resolved evidence, verify Japanese universe/holdings and variance decomposition, reject public requests before process creation without opt-in, and suppress transport exception details. The committed [research](agent-research-walkthrough.md) and [Japanese risk](japan-risk-walkthrough.md) recordings retain complete JSON, readable transcripts, MP4 and VTT files. `ffprobe` reported exactly 60 seconds for each replay; selected frames were inspected for readable output. Video duration is a presentation choice, not measured execution speed. No browser rendering or actual-source availability is established by these checks.
 
 ## Experimental native factor risk extension
 

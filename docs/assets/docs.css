@@ -35,6 +35,19 @@ pre {
   overflow: auto;
   border-radius: 0.35rem;
 }
+.replay {
+  margin: 1.5rem 0;
+}
+.replay video {
+  display: block;
+  width: 100%;
+  border-radius: 0.35rem;
+  background: #0d1117;
+}
+.replay figcaption {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+}
 code {
   font-family: ui-monospace, monospace;
   font-size: 0.9em;

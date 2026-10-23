@@ -72,6 +72,9 @@ jobs:
           python scripts/scan_public_files.py
           uv run --offline python scripts/run_research_workflow.py --output build/evals/fixture-workflow.json
           uv run --offline python scripts/capture_research_examples.py
+          uv run --offline atlas showcase research --json > build/evals/fictional-research-showcase.json
+          uv run --offline atlas showcase japan-risk --json > build/evals/fictional-japan-risk-showcase.json
+          uv run --offline python scripts/verify_showcases.py
           uv run --offline python scripts/summarize_discovery.py --template --output build/evals/discovery-observations.json
           uv run --offline python scripts/summarize_discovery.py --input build/evals/discovery-observations.json --output build/evals/discovery-summary.json
       - name: Build packages, documentation and research plugin
@@ -95,6 +98,7 @@ jobs:
           shutil.copyfile("build/evals/fixture-workflow.json", assets / f"atlas-terminal-{version}-fixture-workflow.json")
           shutil.copyfile("build/evals/discovery-summary.json", assets / f"atlas-terminal-{version}-discovery-summary.json")
           shutil.make_archive(str(assets / f"atlas-terminal-{version}-fictional-research-captures"), "zip", "build/research-examples")
+          shutil.make_archive(str(assets / f"atlas-terminal-{version}-showcases"), "zip", "docs/assets/showcase")
           shutil.make_archive(str(assets / f"atlas-terminal-{version}-docs"), "zip", "build/site")
           checksums = "".join(hashlib.sha256(p.read_bytes()).hexdigest() + "  " + p.name + "\n" for p in sorted(assets.iterdir()))
           (assets / f"SHA256SUMS-{version}.txt").write_text(checksums)

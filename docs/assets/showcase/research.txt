@@ -1,0 +1,11 @@
+Atlas Terminal 0.7.0 | research
+FICTIONAL DATA - not market observations
+Official MCP client | one stdio session | no LLM | no payment
+
+fx: 120 JPY_per_USD | observation 2026-10-19
+us_sofr: 1.30 percent_per_annum | observation 2026-10-19
+Resolved original evidence: 9 references
+USD/JPY = JPY per EUR / USD per EUR, using the same observation date.
+SOFR and FX retain their own observation dates; they are not an atomic snapshot.
+
+PASS | Re-run with --json for complete queries, results and evidence.

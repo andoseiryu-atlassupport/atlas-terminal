@@ -1,0 +1,483 @@
+{
+  "schema_version": "1.0.0",
+  "atlas_version": "0.7.0",
+  "status": "PASS",
+  "scope": "executed_workflow_not_source_or_model_accuracy_benchmark",
+  "scenario": "japan-risk",
+  "provider": "fixture",
+  "is_synthetic": true,
+  "recorded_at": "2026-10-23T15:18:39.974765+00:00",
+  "transport": "stdio",
+  "mcp_sessions": 1,
+  "server": {
+    "name": "Atlas Terminal",
+    "title": null,
+    "version": "0.7.0",
+    "description": "Free primary-source company financials, US macro indicators and reference FX through one MCP connection, with explicit periods, units and source provenance.",
+    "website_url": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/index.md",
+    "icons": null
+  },
+  "state": "isolated_temporary_removed_on_exit",
+  "llm_used": false,
+  "transfers": false,
+  "steps": [
+    {
+      "tool": "atlas_risk",
+      "elapsed_ms": 583
+    },
+    {
+      "tool": "atlas_risk",
+      "elapsed_ms": 34
+    }
+  ],
+  "result": {
+    "query": {
+      "action": "run",
+      "connection_id": "fictional_japan",
+      "fit": {
+        "method": "cross_sectional",
+        "as_of": "2025-04-03T06:30:00Z"
+      },
+      "positions": [
+        {
+          "asset_id": "JPDEMO000",
+          "weight": "0.05"
+        },
+        {
+          "asset_id": "JPDEMO001",
+          "weight": "0.05"
+        },
+        {
+          "asset_id": "JPDEMO002",
+          "weight": "0.05"
+        },
+        {
+          "asset_id": "JPDEMO003",
+          "weight": "0.05"
+        },
+        {
+          "asset_id": "JPDEMO004",
+          "weight": "0.05"
+        },
+        {
+          "asset_id": "JPDEMO005",
+          "weight": "0.05"
+        },
+        {
+          "asset_id": "JPDEMO006",
+          "weight": "0.05"
+        },
+        {
+          "asset_id": "JPDEMO007",
+          "weight": "0.05"
+        },
+        {
+          "asset_id": "JPDEMO008",
+          "weight": "0.05"
+        },
+        {
+          "asset_id": "JPDEMO009",
+          "weight": "0.05"
+        },
+        {
+          "asset_id": "JPDEMO010",
+          "weight": "0.05"
+        },
+        {
+          "asset_id": "JPDEMO011",
+          "weight": "0.05"
+        },
+        {
+          "asset_id": "JPDEMO012",
+          "weight": "0.05"
+        },
+        {
+          "asset_id": "JPDEMO013",
+          "weight": "0.05"
+        },
+        {
+          "asset_id": "JPDEMO014",
+          "weight": "0.05"
+        },
+        {
+          "asset_id": "JPDEMO015",
+          "weight": "0.05"
+        },
+        {
+          "asset_id": "JPDEMO016",
+          "weight": "0.05"
+        },
+        {
+          "asset_id": "JPDEMO017",
+          "weight": "0.05"
+        },
+        {
+          "asset_id": "JPDEMO018",
+          "weight": "0.05"
+        },
+        {
+          "asset_id": "JPDEMO019",
+          "weight": "0.05"
+        }
+      ]
+    },
+    "run": {
+      "schema_version": "0.1.0",
+      "methodology_version": "atlas-jp-fundamental-v1",
+      "action": "run",
+      "is_synthetic": true,
+      "data": {
+        "mode": "executed",
+        "plan": {
+          "connection_id": "fictional_japan",
+          "connector_kind": "json",
+          "method": "cross_sectional",
+          "uses_network": false,
+          "as_of": "2025-04-03T06:30:00+00:00",
+          "lookback": 60,
+          "estimation_universe": "from_connection_not_from_portfolio",
+          "requested_portfolio_assets": [
+            "JPDEMO000",
+            "JPDEMO001",
+            "JPDEMO002",
+            "JPDEMO003",
+            "JPDEMO004",
+            "JPDEMO005",
+            "JPDEMO006",
+            "JPDEMO007",
+            "JPDEMO008",
+            "JPDEMO009",
+            "JPDEMO010",
+            "JPDEMO011",
+            "JPDEMO012",
+            "JPDEMO013",
+            "JPDEMO014",
+            "JPDEMO015",
+            "JPDEMO016",
+            "JPDEMO017",
+            "JPDEMO018",
+            "JPDEMO019"
+          ],
+          "stages": [
+            "read",
+            "normalize",
+            "validate",
+            "import",
+            "fit",
+            "analyze"
+          ]
+        },
+        "model": {
+          "methodology_version": "atlas-jp-fundamental-v1",
+          "method": "cross_sectional",
+          "modeled_return": "total_return",
+          "factor_return_origin": "estimated_cross_sectionally_from_lagged_characteristics",
+          "input_head_id": "d8a578a47ebd1b57d4f646fa9a21761e5a8978f38e3f6d86736b0da73cc49076",
+          "as_of": "2025-04-03T06:30:00+00:00",
+          "is_synthetic": true,
+          "historical_availability": "caller_asserted_unverified",
+          "country": "JP",
+          "currency": "JPY",
+          "industry_classification": "jpx33",
+          "max_session_calendar_days": 14,
+          "max_capitalization_age_calendar_days": 14,
+          "frequency": "daily",
+          "return_convention": "split_and_dividend_adjusted_simple_total_return",
+          "assets": 60,
+          "estimation_sessions": 60,
+          "training_start": "2025-01-09T06:30:00+00:00",
+          "training_end": "2025-04-03T06:30:00+00:00",
+          "factor_order": [
+            "market",
+            "industry:jpx33_1050",
+            "industry:jpx33_3650",
+            "industry:jpx33_5250",
+            "industry:jpx33_7050",
+            "style:size",
+            "style:value",
+            "style:profitability",
+            "style:leverage"
+          ],
+          "styles": [
+            "size",
+            "value",
+            "profitability",
+            "leverage"
+          ],
+          "estimation_options": {
+            "method": "cross_sectional",
+            "lookback": 60,
+            "regression_weights": null,
+            "decay": "0.97",
+            "covariance_shrinkage": "0.15",
+            "specific_shrinkage": "0.20"
+          },
+          "annualization_sessions": 252,
+          "weighting": "WLS objective weight proportional to square root of lagged market cap",
+          "standardization": "5th/95th percentile clipping; WLS-weighted mean and population scale",
+          "effective_covariance_observations": "47.4730462917640825603588443297448409298577",
+          "minimum_relative_pivot": "0.28296897401802155483959937767778370007899",
+          "specific_variance_floor": "0.00000001",
+          "sources": [
+            {
+              "source_id": "fictional",
+              "uri": "https://example.invalid/fictional-risk-observations",
+              "raw_sha256": "48538f2c6b84b49b804eaaa3550be07ba620ebc662c74c46e494b6d071419e78",
+              "retrieved_at": "2025-01-01T06:30:00Z",
+              "usage_basis": "operator_supplied_rights_cleared"
+            }
+          ],
+          "limitations": [
+            "Independent experimental fundamental model; no MSCI/Barra or French numerical inputs.",
+            "Input rights and historical availability are operator assertions, not independently verified.",
+            "A balanced, supplied universe is required; survivorship/selection bias is not corrected.",
+            "No consolidated price feed, security master, delisting engine, ETF look-through or FX risk.",
+            "Each fundamental model uses one local US, JP, KR or GB universe; no country/FX factors.",
+            "Local accounting amounts must be comparable full currency units; no GAAP/IFRS conversion.",
+            "Diagonal specific risk omits residual correlations; no liquidity or trading-cost estimate.",
+            "Annualization is daily variance times 252 with fixed exposures and no serial correlation.",
+            "Synthetic verification does not establish forecast accuracy on real portfolios."
+          ],
+          "input_evidence_id": "53839570073a0efcd770d8f2632e8e06368bafce33bdc8c3e79349c09e308ffd",
+          "model_id": "e63648f778a5374c8ca308d90c72ed5c7d469fe4312252c74c415bb32c1c32a8"
+        },
+        "analysis": {
+          "model_id": "e63648f778a5374c8ca308d90c72ed5c7d469fe4312252c74c415bb32c1c32a8",
+          "as_of": "2025-04-03T06:30:00+00:00",
+          "currency": "JPY",
+          "country": "JP",
+          "industry_classification": "jpx33",
+          "method": "cross_sectional",
+          "modeled_return": "total_return",
+          "portfolio": {
+            "daily_variance": "0.0000228173179912140528001508374289199459081746",
+            "daily_volatility": "0.00477674763737985773027834603329995107541092",
+            "annualized_volatility": "0.0758285179453346648727178880609915307546462",
+            "common_variance": "0.000022780906653639899141674451971451373797284",
+            "specific_variance": "0.0000000364113375741536584763854574685721108906416",
+            "net_weight": "1",
+            "gross_weight": "1",
+            "factor_exposures": {
+              "market": "1",
+              "industry:jpx33_1050": "0.25",
+              "industry:jpx33_3650": "0.25",
+              "industry:jpx33_5250": "0.25",
+              "industry:jpx33_7050": "0.25",
+              "style:size": "-0.169465055919919768908078179946643950728496",
+              "style:value": "-0.131738966230722994969065939064344420753826",
+              "style:profitability": "-0.282661104302119613750431659201289909512091",
+              "style:leverage": "0.216815704207988804284754416653659453349754"
+            },
+            "common_factor_daily_volatility_contributions": {
+              "market": "0.00476085434909455329197263296686380180456517",
+              "industry:jpx33_1050": "-0.00000234153765296265127164787959882482615593267",
+              "industry:jpx33_3650": "0.000028234591629059643275724815869977661894385",
+              "industry:jpx33_5250": "-0.0000393716398755014436115473307743523825859222",
+              "industry:jpx33_7050": "0.0000669310564120388339362363322269833287448313",
+              "style:size": "-0.0000375430395582933271047249002142866104429446",
+              "style:value": "0.0000183576441367770647427642843885888520470063",
+              "style:profitability": "0.00000177297556068857161115181603368631071951975",
+              "style:leverage": "-0.0000277693835176012069445076027918430192325317"
+            },
+            "asset_contributions": [
+              {
+                "asset_id": "JPDEMO000",
+                "weight": "0.05",
+                "daily_volatility_contribution": "0.000257345305979691728892355662297378375532266",
+                "daily_specific_volatility_contribution": "0.00000026221508566999778204046933496525587154577"
+              },
+              {
+                "asset_id": "JPDEMO001",
+                "weight": "0.05",
+                "daily_volatility_contribution": "0.000231441584602183987108757652376392572436961",
+                "daily_specific_volatility_contribution": "0.000000460894464418335014477873243582424799923555"
+              },
+              {
+                "asset_id": "JPDEMO002",
+                "weight": "0.05",
+                "daily_volatility_contribution": "0.000232715306914312066186074402389349791157685",
+                "daily_specific_volatility_contribution": "0.000000433135792987403445858989972509426793392913"
+              },
+              {
+                "asset_id": "JPDEMO003",
+                "weight": "0.05",
+                "daily_volatility_contribution": "0.000240991954144476497120274681276144230639227",
+                "daily_specific_volatility_contribution": "0.000000311108405611285871013324707470508350966741"
+              },
+              {
+                "asset_id": "JPDEMO004",
+                "weight": "0.05",
+                "daily_volatility_contribution": "0.000232318380637446788452490718481742800174141",
+                "daily_specific_volatility_contribution": "0.00000037584074700185247725602076329400342753537"
+              },
+              {
+                "asset_id": "JPDEMO005",
+                "weight": "0.05",
+                "daily_volatility_contribution": "0.000244569378854148983440675047699299679780463",
+                "daily_specific_volatility_contribution": "0.000000419968288358919080140443470706429272310659"
+              },
+              {
+                "asset_id": "JPDEMO006",
+                "weight": "0.05",
+                "daily_volatility_contribution": "0.000254034881168554768224865132982945741468146",
+                "daily_specific_volatility_contribution": "0.00000037772256559491524350672703396251520689475"
+              },
+              {
+                "asset_id": "JPDEMO007",
+                "weight": "0.05",
+                "daily_volatility_contribution": "0.000203848555122954057210381011338771170150961",
+                "daily_specific_volatility_contribution": "0.000000424475751000723847443787859717519961096355"
+              },
+              {
+                "asset_id": "JPDEMO008",
+                "weight": "0.05",
+                "daily_volatility_contribution": "0.000255619589726337463247119033286887860915388",
+                "daily_specific_volatility_contribution": "0.000000320019467459956760769982239248931233475348"
+              },
+              {
+                "asset_id": "JPDEMO009",
+                "weight": "0.05",
+                "daily_volatility_contribution": "0.000221432982825674097976183160652376678946887",
+                "daily_specific_volatility_contribution": "0.000000349458902832467132425652869583594351019919"
+              },
+              {
+                "asset_id": "JPDEMO010",
+                "weight": "0.05",
+                "daily_volatility_contribution": "0.000245615029198059049664667581660115390214697",
+                "daily_specific_volatility_contribution": "0.000000440746799547008857031813927616932302672629"
+              },
+              {
+                "asset_id": "JPDEMO011",
+                "weight": "0.05",
+                "daily_volatility_contribution": "0.000223719605366849555412643532207483449963372",
+                "daily_specific_volatility_contribution": "0.00000031737026054953331810288381991302930196078"
+              },
+              {
+                "asset_id": "JPDEMO012",
+                "weight": "0.05",
+                "daily_volatility_contribution": "0.000242381724185122861660715724786110544163955",
+                "daily_specific_volatility_contribution": "0.000000295370687363865669431446673980144244683144"
+              },
+              {
+                "asset_id": "JPDEMO013",
+                "weight": "0.05",
+                "daily_volatility_contribution": "0.000261628082067306944742862754703577940086553",
+                "daily_specific_volatility_contribution": "0.000000474657197500462845480944250162108941107106"
+              },
+              {
+                "asset_id": "JPDEMO014",
+                "weight": "0.05",
+                "daily_volatility_contribution": "0.000251289796670541132797691844819567303698126",
+                "daily_specific_volatility_contribution": "0.000000344177799210560139183356679457456432706976"
+              },
+              {
+                "asset_id": "JPDEMO015",
+                "weight": "0.05",
+                "daily_volatility_contribution": "0.000237933377101056979534006195173224304202804",
+                "daily_specific_volatility_contribution": "0.000000357924528713171783795541580874992658472179"
+              },
+              {
+                "asset_id": "JPDEMO016",
+                "weight": "0.05",
+                "daily_volatility_contribution": "0.000243421687373862067034063864923216527358192",
+                "daily_specific_volatility_contribution": "0.000000338925802242602357809305378215044816800033"
+              },
+              {
+                "asset_id": "JPDEMO017",
+                "weight": "0.05",
+                "daily_volatility_contribution": "0.000260496463927339705719229548881303936067023",
+                "daily_specific_volatility_contribution": "0.00000042217846197337099291903835486780620589054"
+              },
+              {
+                "asset_id": "JPDEMO018",
+                "weight": "0.05",
+                "daily_volatility_contribution": "0.00021567835602489220520996340687761462748641",
+                "daily_specific_volatility_contribution": "0.000000399474876119973002221314830597362753609547"
+              },
+              {
+                "asset_id": "JPDEMO019",
+                "weight": "0.05",
+                "daily_volatility_contribution": "0.000220265595489046790643325076486448150967667",
+                "daily_specific_volatility_contribution": "0.000000496955266942548051354614305494468931282965"
+              }
+            ]
+          },
+          "benchmark": null,
+          "active": null,
+          "scenario_common_return": null,
+          "limitations": [
+            "Independent experimental fundamental model; no MSCI/Barra or French numerical inputs.",
+            "Input rights and historical availability are operator assertions, not independently verified.",
+            "A balanced, supplied universe is required; survivorship/selection bias is not corrected.",
+            "No consolidated price feed, security master, delisting engine, ETF look-through or FX risk.",
+            "Each fundamental model uses one local US, JP, KR or GB universe; no country/FX factors.",
+            "Local accounting amounts must be comparable full currency units; no GAAP/IFRS conversion.",
+            "Diagonal specific risk omits residual correlations; no liquidity or trading-cost estimate.",
+            "Annualization is daily variance times 252 with fixed exposures and no serial correlation.",
+            "Synthetic verification does not establish forecast accuracy on real portfolios.",
+            "Weights are fractions of NAV, never renormalized; unmodeled cash/financing has zero risk."
+          ]
+        },
+        "input_evidence": {
+          "connection_id": "fictional_japan",
+          "connector_kind": "json",
+          "documents": [
+            {
+              "bytes": 471807,
+              "hash_encoding": "original_bytes",
+              "label": "panel",
+              "sha256": "16c3bd18683f032072964e06e034a6c8784c32045a1e6136b8fc2ac61bc5ba8e"
+            }
+          ],
+          "input_head_id": "d8a578a47ebd1b57d4f646fa9a21761e5a8978f38e3f6d86736b0da73cc49076",
+          "normalization": {
+            "capitalization_basis": "reported cap or unadjusted close times whole reported shares",
+            "contract_version": "0.1.0",
+            "mapping_sha256": "9f2896a523ebd957bb8ca841dd2e433274b213e925baa938cd73093921a081a0",
+            "quote_currency_rule": "not_applicable",
+            "return_formula": "supplied decimal simple returns",
+            "return_input": "returns"
+          },
+          "snapshot_atomic": false,
+          "upstream_rights_and_availability": "caller_asserted_unverified"
+        }
+      }
+    },
+    "holdout": {
+      "schema_version": "0.1.0",
+      "methodology_version": "atlas-jp-fundamental-v1",
+      "action": "validate",
+      "is_synthetic": true,
+      "data": {
+        "model_id": "e63648f778a5374c8ca308d90c72ed5c7d469fe4312252c74c415bb32c1c32a8",
+        "as_of": "2025-04-03T06:30:00+00:00",
+        "validation_head_id": "d8a578a47ebd1b57d4f646fa9a21761e5a8978f38e3f6d86736b0da73cc49076",
+        "currency": "JPY",
+        "country": "JP",
+        "industry_classification": "jpx33",
+        "modeled_return": "total_return",
+        "sessions": 20,
+        "start_at": "2025-04-03T06:30:00+00:00",
+        "end_at": "2025-05-01T06:30:00+00:00",
+        "predicted_daily_variance": "0.0000228173179912140528001508374289199459081746",
+        "realized_daily_sample_variance": "0.0000186365863077971817999993355263157894736841",
+        "historical_portfolio_ewma_baseline_variance": "0.0000225346994191007230345363143859883921433282",
+        "realized_to_model_variance": "0.816773746808161801210765156046500040211796",
+        "realized_to_baseline_variance": "0.82701730168189212125917909820106876361152",
+        "limitations": [
+          "Independent experimental fundamental model; no MSCI/Barra or French numerical inputs.",
+          "Input rights and historical availability are operator assertions, not independently verified.",
+          "A balanced, supplied universe is required; survivorship/selection bias is not corrected.",
+          "No consolidated price feed, security master, delisting engine, ETF look-through or FX risk.",
+          "Each fundamental model uses one local US, JP, KR or GB universe; no country/FX factors.",
+          "Local accounting amounts must be comparable full currency units; no GAAP/IFRS conversion.",
+          "Diagonal specific risk omits residual correlations; no liquidity or trading-cost estimate.",
+          "Annualization is daily variance times 252 with fixed exposures and no serial correlation.",
+          "Synthetic verification does not establish forecast accuracy on real portfolios.",
+          "A single fixed-exposure holdout is descriptive, not a rolling calibration study.",
+          "No automatic pass/fail, alpha claim or forecast accuracy certification."
+        ]
+      }
+    }
+  }
+}

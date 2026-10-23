@@ -2,7 +2,7 @@
 
 Atlas reads operator-supplied JSON, CSV bundles or SQLite tables/views into its own risk schemas. A single `run` request selects a connection ID, estimation method, as-of cutoff and portfolio weights, then reads, normalizes, validates, imports, fits and analyzes. The estimation universe comes from the connection and can be much larger than the portfolio. No external financial framework is required.
 
-This experimental extension is unreleased. It bundles no equity-price feed or verified historical database. Current research snapshots cannot be substituted for historical vintages. See the [risk methodology](risk-model.md) for model assumptions and limits.
+This experimental extension is included in 0.7.0. It bundles no equity-price feed or verified historical database. Current research snapshots cannot be substituted for historical vintages. See the [risk methodology](risk-model.md) for model assumptions and limits.
 
 ## Configure a local input
 

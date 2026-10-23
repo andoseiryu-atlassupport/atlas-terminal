@@ -4,22 +4,25 @@ Connect Atlas Terminal as an MCP server to retrieve free primary-source company 
 
 ## Install a tagged version
 
-Install Python 3.12+, uv and your MCP client. This command installs the v0.6.0 source distribution from GitHub; PyPI publication is not yet available:
+Install Python 3.12+, uv and your MCP client. This command installs the v0.7.0 source distribution from GitHub; PyPI publication is not yet available:
 
 ```sh
-uv tool install 'git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.6.0'
+uv tool install 'git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.7.0'
 atlas research catalog --json
-atlas research preset fx_context --base-currency USD --quote-currency JPY --include fx,us_sofr --provider fixture --json
+atlas showcase research
+atlas showcase japan-risk
 ```
 
 The first installation needs network access. The fixture command then runs without external data requests and returns explicitly fictional values. Use a dedicated private `ATLAS_STATE_DIR` for cache and evidence storage. Atlas reads process environment variables; it does not load `.env` files automatically.
+
+The [research](agent-research-walkthrough.md) and [Japanese risk](japan-risk-walkthrough.md) walkthroughs include recorded output, source/model interpretation and the steps to substitute actual inputs. They use isolated temporary sessions; your regular MCP connection uses the private state configured below.
 
 ## Add the MCP connection in Codex
 
 Use the same environment in which `uv` is available:
 
 ```sh
-codex mcp add atlas-terminal -- uvx --from 'git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.6.0' atlas mcp serve --provider public --research-only
+codex mcp add atlas-terminal -- uvx --from 'git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.7.0' atlas mcp serve --provider public --research-only
 codex mcp list
 ```
 
@@ -30,7 +33,7 @@ For SEC company data, configure `SEC_USER_AGENT` privately with your application
 ```toml
 [mcp_servers.atlas-terminal]
 command = "uvx"
-args = ["--from", "git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.6.0", "atlas", "mcp", "serve", "--provider", "public", "--research-only"]
+args = ["--from", "git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.7.0", "atlas", "mcp", "serve", "--provider", "public", "--research-only"]
 env_vars = ["SEC_USER_AGENT", "ATLAS_STATE_DIR"]
 ```
 

@@ -60,6 +60,9 @@ jobs:
           uv run --offline atlas risk demo --country KR --json > build/evals/fictional-korea-risk-workflow.json
           uv run --offline atlas risk demo --country GB --json > build/evals/fictional-british-risk-workflow.json
           uv run --offline atlas risk demo --method time_series --json > build/evals/fictional-time-series-workflow.json
+          uv run --offline atlas showcase research --json > build/evals/fictional-research-showcase.json
+          uv run --offline atlas showcase japan-risk --json > build/evals/fictional-japan-risk-showcase.json
+          uv run --offline python scripts/verify_showcases.py
       - name: Retain fixture MCP contract report
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:

@@ -1,0 +1,705 @@
+{
+  "schema_version": "1.0.0",
+  "atlas_version": "0.7.0",
+  "status": "PASS",
+  "scope": "executed_workflow_not_source_or_model_accuracy_benchmark",
+  "scenario": "research",
+  "provider": "fixture",
+  "is_synthetic": true,
+  "recorded_at": "2026-10-23T15:18:35.179769+00:00",
+  "transport": "stdio",
+  "mcp_sessions": 1,
+  "server": {
+    "name": "Atlas Terminal",
+    "title": null,
+    "version": "0.7.0",
+    "description": "Free primary-source company financials, US macro indicators and reference FX through one MCP connection, with explicit periods, units and source provenance.",
+    "website_url": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/index.md",
+    "icons": null
+  },
+  "state": "isolated_temporary_removed_on_exit",
+  "llm_used": false,
+  "transfers": false,
+  "steps": [
+    {
+      "tool": "atlas_get_research_preset",
+      "elapsed_ms": 125
+    },
+    {
+      "tool": "atlas_get_evidence",
+      "evidence_id": "2c2bde6ee8b58ed8b04ddc69767d3b2f00e76b114930bb49ed4ce8e0444a95b1"
+    },
+    {
+      "tool": "atlas_get_evidence",
+      "evidence_id": "68991bff52c202a08020fd44a0a1b6a2dbb1a0b9c8d3437df3dc06f443229a68"
+    },
+    {
+      "tool": "atlas_get_evidence",
+      "evidence_id": "910a2aff117770930f7862ae034fdef5fe20723b49802aea188ef802b913d86c"
+    },
+    {
+      "tool": "atlas_get_evidence",
+      "evidence_id": "98b24d16b1206324aa6d09f0eab013c2399757958ba63e3a3b9131ae852bdff4"
+    },
+    {
+      "tool": "atlas_get_evidence",
+      "evidence_id": "a96719e6b8540fc8afad836d98702c467c6f73e460d537835ad61a8c5455b87e"
+    },
+    {
+      "tool": "atlas_get_evidence",
+      "evidence_id": "c8bd0662041e2f20290eabc4ac4dde61699e6d15fc89f3564ec7c9f680a76938"
+    },
+    {
+      "tool": "atlas_get_evidence",
+      "evidence_id": "d4676a0901f3b89227a3868e21dd865f0a8fa4016e184b0d4db1f7a6c9d876df"
+    },
+    {
+      "tool": "atlas_get_evidence",
+      "evidence_id": "dec01887bba1ba077943b01bbe87abedbd9ef8256bafa5c53bdc98a8e455b1cb"
+    },
+    {
+      "tool": "atlas_get_evidence",
+      "evidence_id": "f76226fb31cce6d56aed89ae925272954ec1a8f5bd9229832b045c2193f8be4f"
+    }
+  ],
+  "result": {
+    "query": {
+      "preset": "fx_context",
+      "base_currency": "USD",
+      "quote_currency": "JPY",
+      "include": [
+        "fx",
+        "us_sofr"
+      ],
+      "view": "compact"
+    },
+    "preset": {
+      "schema_version": "0.2.0",
+      "mode": "executed",
+      "status": "ok",
+      "generated_at": "2026-10-23T15:18:34.881981Z",
+      "is_synthetic": true,
+      "upstream_data_cost": "0",
+      "requires_wallet": false,
+      "point_in_time": false,
+      "atomic_snapshot": false,
+      "source_text_is_untrusted": true,
+      "plan": {
+        "preset": "fx_context",
+        "items": [
+          {
+            "id": "fx",
+            "source_ids": [
+              "ecb"
+            ],
+            "query": {
+              "dataset": "fx_rates",
+              "limit": 5,
+              "base_currency": "USD",
+              "quote_currency": "JPY",
+              "requirements": {},
+              "response": {
+                "view": "compact"
+              }
+            }
+          },
+          {
+            "id": "us_sofr",
+            "source_ids": [
+              "new_york_fed"
+            ],
+            "query": {
+              "dataset": "reference_rates",
+              "series": "sofr",
+              "limit": 1,
+              "requirements": {},
+              "response": {
+                "view": "compact"
+              }
+            }
+          }
+        ],
+        "excluded_items": [
+          "us_cpi",
+          "us_treasury_yields",
+          "us_effr"
+        ],
+        "year_basis": null,
+        "execution": "sequential_independent_reads"
+      },
+      "overview": [
+        {
+          "id": "fx",
+          "dataset": "fx_rates",
+          "source_ids": [
+            "ecb"
+          ],
+          "cadence_and_limits": {
+            "ecb": "European working-day reference observations; full published XML history, currency-specific start/end dates and no holiday filling."
+          },
+          "availability": "partial",
+          "is_synthetic": true,
+          "returned_records": 3,
+          "usable_records": 2,
+          "units": [
+            "JPY_per_USD"
+          ],
+          "observation_dates": {
+            "earliest": "2026-10-16",
+            "latest": "2026-10-19"
+          },
+          "publication_times": {
+            "earliest": null,
+            "latest": null
+          },
+          "publication_time_known_records": 0,
+          "publication_time_unknown_records": 3,
+          "source_retrieval_times": {
+            "earliest": "2026-10-20T00:00:00Z",
+            "latest": "2026-10-20T00:00:00Z"
+          },
+          "quality": {
+            "evaluated_at": "2026-10-23T15:18:34.878133Z",
+            "scope": "complete_selected_result",
+            "oldest_source_retrieved_at": "2026-10-20T00:00:00Z",
+            "newest_source_retrieved_at": "2026-10-20T00:00:00Z",
+            "max_source_age_seconds": 314315,
+            "latest_observation_date": "2026-10-19",
+            "missing_value_count": 2,
+            "derived_record_count": 3,
+            "partial_coverage": false,
+            "truncated": false,
+            "meets_requirements": true,
+            "checks": []
+          },
+          "error_code": null
+        },
+        {
+          "id": "us_sofr",
+          "dataset": "reference_rates",
+          "source_ids": [
+            "new_york_fed"
+          ],
+          "cadence_and_limits": {
+            "new_york_fed": "Business-day effective observations with possible revisions; last 90 observations for EFFR or SOFR."
+          },
+          "availability": "available",
+          "is_synthetic": true,
+          "returned_records": 1,
+          "usable_records": 1,
+          "units": [
+            "percent_per_annum"
+          ],
+          "observation_dates": {
+            "earliest": "2026-10-19",
+            "latest": "2026-10-19"
+          },
+          "publication_times": {
+            "earliest": null,
+            "latest": null
+          },
+          "publication_time_known_records": 0,
+          "publication_time_unknown_records": 1,
+          "source_retrieval_times": {
+            "earliest": "2026-10-20T00:00:00Z",
+            "latest": "2026-10-20T00:00:00Z"
+          },
+          "quality": {
+            "evaluated_at": "2026-10-23T15:18:34.880957Z",
+            "scope": "complete_selected_result",
+            "oldest_source_retrieved_at": "2026-10-20T00:00:00Z",
+            "newest_source_retrieved_at": "2026-10-20T00:00:00Z",
+            "max_source_age_seconds": 314315,
+            "latest_observation_date": "2026-10-19",
+            "missing_value_count": 0,
+            "derived_record_count": 0,
+            "partial_coverage": false,
+            "truncated": true,
+            "meets_requirements": true,
+            "checks": []
+          },
+          "error_code": null
+        }
+      ],
+      "batch": {
+        "schema_version": "0.2.0",
+        "status": "ok",
+        "execution": "sequential_independent_reads",
+        "upstream_data_cost": "0",
+        "requires_wallet": false,
+        "items": [
+          {
+            "id": "fx",
+            "status": "ok",
+            "result": {
+              "schema_version": "0.2.0",
+              "dataset": "fx_rates",
+              "query": {
+                "dataset": "fx_rates",
+                "limit": 5,
+                "base_currency": "USD",
+                "quote_currency": "JPY",
+                "requirements": {}
+              },
+              "source_id": "ecb",
+              "source_terms_url": "https://www.ecb.europa.eu/services/using-our-site/disclaimer/html/index.en.html",
+              "documentation": {
+                "guide": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/macro.md",
+                "methodology": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/macro.md",
+                "sources_and_terms": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/DATA_SOURCES.md",
+                "citation_guidance": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/citations.md"
+              },
+              "upstream_data_cost": "0",
+              "is_synthetic": true,
+              "source_text_is_untrusted": true,
+              "retrieved_at": "2026-10-20T00:00:00Z",
+              "attributions": [
+                {
+                  "source_id": "ecb",
+                  "notice": "Source: European Central Bank.",
+                  "terms_url": "https://www.ecb.europa.eu/services/using-our-site/disclaimer/html/index.en.html",
+                  "modifications": "Field normalization by Atlas Terminal; inverse/cross rates are explicitly derived, not ECB-published cross quotes."
+                }
+              ],
+              "records": [
+                {
+                  "base_currency": "USD",
+                  "quote_currency": "JPY",
+                  "date": "2026-10-19",
+                  "value": "120",
+                  "unit": "JPY_per_USD",
+                  "quote_convention": "quote_currency_per_one_base_currency",
+                  "rate_type": "reference",
+                  "frequency": "business_daily",
+                  "published_at": null,
+                  "derived": true,
+                  "status": "derived",
+                  "reason": null,
+                  "formula": "quote_per_EUR / base_per_EUR",
+                  "decimal_precision": 28,
+                  "rounding": "ROUND_HALF_EVEN",
+                  "inputs": [
+                    {
+                      "base_currency": "EUR",
+                      "quote_currency": "USD",
+                      "date": "2026-10-19",
+                      "value": "1.2500",
+                      "unit": "USD_per_EUR",
+                      "status": "reported",
+                      "rate_type": "reference",
+                      "published_at": null,
+                      "source": {
+                        "evidence_id": "f76226fb31cce6d56aed89ae925272954ec1a8f5bd9229832b045c2193f8be4f"
+                      },
+                      "role": "base_per_EUR"
+                    },
+                    {
+                      "base_currency": "EUR",
+                      "quote_currency": "JPY",
+                      "date": "2026-10-19",
+                      "value": "150.00",
+                      "unit": "JPY_per_EUR",
+                      "status": "reported",
+                      "rate_type": "reference",
+                      "published_at": null,
+                      "source": {
+                        "evidence_id": "68991bff52c202a08020fd44a0a1b6a2dbb1a0b9c8d3437df3dc06f443229a68"
+                      },
+                      "role": "quote_per_EUR"
+                    }
+                  ],
+                  "source": null
+                },
+                {
+                  "base_currency": "USD",
+                  "quote_currency": "JPY",
+                  "date": "2026-10-16",
+                  "value": "120",
+                  "unit": "JPY_per_USD",
+                  "quote_convention": "quote_currency_per_one_base_currency",
+                  "rate_type": "reference",
+                  "frequency": "business_daily",
+                  "published_at": null,
+                  "derived": true,
+                  "status": "derived",
+                  "reason": null,
+                  "formula": "quote_per_EUR / base_per_EUR",
+                  "decimal_precision": 28,
+                  "rounding": "ROUND_HALF_EVEN",
+                  "inputs": [
+                    {
+                      "base_currency": "EUR",
+                      "quote_currency": "USD",
+                      "date": "2026-10-16",
+                      "value": "1.2000",
+                      "unit": "USD_per_EUR",
+                      "status": "reported",
+                      "rate_type": "reference",
+                      "published_at": null,
+                      "source": {
+                        "evidence_id": "98b24d16b1206324aa6d09f0eab013c2399757958ba63e3a3b9131ae852bdff4"
+                      },
+                      "role": "base_per_EUR"
+                    },
+                    {
+                      "base_currency": "EUR",
+                      "quote_currency": "JPY",
+                      "date": "2026-10-16",
+                      "value": "144.00",
+                      "unit": "JPY_per_EUR",
+                      "status": "reported",
+                      "rate_type": "reference",
+                      "published_at": null,
+                      "source": {
+                        "evidence_id": "d4676a0901f3b89227a3868e21dd865f0a8fa4016e184b0d4db1f7a6c9d876df"
+                      },
+                      "role": "quote_per_EUR"
+                    }
+                  ],
+                  "source": null
+                },
+                {
+                  "base_currency": "USD",
+                  "quote_currency": "JPY",
+                  "date": "2026-10-15",
+                  "value": null,
+                  "unit": "JPY_per_USD",
+                  "quote_convention": "quote_currency_per_one_base_currency",
+                  "rate_type": "reference",
+                  "frequency": "business_daily",
+                  "published_at": null,
+                  "derived": true,
+                  "status": "unavailable",
+                  "reason": "Missing same-date reference input; no fill or date mixing.",
+                  "formula": "quote_per_EUR / base_per_EUR",
+                  "decimal_precision": 28,
+                  "rounding": "ROUND_HALF_EVEN",
+                  "inputs": [
+                    {
+                      "base_currency": "EUR",
+                      "quote_currency": "USD",
+                      "date": "2026-10-15",
+                      "value": null,
+                      "unit": "USD_per_EUR",
+                      "status": "unavailable",
+                      "reason": "Currency absent from this ECB date.",
+                      "rate_type": "reference",
+                      "published_at": null,
+                      "source": {
+                        "evidence_id": "dec01887bba1ba077943b01bbe87abedbd9ef8256bafa5c53bdc98a8e455b1cb"
+                      },
+                      "role": "base_per_EUR"
+                    },
+                    {
+                      "base_currency": "EUR",
+                      "quote_currency": "JPY",
+                      "date": "2026-10-15",
+                      "value": "143.00",
+                      "unit": "JPY_per_EUR",
+                      "status": "reported",
+                      "rate_type": "reference",
+                      "published_at": null,
+                      "source": {
+                        "evidence_id": "c8bd0662041e2f20290eabc4ac4dde61699e6d15fc89f3564ec7c9f680a76938"
+                      },
+                      "role": "quote_per_EUR"
+                    }
+                  ],
+                  "source": null
+                }
+              ],
+              "sources": [
+                {
+                  "evidence_id": "2c2bde6ee8b58ed8b04ddc69767d3b2f00e76b114930bb49ed4ce8e0444a95b1"
+                }
+              ],
+              "coverage": {
+                "observed_records": 3,
+                "returned_records": 3,
+                "truncated": false,
+                "upstream_window_limited": true,
+                "upstream_window": "ECB full published reference history, filtered by inclusive observation dates",
+                "unavailable_records": 1,
+                "requested_start_date": null,
+                "requested_end_date": null,
+                "first_observation_date": "2026-10-15",
+                "last_observation_date": "2026-10-19",
+                "date_selection": "inclusive_observation_period_end",
+                "point_in_time": false
+              },
+              "limitations": [
+                "ECB information-purpose daily reference fixing, not real-time, bid/ask or executable FX quotes.",
+                "Coverage starts and ends separately for each currency; absent currencies/dates are not filled.",
+                "Cross and inverse rates are Atlas calculations using inputs from the same ECB date.",
+                "Current/revised source snapshots do not establish point-in-time historical availability.",
+                "Free public sources have upstream limits and no completeness or latency guarantee.",
+                "All companies, identifiers, observations and amounts in this fixture are fictional."
+              ],
+              "quality": {
+                "evaluated_at": "2026-10-23T15:18:34.878133Z",
+                "scope": "complete_selected_result",
+                "oldest_source_retrieved_at": "2026-10-20T00:00:00Z",
+                "newest_source_retrieved_at": "2026-10-20T00:00:00Z",
+                "max_source_age_seconds": 314315,
+                "latest_observation_date": "2026-10-19",
+                "missing_value_count": 2,
+                "derived_record_count": 3,
+                "partial_coverage": false,
+                "truncated": false,
+                "meets_requirements": true,
+                "checks": []
+              },
+              "response": {
+                "view": "compact",
+                "fields": [],
+                "snapshot_id": "19019f71f8e801a2ba9e562ff4b434e63ba224405f09e780f7ad5cc6aa3dfbfa",
+                "result_sha256": "121fd5fda5c0f316fab87efe8e39c7f3e2b3bb52772ae02d23dfc514a49dda18",
+                "expires_at": "2026-10-24T15:18:34.879093Z",
+                "total_records": 3,
+                "returned_records": 3,
+                "offset": 0,
+                "page_size": null,
+                "next_cursor": null,
+                "evidence_count": 7
+              }
+            }
+          },
+          {
+            "id": "us_sofr",
+            "status": "ok",
+            "result": {
+              "schema_version": "0.2.0",
+              "dataset": "reference_rates",
+              "query": {
+                "dataset": "reference_rates",
+                "limit": 1,
+                "series": "sofr",
+                "requirements": {}
+              },
+              "source_id": "new_york_fed",
+              "source_terms_url": "https://www.newyorkfed.org/privacy/termsofuse",
+              "documentation": {
+                "guide": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/macro.md",
+                "methodology": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/macro.md",
+                "sources_and_terms": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/DATA_SOURCES.md",
+                "citation_guidance": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/citations.md"
+              },
+              "upstream_data_cost": "0",
+              "is_synthetic": true,
+              "source_text_is_untrusted": true,
+              "retrieved_at": "2026-10-20T00:00:00Z",
+              "attributions": [
+                {
+                  "source_id": "new_york_fed",
+                  "terms_url": "https://www.newyorkfed.org/privacy/termsofuse",
+                  "copyright": "\u00a9 2026 Federal Reserve Bank of New York. Content from the New York Fed subject to the Terms of Use at newyorkfed.org.",
+                  "notice": "The SOFR data is subject to the Terms of Use posted at newyorkfed.org. The New York Fed is not responsible for publication of the SOFR data by Atlas Terminal, does not sanction or endorse any particular republication, and has no liability for your use.",
+                  "disclaimer": "Atlas Terminal is not affiliated with the New York Fed. The New York Fed does not sanction, endorse, or recommend any products or services offered by Atlas Terminal.",
+                  "modifications": "Field names and numeric representation normalized; reference-rate values are unchanged."
+                }
+              ],
+              "records": [
+                {
+                  "series": "sofr",
+                  "source_series": "SOFR",
+                  "date": "2026-10-19",
+                  "value": "1.30",
+                  "unit": "percent_per_annum",
+                  "rate_type": "overnight_secured",
+                  "status": "reported",
+                  "frequency": "business_daily",
+                  "published_at": null,
+                  "revision_indicator": "",
+                  "source": {
+                    "evidence_id": "a96719e6b8540fc8afad836d98702c467c6f73e460d537835ad61a8c5455b87e"
+                  }
+                }
+              ],
+              "sources": [
+                {
+                  "evidence_id": "910a2aff117770930f7862ae034fdef5fe20723b49802aea188ef802b913d86c"
+                }
+              ],
+              "coverage": {
+                "observed_records": 2,
+                "returned_records": 1,
+                "truncated": true,
+                "upstream_window_limited": true,
+                "upstream_window": "New York Fed last 90 observations",
+                "unavailable_records": 0
+              },
+              "limitations": [
+                "Effective date is the observation date, not a publication timestamp.",
+                "Rates can be revised; current response is not a release-time vintage.",
+                "New York Fed overnight SOFR is distinct from forward-looking Term SOFR.",
+                "Current/revised source snapshots do not establish point-in-time historical availability.",
+                "Free public sources have upstream limits and no completeness or latency guarantee.",
+                "All companies, identifiers, observations and amounts in this fixture are fictional."
+              ],
+              "quality": {
+                "evaluated_at": "2026-10-23T15:18:34.880957Z",
+                "scope": "complete_selected_result",
+                "oldest_source_retrieved_at": "2026-10-20T00:00:00Z",
+                "newest_source_retrieved_at": "2026-10-20T00:00:00Z",
+                "max_source_age_seconds": 314315,
+                "latest_observation_date": "2026-10-19",
+                "missing_value_count": 0,
+                "derived_record_count": 0,
+                "partial_coverage": false,
+                "truncated": true,
+                "meets_requirements": true,
+                "checks": []
+              },
+              "response": {
+                "view": "compact",
+                "fields": [],
+                "snapshot_id": "e6093889c5e5abbb0c80bf0f3467a73856ff1475d525e8911f1245e07dbd440a",
+                "result_sha256": "1f1a97a15642833bfeee24a78a32633a53018814ae4ec5aa71489cc45c2532db",
+                "expires_at": "2026-10-24T15:18:34.881026Z",
+                "total_records": 1,
+                "returned_records": 1,
+                "offset": 0,
+                "page_size": null,
+                "next_cursor": null,
+                "evidence_count": 2
+              }
+            }
+          }
+        ],
+        "summary": {
+          "requested": 2,
+          "successful": 2,
+          "failed": 0,
+          "retryable_read_ids": []
+        }
+      },
+      "limitations": [
+        "Independent reads do not establish an atomic snapshot or historical availability.",
+        "Observation periods, publication times and source retrieval times are distinct.",
+        "Overview dates cover usable rows; BLS month/year dates are calendar period ends.",
+        "Absent publication times stay unknown; no release/holiday calendar is inferred.",
+        "Inspect overview and each item's coverage even when every read succeeds.",
+        "FX context is US context, not a complete macro profile for either currency."
+      ]
+    },
+    "evidence": {
+      "2c2bde6ee8b58ed8b04ddc69767d3b2f00e76b114930bb49ed4ce8e0444a95b1": {
+        "schema_version": "0.2.0",
+        "evidence_id": "2c2bde6ee8b58ed8b04ddc69767d3b2f00e76b114930bb49ed4ce8e0444a95b1",
+        "evidence": {
+          "raw_source_url": "https://fixtures.atlas.invalid/research/fx.xml",
+          "raw_sha256": "b055bd061583edd1d1a7aef7a79724f96ba7a90c55207ee87834c91352ebc072",
+          "retrieved_at": "2026-10-20T00:00:00Z",
+          "json_pointer": null,
+          "xml_local_path": "/Envelope/Cube"
+        },
+        "expires_at": "2026-10-24T15:18:34.879093Z",
+        "source_text_is_untrusted": true
+      },
+      "68991bff52c202a08020fd44a0a1b6a2dbb1a0b9c8d3437df3dc06f443229a68": {
+        "schema_version": "0.2.0",
+        "evidence_id": "68991bff52c202a08020fd44a0a1b6a2dbb1a0b9c8d3437df3dc06f443229a68",
+        "evidence": {
+          "raw_source_url": "https://fixtures.atlas.invalid/research/fx.xml",
+          "raw_sha256": "b055bd061583edd1d1a7aef7a79724f96ba7a90c55207ee87834c91352ebc072",
+          "retrieved_at": "2026-10-20T00:00:00Z",
+          "json_pointer": null,
+          "xml_local_path": "/Envelope/Cube/Cube[1]/Cube[2]/@rate"
+        },
+        "expires_at": "2026-10-24T15:18:34.879093Z",
+        "source_text_is_untrusted": true
+      },
+      "910a2aff117770930f7862ae034fdef5fe20723b49802aea188ef802b913d86c": {
+        "schema_version": "0.2.0",
+        "evidence_id": "910a2aff117770930f7862ae034fdef5fe20723b49802aea188ef802b913d86c",
+        "evidence": {
+          "raw_source_url": "https://fixtures.atlas.invalid/research/sofr.json",
+          "raw_sha256": "74b53398b0085977c4827ec48d0f652ef8e38581ce71c8adfc60184ad9d84f95",
+          "retrieved_at": "2026-10-20T00:00:00Z",
+          "json_pointer": "",
+          "xml_local_path": null
+        },
+        "expires_at": "2026-10-24T15:18:34.881026Z",
+        "source_text_is_untrusted": true
+      },
+      "98b24d16b1206324aa6d09f0eab013c2399757958ba63e3a3b9131ae852bdff4": {
+        "schema_version": "0.2.0",
+        "evidence_id": "98b24d16b1206324aa6d09f0eab013c2399757958ba63e3a3b9131ae852bdff4",
+        "evidence": {
+          "raw_source_url": "https://fixtures.atlas.invalid/research/fx.xml",
+          "raw_sha256": "b055bd061583edd1d1a7aef7a79724f96ba7a90c55207ee87834c91352ebc072",
+          "retrieved_at": "2026-10-20T00:00:00Z",
+          "json_pointer": null,
+          "xml_local_path": "/Envelope/Cube/Cube[2]/Cube[1]/@rate"
+        },
+        "expires_at": "2026-10-24T15:18:34.879093Z",
+        "source_text_is_untrusted": true
+      },
+      "a96719e6b8540fc8afad836d98702c467c6f73e460d537835ad61a8c5455b87e": {
+        "schema_version": "0.2.0",
+        "evidence_id": "a96719e6b8540fc8afad836d98702c467c6f73e460d537835ad61a8c5455b87e",
+        "evidence": {
+          "raw_source_url": "https://fixtures.atlas.invalid/research/sofr.json",
+          "raw_sha256": "74b53398b0085977c4827ec48d0f652ef8e38581ce71c8adfc60184ad9d84f95",
+          "retrieved_at": "2026-10-20T00:00:00Z",
+          "json_pointer": "/refRates/0/percentRate",
+          "xml_local_path": null
+        },
+        "expires_at": "2026-10-24T15:18:34.881026Z",
+        "source_text_is_untrusted": true
+      },
+      "c8bd0662041e2f20290eabc4ac4dde61699e6d15fc89f3564ec7c9f680a76938": {
+        "schema_version": "0.2.0",
+        "evidence_id": "c8bd0662041e2f20290eabc4ac4dde61699e6d15fc89f3564ec7c9f680a76938",
+        "evidence": {
+          "raw_source_url": "https://fixtures.atlas.invalid/research/fx.xml",
+          "raw_sha256": "b055bd061583edd1d1a7aef7a79724f96ba7a90c55207ee87834c91352ebc072",
+          "retrieved_at": "2026-10-20T00:00:00Z",
+          "json_pointer": null,
+          "xml_local_path": "/Envelope/Cube/Cube[3]/Cube[1]/@rate"
+        },
+        "expires_at": "2026-10-24T15:18:34.879093Z",
+        "source_text_is_untrusted": true
+      },
+      "d4676a0901f3b89227a3868e21dd865f0a8fa4016e184b0d4db1f7a6c9d876df": {
+        "schema_version": "0.2.0",
+        "evidence_id": "d4676a0901f3b89227a3868e21dd865f0a8fa4016e184b0d4db1f7a6c9d876df",
+        "evidence": {
+          "raw_source_url": "https://fixtures.atlas.invalid/research/fx.xml",
+          "raw_sha256": "b055bd061583edd1d1a7aef7a79724f96ba7a90c55207ee87834c91352ebc072",
+          "retrieved_at": "2026-10-20T00:00:00Z",
+          "json_pointer": null,
+          "xml_local_path": "/Envelope/Cube/Cube[2]/Cube[2]/@rate"
+        },
+        "expires_at": "2026-10-24T15:18:34.879093Z",
+        "source_text_is_untrusted": true
+      },
+      "dec01887bba1ba077943b01bbe87abedbd9ef8256bafa5c53bdc98a8e455b1cb": {
+        "schema_version": "0.2.0",
+        "evidence_id": "dec01887bba1ba077943b01bbe87abedbd9ef8256bafa5c53bdc98a8e455b1cb",
+        "evidence": {
+          "raw_source_url": "https://fixtures.atlas.invalid/research/fx.xml",
+          "raw_sha256": "b055bd061583edd1d1a7aef7a79724f96ba7a90c55207ee87834c91352ebc072",
+          "retrieved_at": "2026-10-20T00:00:00Z",
+          "json_pointer": null,
+          "xml_local_path": "/Envelope/Cube/Cube[3]"
+        },
+        "expires_at": "2026-10-24T15:18:34.879093Z",
+        "source_text_is_untrusted": true
+      },
+      "f76226fb31cce6d56aed89ae925272954ec1a8f5bd9229832b045c2193f8be4f": {
+        "schema_version": "0.2.0",
+        "evidence_id": "f76226fb31cce6d56aed89ae925272954ec1a8f5bd9229832b045c2193f8be4f",
+        "evidence": {
+          "raw_source_url": "https://fixtures.atlas.invalid/research/fx.xml",
+          "raw_sha256": "b055bd061583edd1d1a7aef7a79724f96ba7a90c55207ee87834c91352ebc072",
+          "retrieved_at": "2026-10-20T00:00:00Z",
+          "json_pointer": null,
+          "xml_local_path": "/Envelope/Cube/Cube[1]/Cube[1]/@rate"
+        },
+        "expires_at": "2026-10-24T15:18:34.879093Z",
+        "source_text_is_untrusted": true
+      }
+    }
+  }
+}

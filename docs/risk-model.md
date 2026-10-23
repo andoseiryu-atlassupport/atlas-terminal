@@ -1,6 +1,6 @@
 # Native factor risk models
 
-Atlas includes two independent experimental estimators: fundamental cross-sectional regression and observed-factor time-series regression. Both produce exposures, factor covariance and specific variances for portfolio volatility, common/specific risk, contributions, tracking error and factor shocks. The extension is unreleased. It uses no MSCI/Barra model files or Fama–French factor-return downloads and makes no claim of numerical equivalence to either vendor.
+Atlas includes two independent experimental estimators: fundamental cross-sectional regression and observed-factor time-series regression. Both produce exposures, factor covariance and specific variances for portfolio volatility, common/specific risk, contributions, tracking error and factor shocks. The extension is included in 0.7.0. It uses no MSCI/Barra model files or Fama–French factor-return downloads and makes no claim of numerical equivalence to either vendor.
 
 The same deterministic service is available through the Python SDK, CLI, optional MCP tool and optional reference HTTP route. [Native JSON, CSV and SQLite inputs](data-connections.md) support one-call read/normalize/validate/fit/analyze. There is no price subscription, external model API, LLM or payment dependency. **Atlas does not supply an equity price feed or a verified historical fundamental database.** Bring observations whose use you are authorized to permit, including any derived-output use.
 

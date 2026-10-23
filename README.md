@@ -6,9 +6,26 @@
 
 Atlas Terminal gives AI agents company financials, US/Japan macro indicators and reference FX through one MCP connection, using free public primary sources. The same retrieval, calculation and evidence services are available through a CLI, Python SDK and HTTP API.
 
-Optional [native factor risk models](docs/risk-model.md) support fundamental cross-sectional estimation for [US, Japanese, Korean and British stocks](docs/equity-markets.md) in local currency, plus observed-factor time-series regression. Named [JSON, CSV and SQLite connections](docs/data-connections.md) let one SDK/CLI/MCP call read supplied observations, validate, fit and analyze a portfolio. Try `uv run --offline atlas risk demo --json`, add `--country JP` / `--country KR` / `--country GB`, or use `--method time_series` from a source checkout. The extension is experimental and unreleased; equity prices and verified historical vintages are not included.
+Optional [native factor risk models](docs/risk-model.md) analyze supplied [US, Japanese, Korean and British stock histories](docs/equity-markets.md). One request reads a named JSON, CSV or SQLite connection, validates inputs, fits a cross-sectional or time-series model and analyzes a portfolio. The models are experimental; equity prices and verified historical vintages are not included.
 
 [Documentation website](https://atlas-terminal-docs.citrus-genet-7815.chatgpt.site) · [Connect Codex](docs/codex.md) · [Reproducible examples](docs/research-examples.md) · [Capabilities](IMPLEMENTATION_STATUS.md) · [Data sources](DATA_SOURCES.md)
+
+## Try two complete workflows
+
+Use Python 3.12+ and [uv](https://docs.astral.sh/uv/):
+
+```sh
+uv tool install 'git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.7.0'
+atlas showcase research
+atlas showcase japan-risk
+```
+
+Both commands use an actual official MCP client connection with **fictional data**, no data account, wallet or LLM. They run from the installed package. Add `--json` to inspect complete queries, calculations and resolved evidence. The walkthroughs use temporary state; embedded reports remain readable after their session ends.
+
+- [Rates and FX walkthrough, 60-second replay and recorded evidence](docs/agent-research-walkthrough.md).
+- [Japanese portfolio walkthrough, 60-second replay and recorded model output](docs/japan-risk-walkthrough.md).
+
+Run `atlas showcase research --provider public --allow-network` for actual ECB/New York Fed reads from a host permitted to reach those sources. Risk analysis of your own portfolio requires a broader estimation universe and rights-cleared histories; the fictional walkthrough does not download equity prices.
 
 ## Available data
 
@@ -34,14 +51,7 @@ Series search filters registered macro/FX templates by text, country, frequency,
 
 ## Get started
 
-Use Python 3.12+ and [uv](https://docs.astral.sh/uv/). Install the tagged GitHub source distribution; the package is not yet published on PyPI:
-
-```sh
-uv tool install 'git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.6.0'
-atlas research preset fx_context --base-currency USD --quote-currency JPY --include fx,us_sofr --provider fixture --json
-```
-
-Or work in a cloned repository:
+The package is available from versioned GitHub releases and is not yet published on PyPI. To work in a cloned repository:
 
 ```sh
 uv sync --locked

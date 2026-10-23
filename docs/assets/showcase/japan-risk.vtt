@@ -1,0 +1,66 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:10.000
+atlas showcase japan-risk
+
+Atlas Terminal 0.7.0 | japan-risk
+FICTIONAL DATA - not market observations
+Official MCP client | one stdio session | no LLM | no payment
+
+Recorded JSON rendered as a paced replay.
+Playback duration is not execution time.
+
+00:00:10.000 --> 00:00:20.000
+atlas showcase japan-risk
+
+Atlas Terminal 0.7.0 | japan-risk
+FICTIONAL DATA - not market observations
+Official MCP client | one stdio session | no LLM | no payment
+
+Market: JP / JPY / jpx33
+Estimation universe: 60 fictional stocks; holdings: 20
+
+00:00:20.000 --> 00:00:30.000
+atlas showcase japan-risk
+
+Market: JP / JPY / jpx33
+Estimation universe: 60 fictional stocks; holdings: 20
+Estimation sessions: 60; factors: 9
+Annualized volatility (decimal return):
+0.0758285179453346648727178880609915307546462
+Style exposures (standardized model units):
+  style:size: -0.169465
+
+00:00:30.000 --> 00:00:40.000
+atlas showcase japan-risk
+
+Annualized volatility (decimal return):
+0.0758285179453346648727178880609915307546462
+Style exposures (standardized model units):
+  style:size: -0.169465
+  style:value: -0.131739
+  style:profitability: -0.282661
+  style:leverage: 0.216816
+
+00:00:40.000 --> 00:00:50.000
+atlas showcase japan-risk
+
+  style:value: -0.131739
+  style:profitability: -0.282661
+  style:leverage: 0.216816
+A subsequent holdout was evaluated; synthetic results do not measure market
+accuracy.
+Bring a broad estimation universe and rights-cleared history for your own
+portfolio.
+
+PASS | Re-run with --json for complete queries, results and evidence.
+
+00:00:50.000 --> 00:01:00.000
+atlas showcase japan-risk --json
+
+Complete queries, results and evidence are in the JSON report.
+
+Research: add --provider public --allow-network for actual source reads.
+Japan risk: supply your own licensed histories and a broad estimation universe.
+
+FICTIONAL DATA | Experimental risk methods | No market accuracy claim

@@ -1,0 +1,47 @@
+name: First-run feedback
+description: Report whether you completed an installed research or portfolio-risk walkthrough.
+title: "First run: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Try `atlas showcase research` or `atlas showcase japan-risk`, then describe the result.
+        Share only redacted diagnostics. Keep contact settings, credentials, local paths and portfolio inputs private.
+  - type: input
+    id: version
+    attributes:
+      label: Atlas version and installation method
+      placeholder: "0.7.0; tagged GitHub install with uv"
+    validations:
+      required: true
+  - type: dropdown
+    id: workflow
+    attributes:
+      label: Workflow
+      options:
+        - Research showcase with fictional data
+        - Japanese risk showcase with fictional data
+        - Research with actual public sources
+        - Risk with my own supplied data
+        - Connection to my own agent
+    validations:
+      required: true
+  - type: dropdown
+    id: outcome
+    attributes:
+      label: Outcome
+      options:
+        - Completed and understood the output
+        - Completed but the output was unclear
+        - Installation failed
+        - Execution or connection failed
+        - Stopped because an input or capability was missing
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: What happened?
+      description: Include OS, Python version, the command and a redacted error code when relevant. Explain the task you were trying to complete.
+    validations:
+      required: true

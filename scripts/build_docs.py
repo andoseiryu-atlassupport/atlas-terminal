@@ -162,6 +162,18 @@ def build(
                     )
                     + suffix
                 )
+            if resolved.startswith("docs/assets/showcase/"):
+                asset = ROOT / resolved
+                if (
+                    asset.suffix in {".json", ".txt", ".mp4", ".vtt"}
+                    and asset.is_file()
+                    and asset.resolve().is_relative_to(ROOT)
+                ):
+                    relative = resolved.removeprefix("docs/")
+                    destination = directory / relative
+                    destination.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copyfile(asset, destination)
+                    return posixpath.relpath(relative, posixpath.dirname(output) or ".") + suffix
             if (
                 resolved.startswith(("schemas/", "examples/", "evals/"))
                 or (resolved.startswith("docs/") and resolved.endswith(".json"))
@@ -187,6 +199,25 @@ def build(
                 elif child.type == "image":
                     child.attrSet("src", rewrite(child.attrGet("src") or ""))
         content = parser.renderer.render(tokens, parser.options, {})
+
+        def video(match: re.Match[str]) -> str:
+            src, label = match.groups()
+            captions = src.removesuffix(".mp4") + ".vtt"
+            accessible_label = html.escape(html.unescape(label), quote=True)
+            return (
+                '<figure class="replay"><video controls preload="metadata" playsinline '
+                f'aria-label="{accessible_label}"><source src="{src}" type="video/mp4">'
+                f'<track src="{captions}" kind="captions" srclang="en" label="English" default>'
+                f'<a href="{src}">{label}</a></video><figcaption>'
+                f'<a href="{src}">{label}</a> · Fictional data; paced replay.'
+                "</figcaption></figure>"
+            )
+
+        content = re.sub(
+            r'<a href="((?:\.\./)*assets/showcase/(?:research|japan-risk)\.mp4)">([^<]+)</a>',
+            video,
+            content,
+        )
         canonical = DOCUMENTATION_ORIGIN + "/" + public_path(output)
         nav = " ".join(
             '<a href="'
