@@ -1,5 +1,11 @@
 # Release notes
 
+## Unreleased
+
+- Add an independent experimental US fundamental equity risk model on supplied, rights-cleared observations: market/SIC/style exposures, identified cross-sectional WLS, shrunk EWMA factor covariance and specific variances, portfolio risk contributions, tracking error and common-factor shocks.
+- Store versioned content-addressed input chunks and immutable model artifacts in private state. Share CLI/SDK computations with opt-in MCP/HTTP; remote risk mode requires bearer authentication. Historical availability remains caller-asserted, with strict timing, coverage and rank checks.
+- Add a complete fictional 60-stock workflow, subsequent-session variance comparison against an EWMA baseline and offline numerical/timing/interface tests. Equity-price feeds, verified PIT vintages and real-market forecast accuracy remain unavailable or unverified.
+
 ## 0.6.0
 
 - Capture three reproducible research cases through one official MCP connection, resolve original evidence and preserve content-addressed snapshots. Public observation-page export requires completed non-synthetic results.

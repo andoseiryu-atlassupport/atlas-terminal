@@ -16,6 +16,8 @@ The [company, CPI and USD/JPY example](company-macro-fx.md) retrieves four datas
 
 [Series discovery and macro panels](international-macro.md) explain IMF/OECD dataflows, metadata-selected series and explicit calendar aggregation.
 
+An optional [fundamental risk workflow](risk-model.md) uses the same connection for supplied US equity observations, factor estimation and portfolio risk attribution. `atlas risk demo` exercises the complete fictional workflow; no price feed or verified historical fundamental database is bundled.
+
 ## Connect an agent
 
 Start with the [Codex setup](codex.md) or [general MCP quickstart](quickstart.md). Local stdio is available for compatible desktop clients. A separate [research-only Streamable HTTP service](remote-mcp.md) supports operator-hosted deployments. No official public Atlas remote endpoint is currently operated; local installation is available from the tagged source distribution.

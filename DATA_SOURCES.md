@@ -2,6 +2,10 @@
 
 Research uses free public primary sources without data subscriptions. BEA national accounts require a free registered `BEA_API_KEY`; other data sources need no API key. SEC requests require an identifying User-Agent with actual contact details and compliance with SEC access rules. SEC contact settings are never sent to other sources.
 
+## Supplied risk-model observations
+
+The optional [fundamental risk model](docs/risk-model.md) downloads no equity prices or vendor factor files. Operators supply adjusted total returns, market capitalization, broad SIC classification and financial vintages with source references, original-byte hash assertions and availability timestamps. They must have rights for the intended input and derived-output use. Atlas verifies submitted chunk hashes and timestamp consistency; it does not verify upstream licenses, original files or historical availability. Revised current financial snapshots do not establish PIT history. The model uses no MSCI/Barra numerical output or downloaded Fama–French factor returns; this does not establish rights to any underlying price feed. The executable example is entirely fictional.
+
 ## Sources
 
 | Source                      | Data                                                              | Cost and authentication                                   | Coverage and conditions                                                                                                                                                          |

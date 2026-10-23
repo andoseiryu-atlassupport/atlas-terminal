@@ -4887,6 +4887,701 @@
       "required": ["evidence_id", "evidence", "expires_at"],
       "title": "EvidenceResult",
       "type": "object"
+    },
+    "RiskAnalyzeQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "const": "analyze",
+          "title": "Action",
+          "type": "string"
+        },
+        "model_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Model Id",
+          "type": "string"
+        },
+        "positions": {
+          "items": {
+            "$ref": "#/$defs/RiskPosition"
+          },
+          "maxItems": 200,
+          "minItems": 1,
+          "title": "Positions",
+          "type": "array"
+        },
+        "benchmark": {
+          "items": {
+            "$ref": "#/$defs/RiskPosition"
+          },
+          "maxItems": 200,
+          "title": "Benchmark",
+          "type": "array"
+        },
+        "shocks": {
+          "items": {
+            "$ref": "#/$defs/RiskShock"
+          },
+          "maxItems": 20,
+          "title": "Shocks",
+          "type": "array"
+        }
+      },
+      "required": ["action", "model_id", "positions"],
+      "title": "RiskAnalyzeQuery",
+      "type": "object"
+    },
+    "RiskAsset": {
+      "additionalProperties": false,
+      "properties": {
+        "asset_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,47}$",
+          "title": "Asset Id",
+          "type": "string"
+        },
+        "country": {
+          "const": "US",
+          "default": "US",
+          "title": "Country",
+          "type": "string"
+        },
+        "currency": {
+          "const": "USD",
+          "default": "USD",
+          "title": "Currency",
+          "type": "string"
+        },
+        "security_type": {
+          "const": "common_stock",
+          "default": "common_stock",
+          "title": "Security Type",
+          "type": "string"
+        }
+      },
+      "required": ["asset_id"],
+      "title": "RiskAsset",
+      "type": "object"
+    },
+    "RiskCatalogQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "const": "catalog",
+          "title": "Action",
+          "type": "string"
+        }
+      },
+      "required": ["action"],
+      "title": "RiskCatalogQuery",
+      "type": "object"
+    },
+    "RiskFitQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "const": "fit",
+          "title": "Action",
+          "type": "string"
+        },
+        "head_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Head Id",
+          "type": "string"
+        },
+        "as_of": {
+          "format": "date-time",
+          "title": "As Of",
+          "type": "string"
+        },
+        "lookback": {
+          "default": 60,
+          "maximum": 252,
+          "minimum": 60,
+          "title": "Lookback",
+          "type": "integer"
+        },
+        "styles": {
+          "items": {
+            "enum": [
+              "size",
+              "value",
+              "profitability",
+              "leverage",
+              "momentum",
+              "beta",
+              "residual_volatility"
+            ],
+            "type": "string"
+          },
+          "maxItems": 7,
+          "minItems": 1,
+          "title": "Styles",
+          "type": "array"
+        },
+        "decay": {
+          "default": "0.97",
+          "pattern": "^-?(?:0|[1-9][0-9]{0,17})(?:\\.[0-9]{1,18})?$",
+          "title": "Decay",
+          "type": "string"
+        },
+        "covariance_shrinkage": {
+          "default": "0.15",
+          "pattern": "^-?(?:0|[1-9][0-9]{0,17})(?:\\.[0-9]{1,18})?$",
+          "title": "Covariance Shrinkage",
+          "type": "string"
+        },
+        "specific_shrinkage": {
+          "default": "0.20",
+          "pattern": "^-?(?:0|[1-9][0-9]{0,17})(?:\\.[0-9]{1,18})?$",
+          "title": "Specific Shrinkage",
+          "type": "string"
+        }
+      },
+      "required": ["action", "head_id", "as_of"],
+      "title": "RiskFitQuery",
+      "type": "object"
+    },
+    "RiskFundamental": {
+      "additionalProperties": false,
+      "properties": {
+        "asset_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,47}$",
+          "title": "Asset Id",
+          "type": "string"
+        },
+        "period_end": {
+          "format": "date-time",
+          "title": "Period End",
+          "type": "string"
+        },
+        "available_at": {
+          "format": "date-time",
+          "title": "Available At",
+          "type": "string"
+        },
+        "source_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,47}$",
+          "title": "Source Id",
+          "type": "string"
+        },
+        "locator": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Locator",
+          "type": "string"
+        },
+        "sic": {
+          "pattern": "^[0-9]{4}$",
+          "title": "Sic",
+          "type": "string"
+        },
+        "book_equity": {
+          "pattern": "^-?(?:0|[1-9][0-9]{0,17})(?:\\.[0-9]{1,18})?$",
+          "title": "Book Equity",
+          "type": "string"
+        },
+        "total_assets": {
+          "pattern": "^-?(?:0|[1-9][0-9]{0,17})(?:\\.[0-9]{1,18})?$",
+          "title": "Total Assets",
+          "type": "string"
+        },
+        "net_income_ttm": {
+          "pattern": "^-?(?:0|[1-9][0-9]{0,17})(?:\\.[0-9]{1,18})?$",
+          "title": "Net Income Ttm",
+          "type": "string"
+        },
+        "total_debt": {
+          "pattern": "^-?(?:0|[1-9][0-9]{0,17})(?:\\.[0-9]{1,18})?$",
+          "title": "Total Debt",
+          "type": "string"
+        }
+      },
+      "required": [
+        "asset_id",
+        "period_end",
+        "available_at",
+        "source_id",
+        "locator",
+        "sic",
+        "book_equity",
+        "total_assets",
+        "net_income_ttm",
+        "total_debt"
+      ],
+      "title": "RiskFundamental",
+      "type": "object"
+    },
+    "RiskFundamentalChunk": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "fundamentals",
+          "title": "Kind",
+          "type": "string"
+        },
+        "previous": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Previous",
+          "type": "string"
+        },
+        "records": {
+          "items": {
+            "$ref": "#/$defs/RiskFundamental"
+          },
+          "maxItems": 40,
+          "minItems": 1,
+          "title": "Records",
+          "type": "array"
+        }
+      },
+      "required": ["kind", "previous", "records"],
+      "title": "RiskFundamentalChunk",
+      "type": "object"
+    },
+    "RiskGetQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "const": "get",
+          "title": "Action",
+          "type": "string"
+        },
+        "model_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Model Id",
+          "type": "string"
+        },
+        "view": {
+          "default": "summary",
+          "enum": ["summary", "factors", "assets", "history"],
+          "title": "View",
+          "type": "string"
+        },
+        "asset_ids": {
+          "items": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,47}$",
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Asset Ids",
+          "type": "array"
+        }
+      },
+      "required": ["action", "model_id"],
+      "title": "RiskGetQuery",
+      "type": "object"
+    },
+    "RiskManifest": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "manifest",
+          "title": "Kind",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "is_synthetic": {
+          "title": "Is Synthetic",
+          "type": "boolean"
+        },
+        "universe": {
+          "items": {
+            "$ref": "#/$defs/RiskAsset"
+          },
+          "maxItems": 200,
+          "minItems": 30,
+          "title": "Universe",
+          "type": "array"
+        },
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/RiskSource"
+          },
+          "maxItems": 10,
+          "minItems": 1,
+          "title": "Sources",
+          "type": "array"
+        },
+        "return_convention": {
+          "const": "split_and_dividend_adjusted_simple_total_return",
+          "title": "Return Convention",
+          "type": "string"
+        },
+        "frequency": {
+          "const": "daily",
+          "default": "daily",
+          "title": "Frequency",
+          "type": "string"
+        },
+        "currency": {
+          "const": "USD",
+          "default": "USD",
+          "title": "Currency",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "is_synthetic",
+        "universe",
+        "sources",
+        "return_convention"
+      ],
+      "title": "RiskManifest",
+      "type": "object"
+    },
+    "RiskPosition": {
+      "additionalProperties": false,
+      "properties": {
+        "asset_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,47}$",
+          "title": "Asset Id",
+          "type": "string"
+        },
+        "weight": {
+          "pattern": "^-?(?:0|[1-9][0-9]{0,17})(?:\\.[0-9]{1,18})?$",
+          "title": "Weight",
+          "type": "string"
+        }
+      },
+      "required": ["asset_id", "weight"],
+      "title": "RiskPosition",
+      "type": "object"
+    },
+    "RiskPutQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "const": "put",
+          "title": "Action",
+          "type": "string"
+        },
+        "chunk": {
+          "discriminator": {
+            "mapping": {
+              "fundamentals": "#/$defs/RiskFundamentalChunk",
+              "manifest": "#/$defs/RiskManifest",
+              "sessions": "#/$defs/RiskSessionChunk"
+            },
+            "propertyName": "kind"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/RiskManifest"
+            },
+            {
+              "$ref": "#/$defs/RiskFundamentalChunk"
+            },
+            {
+              "$ref": "#/$defs/RiskSessionChunk"
+            }
+          ],
+          "title": "Chunk"
+        }
+      },
+      "required": ["action", "chunk"],
+      "title": "RiskPutQuery",
+      "type": "object"
+    },
+    "RiskReturn": {
+      "additionalProperties": false,
+      "properties": {
+        "asset_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,47}$",
+          "title": "Asset Id",
+          "type": "string"
+        },
+        "total_return": {
+          "pattern": "^-?(?:0|[1-9][0-9]{0,17})(?:\\.[0-9]{1,18})?$",
+          "title": "Total Return",
+          "type": "string"
+        },
+        "market_cap": {
+          "pattern": "^-?(?:0|[1-9][0-9]{0,17})(?:\\.[0-9]{1,18})?$",
+          "title": "Market Cap",
+          "type": "string"
+        }
+      },
+      "required": ["asset_id", "total_return", "market_cap"],
+      "title": "RiskReturn",
+      "type": "object"
+    },
+    "RiskSession": {
+      "additionalProperties": false,
+      "properties": {
+        "start_at": {
+          "format": "date-time",
+          "title": "Start At",
+          "type": "string"
+        },
+        "end_at": {
+          "format": "date-time",
+          "title": "End At",
+          "type": "string"
+        },
+        "available_at": {
+          "format": "date-time",
+          "title": "Available At",
+          "type": "string"
+        },
+        "source_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,47}$",
+          "title": "Source Id",
+          "type": "string"
+        },
+        "locator": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Locator",
+          "type": "string"
+        },
+        "observations": {
+          "items": {
+            "$ref": "#/$defs/RiskReturn"
+          },
+          "maxItems": 200,
+          "minItems": 30,
+          "title": "Observations",
+          "type": "array"
+        }
+      },
+      "required": [
+        "start_at",
+        "end_at",
+        "available_at",
+        "source_id",
+        "locator",
+        "observations"
+      ],
+      "title": "RiskSession",
+      "type": "object"
+    },
+    "RiskSessionChunk": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "sessions",
+          "title": "Kind",
+          "type": "string"
+        },
+        "previous": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Previous",
+          "type": "string"
+        },
+        "records": {
+          "items": {
+            "$ref": "#/$defs/RiskSession"
+          },
+          "maxItems": 10,
+          "minItems": 1,
+          "title": "Records",
+          "type": "array"
+        }
+      },
+      "required": ["kind", "previous", "records"],
+      "title": "RiskSessionChunk",
+      "type": "object"
+    },
+    "RiskShock": {
+      "additionalProperties": false,
+      "properties": {
+        "factor": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Factor",
+          "type": "string"
+        },
+        "return_shock": {
+          "pattern": "^-?(?:0|[1-9][0-9]{0,17})(?:\\.[0-9]{1,18})?$",
+          "title": "Return Shock",
+          "type": "string"
+        }
+      },
+      "required": ["factor", "return_shock"],
+      "title": "RiskShock",
+      "type": "object"
+    },
+    "RiskSource": {
+      "additionalProperties": false,
+      "properties": {
+        "source_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,47}$",
+          "title": "Source Id",
+          "type": "string"
+        },
+        "uri": {
+          "pattern": "^https://[A-Za-z0-9.-]+(?::[0-9]+)?/[A-Za-z0-9_./%-]*$",
+          "title": "Uri",
+          "type": "string"
+        },
+        "raw_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Raw Sha256",
+          "type": "string"
+        },
+        "retrieved_at": {
+          "format": "date-time",
+          "title": "Retrieved At",
+          "type": "string"
+        },
+        "usage_basis": {
+          "const": "operator_supplied_rights_cleared",
+          "title": "Usage Basis",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_id",
+        "uri",
+        "raw_sha256",
+        "retrieved_at",
+        "usage_basis"
+      ],
+      "title": "RiskSource",
+      "type": "object"
+    },
+    "RiskValidateQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "const": "validate",
+          "title": "Action",
+          "type": "string"
+        },
+        "model_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Model Id",
+          "type": "string"
+        },
+        "head_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Head Id",
+          "type": "string"
+        },
+        "positions": {
+          "items": {
+            "$ref": "#/$defs/RiskPosition"
+          },
+          "maxItems": 200,
+          "minItems": 1,
+          "title": "Positions",
+          "type": "array"
+        }
+      },
+      "required": ["action", "model_id", "head_id", "positions"],
+      "title": "RiskValidateQuery",
+      "type": "object"
+    },
+    "RiskQuery": {
+      "discriminator": {
+        "mapping": {
+          "analyze": "#/$defs/RiskAnalyzeQuery",
+          "catalog": "#/$defs/RiskCatalogQuery",
+          "fit": "#/$defs/RiskFitQuery",
+          "get": "#/$defs/RiskGetQuery",
+          "put": "#/$defs/RiskPutQuery",
+          "validate": "#/$defs/RiskValidateQuery"
+        },
+        "propertyName": "action"
+      },
+      "oneOf": [
+        {
+          "$ref": "#/$defs/RiskCatalogQuery"
+        },
+        {
+          "$ref": "#/$defs/RiskPutQuery"
+        },
+        {
+          "$ref": "#/$defs/RiskFitQuery"
+        },
+        {
+          "$ref": "#/$defs/RiskGetQuery"
+        },
+        {
+          "$ref": "#/$defs/RiskAnalyzeQuery"
+        },
+        {
+          "$ref": "#/$defs/RiskValidateQuery"
+        }
+      ],
+      "title": "RiskQuery"
+    },
+    "RiskPanelInput": {
+      "additionalProperties": false,
+      "properties": {
+        "manifest": {
+          "$ref": "#/$defs/RiskManifest"
+        },
+        "fundamentals": {
+          "items": {
+            "$ref": "#/$defs/RiskFundamental"
+          },
+          "maxItems": 10000,
+          "minItems": 30,
+          "title": "Fundamentals",
+          "type": "array"
+        },
+        "sessions": {
+          "items": {
+            "$ref": "#/$defs/RiskSession"
+          },
+          "maxItems": 640,
+          "minItems": 1,
+          "title": "Sessions",
+          "type": "array"
+        }
+      },
+      "required": ["manifest", "fundamentals", "sessions"],
+      "title": "RiskPanelInput",
+      "type": "object"
+    },
+    "RiskResult": {
+      "additionalProperties": false,
+      "description": "Compact operation-specific data; large saved panels are never echoed by default.",
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "methodology_version": {
+          "const": "atlas-us-fundamental-v1",
+          "default": "atlas-us-fundamental-v1",
+          "title": "Methodology Version",
+          "type": "string"
+        },
+        "action": {
+          "enum": ["catalog", "put", "fit", "get", "analyze", "validate"],
+          "title": "Action",
+          "type": "string"
+        },
+        "is_synthetic": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Is Synthetic"
+        },
+        "data": {
+          "additionalProperties": true,
+          "title": "Data",
+          "type": "object"
+        }
+      },
+      "required": ["action", "is_synthetic", "data"],
+      "title": "RiskResult",
+      "type": "object"
     }
   }
 }

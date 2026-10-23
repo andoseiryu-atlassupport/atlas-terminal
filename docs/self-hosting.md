@@ -10,6 +10,8 @@ uv run atlas serve --provider fixture --payments off --host 127.0.0.1 --port 800
 
 For SEC retrieval, use `--provider sec` and a private `SEC_USER_AGENT`. Set `ATLAS_STATE_DIR` to a dedicated persistent server directory; its default is `.local/state/atlas-terminal` under the user's home directory. New directories use mode 0700 and databases use 0600. Databases with shared permissions are rejected. Protect and back up SQLite WAL/SHM files as well.
 
+Add `--enable-risk` to register `POST /v1/risk` for the optional [fundamental risk model](risk-model.md). This local route imports bounded supplied-data chunks, fits models and analyzes portfolios using the same private state as the CLI/SDK. Its body limit is 64 KiB; other routes retain their 16 KiB limit. It has no data-source fetching or payment operation. The loopback API does not provide tenant isolation or remote risk authentication; use the bearer-required MCP extension for an operator-hosted connection.
+
 ## HTTP endpoints
 
 | Method | Path                                         | Behavior                                                         |

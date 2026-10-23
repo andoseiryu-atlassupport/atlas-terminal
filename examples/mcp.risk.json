@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "atlas-terminal": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--directory",
+        "/absolute/path/to/atlas-terminal",
+        "--offline",
+        "atlas",
+        "mcp",
+        "serve",
+        "--provider",
+        "public",
+        "--research-only",
+        "--enable-risk"
+      ]
+    }
+  }
+}

@@ -50,8 +50,12 @@ def recovery_action(code: str, retryable: bool, fields: list[str]) -> NextAction
         return NextAction(action="inspect_catalog", tool="atlas_research_catalog", fields=fields)
     if code in {"COMPANY_NOT_FOUND", "AMBIGUOUS_COMPANY"}:
         return NextAction(action="resolve_company", tool="atlas_resolve_company")
-    if code == "INCOMPLETE_COVERAGE":
+    if code in {"INCOMPLETE_COVERAGE", "RISK_INPUT_INCOMPLETE"}:
         return NextAction(action="review_coverage")
+    if code == "RISK_RANK_DEFICIENT":
+        return NextAction(action="fix_query", fields=["styles", "universe"])
+    if code == "RISK_OBJECT_NOT_FOUND":
+        return NextAction(action="restart_query")
     if code == "QUALITY_NOT_MET":
         return NextAction(action="review_requirements", fields=["requirements"])
     if code == "SETTLEMENT_UNKNOWN":
@@ -73,6 +77,7 @@ def recovery_action(code: str, retryable: bool, fields: list[str]) -> NextAction
         "BUDGET_EXCEEDED",
         "LEDGER_UNAVAILABLE",
         "CACHE_FULL",
+        "RISK_STATE_CORRUPT",
     }:
         return NextAction(action="contact_operator")
     return NextAction(action="stop")

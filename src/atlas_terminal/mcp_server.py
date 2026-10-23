@@ -26,14 +26,21 @@ from atlas_terminal.research_diagnostics import (
 from atlas_terminal.research_models import CatalogQuery, Dataset, ResearchQuery, parse_research
 from atlas_terminal.research_presets import ResearchPresetQuery, ResearchPresetResult, parse_preset
 from atlas_terminal.research_views import EvidenceResult, ResearchResult
+from atlas_terminal.risk_models import RiskQuery, RiskResult, parse_risk
 
 
 def create_mcp(
-    provider: str = "sec", *, atlas_client: Atlas | None = None, research_only: bool = False
+    provider: str = "sec",
+    *,
+    atlas_client: Atlas | None = None,
+    research_only: bool = False,
+    enable_risk: bool = False,
 ) -> MCPServer:
     if research_only and provider not in {"public", "sec", "fixture"}:
         raise AtlasError("CONFIG_REQUIRED", "Research-only MCP requires public or fixture data.")
     atlas = atlas_client or Atlas(provider)
+    if enable_risk and provider == "hosted":
+        raise AtlasError("CONFIG_REQUIRED", "Risk tools require local private state.")
 
     async def strict_tools(
         ctx: ServerRequestContext[Any, Any], call_next: CallNext
@@ -74,6 +81,10 @@ def create_mcp(
                     if set(arguments) != {"query"} or not isinstance(arguments["query"], dict):
                         raise AtlasError("INVALID_INPUT", "Provide one diagnostics query object.")
                     parse_diagnostics(arguments["query"])
+                elif name == "atlas_risk" and enable_risk:
+                    if set(arguments) != {"query"} or not isinstance(arguments["query"], dict):
+                        raise AtlasError("INVALID_INPUT", "Provide exactly one risk query object.")
+                    parse_risk(arguments["query"])
                 else:
                     allowed = {
                         "atlas_resolve_company": {"query"},
@@ -239,6 +250,26 @@ def create_mcp(
         probes with source quotas and private baselines. Fixtures never establish live access.
         """
         return execute(lambda: atlas.research_diagnostics(query))
+
+    if enable_risk:
+
+        @server.tool(
+            annotations=ToolAnnotations(
+                read_only_hint=False,
+                destructive_hint=False,
+                idempotent_hint=True,
+                open_world_hint=False,
+            )
+        )
+        def atlas_risk(query: RiskQuery) -> Annotated[CallToolResult, RiskResult]:
+            """Independent fundamental risk model on supplied US stock observations. No network.
+
+            Start with action=catalog. put appends bounded input chunks; fit produces model_id.
+            get reads compact artifacts. analyze computes portfolio risk/contributions/tracking
+            error. validate compares strictly subsequent observations with an EWMA baseline.
+            Imports and fits persist private data. Input rights/timing are caller assertions.
+            """
+            return execute(lambda: atlas.risk(query))
 
     if research_only:
         return server

@@ -13,6 +13,7 @@ from atlas_terminal.research_diagnostics import ResearchDiagnosticsQuery, Resear
 from atlas_terminal.research_models import ResearchQuery
 from atlas_terminal.research_presets import ResearchPresetQuery, ResearchPresetResult
 from atlas_terminal.research_views import EvidenceResult, ResearchResult, SourceEvidence
+from atlas_terminal.risk_models import RiskPanelInput, RiskQuery, RiskResult
 from atlas_terminal.server import create_app
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -46,6 +47,9 @@ def main() -> None:
             ("ResearchSource", SourceEvidence),
             ("ResearchResult", ResearchResult),
             ("EvidenceResult", EvidenceResult),
+            ("RiskQuery", RiskQuery),
+            ("RiskPanelInput", RiskPanelInput),
+            ("RiskResult", RiskResult),
         ]
     )
     write(research, schema)
@@ -62,7 +66,7 @@ def main() -> None:
     )
     write(application, schema)
     with TemporaryDirectory(prefix="atlas-schema-") as directory:
-        app = create_app(provider="fixture", directory=Path(directory))
+        app = create_app(provider="fixture", directory=Path(directory), enable_risk=True)
         try:
             write(ROOT / "schemas/openapi.json", app.openapi())
         finally:

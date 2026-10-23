@@ -23,6 +23,8 @@ Atlas Terminal retrieves company financials, US/Japan macro data and reference F
 
 Registered-series search, metadata-driven IMF/OECD queries and calendar-aligned macro panels share the research interfaces. Panels require explicit aggregation and preserve input units, evidence, missing cells and independent source errors. Calendar alignment does not establish statistical comparability. See [discovery and panels](international-macro.md).
 
+An optional [independent fundamental risk model](risk-model.md) accepts supplied, rights-cleared US common-stock returns, market caps and fundamental vintages. CLI/SDK and opt-in MCP/HTTP support constrained cross-sectional estimation, saved factor/exposure artifacts, risk attribution, tracking error, scenarios and a chronological fixed-forecast holdout. Historical availability remains caller-asserted; no price feed, vendor model data or real-market accuracy is claimed.
+
 ## Stack
 
 Python 3.12+, uv, Pydantic, httpx, Typer, FastAPI, the official MCP and x402 SDKs, and SQLite. XML parsing uses the standard library after rejecting DTD/entity declarations, unsafe filenames and arbitrary URLs. Node.js 24 and Prettier support documentation checks.
