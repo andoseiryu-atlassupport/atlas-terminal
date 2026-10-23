@@ -1,0 +1,17 @@
+{
+  "action": "run",
+  "connection_id": "observed_factors",
+  "preview": false,
+  "fit": {
+    "method": "time_series",
+    "as_of": "2025-12-31T21:05:00Z",
+    "lookback": 126,
+    "regression_weights": "equal"
+  },
+  "positions": [
+    { "asset_id": "ASSET_A", "weight": "0.6" },
+    { "asset_id": "ASSET_B", "weight": "0.4" }
+  ],
+  "benchmark": [{ "asset_id": "INDEX_PROXY", "weight": "1" }],
+  "shocks": [{ "factor": "market", "return_shock": "-0.05" }]
+}

@@ -2,6 +2,10 @@
 
 Research uses free public primary sources without data subscriptions. BEA national accounts require a free registered `BEA_API_KEY`; other data sources need no API key. SEC requests require an identifying User-Agent with actual contact details and compliance with SEC access rules. SEC contact settings are never sent to other sources.
 
+## Supplied risk-model observations
+
+The optional [native factor risk models](docs/risk-model.md) bundle no equity prices or vendor factor files. Operators supply adjusted returns or prices, market caps, industry assignments and financial vintages for separate US/USD, JP/JPY, KR/KRW and GB/GBP cross-sectional models; time-series estimation uses supplied observed factor returns. Supported public classifications are US SIC divisions, JPX33 codes, KSIC 10/11 and UK SIC 2007/2026 sections; [references, ONS attribution and market conventions](docs/equity-markets.md) explain their scope. No issuer assignments, numeric-code crosswalk or account-standard conversion is downloaded. [Native connections](docs/data-connections.md) read local JSON, CSV or SQLite; trusted API extensions require explicit network opt-in. GBP price rows explicitly label pounds/pence; normalization does not provide exchange data rights. Input and derived-output rights remain the operator's responsibility. Atlas hashes the bytes/logical rows it actually reads, as well as normalized chunks; upstream source hashes, licenses and historical availability remain unverified caller assertions. Revised current financial snapshots do not establish PIT history. No MSCI/Barra numerical output or Fama–French downloads are included. All executable examples are fictional.
+
 ## Sources
 
 | Source                      | Data                                                              | Cost and authentication                                   | Coverage and conditions                                                                                                                                                          |

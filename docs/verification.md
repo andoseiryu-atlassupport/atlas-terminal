@@ -2,17 +2,19 @@
 
 Recorded on 2026-10-23 for Atlas Terminal 0.6.0, with Python 3.12.14 and Node.js 24.19.0 on Linux. Local verification, GitHub Actions, public deployment, official-source access and model observations are distinct evidence.
 
+The current source tree additionally includes the unreleased experimental native factor risk extension described below. The published 0.6.0 release does not include that extension; source-tree checks and a locally built wheel are separate from release publication.
+
 ## Current local checks
 
 | Check                                                     | Observed result                                             |
 | --------------------------------------------------------- | ----------------------------------------------------------- |
 | `uv run --offline ruff check .`                           | PASS                                                        |
 | `uv run --offline ruff format --check .`                  | PASS                                                        |
-| `uv run --offline mypy`                                   | PASS; 46 source files                                       |
-| `uv run --offline pytest`                                 | PASS; 645 tests, 2 live tests deselected                    |
+| `uv run --offline mypy`                                   | PASS; 54 source files                                       |
+| `uv run --offline pytest`                                 | PASS; 802 tests, 2 live tests deselected                    |
 | `uv run --offline python -m build --no-isolation`         | PASS; wheel and source distribution                         |
 | `uv run --offline python scripts/verify_distribution.py`  | PASS; metadata, required contents and forbidden paths       |
-| `uv run --offline python scripts/build_docs.py`           | PASS; 40 HTML pages and internal file/section links         |
+| `uv run --offline python scripts/build_docs.py`           | PASS; 43 HTML pages and internal file/section links         |
 | `uv run --offline python scripts/prepare_distribution.py` | PREPARED; versioned plugin ZIP and Registry draft           |
 | `npm run check`                                           | PASS; Prettier and whitespace                               |
 | `python scripts/scan_public_files.py`                     | PASS; heuristic working-file and reachable-history patterns |
@@ -28,6 +30,24 @@ The installed `scripts/verify_remote_installed.py` also passed against an actual
 `scripts/run_research_workflow.py` completes seven contract checks through one official stdio MCP session: tool discovery, configuration, four independent company/CPI/FX reads, original evidence resolution, explicit quality rejection and unsupported-dataset rejection. It makes no LLM requests.
 
 `scripts/capture_research_examples.py` completes three cases in one actual research-only stdio MCP session and retains compact results and every resolved evidence reference. The executed captures are fictional. Nineteen publication/measurement tests cover content-addressed bytes, overwrite rejection, synthetic/failed/incomplete/evidence-mismatched export rejection, complete public JSON links, search ownership tags, controlled prompts, unknown rates, reviewed/unknown outcomes and invalid/duplicate/credential-bearing observation rejection. Mock non-synthetic metadata exists only inside an offline publication-format test and is not live-source evidence.
+
+## Experimental native factor risk extension
+
+`uv run --offline pytest tests/test_risk_model.py` passes 54 fictional-data tests. They cover independently specified factor recovery, constrained industry identification, covariance symmetry/positive semidefiniteness, Euler contribution additivity, benchmark-relative zero risk, factor shocks, insufficient history/universe/rank, availability cutoffs, delayed closes, later-vintage/future-return exclusion, missing/duplicate/invalid input rejection, content hashes, private permissions, deterministic restart and caller-context isolation, atomic quota failure and holdout baseline calculations. No input is a real-market observation.
+
+`tests/test_factor_workflow.py` contains 103 offline tests. Independent linear data recover known time-series alphas/betas under OLS and EWMA-WLS, for both total and excess factors; holdouts verify risk-free subtraction. Cases also cover JPY return labeling, caller Decimal traps, future-data isolation, missing/collinear factors, invalid units, native JSON/CSV/SQLite numerical agreement, adjusted-price pipelines, raw-capitalization/adjustment separation, explicit aliases/columns, rejection of SQLite binary floats, saved ingestion receipts, restart reproducibility, unchanged source databases, network-extension opt-in and no-read preview/configuration bounds.
+
+Local-market cases cover Japanese/JPY, Korean/KRW and British/GBP execution/restart from all three native formats; monetary-unit scaling and industry-permutation invariance of portfolio risk; US legacy defaults; wrong/missing currency, mixed markets, invalid classifications and pre-effective KSIC 11/UK SIC 2026 availability; leading-zero JPX codes, nullable columns and explicit source-industry mapping; holdout market/classification mismatch; and bounded extended Japanese/Korean closures with seven-day US/British limits. The actual stdio MCP workflow executes all four fundamental markets plus time-series estimation in one session. The Korean mapped-CSV workflow also executes through the HTTP route. All observations remain fictional.
+
+British cases distinguish UK SIC 2007/2026 and their different section sets, including the new V section. Pence normalization tests cover both GBp/GBX labels, quote-unit changes, raw-close/share capitalization versus unchanged reported GBP capitalization, low caller precision/traps, and rejection of missing/foreign/lowercase quote labels. Actual HTTP requests from configured CSV/SQLite prices produce identical numerical portfolio outputs for pound and mixed pound/pence quotations. These cases test declared unit handling, not the truth of upstream quotation metadata or exchange connectivity.
+
+The actual official stdio MCP client imports a complete panel, fits a model and analyzes a portfolio through one connection. Additional actual stdio calls run each model in one request from configured CSV inputs, without uploading observations. HTTP tests execute a configured SQLite input and reject caller path/SQL/URL arguments. Other checks cover the CLI, SDK and official Streamable HTTP client with an in-memory ASGI transport. Remote anonymous risk mode is rejected. Existing default tool sets retain their six research-only tools; enabling risk adds one state-writing tool. IP sockets remain disabled in the default suite.
+
+`atlas risk demo --json` completes a 60-stock/four-style/60-estimation-session example with risk attribution, tracking error, a common-factor shock and 20 subsequent sessions versus a historical EWMA portfolio baseline. `--method time_series` completes the same native-connection workflow with three fictional assets and observed factors. The source-tree wheel was installed offline into a fresh virtual environment from locked runtime requirements; both demos passed outside the repository with isolated imports from installed package files. New configuration/request examples were also validated against the actual installed models. This wheel is not a new published release. Its synthetic numbers do not establish forecast accuracy.
+
+The latest source-tree wheel was reinstalled into that isolated runtime. All five demos (US, Japan, Korea, Britain and time-series) passed outside the checkout using installed package files. Japanese/JPY/JPX33, Korean/KRW/KSIC 11 and British/GBP/UK SIC 2007 metadata survived forecast and holdout output. The British request and connection templates validated against the installed models. Classification documentation was inspected from official references; this does not establish live issuer/price data access, historical assignment correctness or local-market forecast calibration. See [market conventions and source references](equity-markets.md).
+
+Neither model includes an equity-price feed, independently verified PIT vintages, corporate-action/security-master reconciliation, changing-universe engine or actual-data calibration study. No external equity API provider is bundled or live-tested; the trusted Python extension contract and network guard are tested offline. Input rights and availability timestamps remain caller assertions. The balanced supplied universe, coarse SIC divisions for fundamental estimation, approximate residual degrees-of-freedom adjustments, diagonal specific covariance and fixed-exposure annualization are material methodological limits. See [risk methodology and usage](risk-model.md).
 
 ## Data and payment coverage
 

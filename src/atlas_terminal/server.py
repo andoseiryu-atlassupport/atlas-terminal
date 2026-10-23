@@ -41,6 +41,7 @@ from atlas_terminal.research_diagnostics import ResearchDiagnosticsQuery, Resear
 from atlas_terminal.research_models import Dataset, ResearchQuery
 from atlas_terminal.research_presets import ResearchPresetQuery, ResearchPresetResult
 from atlas_terminal.research_views import EvidenceResult, ResearchResult
+from atlas_terminal.risk_models import MAX_RISK_BYTES, RiskQuery, RiskResult
 from atlas_terminal.util import state_dir
 
 
@@ -55,6 +56,7 @@ class AtlasAPI(FastAPI):
             ResearchBatchQuery,
             ResearchPresetQuery,
             ResearchDiagnosticsQuery,
+            RiskQuery,
         ):
             if model.__name__ not in schemas:
                 schema = model.model_json_schema(ref_template="#/components/schemas/{model}")
@@ -73,6 +75,7 @@ def create_app(
     amount: str = "10000",
     pay_to: str | None = None,
     reconciler: SettlementReconciler | None = None,
+    enable_risk: bool = False,
 ) -> FastAPI:
     if (
         os.environ.get("WEB_CONCURRENCY", "1") != "1"
@@ -170,9 +173,10 @@ def create_app(
         if request.method == "POST":
             chunks = []
             size = 0
+            limit = MAX_RISK_BYTES if enable_risk and request.url.path == "/v1/risk" else 16384
             async for chunk in request.stream():
                 size += len(chunk)
-                if size > 16384:
+                if size > limit:
                     return JSONResponse(
                         AtlasError("INVALID_INPUT", "Request body exceeds limit.").envelope(),
                         status_code=413,
@@ -193,7 +197,27 @@ def create_app(
 
     @app.get("/v1/catalog")
     def get_catalog() -> dict[str, Any]:
-        return catalog() | {"pricing": orders.pricing.model_dump(mode="json")}
+        return catalog() | {
+            "pricing": orders.pricing.model_dump(mode="json"),
+            "risk_enabled": enable_risk,
+        }
+
+    if enable_risk:
+
+        @app.post(
+            "/v1/risk",
+            response_model=RiskResult,
+            openapi_extra={
+                "requestBody": {
+                    "content": {
+                        "application/json": {"schema": {"$ref": "#/components/schemas/RiskQuery"}}
+                    },
+                    "required": True,
+                }
+            },
+        )
+        def risk(body: dict[str, Any]) -> dict[str, Any]:
+            return orders.atlas.risk(body)
 
     @app.get("/v1/research/catalog")
     def get_research_catalog(

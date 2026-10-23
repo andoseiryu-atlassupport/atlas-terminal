@@ -6,6 +6,8 @@
 
 Atlas Terminal gives AI agents company financials, US/Japan macro indicators and reference FX through one MCP connection, using free public primary sources. The same retrieval, calculation and evidence services are available through a CLI, Python SDK and HTTP API.
 
+Optional [native factor risk models](docs/risk-model.md) support fundamental cross-sectional estimation for [US, Japanese, Korean and British stocks](docs/equity-markets.md) in local currency, plus observed-factor time-series regression. Named [JSON, CSV and SQLite connections](docs/data-connections.md) let one SDK/CLI/MCP call read supplied observations, validate, fit and analyze a portfolio. Try `uv run --offline atlas risk demo --json`, add `--country JP` / `--country KR` / `--country GB`, or use `--method time_series` from a source checkout. The extension is experimental and unreleased; equity prices and verified historical vintages are not included.
+
 [Documentation website](https://atlas-terminal-docs.citrus-genet-7815.chatgpt.site) · [Connect Codex](docs/codex.md) · [Reproducible examples](docs/research-examples.md) · [Capabilities](IMPLEMENTATION_STATUS.md) · [Data sources](DATA_SOURCES.md)
 
 ## Available data

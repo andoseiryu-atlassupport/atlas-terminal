@@ -4,6 +4,8 @@ Atlas Terminal includes an operator-hosted Streamable HTTP endpoint at `/mcp`. I
 
 No official public Atlas remote endpoint is currently operated. This guide describes self-hosting. A successful fixture test is not evidence of a public deployment or live source connectivity.
 
+The optional [risk extension](risk-model.md) adds `atlas_risk` with `--enable-risk` and requires bearer authentication. It writes supplied observations/models to the shared private state volume. An operator can set `ATLAS_RISK_CONNECTIONS_FILE` to a private [connection configuration](data-connections.md); callers select connection IDs, never paths, SQL or source endpoints. Both cross-sectional and time-series models support one-call read/validate/fit/analyze. Its request envelope limit is 66 KiB; adjust the reverse-proxy cap accordingly. The supplied deployment templates and default checks target the original six-tool research service and 16 KiB ingress.
+
 ## Verify locally
 
 After installing Atlas, run:

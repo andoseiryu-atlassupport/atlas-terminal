@@ -1,5 +1,15 @@
 # Release notes
 
+## Unreleased
+
+- Add independent experimental fundamental equity risk models for US/USD, Japanese/JPY, Korean/KRW and British/GBP supplied observations: market/local-industry/style exposures, identified cross-sectional WLS, shrunk EWMA factor covariance and specific variances, portfolio risk contributions, tracking error and common-factor shocks.
+- Support JPX33 and explicit KSIC 10/11 sections, native industry mappings, local-currency guards, market-specific session bounds and saved market/classification metadata. Local-market demos run through the shared native workflow; no country/FX factors or global covariance is supplied.
+- Support explicit UK SIC 2007/2026 sections with revision timing/holdout checks and GBP/pence price normalization before return ratios and raw-price capitalization. Quotation labels are required for GBP prices; reported capitalization stays GBP and no foreign currency conversion is inferred.
+- Add native observed-factor time-series OLS/EWMA-WLS with diagnostic intercepts, original-unit betas and explicit total/excess-return conventions. Both methods share portfolio analysis and subsequent holdout validation.
+- Add operator-configured JSON, CSV and read-only SQLite inputs with explicit column/asset mappings, adjusted-price return normalization, input receipts and a single read/validate/fit/analyze request. Network provider extensions require explicit execution opt-in; preview reads no datasets.
+- Store versioned content-addressed input chunks and immutable model artifacts in private state. Share CLI/SDK computations with opt-in MCP/HTTP; remote risk mode requires bearer authentication. Historical availability remains caller-asserted, with strict timing, coverage and rank checks.
+- Add a complete fictional 60-stock workflow, subsequent-session variance comparison against an EWMA baseline and offline numerical/timing/interface tests. Equity-price feeds, verified PIT vintages and real-market forecast accuracy remain unavailable or unverified.
+
 ## 0.6.0
 
 - Capture three reproducible research cases through one official MCP connection, resolve original evidence and preserve content-addressed snapshots. Public observation-page export requires completed non-synthetic results.

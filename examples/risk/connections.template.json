@@ -1,0 +1,35 @@
+{
+  "schema_version": "0.1.0",
+  "connections": [
+    {
+      "connection_id": "us_stocks",
+      "kind": "csv",
+      "method": "cross_sectional",
+      "path": "/absolute/operator/us-stock-panel"
+    },
+    {
+      "connection_id": "jp_stocks",
+      "kind": "csv",
+      "method": "cross_sectional",
+      "path": "/absolute/operator/japan-stock-panel"
+    },
+    {
+      "connection_id": "kr_stocks",
+      "kind": "sqlite",
+      "method": "cross_sectional",
+      "path": "/absolute/operator/korea-stock-panel.sqlite3"
+    },
+    {
+      "connection_id": "gb_stocks",
+      "kind": "csv",
+      "method": "cross_sectional",
+      "path": "/absolute/operator/british-stock-panel"
+    },
+    {
+      "connection_id": "observed_factors",
+      "kind": "sqlite",
+      "method": "time_series",
+      "path": "/absolute/operator/observed-factor-panel.sqlite3"
+    }
+  ]
+}

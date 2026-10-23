@@ -16,6 +16,8 @@ from atlas_terminal.macro_catalog import Currency
 from atlas_terminal.models import parse_query
 from atlas_terminal.research_batch import MAX_BATCH_REQUEST_BYTES
 from atlas_terminal.research_models import Dataset
+from atlas_terminal.risk_markets import EquityMarket
+from atlas_terminal.risk_models import MAX_RISK_BYTES, RiskMethod
 
 app = typer.Typer(no_args_is_help=True, add_completion=False, pretty_exceptions_enable=False)
 company_app, financials_app, filings_app, quote_app, mcp_app = (typer.Typer() for _ in range(5))
@@ -26,6 +28,8 @@ app.add_typer(quote_app, name="quote")
 app.add_typer(mcp_app, name="mcp")
 research_app = typer.Typer(no_args_is_help=True)
 app.add_typer(research_app, name="research")
+risk_app = typer.Typer(no_args_is_help=True)
+app.add_typer(risk_app, name="risk")
 
 
 def output(value: Any, *, err: bool = False) -> None:
@@ -51,6 +55,63 @@ def demo(json_output: bool = typer.Option(False, "--json")) -> None:
     """Offline synthetic demo: no network, model key or wallet."""
     with Atlas("fixture") as atlas:
         output(atlas.get_financials(query("ATLASDEMO", "revenue,net_income", "annual", 3, False)))
+
+
+def risk_file(path: Path, limit: int) -> dict[str, Any]:
+    try:
+        with path.open("rb") as stream:
+            body = stream.read(limit + 1)
+        if len(body) > limit:
+            raise ValueError("Too large")
+        value = json.loads(body)
+        if not isinstance(value, dict):
+            raise ValueError("Object required")
+        return value
+    except (OSError, ValueError):
+        raise AtlasError(
+            "INVALID_INPUT", "Read a bounded risk JSON object from a local file."
+        ) from None
+
+
+@risk_app.command("catalog")
+def risk_catalog(json_output: bool = typer.Option(False, "--json")) -> None:
+    """Describe independent risk inputs, model methods, limits and operations."""
+    with Atlas("public") as atlas:
+        output(atlas.risk({"action": "catalog"}))
+
+
+@risk_app.command("demo")
+def risk_demo(
+    method: RiskMethod = "cross_sectional",
+    country: EquityMarket = "US",
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """Run a native connection-to-model workflow and evaluate 20 later fictional sessions."""
+    from atlas_terminal.risk_demo import run_demo
+
+    with Atlas("public") as atlas:
+        output(run_demo(atlas, method, country))
+
+
+@risk_app.command("connections")
+def risk_connections(json_output: bool = typer.Option(False, "--json")) -> None:
+    """List configured native inputs without exposing paths or reading their data."""
+    with Atlas("public") as atlas:
+        output(atlas.risk({"action": "connections"}))
+
+
+@risk_app.command("import")
+def risk_import(path: Path, json_output: bool = typer.Option(False, "--json")) -> None:
+    """Import up to 32 MiB of supplied, rights-cleared panel data into private state."""
+    with Atlas("public") as atlas:
+        output(atlas.import_risk_panel(risk_file(path, 32 * 1024 * 1024)))
+
+
+@risk_app.command("run")
+def risk_run(path: Path, json_output: bool = typer.Option(False, "--json")) -> None:
+    """Run a native risk query; registered API providers require explicit network opt-in."""
+    with Atlas("public") as atlas:
+        output(atlas.risk(risk_file(path, MAX_RISK_BYTES)))
 
 
 @research_app.command("catalog")
@@ -435,10 +496,14 @@ def purchase_reconcile(
 
 
 @mcp_app.command("serve")
-def serve_mcp(provider: str = "sec", research_only: bool = False) -> None:
+def serve_mcp(
+    provider: str = "sec", research_only: bool = False, enable_risk: bool = False
+) -> None:
     from atlas_terminal.mcp_server import create_mcp
 
-    create_mcp(provider, research_only=research_only).run(transport="stdio")
+    create_mcp(provider, research_only=research_only, enable_risk=enable_risk).run(
+        transport="stdio"
+    )
 
 
 @mcp_app.command("http")
@@ -447,6 +512,7 @@ def serve_remote_mcp(
     host: str = "127.0.0.1",
     port: int = 8001,
     allow_anonymous: bool = False,
+    enable_risk: bool = False,
 ) -> None:
     """Serve research-only Streamable HTTP behind operator-managed HTTPS."""
     import uvicorn
@@ -467,6 +533,7 @@ def serve_remote_mcp(
         public_origin=public_origin,
         token=os.environ.get("ATLAS_MCP_AUTH_TOKEN"),
         allow_anonymous=allow_anonymous,
+        enable_risk=enable_risk,
         allowed_origins=[
             value for value in os.environ.get("ATLAS_MCP_ALLOWED_ORIGINS", "").split(",") if value
         ],
@@ -476,7 +543,11 @@ def serve_remote_mcp(
 
 @app.command()
 def serve(
-    provider: str = "sec", payments: str = "off", host: str = "127.0.0.1", port: int = 8000
+    provider: str = "sec",
+    payments: str = "off",
+    host: str = "127.0.0.1",
+    port: int = 8000,
+    enable_risk: bool = False,
 ) -> None:
     import uvicorn
 
@@ -494,6 +565,7 @@ def serve(
         payments=payments,
         base_origin=base_origin,
         amount=os.environ.get("ATLAS_PRICE_ATOMIC", "10000"),
+        enable_risk=enable_risk,
     )
     uvicorn.run(api, host=host, port=port, workers=1, access_log=False, log_level="critical")
 

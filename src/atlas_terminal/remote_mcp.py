@@ -23,6 +23,7 @@ from atlas_terminal import __version__
 from atlas_terminal.client import Atlas
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.mcp_server import create_mcp
+from atlas_terminal.risk_models import MAX_RISK_BYTES
 
 
 def validated_origin(value: str) -> str:
@@ -72,6 +73,7 @@ class IngressGuard:
         token: str | None,
         requests_per_minute: int,
         concurrency: int,
+        max_body_bytes: int = 16384,
     ) -> None:
         self.app = app
         self.host = urlsplit(public_origin).netloc
@@ -80,6 +82,7 @@ class IngressGuard:
         self.requests_per_minute = requests_per_minute
         self.requests: deque[float] = deque()
         self.slots = asyncio.Semaphore(concurrency)
+        self.max_body_bytes = max_body_bytes
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if scope["type"] != "http":
@@ -130,8 +133,8 @@ class IngressGuard:
                 async with asyncio.timeout(10):
                     async for chunk in request.stream():
                         body.extend(chunk)
-                        if len(body) > 16384:
-                            await reject(413, "Request body exceeds 16 KiB.")
+                        if len(body) > self.max_body_bytes:
+                            await reject(413, "Request body exceeds the configured limit.")
                             return
             except TimeoutError:
                 await reject(408, "Request body timed out.")
@@ -168,8 +171,9 @@ def create_remote_mcp(
     allowed_origins: list[str] | None = None,
     requests_per_minute: int = 60,
     concurrency: int = 2,
+    enable_risk: bool = False,
 ) -> ASGIApp:
-    """Create six research tools; no quote, purchase, wallet or payment handler exists."""
+    """Research tools and an optional authenticated risk extension; no payment handlers."""
     if provider not in {"public", "fixture"}:
         raise AtlasError("CONFIG_REQUIRED", "Remote MCP supports public or fixture research.")
     if token is not None and not re.fullmatch(r"[A-Za-z0-9._~-]{32,256}", token):
@@ -180,6 +184,10 @@ def create_remote_mcp(
         )
     if token is not None and allow_anonymous:
         raise AtlasError("CONFIG_REQUIRED", "Choose bearer authentication or anonymous access.")
+    if enable_risk and token is None:
+        raise AtlasError(
+            "CONFIG_REQUIRED", "Risk imports and computation require bearer authentication."
+        )
     if not 1 <= requests_per_minute <= 600 or not 1 <= concurrency <= 8:
         raise AtlasError("CONFIG_REQUIRED", "Choose bounded ingress limits.")
     if any(os.environ.get(name, "1") != "1" for name in ("WEB_CONCURRENCY", "UVICORN_WORKERS")):
@@ -189,11 +197,12 @@ def create_remote_mcp(
     public_origin = validated_origin(public_origin)
     origins = [validated_origin(value) for value in allowed_origins or []]
     atlas = Atlas(provider, directory=directory)
-    server = create_mcp(provider, atlas_client=atlas, research_only=True)
+    server = create_mcp(provider, atlas_client=atlas, research_only=True, enable_risk=enable_risk)
+    body_limit = MAX_RISK_BYTES + 2048 if enable_risk else 16384
     app = server.streamable_http_app(
         json_response=True,
         stateless_http=True,
-        max_request_body_size=16384,
+        max_request_body_size=body_limit,
         transport_security=TransportSecuritySettings(
             enable_dns_rebinding_protection=True,
             allowed_hosts=[urlsplit(public_origin).netloc],
@@ -219,6 +228,7 @@ def create_remote_mcp(
                 "version": __version__,
                 "transport": "streamable-http",
                 "research_only": True,
+                "risk_enabled": enable_risk,
                 "is_synthetic": provider == "fixture",
             },
             headers={"Cache-Control": "no-store"},
@@ -232,4 +242,5 @@ def create_remote_mcp(
         token=token,
         requests_per_minute=requests_per_minute,
         concurrency=concurrency,
+        max_body_bytes=body_limit,
     )

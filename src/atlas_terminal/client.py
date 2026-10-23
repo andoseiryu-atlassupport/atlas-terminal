@@ -31,6 +31,9 @@ from atlas_terminal.research_presets import (
     parse_preset,
     preset_plan,
 )
+from atlas_terminal.risk_connections import RiskConnector
+from atlas_terminal.risk_models import RiskQuery
+from atlas_terminal.risk_service import RiskService
 from atlas_terminal.util import canonical, stamp
 
 
@@ -51,6 +54,7 @@ class Atlas:
         self._research = ResearchService(
             self._research_source, synthetic=provider == "fixture", directory=directory
         )
+        self._risk = RiskService(self._research.view_path.parent / "risk-models.sqlite3")
         self._hosted: Any = None
         if source is None and provider == "fixture":
             self.source = SECProvider(FixtureTransport())
@@ -90,6 +94,28 @@ class Atlas:
                 "Source response failed research schema validation.",
                 status=502,
             ) from None
+
+    def risk(self, query: RiskQuery | dict[str, Any]) -> dict[str, Any]:
+        """Import supplied observations, fit an independent model or analyze a saved portfolio.
+
+        Native local inputs need no network. Registered API providers require explicit opt-in.
+        No data purchase or signing. Synthetic status comes from the input manifest.
+        """
+        if self.provider == "hosted":
+            raise AtlasError("CONFIG_REQUIRED", "Risk models use a local private state directory.")
+        return self._risk.execute(query)
+
+    def import_risk_panel(self, panel: dict[str, Any]) -> dict[str, Any]:
+        """Local bulk import; remote callers use risk put with content-addressed chunks."""
+        if self.provider == "hosted":
+            raise AtlasError("CONFIG_REQUIRED", "Risk models require local private state.")
+        return self._risk.import_panel(panel)
+
+    def register_risk_connection(self, connection_id: str, connector: RiskConnector) -> None:
+        """Register a trusted native Python provider in this local application instance."""
+        if self.provider == "hosted":
+            raise AtlasError("CONFIG_REQUIRED", "Risk connections require local private state.")
+        self._risk.connections.register(connection_id, connector)
 
     @staticmethod
     def research_catalog(
