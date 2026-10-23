@@ -4480,14 +4480,29 @@
             "default": "0.1.0"
           },
           "methodology_version": {
-            "type": "string",
-            "const": "atlas-us-fundamental-v1",
-            "title": "Methodology Version",
-            "default": "atlas-us-fundamental-v1"
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": ["atlas-us-fundamental-v1", "atlas-time-series-v1"]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Methodology Version"
           },
           "action": {
             "type": "string",
-            "enum": ["catalog", "put", "fit", "get", "analyze", "validate"],
+            "enum": [
+              "catalog",
+              "connections",
+              "put",
+              "fit",
+              "get",
+              "analyze",
+              "validate",
+              "run"
+            ],
             "title": "Action"
           },
           "is_synthetic": {
@@ -8376,16 +8391,6 @@
       "RiskAnalyzeQuery": {
         "additionalProperties": false,
         "properties": {
-          "action": {
-            "const": "analyze",
-            "title": "Action",
-            "type": "string"
-          },
-          "model_id": {
-            "pattern": "^[0-9a-f]{64}$",
-            "title": "Model Id",
-            "type": "string"
-          },
           "positions": {
             "items": {
               "$ref": "#/components/schemas/RiskPosition"
@@ -8410,9 +8415,19 @@
             "maxItems": 20,
             "title": "Shocks",
             "type": "array"
+          },
+          "action": {
+            "const": "analyze",
+            "title": "Action",
+            "type": "string"
+          },
+          "model_id": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Model Id",
+            "type": "string"
           }
         },
-        "required": ["action", "model_id", "positions"],
+        "required": ["positions", "action", "model_id"],
         "title": "RiskAnalyzeQuery",
         "type": "object"
       },
@@ -8460,17 +8475,26 @@
         "title": "RiskCatalogQuery",
         "type": "object"
       },
-      "RiskFitQuery": {
+      "RiskConnectionsQuery": {
         "additionalProperties": false,
         "properties": {
           "action": {
-            "const": "fit",
+            "const": "connections",
             "title": "Action",
             "type": "string"
-          },
-          "head_id": {
-            "pattern": "^[0-9a-f]{64}$",
-            "title": "Head Id",
+          }
+        },
+        "required": ["action"],
+        "title": "RiskConnectionsQuery",
+        "type": "object"
+      },
+      "RiskFitOptions": {
+        "additionalProperties": false,
+        "properties": {
+          "method": {
+            "default": "cross_sectional",
+            "enum": ["cross_sectional", "time_series"],
+            "title": "Method",
             "type": "string"
           },
           "as_of": {
@@ -8486,22 +8510,43 @@
             "type": "integer"
           },
           "styles": {
-            "items": {
-              "enum": [
-                "size",
-                "value",
-                "profitability",
-                "leverage",
-                "momentum",
-                "beta",
-                "residual_volatility"
-              ],
-              "type": "string"
-            },
-            "maxItems": 7,
-            "minItems": 1,
-            "title": "Styles",
-            "type": "array"
+            "anyOf": [
+              {
+                "items": {
+                  "enum": [
+                    "size",
+                    "value",
+                    "profitability",
+                    "leverage",
+                    "momentum",
+                    "beta",
+                    "residual_volatility"
+                  ],
+                  "type": "string"
+                },
+                "maxItems": 7,
+                "minItems": 1,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Styles"
+          },
+          "regression_weights": {
+            "anyOf": [
+              {
+                "enum": ["equal", "ewma"],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Regression Weights"
           },
           "decay": {
             "default": "0.97",
@@ -8522,7 +8567,100 @@
             "type": "string"
           }
         },
-        "required": ["action", "head_id", "as_of"],
+        "required": ["as_of"],
+        "title": "RiskFitOptions",
+        "type": "object"
+      },
+      "RiskFitQuery": {
+        "additionalProperties": false,
+        "properties": {
+          "method": {
+            "default": "cross_sectional",
+            "enum": ["cross_sectional", "time_series"],
+            "title": "Method",
+            "type": "string"
+          },
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "lookback": {
+            "default": 60,
+            "maximum": 252,
+            "minimum": 60,
+            "title": "Lookback",
+            "type": "integer"
+          },
+          "styles": {
+            "anyOf": [
+              {
+                "items": {
+                  "enum": [
+                    "size",
+                    "value",
+                    "profitability",
+                    "leverage",
+                    "momentum",
+                    "beta",
+                    "residual_volatility"
+                  ],
+                  "type": "string"
+                },
+                "maxItems": 7,
+                "minItems": 1,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Styles"
+          },
+          "regression_weights": {
+            "anyOf": [
+              {
+                "enum": ["equal", "ewma"],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Regression Weights"
+          },
+          "decay": {
+            "default": "0.97",
+            "pattern": "^-?(?:0|[1-9][0-9]{0,17})(?:\\.[0-9]{1,18})?$",
+            "title": "Decay",
+            "type": "string"
+          },
+          "covariance_shrinkage": {
+            "default": "0.15",
+            "pattern": "^-?(?:0|[1-9][0-9]{0,17})(?:\\.[0-9]{1,18})?$",
+            "title": "Covariance Shrinkage",
+            "type": "string"
+          },
+          "specific_shrinkage": {
+            "default": "0.20",
+            "pattern": "^-?(?:0|[1-9][0-9]{0,17})(?:\\.[0-9]{1,18})?$",
+            "title": "Specific Shrinkage",
+            "type": "string"
+          },
+          "action": {
+            "const": "fit",
+            "title": "Action",
+            "type": "string"
+          },
+          "head_id": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Head Id",
+            "type": "string"
+          }
+        },
+        "required": ["as_of", "action", "head_id"],
         "title": "RiskFitQuery",
         "type": "object"
       },
@@ -8638,7 +8776,7 @@
           },
           "view": {
             "default": "summary",
-            "enum": ["summary", "factors", "assets", "history"],
+            "enum": ["summary", "factors", "assets", "history", "inputs"],
             "title": "View",
             "type": "string"
           },
@@ -8751,7 +8889,9 @@
               "mapping": {
                 "fundamentals": "#/components/schemas/RiskFundamentalChunk",
                 "manifest": "#/components/schemas/RiskManifest",
-                "sessions": "#/components/schemas/RiskSessionChunk"
+                "sessions": "#/components/schemas/RiskSessionChunk",
+                "time_series_manifest": "#/components/schemas/TimeSeriesManifest",
+                "time_series_sessions": "#/components/schemas/TimeSeriesSessionChunk"
               },
               "propertyName": "kind"
             },
@@ -8764,6 +8904,12 @@
               },
               {
                 "$ref": "#/components/schemas/RiskSessionChunk"
+              },
+              {
+                "$ref": "#/components/schemas/TimeSeriesManifest"
+              },
+              {
+                "$ref": "#/components/schemas/TimeSeriesSessionChunk"
               }
             ],
             "title": "Chunk"
@@ -8794,6 +8940,62 @@
         },
         "required": ["asset_id", "total_return", "market_cap"],
         "title": "RiskReturn",
+        "type": "object"
+      },
+      "RiskRunQuery": {
+        "additionalProperties": false,
+        "properties": {
+          "positions": {
+            "items": {
+              "$ref": "#/components/schemas/RiskPosition"
+            },
+            "maxItems": 200,
+            "minItems": 1,
+            "title": "Positions",
+            "type": "array"
+          },
+          "benchmark": {
+            "items": {
+              "$ref": "#/components/schemas/RiskPosition"
+            },
+            "maxItems": 200,
+            "title": "Benchmark",
+            "type": "array"
+          },
+          "shocks": {
+            "items": {
+              "$ref": "#/components/schemas/RiskShock"
+            },
+            "maxItems": 20,
+            "title": "Shocks",
+            "type": "array"
+          },
+          "action": {
+            "const": "run",
+            "title": "Action",
+            "type": "string"
+          },
+          "connection_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,47}$",
+            "title": "Connection Id",
+            "type": "string"
+          },
+          "fit": {
+            "$ref": "#/components/schemas/RiskFitOptions"
+          },
+          "preview": {
+            "default": false,
+            "title": "Preview",
+            "type": "boolean"
+          },
+          "allow_network": {
+            "default": false,
+            "title": "Allow Network",
+            "type": "boolean"
+          }
+        },
+        "required": ["positions", "action", "connection_id", "fit"],
+        "title": "RiskRunQuery",
         "type": "object"
       },
       "RiskSession": {
@@ -8963,14 +9165,260 @@
         "title": "RiskValidateQuery",
         "type": "object"
       },
+      "TimeSeriesAsset": {
+        "additionalProperties": false,
+        "properties": {
+          "asset_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,47}$",
+            "title": "Asset Id",
+            "type": "string"
+          },
+          "currency": {
+            "pattern": "^[A-Z]{3}$",
+            "title": "Currency",
+            "type": "string"
+          },
+          "security_type": {
+            "enum": ["common_stock", "etf", "fund", "index", "other"],
+            "title": "Security Type",
+            "type": "string"
+          }
+        },
+        "required": ["asset_id", "currency", "security_type"],
+        "title": "TimeSeriesAsset",
+        "type": "object"
+      },
+      "TimeSeriesManifest": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "time_series_manifest",
+            "title": "Kind",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "0.1.0",
+            "default": "0.1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "is_synthetic": {
+            "title": "Is Synthetic",
+            "type": "boolean"
+          },
+          "universe": {
+            "items": {
+              "$ref": "#/components/schemas/TimeSeriesAsset"
+            },
+            "maxItems": 200,
+            "minItems": 1,
+            "title": "Universe",
+            "type": "array"
+          },
+          "factors": {
+            "items": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,47}$",
+              "type": "string"
+            },
+            "maxItems": 12,
+            "minItems": 1,
+            "title": "Factors",
+            "type": "array"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/RiskSource"
+            },
+            "maxItems": 10,
+            "minItems": 1,
+            "title": "Sources",
+            "type": "array"
+          },
+          "currency": {
+            "pattern": "^[A-Z]{3}$",
+            "title": "Currency",
+            "type": "string"
+          },
+          "frequency": {
+            "const": "daily",
+            "default": "daily",
+            "title": "Frequency",
+            "type": "string"
+          },
+          "return_convention": {
+            "const": "split_and_dividend_adjusted_simple_total_return",
+            "title": "Return Convention",
+            "type": "string"
+          },
+          "factor_convention": {
+            "enum": ["total_return", "excess_return"],
+            "title": "Factor Convention",
+            "type": "string"
+          },
+          "return_unit": {
+            "const": "decimal_return",
+            "title": "Return Unit",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "is_synthetic",
+          "universe",
+          "factors",
+          "sources",
+          "currency",
+          "return_convention",
+          "factor_convention",
+          "return_unit"
+        ],
+        "title": "TimeSeriesManifest",
+        "type": "object"
+      },
+      "TimeSeriesReturn": {
+        "additionalProperties": false,
+        "properties": {
+          "asset_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,47}$",
+            "title": "Asset Id",
+            "type": "string"
+          },
+          "total_return": {
+            "pattern": "^-?(?:0|[1-9][0-9]{0,17})(?:\\.[0-9]{1,18})?$",
+            "title": "Total Return",
+            "type": "string"
+          }
+        },
+        "required": ["asset_id", "total_return"],
+        "title": "TimeSeriesReturn",
+        "type": "object"
+      },
+      "TimeSeriesSession": {
+        "additionalProperties": false,
+        "properties": {
+          "start_at": {
+            "format": "date-time",
+            "title": "Start At",
+            "type": "string"
+          },
+          "end_at": {
+            "format": "date-time",
+            "title": "End At",
+            "type": "string"
+          },
+          "available_at": {
+            "format": "date-time",
+            "title": "Available At",
+            "type": "string"
+          },
+          "source_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,47}$",
+            "title": "Source Id",
+            "type": "string"
+          },
+          "locator": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Locator",
+            "type": "string"
+          },
+          "factor_source_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,47}$",
+            "title": "Factor Source Id",
+            "type": "string"
+          },
+          "factor_locator": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Factor Locator",
+            "type": "string"
+          },
+          "observations": {
+            "items": {
+              "$ref": "#/components/schemas/TimeSeriesReturn"
+            },
+            "maxItems": 200,
+            "minItems": 1,
+            "title": "Observations",
+            "type": "array"
+          },
+          "factor_returns": {
+            "maxProperties": 12,
+            "minProperties": 1,
+            "patternProperties": {
+              "^[A-Za-z0-9][A-Za-z0-9_.-]{0,47}$": {
+                "pattern": "^-?(?:0|[1-9][0-9]{0,17})(?:\\.[0-9]{1,18})?$",
+                "type": "string"
+              }
+            },
+            "title": "Factor Returns",
+            "type": "object"
+          },
+          "risk_free_return": {
+            "anyOf": [
+              {
+                "pattern": "^-?(?:0|[1-9][0-9]{0,17})(?:\\.[0-9]{1,18})?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Risk Free Return"
+          }
+        },
+        "required": [
+          "start_at",
+          "end_at",
+          "available_at",
+          "source_id",
+          "locator",
+          "factor_source_id",
+          "factor_locator",
+          "observations",
+          "factor_returns"
+        ],
+        "title": "TimeSeriesSession",
+        "type": "object"
+      },
+      "TimeSeriesSessionChunk": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "time_series_sessions",
+            "title": "Kind",
+            "type": "string"
+          },
+          "previous": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Previous",
+            "type": "string"
+          },
+          "records": {
+            "items": {
+              "$ref": "#/components/schemas/TimeSeriesSession"
+            },
+            "maxItems": 10,
+            "minItems": 1,
+            "title": "Records",
+            "type": "array"
+          }
+        },
+        "required": ["kind", "previous", "records"],
+        "title": "TimeSeriesSessionChunk",
+        "type": "object"
+      },
       "RiskQuery": {
         "discriminator": {
           "mapping": {
             "analyze": "#/components/schemas/RiskAnalyzeQuery",
             "catalog": "#/components/schemas/RiskCatalogQuery",
+            "connections": "#/components/schemas/RiskConnectionsQuery",
             "fit": "#/components/schemas/RiskFitQuery",
             "get": "#/components/schemas/RiskGetQuery",
             "put": "#/components/schemas/RiskPutQuery",
+            "run": "#/components/schemas/RiskRunQuery",
             "validate": "#/components/schemas/RiskValidateQuery"
           },
           "propertyName": "action"
@@ -8978,6 +9426,9 @@
         "oneOf": [
           {
             "$ref": "#/components/schemas/RiskCatalogQuery"
+          },
+          {
+            "$ref": "#/components/schemas/RiskConnectionsQuery"
           },
           {
             "$ref": "#/components/schemas/RiskPutQuery"
@@ -8993,6 +9444,9 @@
           },
           {
             "$ref": "#/components/schemas/RiskValidateQuery"
+          },
+          {
+            "$ref": "#/components/schemas/RiskRunQuery"
           }
         ],
         "title": "RiskQuery"

@@ -2,7 +2,7 @@
 
 Atlas exposes free research through typed MCP input, structured output, the Python SDK, CLI and HTTP. Research never signs or purchases. No model service is required by the server.
 
-The optional [fundamental risk extension](risk-model.md) adds `atlas_risk` to the same connection with `--enable-risk`. It accepts bounded supplied-data chunks, fits immutable independent models and returns portfolio risk/contributions. Default research tool counts and contracts remain unchanged. Risk imports/fits write private local state; remote risk mode requires bearer authentication. Input historical availability remains caller-asserted and unverified.
+The optional [native factor risk extension](risk-model.md) adds `atlas_risk` to the same connection with `--enable-risk`. It supports fundamental cross-sectional and observed-factor time-series estimation. Operators can configure [native input connections](data-connections.md), then agents call `connections`, preview a `run`, or execute read/validate/fit/analyze with weights in one request. Bounded chunk uploads remain available. Default research tool counts and contracts remain unchanged. Risk imports/fits write private state; remote risk mode requires bearer authentication. API provider extensions require `allow_network=true`; built-in JSON/CSV/SQLite inputs use no network. Historical availability remains caller-asserted and unverified.
 
 [Research presets](presets.md) provide inspectable company, US/Japan macro and FX-context query sets through the same connection. They reuse batch/quality services, retain per-item failures and separate observation/publication/retrieval times. Configuration diagnosis is offline by default; source probes require explicit opt-in.
 

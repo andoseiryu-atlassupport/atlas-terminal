@@ -20,6 +20,7 @@ from atlas_terminal.risk_math import (
     wls,
 )
 from atlas_terminal.risk_models import (
+    DEFAULT_STYLES,
     MAX_RISK_SESSIONS,
     METHODOLOGY,
     STYLES,
@@ -292,7 +293,9 @@ def regress(
 
 
 def fit_model(panel: RiskPanel, query: RiskFitQuery) -> dict[str, Any]:
-    styles = [s for s in STYLES if s in query.styles]
+    if query.method != "cross_sectional":
+        raise AtlasError("INVALID_INPUT", "Select cross_sectional for fundamental panel inputs.")
+    styles = [s for s in STYLES if s in (query.styles or DEFAULT_STYLES)]
     known = panel.known_sessions(query.as_of)
     if len(known) < query.lookback + 1:
         raise AtlasError(
@@ -345,6 +348,9 @@ def fit_model(panel: RiskPanel, query: RiskFitQuery) -> dict[str, Any]:
     ]
     summary = {
         "methodology_version": METHODOLOGY,
+        "method": "cross_sectional",
+        "modeled_return": "total_return",
+        "factor_return_origin": "estimated_cross_sectionally_from_lagged_characteristics",
         "input_head_id": query.head_id,
         "as_of": utc_key(query.as_of),
         "is_synthetic": panel.manifest.is_synthetic,
@@ -456,12 +462,14 @@ def analyze_model(artifact: dict[str, Any], query: RiskAnalyzeQuery) -> dict[str
     result = {
         "model_id": query.model_id,
         "as_of": artifact["summary"]["as_of"],
-        "currency": "USD",
+        "currency": artifact["summary"]["currency"],
+        "method": artifact["summary"].get("method", "cross_sectional"),
+        "modeled_return": artifact["summary"].get("modeled_return", "total_return"),
         "portfolio": portfolio_risk(artifact, weights),
         "benchmark": None,
         "active": None,
         "scenario_common_return": None,
-        "limitations": LIMITATIONS
+        "limitations": artifact["summary"]["limitations"]
         + [
             "Weights are fractions of NAV, never renormalized; "
             "unmodeled cash/financing has zero risk."

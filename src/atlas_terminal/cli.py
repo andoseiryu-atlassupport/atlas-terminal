@@ -16,7 +16,7 @@ from atlas_terminal.macro_catalog import Currency
 from atlas_terminal.models import parse_query
 from atlas_terminal.research_batch import MAX_BATCH_REQUEST_BYTES
 from atlas_terminal.research_models import Dataset
-from atlas_terminal.risk_models import MAX_RISK_BYTES
+from atlas_terminal.risk_models import MAX_RISK_BYTES, RiskMethod
 
 app = typer.Typer(no_args_is_help=True, add_completion=False, pretty_exceptions_enable=False)
 company_app, financials_app, filings_app, quote_app, mcp_app = (typer.Typer() for _ in range(5))
@@ -80,12 +80,21 @@ def risk_catalog(json_output: bool = typer.Option(False, "--json")) -> None:
 
 
 @risk_app.command("demo")
-def risk_demo(json_output: bool = typer.Option(False, "--json")) -> None:
-    """Fit 60 fictional stocks, analyze a portfolio and evaluate 20 later sessions offline."""
+def risk_demo(
+    method: RiskMethod = "cross_sectional", json_output: bool = typer.Option(False, "--json")
+) -> None:
+    """Run a native connection-to-model workflow and evaluate 20 later fictional sessions."""
     from atlas_terminal.risk_demo import run_demo
 
     with Atlas("public") as atlas:
-        output(run_demo(atlas))
+        output(run_demo(atlas, method))
+
+
+@risk_app.command("connections")
+def risk_connections(json_output: bool = typer.Option(False, "--json")) -> None:
+    """List configured native inputs without exposing paths or reading their data."""
+    with Atlas("public") as atlas:
+        output(atlas.risk({"action": "connections"}))
 
 
 @risk_app.command("import")
@@ -97,7 +106,7 @@ def risk_import(path: Path, json_output: bool = typer.Option(False, "--json")) -
 
 @risk_app.command("run")
 def risk_run(path: Path, json_output: bool = typer.Option(False, "--json")) -> None:
-    """Run a catalog/put/fit/get/analyze/validate query without network or payments."""
+    """Run a native risk query; registered API providers require explicit network opt-in."""
     with Atlas("public") as atlas:
         output(atlas.risk(risk_file(path, MAX_RISK_BYTES)))
 

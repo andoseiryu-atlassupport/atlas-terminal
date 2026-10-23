@@ -31,6 +31,7 @@ from atlas_terminal.research_presets import (
     parse_preset,
     preset_plan,
 )
+from atlas_terminal.risk_connections import RiskConnector
 from atlas_terminal.risk_models import RiskQuery
 from atlas_terminal.risk_service import RiskService
 from atlas_terminal.util import canonical, stamp
@@ -97,7 +98,8 @@ class Atlas:
     def risk(self, query: RiskQuery | dict[str, Any]) -> dict[str, Any]:
         """Import supplied observations, fit an independent model or analyze a saved portfolio.
 
-        No network, data purchase or signing. Synthetic status comes from the input manifest.
+        Native local inputs need no network. Registered API providers require explicit opt-in.
+        No data purchase or signing. Synthetic status comes from the input manifest.
         """
         if self.provider == "hosted":
             raise AtlasError("CONFIG_REQUIRED", "Risk models use a local private state directory.")
@@ -108,6 +110,12 @@ class Atlas:
         if self.provider == "hosted":
             raise AtlasError("CONFIG_REQUIRED", "Risk models require local private state.")
         return self._risk.import_panel(panel)
+
+    def register_risk_connection(self, connection_id: str, connector: RiskConnector) -> None:
+        """Register a trusted native Python provider in this local application instance."""
+        if self.provider == "hosted":
+            raise AtlasError("CONFIG_REQUIRED", "Risk connections require local private state.")
+        self._risk.connections.register(connection_id, connector)
 
     @staticmethod
     def research_catalog(

@@ -2,13 +2,16 @@
 
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal, localcontext
+from pathlib import Path
 from random import Random
+from tempfile import TemporaryDirectory
 from typing import Any
 
 from atlas_terminal.client import Atlas
+from atlas_terminal.risk_connections import NativeRiskConnector, RiskConnectionSpec
 from atlas_terminal.risk_engine import RiskPanel, exposures
 from atlas_terminal.risk_math import ZERO, dot, text
-from atlas_terminal.risk_models import RiskPanelInput
+from atlas_terminal.risk_models import RiskMethod, RiskPanelInput
 from atlas_terminal.util import canonical, digest, stamp
 
 
@@ -119,38 +122,130 @@ def fictional_panel(sessions: int = 85, assets: int = 60) -> dict[str, Any]:
     return data
 
 
-def run_demo(atlas: Atlas) -> dict[str, Any]:
-    data = fictional_panel()
-    receipt = atlas.import_risk_panel(data)
-    fitted = atlas.risk(
-        {"action": "fit", "head_id": receipt["head_id"], "as_of": data["sessions"][64]["end_at"]}
-    )
-    model_id = fitted["data"]["model_id"]
-    positions = [
-        {"asset_id": asset["asset_id"], "weight": "0.05"}
-        for asset in data["manifest"]["universe"][:20]
+def fictional_time_series_panel(sessions: int = 85) -> dict[str, Any]:
+    rng = Random(614)
+    start = datetime(2024, 1, 2, 21, tzinfo=UTC)
+    assets = ["TSDEMO0", "TSDEMO1", "TSDEMO2"]
+    factors = ["market", "quality", "value"]
+    betas = [
+        [Decimal(v) for v in row]
+        for row in (("1.2", "-0.4", "0.7"), ("0.8", "0.5", "-0.2"), ("1", "0", "0"))
     ]
-    benchmark = [
-        {"asset_id": asset["asset_id"], "weight": "0.10"}
-        for asset in data["manifest"]["universe"][20:30]
-    ]
-    return {
-        "is_synthetic": True,
-        "model": fitted,
-        "analysis": atlas.risk(
+    source = {
+        "source_id": "fictional",
+        "uri": "https://example.invalid/fictional-observed-factors",
+        "raw_sha256": digest(canonical({"generator": "atlas-time-series-demo-v1", "seed": 614})),
+        "retrieved_at": "2024-01-01T21:00:00Z",
+        "usage_basis": "operator_supplied_rights_cleared",
+    }
+    data: dict[str, Any] = {
+        "manifest": {
+            "kind": "time_series_manifest",
+            "is_synthetic": True,
+            "universe": [
+                {"asset_id": a, "currency": "USD", "security_type": "etf"} for a in assets
+            ],
+            "factors": factors,
+            "sources": [source],
+            "currency": "USD",
+            "return_convention": "split_and_dividend_adjusted_simple_total_return",
+            "factor_convention": "total_return",
+            "return_unit": "decimal_return",
+        },
+        "sessions": [],
+    }
+    with localcontext() as context:
+        context.prec = 42
+        for i in range(sessions):
+            end = start + timedelta(days=1)
+            while end.weekday() >= 5:
+                end += timedelta(days=1)
+            values = [Decimal(rng.randrange(-10000, 10001)) / 1000000 for _ in factors]
+            data["sessions"].append(
+                {
+                    "start_at": stamp(start),
+                    "end_at": stamp(end),
+                    "available_at": stamp(end),
+                    "source_id": "fictional",
+                    "locator": f"assets/{i}",
+                    "factor_source_id": "fictional",
+                    "factor_locator": f"factors/{i}",
+                    "factor_returns": dict(zip(factors, map(text, values), strict=True)),
+                    "observations": [
+                        {
+                            "asset_id": asset,
+                            "total_return": format(
+                                Decimal("0.0001")
+                                + dot(beta, values)
+                                + Decimal(rng.randrange(-250, 251)) / 1000000,
+                                ".12f",
+                            ),
+                        }
+                        for asset, beta in zip(assets, betas, strict=True)
+                    ],
+                }
+            )
+            start = end
+    return data
+
+
+def run_demo(atlas: Atlas, method: RiskMethod = "cross_sectional") -> dict[str, Any]:
+    data = fictional_panel() if method == "cross_sectional" else fictional_time_series_panel()
+    if method == "cross_sectional":
+        positions = [
+            {"asset_id": a["asset_id"], "weight": "0.05"} for a in data["manifest"]["universe"][:20]
+        ]
+        benchmark = [
+            {"asset_id": a["asset_id"], "weight": "0.10"}
+            for a in data["manifest"]["universe"][20:30]
+        ]
+    else:
+        positions = [
+            {"asset_id": "TSDEMO0", "weight": "0.6"},
+            {"asset_id": "TSDEMO1", "weight": "0.4"},
+        ]
+        benchmark = [{"asset_id": "TSDEMO2", "weight": "1"}]
+    with TemporaryDirectory(prefix="atlas-risk-demo-") as temporary:
+        path = Path(temporary) / "panel.json"
+        path.write_bytes(canonical(data))
+        connection_id = "fictional_" + method
+        atlas.register_risk_connection(
+            connection_id,
+            NativeRiskConnector(
+                RiskConnectionSpec(
+                    connection_id=connection_id,
+                    kind="json",
+                    method=method,
+                    path=str(path),
+                )
+            ),
+        )
+        executed = atlas.risk(
             {
-                "action": "analyze",
-                "model_id": model_id,
+                "action": "run",
+                "connection_id": connection_id,
+                "fit": {"method": method, "as_of": data["sessions"][64]["end_at"]},
                 "positions": positions,
                 "benchmark": benchmark,
                 "shocks": [{"factor": "market", "return_shock": "-0.05"}],
             }
-        ),
+        )
+    fitted = executed | {"action": "fit", "data": executed["data"]["model"]}
+    analyzed = executed | {"action": "analyze", "data": executed["data"]["analysis"]}
+    model_id = fitted["data"]["model_id"]
+    return {
+        "is_synthetic": True,
+        "model": fitted,
+        "analysis": analyzed,
+        "connection_execution": {
+            "plan": executed["data"]["plan"],
+            "input_evidence": executed["data"]["input_evidence"],
+        },
         "validation": atlas.risk(
             {
                 "action": "validate",
                 "model_id": model_id,
-                "head_id": receipt["head_id"],
+                "head_id": fitted["data"]["input_head_id"],
                 "positions": positions,
             }
         ),

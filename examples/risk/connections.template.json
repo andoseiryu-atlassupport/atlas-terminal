@@ -1,0 +1,17 @@
+{
+  "schema_version": "0.1.0",
+  "connections": [
+    {
+      "connection_id": "us_stocks",
+      "kind": "csv",
+      "method": "cross_sectional",
+      "path": "/absolute/operator/us-stock-panel"
+    },
+    {
+      "connection_id": "observed_factors",
+      "kind": "sqlite",
+      "method": "time_series",
+      "path": "/absolute/operator/observed-factor-panel.sqlite3"
+    }
+  ]
+}

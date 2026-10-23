@@ -50,13 +50,17 @@ Connection diagnostics validate selected source configuration without creating s
 
 Opt-in source checks cover twelve official source families with eighteen fixed probes. IMF/OECD probes check dataflow metadata, without certifying observation retrieval. They capture raw-byte and structure hashes, observation dates, latency and changes against private last-success baselines. A manual workflow keeps live requests separate from offline CI. Fixture/mock checks do not establish live connectivity. See [operator source checks](docs/source-checks.md).
 
-## Optional fundamental risk model
+## Optional native factor risk models
 
 `atlas risk demo` exercises an independent US common-stock/USD daily fundamental model on 60 fictional assets. Supplied, rights-cleared inputs support market, broad SIC industry and seven optional style exposures; constrained weighted cross-sectional regression; shrunk EWMA factor covariance and specific variances; portfolio volatility, Euler contributions, active risk and shocks. A strictly subsequent holdout compares a fixed forecast with realized variance and a historical portfolio EWMA baseline.
 
+`atlas risk demo --method time_series` exercises observed-factor OLS or EWMA-WLS across time. It estimates each asset's betas and diagnostic intercept, with 1–200 assets, 1–12 factors and 60–252 estimation sessions. Inputs declare one currency, decimal-return units and total/excess factor convention; excess factors require an aligned risk-free return. Factor returns are supplied observations, not the cross-sectional model's estimated returns. Both methods share compact X/F/D artifacts, risk decomposition and holdout evaluation.
+
+Native JSON, CSV and read-only SQLite connectors load operator-selected inputs without another financial framework. Explicit column, table and asset mappings normalize supplied returns or split/dividend-adjusted prices; market capitalization uses a separate raw-price/share-count basis or reported value. `run` reads, validates, imports, fits and analyzes from a named connection, as-of cutoff and weights. Preview/catalog do not open datasets. Input receipts retain actual document/logical-row hashes and normalization metadata without exposing configured paths. Trusted SDK providers can implement external APIs; none is bundled, and execution requires `allow_network=true`. See [connection contracts](docs/data-connections.md).
+
 CLI and SDK share immutable input/model storage with optional `atlas_risk` MCP and `POST /v1/risk`. Enable the extension with `--enable-risk`; existing research tools remain unchanged. Remote risk mode requires bearer authentication. Risk requests are bounded to 64 KiB, with compact model/selected-exposure reads and operator-managed private storage.
 
-This is an experimental model, with no vendor model data, bundled equity-price feed or verified historical vintages. Caller timestamps are validated internally but remain unverified assertions. A balanced supplied universe, fixed industry membership and 30–200 stocks are required; survivorship bias and residual correlations are not corrected. Real-market forecast accuracy is unverified. See [methodology and usage](docs/risk-model.md).
+The extension is experimental and unreleased, with no vendor model data, bundled equity-price feed or verified historical vintages. Caller timestamps are validated internally but remain unverified assertions. Both methods require a balanced supplied universe. Cross-sectional estimation requires fixed industry membership and 30–200 US stocks; portfolio holdings do not replace the broader estimation universe. Survivorship bias and residual correlations are not corrected. Real-market forecast accuracy is unverified. See [methodology and usage](docs/risk-model.md).
 
 ## Provenance and data quality
 

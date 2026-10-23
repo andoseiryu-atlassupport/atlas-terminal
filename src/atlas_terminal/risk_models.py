@@ -19,6 +19,8 @@ from atlas_terminal.errors import AtlasError
 from atlas_terminal.util import canonical
 
 METHODOLOGY: Final = "atlas-us-fundamental-v1"
+TIME_SERIES_METHODOLOGY: Final = "atlas-time-series-v1"
+RiskMethod = Literal["cross_sectional", "time_series"]
 MAX_RISK_BYTES = 65536
 MAX_RISK_SESSIONS = 640
 STYLES = ("size", "value", "profitability", "leverage", "momentum", "beta", "residual_volatility")
@@ -158,8 +160,96 @@ class RiskPanelInput(RiskBase):
     sessions: list[RiskSession] = Field(min_length=1, max_length=MAX_RISK_SESSIONS)
 
 
+class TimeSeriesAsset(RiskBase):
+    asset_id: Identifier
+    currency: Annotated[str, Field(pattern=r"^[A-Z]{3}$")]
+    security_type: Literal["common_stock", "etf", "fund", "index", "other"]
+
+
+class TimeSeriesManifest(RiskBase):
+    kind: Literal["time_series_manifest"]
+    schema_version: Literal["0.1.0"] = "0.1.0"
+    is_synthetic: bool
+    universe: list[TimeSeriesAsset] = Field(min_length=1, max_length=200)
+    factors: list[Identifier] = Field(min_length=1, max_length=12)
+    sources: list[RiskSource] = Field(min_length=1, max_length=10)
+    currency: Annotated[str, Field(pattern=r"^[A-Z]{3}$")]
+    frequency: Literal["daily"] = "daily"
+    return_convention: Literal["split_and_dividend_adjusted_simple_total_return"]
+    factor_convention: Literal["total_return", "excess_return"]
+    return_unit: Literal["decimal_return"]
+
+    @model_validator(mode="after")
+    def consistent_manifest(self) -> Self:
+        for values in (
+            [row.asset_id for row in self.universe],
+            [row.source_id for row in self.sources],
+            self.factors,
+        ):
+            if len(values) != len(set(values)):
+                raise ValueError("Duplicate IDs")
+        if any(row.currency != self.currency for row in self.universe):
+            raise ValueError("All supplied returns must use the declared portfolio currency")
+        return self
+
+
+class TimeSeriesReturn(RiskBase):
+    asset_id: Identifier
+    total_return: Number
+
+    @model_validator(mode="after")
+    def bounded_return(self) -> Self:
+        if not Decimal(-1) < Decimal(self.total_return) <= Decimal(10):
+            raise ValueError("Return must exceed -1 and be at most 10")
+        return self
+
+
+class TimeSeriesSession(RiskBase):
+    start_at: RiskTimestamp
+    end_at: RiskTimestamp
+    available_at: RiskTimestamp
+    source_id: Identifier
+    locator: str = Field(min_length=1, max_length=160)
+    factor_source_id: Identifier
+    factor_locator: str = Field(min_length=1, max_length=160)
+    observations: list[TimeSeriesReturn] = Field(min_length=1, max_length=200)
+    factor_returns: dict[Identifier, Number] = Field(min_length=1, max_length=12)
+    risk_free_return: Number | None = None
+
+    @model_validator(mode="after")
+    def valid_session(self) -> Self:
+        if not 0 < (self.end_at - self.start_at).total_seconds() <= 7 * 86400:
+            raise ValueError("Use explicit daily session boundaries")
+        if self.available_at < self.end_at:
+            raise ValueError("Returns cannot be available before the period ends")
+        ids = [row.asset_id for row in self.observations]
+        if len(ids) != len(set(ids)):
+            raise ValueError("Duplicate return IDs")
+        if any(abs(Decimal(v)) > 10 for v in self.factor_returns.values()):
+            raise ValueError("Factor return exceeds bounds")
+        if self.risk_free_return is not None and abs(Decimal(self.risk_free_return)) > 1:
+            raise ValueError("Risk-free return exceeds bounds")
+        return self
+
+
+class TimeSeriesSessionChunk(RiskBase):
+    kind: Literal["time_series_sessions"]
+    previous: RiskHash
+    records: list[TimeSeriesSession] = Field(min_length=1, max_length=10)
+
+
+class TimeSeriesPanelInput(RiskBase):
+    manifest: TimeSeriesManifest
+    sessions: list[TimeSeriesSession] = Field(min_length=1, max_length=MAX_RISK_SESSIONS)
+
+
 RiskChunk = Annotated[
-    RiskManifest | RiskFundamentalChunk | RiskSessionChunk, Field(discriminator="kind")
+    RiskManifest
+    | RiskFundamentalChunk
+    | RiskSessionChunk
+    | TimeSeriesManifest
+    | TimeSeriesSessionChunk,
+    Field(discriminator="kind"),
 ]
 
 
@@ -167,29 +257,33 @@ class RiskCatalogQuery(RiskBase):
     action: Literal["catalog"]
 
 
+class RiskConnectionsQuery(RiskBase):
+    action: Literal["connections"]
+
+
 class RiskPutQuery(RiskBase):
     action: Literal["put"]
     chunk: RiskChunk
 
 
-class RiskFitQuery(RiskBase):
-    action: Literal["fit"]
-    head_id: RiskHash
+class RiskFitOptions(RiskBase):
+    method: RiskMethod = "cross_sectional"
     as_of: RiskTimestamp
     lookback: int = Field(default=60, ge=60, le=252)
-    styles: list[Style] = Field(
-        default_factory=lambda: list(DEFAULT_STYLES),
-        min_length=1,
-        max_length=7,
-    )
+    styles: list[Style] | None = Field(default=None, min_length=1, max_length=7)
+    regression_weights: Literal["equal", "ewma"] | None = None
     decay: Number = "0.97"
     covariance_shrinkage: Number = "0.15"
     specific_shrinkage: Number = "0.20"
 
     @model_validator(mode="after")
     def valid_options(self) -> Self:
-        if len(self.styles) != len(set(self.styles)):
+        if self.styles is not None and len(self.styles) != len(set(self.styles)):
             raise ValueError("Duplicate styles")
+        if self.method == "time_series" and self.styles is not None:
+            raise ValueError("Time-series factors come from the input matrix")
+        if self.method == "cross_sectional" and self.regression_weights is not None:
+            raise ValueError("Cross-sectional regression uses lagged capitalization weights")
         if not Decimal("0.90") <= Decimal(self.decay) <= Decimal("0.999"):
             raise ValueError("Invalid EWMA decay")
         for value in (self.covariance_shrinkage, self.specific_shrinkage):
@@ -198,10 +292,15 @@ class RiskFitQuery(RiskBase):
         return self
 
 
+class RiskFitQuery(RiskFitOptions):
+    action: Literal["fit"]
+    head_id: RiskHash
+
+
 class RiskGetQuery(RiskBase):
     action: Literal["get"]
     model_id: RiskHash
-    view: Literal["summary", "factors", "assets", "history"] = "summary"
+    view: Literal["summary", "factors", "assets", "history", "inputs"] = "summary"
     asset_ids: list[Identifier] = Field(default_factory=list, max_length=20)
 
     @model_validator(mode="after")
@@ -223,9 +322,7 @@ class RiskShock(RiskBase):
     return_shock: Number
 
 
-class RiskAnalyzeQuery(RiskBase):
-    action: Literal["analyze"]
-    model_id: RiskHash
+class RiskPortfolio(RiskBase):
     positions: list[RiskPosition] = Field(min_length=1, max_length=200)
     benchmark: list[RiskPosition] = Field(default_factory=list, max_length=200)
     shocks: list[RiskShock] = Field(default_factory=list, max_length=20)
@@ -244,6 +341,19 @@ class RiskAnalyzeQuery(RiskBase):
         return self
 
 
+class RiskAnalyzeQuery(RiskPortfolio):
+    action: Literal["analyze"]
+    model_id: RiskHash
+
+
+class RiskRunQuery(RiskPortfolio):
+    action: Literal["run"]
+    connection_id: Identifier
+    fit: RiskFitOptions
+    preview: bool = False
+    allow_network: bool = False
+
+
 class RiskValidateQuery(RiskBase):
     action: Literal["validate"]
     model_id: RiskHash
@@ -260,11 +370,14 @@ class RiskQuery(
     RootModel[
         Annotated[
             RiskCatalogQuery
+            | RiskConnectionsQuery
             | RiskPutQuery
             | RiskFitQuery
             | RiskGetQuery
             | RiskAnalyzeQuery
-            | RiskValidateQuery,
+            | RiskValidateQuery
+            | RiskRunQuery,
+            # Each operation remains available through the same native risk tool.
             Field(discriminator="action"),
         ]
     ]
@@ -277,8 +390,8 @@ class RiskResult(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
     schema_version: Literal["0.1.0"] = "0.1.0"
-    methodology_version: Literal["atlas-us-fundamental-v1"] = METHODOLOGY
-    action: Literal["catalog", "put", "fit", "get", "analyze", "validate"]
+    methodology_version: Literal["atlas-us-fundamental-v1", "atlas-time-series-v1"] | None = None
+    action: Literal["catalog", "connections", "put", "fit", "get", "analyze", "validate", "run"]
     is_synthetic: bool | None
     data: dict[str, Any]
 

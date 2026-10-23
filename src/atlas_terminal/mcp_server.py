@@ -258,16 +258,19 @@ def create_mcp(
                 read_only_hint=False,
                 destructive_hint=False,
                 idempotent_hint=True,
-                open_world_hint=False,
+                open_world_hint=True,
             )
         )
         def atlas_risk(query: RiskQuery) -> Annotated[CallToolResult, RiskResult]:
-            """Independent fundamental risk model on supplied US stock observations. No network.
+            """Native cross-sectional and time-series risk models through one connection.
 
             Start with action=catalog. put appends bounded input chunks; fit produces model_id.
             get reads compact artifacts. analyze computes portfolio risk/contributions/tracking
             error. validate compares strictly subsequent observations with an EWMA baseline.
             Imports and fits persist private data. Input rights/timing are caller assertions.
+            connections lists operator-configured inputs. run reads, validates, fits and analyzes
+            a named input; preview=true reads no dataset. No path/URL/SQL arguments are accepted.
+            JSON/CSV/SQLite connectors are local. Registered API providers need allow_network=true.
             """
             return execute(lambda: atlas.risk(query))
 

@@ -2,7 +2,7 @@
 
 Recorded on 2026-10-23 for Atlas Terminal 0.6.0, with Python 3.12.14 and Node.js 24.19.0 on Linux. Local verification, GitHub Actions, public deployment, official-source access and model observations are distinct evidence.
 
-The current source tree additionally includes the unreleased experimental fundamental risk extension described below. The published 0.6.0 release does not include that extension; source-tree checks and a locally built wheel are separate from release publication.
+The current source tree additionally includes the unreleased experimental native factor risk extension described below. The published 0.6.0 release does not include that extension; source-tree checks and a locally built wheel are separate from release publication.
 
 ## Current local checks
 
@@ -10,11 +10,11 @@ The current source tree additionally includes the unreleased experimental fundam
 | --------------------------------------------------------- | ----------------------------------------------------------- |
 | `uv run --offline ruff check .`                           | PASS                                                        |
 | `uv run --offline ruff format --check .`                  | PASS                                                        |
-| `uv run --offline mypy`                                   | PASS; 51 source files                                       |
-| `uv run --offline pytest`                                 | PASS; 699 tests, 2 live tests deselected                    |
+| `uv run --offline mypy`                                   | PASS; 53 source files                                       |
+| `uv run --offline pytest`                                 | PASS; 738 tests, 2 live tests deselected                    |
 | `uv run --offline python -m build --no-isolation`         | PASS; wheel and source distribution                         |
 | `uv run --offline python scripts/verify_distribution.py`  | PASS; metadata, required contents and forbidden paths       |
-| `uv run --offline python scripts/build_docs.py`           | PASS; 41 HTML pages and internal file/section links         |
+| `uv run --offline python scripts/build_docs.py`           | PASS; 42 HTML pages and internal file/section links         |
 | `uv run --offline python scripts/prepare_distribution.py` | PREPARED; versioned plugin ZIP and Registry draft           |
 | `npm run check`                                           | PASS; Prettier and whitespace                               |
 | `python scripts/scan_public_files.py`                     | PASS; heuristic working-file and reachable-history patterns |
@@ -31,15 +31,17 @@ The installed `scripts/verify_remote_installed.py` also passed against an actual
 
 `scripts/capture_research_examples.py` completes three cases in one actual research-only stdio MCP session and retains compact results and every resolved evidence reference. The executed captures are fictional. Nineteen publication/measurement tests cover content-addressed bytes, overwrite rejection, synthetic/failed/incomplete/evidence-mismatched export rejection, complete public JSON links, search ownership tags, controlled prompts, unknown rates, reviewed/unknown outcomes and invalid/duplicate/credential-bearing observation rejection. Mock non-synthetic metadata exists only inside an offline publication-format test and is not live-source evidence.
 
-## Experimental fundamental risk extension
+## Experimental native factor risk extension
 
 `uv run --offline pytest tests/test_risk_model.py` passes 54 fictional-data tests. They cover independently specified factor recovery, constrained industry identification, covariance symmetry/positive semidefiniteness, Euler contribution additivity, benchmark-relative zero risk, factor shocks, insufficient history/universe/rank, availability cutoffs, delayed closes, later-vintage/future-return exclusion, missing/duplicate/invalid input rejection, content hashes, private permissions, deterministic restart and caller-context isolation, atomic quota failure and holdout baseline calculations. No input is a real-market observation.
 
-The actual official stdio MCP client imports a complete panel, fits a model and analyzes a portfolio through one connection. Other checks cover the CLI, SDK, opt-in HTTP route and official Streamable HTTP client with an in-memory ASGI transport. Remote anonymous risk mode is rejected. Existing default tool sets retain their six research-only tools; enabling risk adds one state-writing tool. IP sockets remain disabled in the default suite.
+`tests/test_factor_workflow.py` adds 39 offline tests. Independent linear data recover known time-series alphas/betas under OLS and EWMA-WLS, for both total and excess factors; holdouts verify risk-free subtraction. Cases also cover JPY return labeling, caller Decimal traps, future-data isolation, missing/collinear factors, invalid units, native JSON/CSV/SQLite numerical agreement, adjusted-price pipelines, raw-capitalization/adjustment separation, explicit aliases/columns, rejection of SQLite binary floats, saved ingestion receipts, restart reproducibility, unchanged source databases, network-extension opt-in and no-read preview/configuration bounds.
 
-`atlas risk demo --json` completes a 60-stock/four-style/60-estimation-session example with risk attribution, tracking error, a common-factor shock and 20 subsequent sessions versus a historical EWMA portfolio baseline. The wheel built from this source tree was installed offline into a new virtual environment from locked runtime requirements; the same demo passed outside the repository using installed package files. This source-tree wheel is not a new published release. Its synthetic numbers do not establish forecast accuracy.
+The actual official stdio MCP client imports a complete panel, fits a model and analyzes a portfolio through one connection. Additional actual stdio calls run each model in one request from configured CSV inputs, without uploading observations. HTTP tests execute a configured SQLite input and reject caller path/SQL/URL arguments. Other checks cover the CLI, SDK and official Streamable HTTP client with an in-memory ASGI transport. Remote anonymous risk mode is rejected. Existing default tool sets retain their six research-only tools; enabling risk adds one state-writing tool. IP sockets remain disabled in the default suite.
 
-The model has no equity-price feed, independently verified PIT vintages, corporate-action/security-master reconciliation, changing-universe engine or actual-data calibration study. Input rights and availability timestamps remain caller assertions. The balanced supplied universe, coarse SIC divisions, approximate residual degrees-of-freedom adjustment, diagonal specific covariance and fixed-exposure annualization are material methodological limits. See [risk methodology and usage](risk-model.md).
+`atlas risk demo --json` completes a 60-stock/four-style/60-estimation-session example with risk attribution, tracking error, a common-factor shock and 20 subsequent sessions versus a historical EWMA portfolio baseline. `--method time_series` completes the same native-connection workflow with three fictional assets and observed factors. The source-tree wheel was installed offline into a fresh virtual environment from locked runtime requirements; both demos passed outside the repository with isolated imports from installed package files. New configuration/request examples were also validated against the actual installed models. This wheel is not a new published release. Its synthetic numbers do not establish forecast accuracy.
+
+Neither model includes an equity-price feed, independently verified PIT vintages, corporate-action/security-master reconciliation, changing-universe engine or actual-data calibration study. No external equity API provider is bundled or live-tested; the trusted Python extension contract and network guard are tested offline. Input rights and availability timestamps remain caller assertions. The balanced supplied universe, coarse SIC divisions for fundamental estimation, approximate residual degrees-of-freedom adjustments, diagonal specific covariance and fixed-exposure annualization are material methodological limits. See [risk methodology and usage](risk-model.md).
 
 ## Data and payment coverage
 
