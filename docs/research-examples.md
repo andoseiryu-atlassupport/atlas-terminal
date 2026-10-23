@@ -4,6 +4,8 @@ Atlas Terminal can retrieve US inflation, overnight rates, reference FX and comp
 
 ## Three complete cases
 
+For an installed five-minute introduction, start with the [rates/FX walkthrough](agent-research-walkthrough.md) or [Japanese portfolio risk walkthrough](japan-risk-walkthrough.md). Both include recorded fictional execution, complete JSON, transcripts and 60-second replays. They do not require a source checkout or an LLM. The cases below cover additional content-addressed research capture.
+
 | Question                                                    | Reproducible case                                     | What to inspect                                                 |
 | ----------------------------------------------------------- | ----------------------------------------------------- | --------------------------------------------------------------- |
 | How can an agent retrieve CPI, SOFR and USD/JPY together?   | [Inflation, rates and FX](inflation-rates-fx.md)      | Different observation dates and same-day ECB cross inputs       |

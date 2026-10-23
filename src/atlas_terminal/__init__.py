@@ -1,3 +1,3 @@
-"""Atlas Terminal: free public-source US equity research without a model dependency."""
+"""Atlas Terminal: financial research and native factor risk for AI agents."""
 
-__version__ = "0.6.0"
+__version__ = "0.7.0"

@@ -19,7 +19,7 @@ In the intended PyPI account, configure a pending trusted publisher with these e
 Create/configure the GitHub `pypi` environment according to your release policy. The workflow runs only by manual dispatch on main. After creating a GitHub release, invoke:
 
 ```sh
-gh workflow run pypi.yml --ref main -f tag=v0.6.0
+gh workflow run pypi.yml --ref main -f tag=v0.7.0
 ```
 
 Confirm the published version and hashes on PyPI, then test installation in a fresh environment before changing the documented GitHub installation path. An existing project owned by someone else must use a different distribution name and corresponding Registry identifier. The workflow never overwrites an existing version.

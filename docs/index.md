@@ -2,6 +2,20 @@
 
 Atlas Terminal connects AI agents to company financials, US/Japan and international macro indicators and reference foreign exchange data from free public primary sources. One MCP connection exposes 26 datasets, five multi-source presets and traceable evidence. A Python SDK, CLI and HTTP API use the same services. Research needs no data subscription, wallet or built-in LLM. BEA national accounts require a free registered API key.
 
+## Try a complete workflow in five minutes
+
+```sh
+uv tool install 'git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.7.0'
+atlas showcase research
+atlas showcase japan-risk
+```
+
+Use Python 3.12+ and uv. Installation downloads the package; both walkthroughs then use fictional data through an actual official MCP session. They need no data account or LLM. Add `--json` for the exact queries and complete evidence. One session retrieves reference FX and overnight rates; the other reads a native connection, estimates a Japanese cross-sectional model and analyzes a portfolio.
+
+[Watch the rates/FX replay and reproduce it](agent-research-walkthrough.md) · [Watch the Japanese risk replay and reproduce it](japan-risk-walkthrough.md) · [Connect your own Codex agent](codex.md)
+
+For actual data, the research walkthrough supports `--provider public --allow-network`. Portfolio risk uses supplied histories and a broad estimation universe; equity-price data are not bundled. Public-source connectivity and real-market model accuracy are distinct from the fictional demonstrations.
+
 ## Start with a task
 
 | Task                                                | Atlas workflow                                                                            | Original sources                    |
@@ -25,7 +39,7 @@ Start with the [Codex setup](codex.md) or [general MCP quickstart](quickstart.md
 Try the packaged fictional data before making any public-source requests:
 
 ```sh
-uvx --from 'git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.6.0' atlas research preset fx_context --base-currency USD --quote-currency JPY --include fx,us_sofr --provider fixture --json
+uvx --from 'git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.7.0' atlas research preset fx_context --base-currency USD --quote-currency JPY --include fx,us_sofr --provider fixture --json
 ```
 
 This example uses synthetic data, not current market observations. It needs Python 3.12+ and uv, and its first installation needs network access. The Python package is not yet published on PyPI.

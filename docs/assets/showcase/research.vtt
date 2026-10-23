@@ -1,0 +1,59 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:10.000
+atlas showcase research
+
+Atlas Terminal 0.7.0 | research
+FICTIONAL DATA - not market observations
+Official MCP client | one stdio session | no LLM | no payment
+
+Recorded JSON rendered as a paced replay.
+Playback duration is not execution time.
+
+00:00:10.000 --> 00:00:20.000
+atlas showcase research
+
+Atlas Terminal 0.7.0 | research
+FICTIONAL DATA - not market observations
+Official MCP client | one stdio session | no LLM | no payment
+
+fx: 120 JPY_per_USD | observation 2026-10-19
+us_sofr: 1.30 percent_per_annum | observation 2026-10-19
+
+00:00:20.000 --> 00:00:30.000
+atlas showcase research
+
+fx: 120 JPY_per_USD | observation 2026-10-19
+us_sofr: 1.30 percent_per_annum | observation 2026-10-19
+Resolved original evidence: 9 references
+USD/JPY = JPY per EUR / USD per EUR, using the same observation date.
+SOFR and FX retain their own observation dates; they are not an atomic snapshot.
+
+00:00:30.000 --> 00:00:40.000
+atlas showcase research
+
+USD/JPY = JPY per EUR / USD per EUR, using the same observation date.
+SOFR and FX retain their own observation dates; they are not an atomic snapshot.
+
+PASS | Re-run with --json for complete queries, results and evidence.
+
+00:00:40.000 --> 00:00:50.000
+atlas showcase research
+
+fx: 120 JPY_per_USD | observation 2026-10-19
+us_sofr: 1.30 percent_per_annum | observation 2026-10-19
+Resolved original evidence: 9 references
+USD/JPY = JPY per EUR / USD per EUR, using the same observation date.
+SOFR and FX retain their own observation dates; they are not an atomic snapshot.
+
+PASS | Re-run with --json for complete queries, results and evidence.
+
+00:00:50.000 --> 00:01:00.000
+atlas showcase research --json
+
+Complete queries, results and evidence are in the JSON report.
+
+Research: add --provider public --allow-network for actual source reads.
+Japan risk: supply your own licensed histories and a broad estimation universe.
+
+FICTIONAL DATA | Experimental risk methods | No market accuracy claim

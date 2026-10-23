@@ -1,7 +1,9 @@
 # Release notes
 
-## Unreleased
+## 0.7.0
 
+- Run `atlas showcase research` and `atlas showcase japan-risk` from an installed package through actual official MCP client sessions. Inspect complete JSON, resolved evidence, model metadata and holdout output; public research requires explicit network opt-in.
+- Publish two reproducible walkthroughs with fictional execution reports, transcripts, captions and 60-second video replays. Add a structured first-run feedback form and align installation guides with the release.
 - Add independent experimental fundamental equity risk models for US/USD, Japanese/JPY, Korean/KRW and British/GBP supplied observations: market/local-industry/style exposures, identified cross-sectional WLS, shrunk EWMA factor covariance and specific variances, portfolio risk contributions, tracking error and common-factor shocks.
 - Support JPX33 and explicit KSIC 10/11 sections, native industry mappings, local-currency guards, market-specific session bounds and saved market/classification metadata. Local-market demos run through the shared native workflow; no country/FX factors or global covariance is supplied.
 - Support explicit UK SIC 2007/2026 sections with revision timing/holdout checks and GBP/pence price normalization before return ratios and raw-price capitalization. Quotation labels are required for GBP prices; reported capitalization stays GBP and no foreign currency conversion is inferred.

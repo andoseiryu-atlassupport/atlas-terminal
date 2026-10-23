@@ -1,0 +1,17 @@
+Atlas Terminal 0.7.0 | japan-risk
+FICTIONAL DATA - not market observations
+Official MCP client | one stdio session | no LLM | no payment
+
+Market: JP / JPY / jpx33
+Estimation universe: 60 fictional stocks; holdings: 20
+Estimation sessions: 60; factors: 9
+Annualized volatility (decimal return): 0.0758285179453346648727178880609915307546462
+Style exposures (standardized model units):
+  style:size: -0.169465
+  style:value: -0.131739
+  style:profitability: -0.282661
+  style:leverage: 0.216816
+A subsequent holdout was evaluated; synthetic results do not measure market accuracy.
+Bring a broad estimation universe and rights-cleared history for your own portfolio.
+
+PASS | Re-run with --json for complete queries, results and evidence.

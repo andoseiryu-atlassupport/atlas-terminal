@@ -11,3 +11,5 @@ uv.lock
 src/atlas_terminal/resources/
 tests/fixtures/
 schemas/examples/
+# Recorded execution bytes are covered by the showcase manifest checksums.
+docs/assets/showcase/

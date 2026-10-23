@@ -27,6 +27,41 @@ def script(name):
 capture = script("capture_research_examples")
 discovery = script("summarize_discovery")
 docs = script("build_docs")
+showcases = script("verify_showcases")
+
+
+def test_docs_preserve_recorded_media_bytes_and_serve_captioned_players(tmp_path):
+    docs.build(tmp_path)
+    for scenario, page in (
+        ("research", "agent-research-walkthrough"),
+        ("japan-risk", "japan-risk-walkthrough"),
+    ):
+        html = (tmp_path / "docs" / f"{page}.html").read_text()
+        assert '<video controls preload="metadata" playsinline' in html
+        assert f'<track src="../assets/showcase/{scenario}.vtt"' in html
+        for extension in ("mp4", "json", "vtt", "txt"):
+            name = f"{scenario}.{extension}"
+            assert (tmp_path / "assets/showcase" / name).read_bytes() == (
+                ROOT / "docs/assets/showcase" / name
+            ).read_bytes()
+
+
+@pytest.mark.parametrize("change", ["bytes", "version", "data_mode"])
+def test_recording_validation_rejects_modified_or_mislabeled_execution(tmp_path, change):
+    source = ROOT / "docs/assets/showcase"
+    showcases.verify(source)
+    destination = tmp_path / "recordings"
+    shutil.copytree(source, destination)
+    manifest = json.loads((destination / "manifest.json").read_text())
+    if change == "bytes":
+        (destination / "research.mp4").write_bytes(b"altered")
+    elif change == "version":
+        manifest["recordings"][0]["atlas_version"] = "0.0.0"
+    else:
+        manifest["recordings"][0]["is_synthetic"] = False
+    (destination / "manifest.json").write_text(json.dumps(manifest))
+    with pytest.raises(ValueError):
+        showcases.verify(destination)
 
 
 @pytest.fixture

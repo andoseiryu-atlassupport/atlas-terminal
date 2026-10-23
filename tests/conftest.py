@@ -9,6 +9,12 @@ from atlas_terminal.providers import FixtureTransport, SECProvider
 FIXTURES = Path(__file__).parent / "fixtures"
 
 
+@pytest.fixture(autouse=True)
+def private_test_state(tmp_path, monkeypatch):
+    """Keep repeated test runs independent of an operator's persistent cache."""
+    monkeypatch.setenv("ATLAS_STATE_DIR", str(tmp_path / "atlas-state"))
+
+
 @pytest.fixture
 def atlas():
     return Atlas("fixture")
