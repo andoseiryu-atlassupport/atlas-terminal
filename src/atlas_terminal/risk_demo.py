@@ -10,28 +10,49 @@ from typing import Any
 from atlas_terminal.client import Atlas
 from atlas_terminal.risk_connections import NativeRiskConnector, RiskConnectionSpec
 from atlas_terminal.risk_engine import RiskPanel, exposures
+from atlas_terminal.risk_markets import MARKET_CURRENCIES, EquityMarket
 from atlas_terminal.risk_math import ZERO, dot, text
 from atlas_terminal.risk_models import RiskMethod, RiskPanelInput
 from atlas_terminal.util import canonical, digest, stamp
 
 
-def fictional_panel(sessions: int = 85, assets: int = 60) -> dict[str, Any]:
+def fictional_panel(
+    sessions: int = 85, assets: int = 60, country: EquityMarket = "US"
+) -> dict[str, Any]:
     """Simulate observations, never a market-data fixture or forecast-quality benchmark."""
     rng = Random(402)
-    ids = [f"USDEMO{i:03d}" for i in range(assets)]
-    start = datetime(2024, 1, 2, 21, tzinfo=UTC)
-    caps = {asset: Decimal(rng.randrange(200, 2000)) * 1000000 for asset in ids}
+    ids = [f"{country}DEMO{i:03d}" for i in range(assets)]
+    start = (
+        datetime(2024, 1, 2, 21, tzinfo=UTC)
+        if country == "US"
+        else datetime(2025, 1, 2, 6, 30, tzinfo=UTC)
+    )
+    currency = MARKET_CURRENCIES[country]
+    scale = {"US": 1, "JP": 150, "KR": 1400}[country]  # Fictional amounts, not FX rates.
+    scheme = {"US": "sic_division", "JP": "jpx33", "KR": "ksic11_section"}[country]
+    caps = {asset: Decimal(rng.randrange(200, 2000)) * 1000000 * scale for asset in ids}
     fundamentals = []
     for i, asset in enumerate(ids):
-        total_assets = Decimal(rng.randrange(100, 3000)) * 1000000
+        total_assets = Decimal(rng.randrange(100, 3000)) * 1000000 * scale
         fundamentals.append(
             {
                 "asset_id": asset,
-                "period_end": "2023-12-01T21:00:00Z",
-                "available_at": "2024-01-01T21:00:00Z",
+                "period_end": stamp(start.replace(year=start.year - 1, month=12, day=1)),
+                "available_at": stamp(start - timedelta(days=1)),
                 "source_id": "fictional",
                 "locator": f"fundamentals/{asset}",
-                "sic": ("1311", "3571", "6021", "7372")[i % 4],
+                "currency": currency,
+                **(
+                    {"sic": ("1311", "3571", "6021", "7372")[i % 4]}
+                    if country == "US"
+                    else {
+                        "industry_code": (
+                            ("1050", "3650", "7050", "5250")
+                            if country == "JP"
+                            else ("B", "C", "K", "J")
+                        )[i % 4]
+                    }
+                ),
                 "book_equity": text(caps[asset] * Decimal(rng.randrange(10, 180)) / 100),
                 "total_assets": text(total_assets),
                 "net_income_ttm": text(total_assets * Decimal(rng.randrange(-5, 30)) / 100),
@@ -42,16 +63,23 @@ def fictional_panel(sessions: int = 85, assets: int = 60) -> dict[str, Any]:
         "manifest": {
             "kind": "manifest",
             "is_synthetic": True,
+            "country": country,
+            "currency": currency,
+            "industry_classification": scheme,
             "return_convention": "split_and_dividend_adjusted_simple_total_return",
-            "universe": [{"asset_id": asset} for asset in ids],
+            "universe": [
+                {"asset_id": asset, "country": country, "currency": currency} for asset in ids
+            ],
             "sources": [
                 {
                     "source_id": "fictional",
                     "uri": "https://example.invalid/fictional-risk-observations",
                     "raw_sha256": digest(
-                        canonical({"generator": "atlas-risk-demo-v1", "seed": 402})
+                        canonical(
+                            {"generator": "atlas-risk-demo-v2", "seed": 402, "country": country}
+                        )
                     ),
-                    "retrieved_at": "2024-01-01T21:00:00Z",
+                    "retrieved_at": stamp(start - timedelta(days=1)),
                     "usage_basis": "operator_supplied_rights_cleared",
                 }
             ],
@@ -189,8 +217,18 @@ def fictional_time_series_panel(sessions: int = 85) -> dict[str, Any]:
     return data
 
 
-def run_demo(atlas: Atlas, method: RiskMethod = "cross_sectional") -> dict[str, Any]:
-    data = fictional_panel() if method == "cross_sectional" else fictional_time_series_panel()
+def run_demo(
+    atlas: Atlas, method: RiskMethod = "cross_sectional", country: EquityMarket = "US"
+) -> dict[str, Any]:
+    if method == "time_series" and country != "US":
+        from atlas_terminal.errors import AtlasError
+
+        raise AtlasError("INVALID_INPUT", "The country option selects a fundamental demo market.")
+    data = (
+        fictional_panel(country=country)
+        if method == "cross_sectional"
+        else fictional_time_series_panel()
+    )
     if method == "cross_sectional":
         positions = [
             {"asset_id": a["asset_id"], "weight": "0.05"} for a in data["manifest"]["universe"][:20]
@@ -208,7 +246,7 @@ def run_demo(atlas: Atlas, method: RiskMethod = "cross_sectional") -> dict[str, 
     with TemporaryDirectory(prefix="atlas-risk-demo-") as temporary:
         path = Path(temporary) / "panel.json"
         path.write_bytes(canonical(data))
-        connection_id = "fictional_" + method
+        connection_id = "fictional_" + method + "_" + country
         atlas.register_risk_connection(
             connection_id,
             NativeRiskConnector(

@@ -1,0 +1,16 @@
+{
+  "action": "run",
+  "connection_id": "kr_stocks",
+  "fit": {
+    "method": "cross_sectional",
+    "as_of": "2025-12-31T06:35:00Z",
+    "lookback": 126,
+    "styles": ["size", "value", "profitability", "leverage"]
+  },
+  "positions": [
+    { "asset_id": "KR_STOCK_A", "weight": "0.6" },
+    { "asset_id": "KR_STOCK_B", "weight": "0.4" }
+  ],
+  "benchmark": [{ "asset_id": "KR_STOCK_A", "weight": "1" }],
+  "shocks": [{ "factor": "market", "return_shock": "-0.05" }]
+}

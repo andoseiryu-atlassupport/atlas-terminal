@@ -16,6 +16,7 @@ from atlas_terminal.macro_catalog import Currency
 from atlas_terminal.models import parse_query
 from atlas_terminal.research_batch import MAX_BATCH_REQUEST_BYTES
 from atlas_terminal.research_models import Dataset
+from atlas_terminal.risk_markets import EquityMarket
 from atlas_terminal.risk_models import MAX_RISK_BYTES, RiskMethod
 
 app = typer.Typer(no_args_is_help=True, add_completion=False, pretty_exceptions_enable=False)
@@ -81,13 +82,15 @@ def risk_catalog(json_output: bool = typer.Option(False, "--json")) -> None:
 
 @risk_app.command("demo")
 def risk_demo(
-    method: RiskMethod = "cross_sectional", json_output: bool = typer.Option(False, "--json")
+    method: RiskMethod = "cross_sectional",
+    country: EquityMarket = "US",
+    json_output: bool = typer.Option(False, "--json"),
 ) -> None:
     """Run a native connection-to-model workflow and evaluate 20 later fictional sessions."""
     from atlas_terminal.risk_demo import run_demo
 
     with Atlas("public") as atlas:
-        output(run_demo(atlas, method))
+        output(run_demo(atlas, method, country))
 
 
 @risk_app.command("connections")

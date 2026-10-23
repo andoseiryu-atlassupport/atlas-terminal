@@ -35,6 +35,7 @@ class RiskConnectionSpec(RiskBase):
     columns: dict[Table, dict[Identifier, ColumnName]] = Field(default_factory=dict)
     tables: dict[Table, Identifier] = Field(default_factory=dict)
     asset_map: dict[SourceAsset, Identifier] = Field(default_factory=dict, max_length=200)
+    industry_map: dict[SourceAsset, Identifier] = Field(default_factory=dict, max_length=500)
     return_input: Literal["returns", "adjusted_prices"] = "returns"
 
     @model_validator(mode="after")
@@ -42,11 +43,17 @@ class RiskConnectionSpec(RiskBase):
         if not Path(self.path).is_absolute():
             raise ValueError("Configure an absolute local path")
         if self.kind == "json" and (
-            self.columns or self.tables or self.asset_map or self.return_input != "returns"
+            self.columns
+            or self.tables
+            or self.asset_map
+            or self.industry_map
+            or self.return_input != "returns"
         ):
             raise ValueError("JSON already uses canonical field and asset names")
         if self.kind != "sqlite" and self.tables:
             raise ValueError("Table mapping applies only to SQLite")
+        if self.method != "cross_sectional" and self.industry_map:
+            raise ValueError("Industry mapping applies only to fundamental inputs")
         if len(self.asset_map.values()) != len(set(self.asset_map.values())):
             raise ValueError("Asset aliases must not collapse distinct supplied identifiers")
         for mapping in self.columns.values():
@@ -135,6 +142,14 @@ def mapped_rows(
             row = dict(row)
         if "asset_id" in row:
             row["asset_id"] = spec.asset_map.get(row["asset_id"], row["asset_id"])
+        if table == "fundamentals":
+            for optional in ("sic", "industry_code", "currency"):
+                if row.get(optional) == "":
+                    row.pop(optional)
+            if "industry_code" in row:
+                row["industry_code"] = spec.industry_map.get(
+                    row["industry_code"], row["industry_code"]
+                )
         result.append(row)
     return result
 
@@ -299,6 +314,7 @@ class NativeRiskConnector:
                             "columns": self.spec.columns,
                             "tables": self.spec.tables,
                             "asset_map": self.spec.asset_map,
+                            "industry_map": self.spec.industry_map,
                         }
                     )
                 ),

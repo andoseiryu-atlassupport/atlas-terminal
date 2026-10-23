@@ -36,12 +36,12 @@ A CSV connection points to an absolute directory containing `manifest.json`, `se
 
 SQLite uses the same logical tables plus exactly one JSON row in `manifest(body TEXT)`. Amount columns must be stored or exposed as decimal text. Numeric `REAL` values are rejected rather than silently converted to strings. Atlas opens the database with `mode=ro`, `query_only=ON` and a read transaction. Tables and views are supported; there is no caller-supplied SQL. An operator may map logical table names to existing table/view names using `tables`, for example `{"returns":"adjusted_return_history"}`. The `manifest` table name is fixed.
 
-| Logical table  | Required columns                                                                                                                       |
-| -------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `sessions`     | `start_at`, `end_at`, `available_at`, `source_id`, `locator`                                                                           |
-| `returns`      | `end_at`, `asset_id`, `total_return`; also `market_cap` for cross-sectional inputs                                                     |
-| `fundamentals` | `asset_id`, `period_end`, `available_at`, `source_id`, `locator`, `sic`, `book_equity`, `total_assets`, `net_income_ttm`, `total_debt` |
-| `factors`      | `end_at`, `factor_id`, `return`                                                                                                        |
+| Logical table  | Required columns                                                                                                                                                                                        |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sessions`     | `start_at`, `end_at`, `available_at`, `source_id`, `locator`                                                                                                                                            |
+| `returns`      | `end_at`, `asset_id`, `total_return`; also `market_cap` for cross-sectional inputs                                                                                                                      |
+| `fundamentals` | `asset_id`, `period_end`, `available_at`, `source_id`, `locator`, US `sic` or local `industry_code`, `book_equity`, `total_assets`, `net_income_ttm`, `total_debt`; explicit `currency` for Japan/Korea |
+| `factors`      | `end_at`, `factor_id`, `return`                                                                                                                                                                         |
 
 Time-series `sessions` also requires `factor_source_id` and `factor_locator`. Include `risk_free_return` only for `factor_convention="excess_return"`; it is required then. Empty CSV risk-free cells are omitted. A SQLite NULL also represents an omitted risk-free value.
 
@@ -63,7 +63,7 @@ Explicit column mappings select and rename source columns; unselected columns ar
 }
 ```
 
-Mappings are one-to-one and all selected source columns must exist. `asset_map` applies to relational asset observations and fundamentals; manifest IDs are already canonical. A mapping never merges two instruments into one. Use the full declared fields for the selected model rather than guessing an instrument from a ticker alone.
+Column/asset mappings are one-to-one and all selected source columns must exist. `asset_map` applies to relational asset observations and fundamentals; manifest IDs are already canonical. An asset mapping never merges two instruments into one. Fundamental `industry_map` can explicitly map source labels to canonical local codes, including many source labels to one industry. Targets must match the manifest classification. Blank optional `sic`, `industry_code` and `currency` CSV cells are omitted before validation. See [local-market inputs](equity-markets.md); no country, currency or accounting conversion is inferred from an identifier.
 
 ## Convert supplied prices to returns
 

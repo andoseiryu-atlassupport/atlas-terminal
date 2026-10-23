@@ -2,7 +2,8 @@
 
 ## Unreleased
 
-- Add an independent experimental US fundamental equity risk model on supplied, rights-cleared observations: market/SIC/style exposures, identified cross-sectional WLS, shrunk EWMA factor covariance and specific variances, portfolio risk contributions, tracking error and common-factor shocks.
+- Add independent experimental fundamental equity risk models for US/USD, Japanese/JPY and Korean/KRW supplied observations: market/local-industry/style exposures, identified cross-sectional WLS, shrunk EWMA factor covariance and specific variances, portfolio risk contributions, tracking error and common-factor shocks.
+- Support JPX33 and explicit KSIC 10/11 sections, native industry mappings, local-currency guards, market-specific session bounds and saved market/classification metadata. Local-market demos run through the shared native workflow; no country/FX factors or global covariance is supplied.
 - Add native observed-factor time-series OLS/EWMA-WLS with diagnostic intercepts, original-unit betas and explicit total/excess-return conventions. Both methods share portfolio analysis and subsequent holdout validation.
 - Add operator-configured JSON, CSV and read-only SQLite inputs with explicit column/asset mappings, adjusted-price return normalization, input receipts and a single read/validate/fit/analyze request. Network provider extensions require explicit execution opt-in; preview reads no datasets.
 - Store versioned content-addressed input chunks and immutable model artifacts in private state. Share CLI/SDK computations with opt-in MCP/HTTP; remote risk mode requires bearer authentication. Historical availability remains caller-asserted, with strict timing, coverage and rank checks.

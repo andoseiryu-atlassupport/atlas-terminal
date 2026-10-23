@@ -4,10 +4,10 @@ Atlas includes two independent experimental estimators: fundamental cross-sectio
 
 The same deterministic service is available through the Python SDK, CLI, optional MCP tool and optional reference HTTP route. [Native JSON, CSV and SQLite inputs](data-connections.md) support one-call read/normalize/validate/fit/analyze. There is no price subscription, external model API, LLM or payment dependency. **Atlas does not supply an equity price feed or a verified historical fundamental database.** Bring observations whose use you are authorized to permit, including any derived-output use.
 
-| Method                      | What is supplied                                                                    | What is estimated                                                                 |
-| --------------------------- | ----------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| `cross_sectional` (default) | A broad US stock universe, lagged market caps and financial vintages, asset returns | Each session's market/industry/style returns from characteristics-based exposures |
-| `time_series`               | Aligned asset returns and observed factor-return series                             | Each asset's betas and diagnostic alpha over time                                 |
+| Method                      | What is supplied                                                                                                          | What is estimated                                                                 |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `cross_sectional` (default) | A broad US, Japanese or Korean stock universe in local currency, lagged market caps and financial vintages, asset returns | Each session's market/industry/style returns from characteristics-based exposures |
+| `time_series`               | Aligned asset returns and observed factor-return series                                                                   | Each asset's betas and diagnostic alpha over time                                 |
 
 These are distinct estimators. Time-series betas are not substituted for fundamental exposures. Both feed the same `X F X' + D` portfolio calculations. Cross-sectional fitting requires at least 30 estimation stocks even when the requested portfolio holds only a few.
 
@@ -17,12 +17,14 @@ From a source checkout with the locked dependencies installed:
 
 ```sh
 uv run --offline atlas risk demo --json
+uv run --offline atlas risk demo --country JP --json
+uv run --offline atlas risk demo --country KR --json
 uv run --offline atlas risk demo --method time_series --json
 ```
 
 The default example reads 60 fictional stocks through a native connection, fits 60 daily cross sections using four styles, analyzes a 20-stock portfolio against a specified benchmark, applies a market shock and compares the fixed forecast with 20 subsequent sessions and a historical portfolio EWMA baseline. The time-series variant uses three fictional assets and three supplied factors with the same workflow. Both write content-addressed inputs and models to private local state. `is_synthetic=true` is preserved even with the `public` provider. The numbers demonstrate execution, not accuracy on real markets.
 
-For real supplied observations, configure a [named input connection](data-connections.md), list it with `atlas risk connections --json`, and submit the [cross-sectional](../examples/risk/run-cross-sectional.json) or [time-series](../examples/risk/run-time-series.json) `run` request after adapting its IDs and dates. Preview runs no data reads. The separate import/fit/analyze operations below also remain available.
+For real supplied observations, configure a [named input connection](data-connections.md), list it with `atlas risk connections --json`, and submit the [cross-sectional](../examples/risk/run-cross-sectional.json) or [time-series](../examples/risk/run-time-series.json) `run` request after adapting its IDs and dates. The [local-market guide](equity-markets.md) covers Japanese/JPY and Korean/KRW declarations, classification codes and requests. Preview runs no data reads. The separate import/fit/analyze operations below also remain available.
 
 ## Supply observations
 
@@ -40,8 +42,8 @@ atlas risk import /path/to/rights-cleared-panel.json --json
 
 The importer validates the complete panel, then saves immutable bounded chunks. Retain `head_id`. Local bulk input is limited to 32 MiB. An individual request or input chunk must fit within 64 KiB. MCP and HTTP accept JSON chunks, never arbitrary file paths or URLs.
 
-- The cross-sectional manifest identifies 30–200 assets, US common-stock/USD scope, sources, synthetic status and the exact split-and-dividend-adjusted simple-total-return convention. All assets must have a return and positive end-of-session market capitalization in every supplied session. Time-series manifests allow 1–200 assets in one explicit currency and require no capitalization or fundamentals.
-- Fundamental vintages contain asset ID, actual period end, `available_at`, SIC, book equity, total assets, trailing twelve-month net income, total debt, source ID and locator. All monetary inputs use USD. Total assets must be positive; debt must be nonnegative. Negative equity/income remain reported negative values.
+- The cross-sectional manifest identifies 30–200 common stocks from one US/USD, JP/JPY or KR/KRW market, its industry classification, sources, synthetic status and the exact split-and-dividend-adjusted simple-total-return convention. All assets must have a return and positive end-of-session market capitalization in every supplied session. Time-series manifests allow 1–200 assets in one explicit currency and require no capitalization or fundamentals.
+- Fundamental vintages contain asset ID, actual period end, `available_at`, US `sic` or local `industry_code`, book equity, total assets, trailing twelve-month net income, total debt, source ID and locator. Japanese/Korean vintages explicitly declare matching `currency`. Monetary inputs use full units of the manifest currency. Total assets must be positive; debt must be nonnegative. Negative equity/income remain reported negative values.
 - Sessions contain explicit start/end/availability timestamps, source ID, locator and asset observations. Their boundaries must be contiguous; availability must be no earlier than period end and nondecreasing. Weekend gaps can lie inside a daily period. Atlas does not infer an exchange holiday calendar.
 - Source references include an original-byte SHA-256 assertion, retrieval timestamp and `usage_basis=operator_supplied_rights_cleared`. URLs are references only. Atlas does not download or verify those original files. The actual submitted JSON chunks and model artifacts receive independently checked content hashes.
 - All numbers are decimal strings; timestamps include time zones. Missing returns, duplicates, unsupported units/types, conflicting vintages and invalid denominators fail explicitly. Returns of -100% and nonpositive market caps are outside this balanced-universe prototype. Returns are never filled or silently imputed.
@@ -108,7 +110,9 @@ For an operator-hosted Streamable HTTP connection, add `--enable-risk` to `atlas
 
 The loopback reference API exposes `POST /v1/risk` only with `atlas serve --enable-risk`. It is for local/operator use; see [self-hosting](self-hosting.md). Research/payment behavior is unchanged.
 
-## Methodology: atlas-us-fundamental-v1
+## Fundamental cross-sectional methodology
+
+The shared estimator uses `atlas-us-fundamental-v1`, `atlas-jp-fundamental-v1` or `atlas-kr-fundamental-v1` according to the manifest market. Classification and currency remain explicit in the saved artifact and portfolio/holdout results. See [local-market conventions](equity-markets.md).
 
 For each estimated session, Atlas constructs exposures using information with `available_at <= start_at` and estimates:
 
@@ -117,7 +121,7 @@ r(t) = X(start(t)) f(t) + residual(t)
 asset covariance = X(as_of) F X(as_of)' + diagonal(specific variances)
 ```
 
-Market capitalization comes from the most recent available completed session, no more than seven calendar days old. A close received after a return period starts cannot be used for that period; an earlier available session may be selected. Fundamentals use the latest available actual period and its latest available vintage; its period end must be within 550 days. Forecast exposures use only information available at `as_of`. Future observations in the input chain cannot change earlier fitted numerical outputs, although the chain hash records the complete supplied input.
+Market capitalization comes from the most recent available completed session, no more than seven calendar days old for US models or fourteen for Japan/Korea. Session lengths use those same market-specific bounds to allow extended closures; no exchange calendar is inferred. A close received after a return period starts cannot be used for that period; an earlier available session may be selected. Fundamentals use the latest available actual period and its latest available vintage; its period end must be within 550 days. Forecast exposures use only information available at `as_of`. Future observations in the input chain cannot change earlier fitted numerical outputs, although the chain hash records the complete supplied input.
 
 | Style               | Raw descriptor                                                           | Required prior available sessions |
 | ------------------- | ------------------------------------------------------------------------ | --------------------------------- |
@@ -131,7 +135,7 @@ Market capitalization comes from the most recent available completed session, no
 
 The last two descriptors use a supplied-universe proxy, not an external market index. Momentum uses session counts, not exact calendar months. All selected styles must be available for every asset/date. Each raw style is clipped to linearly interpolated cross-sectional 5th/95th percentiles, then standardized with WLS-weighted mean and population variance. No missing style is set to zero.
 
-Industries aggregate the public two-digit SIC ranges into ten broad divisions independently of proprietary classifications. At least two divisions with three assets each are required. Membership must stay fixed throughout the estimation window and forecast snapshot. This is a coarse industry model, not a fine industry taxonomy.
+US industries aggregate public two-digit SIC ranges into ten broad divisions. Japan uses supplied JPX33 codes; Korea uses supplied KSIC 10/11 top-level sections A–U. No proprietary taxonomy or inferred crosswalk is used. At least two represented industries with three assets each are required. Membership must stay fixed throughout the estimation window and forecast snapshot. Granularity differs across markets; in particular, Korean manufacturing is one broad section. These classifications do not establish a vendor-equivalent taxonomy or assignment history.
 
 The WLS objective weights each squared residual proportionally to the square root of lagged market capitalization. Market plus all industry indicators are identified by the constraint `sum(industry_market_cap * industry_factor_return) = 0`. Atlas eliminates the largest-cap industry coefficient, solves the reduced system with partial pivoting, and reconstructs its factor return. It rejects flat styles, insufficient observations, collinearity and small relative pivots below `1e-10`; it never uses a hidden ridge term to conceal an unidentified model. There must be at least 30 stocks and three observations per free regression parameter. A small portfolio alone is not a valid estimation universe.
 

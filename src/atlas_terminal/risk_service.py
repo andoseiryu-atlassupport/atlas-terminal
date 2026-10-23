@@ -16,6 +16,7 @@ from atlas_terminal.risk_engine import (
     portfolio_risk,
     portfolio_weights,
 )
+from atlas_terminal.risk_markets import JPX33, KSIC_SECTIONS, market_catalog
 from atlas_terminal.risk_math import ONE, covariance, dot, ewma_weights, text
 from atlas_terminal.risk_models import (
     MAX_RISK_BYTES,
@@ -69,6 +70,7 @@ def risk_catalog() -> dict[str, Any]:
                 "estimates": "factor returns for each cross section",
                 "default_styles": ["size", "value", "profitability", "leverage"],
                 "min_assets": 30,
+                "markets": market_catalog(),
             },
             "time_series": {
                 "methodology_version": TIME_SERIES_METHODOLOGY,
@@ -109,7 +111,14 @@ def risk_catalog() -> dict[str, Any]:
             "beta": "126-session OLS beta to the equal-weight supplied-universe return proxy",
             "residual_volatility": "126-session residual standard deviation from the same OLS fit",
         },
-        "industry": "Independent public two-digit SIC division aggregation; no GICS mapping",
+        "industry": {
+            "sic_division": "US public SIC divisions",
+            "jpx33": JPX33,
+            "ksic10_section": list(KSIC_SECTIONS),
+            "ksic11_section": list(KSIC_SECTIONS),
+            "issuer_assignments": "supplied by the operator with historical availability",
+            "crosswalks_inferred": False,
+        },
         "limitations": LIMITATIONS,
     }
 
@@ -518,6 +527,15 @@ class RiskService:
         method = artifact["summary"].get("method", "cross_sectional")
         if (method == "time_series") != isinstance(panel, TimeSeriesPanel):
             raise AtlasError("INVALID_INPUT", "Validation must use the saved estimation method.")
+        if isinstance(panel, RiskPanel) and (
+            panel.manifest.country != artifact["summary"].get("country", "US")
+            or panel.manifest.currency != artifact["summary"]["currency"]
+            or panel.manifest.industry_classification
+            != artifact["summary"].get("industry_classification", "sic_division")
+        ):
+            raise AtlasError(
+                "INVALID_INPUT", "Validation market, currency and classification must match."
+            )
         if isinstance(panel, TimeSeriesPanel) and (
             panel.manifest.currency != artifact["summary"]["currency"]
             or panel.manifest.factor_convention != artifact["summary"]["modeled_return"]
@@ -556,6 +574,8 @@ class RiskService:
             "as_of": utc_key(as_of),
             "validation_head_id": query.head_id,
             "currency": artifact["summary"]["currency"],
+            "country": artifact["summary"].get("country"),
+            "industry_classification": artifact["summary"].get("industry_classification"),
             "modeled_return": artifact["summary"].get("modeled_return", "total_return"),
             "sessions": len(subsequent),
             "start_at": utc_key(subsequent[0].start_at),

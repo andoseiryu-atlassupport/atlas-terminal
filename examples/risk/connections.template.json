@@ -8,6 +8,18 @@
       "path": "/absolute/operator/us-stock-panel"
     },
     {
+      "connection_id": "jp_stocks",
+      "kind": "csv",
+      "method": "cross_sectional",
+      "path": "/absolute/operator/japan-stock-panel"
+    },
+    {
+      "connection_id": "kr_stocks",
+      "kind": "sqlite",
+      "method": "cross_sectional",
+      "path": "/absolute/operator/korea-stock-panel.sqlite3"
+    },
+    {
       "connection_id": "observed_factors",
       "kind": "sqlite",
       "method": "time_series",

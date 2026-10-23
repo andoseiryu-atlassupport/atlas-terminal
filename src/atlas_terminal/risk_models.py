@@ -16,6 +16,14 @@ from pydantic import (
 )
 
 from atlas_terminal.errors import AtlasError
+from atlas_terminal.risk_markets import (
+    MARKET_CLASSIFICATIONS,
+    MARKET_CURRENCIES,
+    EquityCurrency,
+    EquityMarket,
+    FundamentalMethodology,
+    IndustryClassification,
+)
 from atlas_terminal.util import canonical
 
 METHODOLOGY: Final = "atlas-us-fundamental-v1"
@@ -61,8 +69,8 @@ class RiskSource(RiskBase):
 
 class RiskAsset(RiskBase):
     asset_id: Identifier
-    country: Literal["US"] = "US"
-    currency: Literal["USD"] = "USD"
+    country: EquityMarket = "US"
+    currency: EquityCurrency = "USD"
     security_type: Literal["common_stock"] = "common_stock"
 
 
@@ -74,10 +82,20 @@ class RiskManifest(RiskBase):
     sources: list[RiskSource] = Field(min_length=1, max_length=10)
     return_convention: Literal["split_and_dividend_adjusted_simple_total_return"]
     frequency: Literal["daily"] = "daily"
-    currency: Literal["USD"] = "USD"
+    country: EquityMarket = "US"
+    currency: EquityCurrency = "USD"
+    industry_classification: IndustryClassification = "sic_division"
 
     @model_validator(mode="after")
     def unique_ids(self) -> Self:
+        if self.currency != MARKET_CURRENCIES[self.country]:
+            raise ValueError("Use the selected market's local currency")
+        if self.industry_classification not in MARKET_CLASSIFICATIONS[self.country]:
+            raise ValueError("Use an explicit industry classification for the selected market")
+        if any(
+            row.country != self.country or row.currency != self.currency for row in self.universe
+        ):
+            raise ValueError("Every asset must match the single-market manifest country/currency")
         for values in (
             [row.asset_id for row in self.universe],
             [row.source_id for row in self.sources],
@@ -93,7 +111,9 @@ class RiskFundamental(RiskBase):
     available_at: RiskTimestamp
     source_id: Identifier
     locator: str = Field(min_length=1, max_length=160)
-    sic: Annotated[str, Field(pattern=r"^[0-9]{4}$")]
+    sic: Annotated[str, Field(pattern=r"^[0-9]{4}$")] | None = None
+    industry_code: Identifier | None = None
+    currency: EquityCurrency | None = None
     book_equity: Number
     total_assets: Number
     net_income_ttm: Number
@@ -101,6 +121,8 @@ class RiskFundamental(RiskBase):
 
     @model_validator(mode="after")
     def valid_fundamental(self) -> Self:
+        if (self.sic is None) == (self.industry_code is None):
+            raise ValueError("Supply either a US SIC or a local industry code, not both")
         if self.period_end > self.available_at:
             raise ValueError("Fundamental predates its period end")
         if Decimal(self.total_assets) <= 0 or Decimal(self.total_debt) < 0:
@@ -132,7 +154,7 @@ class RiskSession(RiskBase):
 
     @model_validator(mode="after")
     def valid_session(self) -> Self:
-        if not 0 < (self.end_at - self.start_at).total_seconds() <= 7 * 86400:
+        if not 0 < (self.end_at - self.start_at).total_seconds() <= 14 * 86400:
             raise ValueError("Use explicit daily session boundaries")
         if self.available_at < self.end_at:
             raise ValueError("Returns cannot be available before the period ends")
@@ -390,7 +412,7 @@ class RiskResult(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
     schema_version: Literal["0.1.0"] = "0.1.0"
-    methodology_version: Literal["atlas-us-fundamental-v1", "atlas-time-series-v1"] | None = None
+    methodology_version: FundamentalMethodology | Literal["atlas-time-series-v1"] | None = None
     action: Literal["catalog", "connections", "put", "fit", "get", "analyze", "validate", "run"]
     is_synthetic: bool | None
     data: dict[str, Any]

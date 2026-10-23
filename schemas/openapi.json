@@ -4483,7 +4483,15 @@
             "anyOf": [
               {
                 "type": "string",
-                "enum": ["atlas-us-fundamental-v1", "atlas-time-series-v1"]
+                "enum": [
+                  "atlas-us-fundamental-v1",
+                  "atlas-jp-fundamental-v1",
+                  "atlas-kr-fundamental-v1"
+                ]
+              },
+              {
+                "type": "string",
+                "const": "atlas-time-series-v1"
               },
               {
                 "type": "null"
@@ -8440,14 +8448,14 @@
             "type": "string"
           },
           "country": {
-            "const": "US",
             "default": "US",
+            "enum": ["US", "JP", "KR"],
             "title": "Country",
             "type": "string"
           },
           "currency": {
-            "const": "USD",
             "default": "USD",
+            "enum": ["USD", "JPY", "KRW"],
             "title": "Currency",
             "type": "string"
           },
@@ -8694,9 +8702,43 @@
             "type": "string"
           },
           "sic": {
-            "pattern": "^[0-9]{4}$",
-            "title": "Sic",
-            "type": "string"
+            "anyOf": [
+              {
+                "pattern": "^[0-9]{4}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Sic"
+          },
+          "industry_code": {
+            "anyOf": [
+              {
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,47}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Industry Code"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "enum": ["USD", "JPY", "KRW"],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Currency"
           },
           "book_equity": {
             "pattern": "^-?(?:0|[1-9][0-9]{0,17})(?:\\.[0-9]{1,18})?$",
@@ -8725,7 +8767,6 @@
           "available_at",
           "source_id",
           "locator",
-          "sic",
           "book_equity",
           "total_assets",
           "net_income_ttm",
@@ -8841,10 +8882,27 @@
             "title": "Frequency",
             "type": "string"
           },
+          "country": {
+            "default": "US",
+            "enum": ["US", "JP", "KR"],
+            "title": "Country",
+            "type": "string"
+          },
           "currency": {
-            "const": "USD",
             "default": "USD",
+            "enum": ["USD", "JPY", "KRW"],
             "title": "Currency",
+            "type": "string"
+          },
+          "industry_classification": {
+            "default": "sic_division",
+            "enum": [
+              "sic_division",
+              "jpx33",
+              "ksic10_section",
+              "ksic11_section"
+            ],
+            "title": "Industry Classification",
             "type": "string"
           }
         },

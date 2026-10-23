@@ -5,6 +5,7 @@ import csv
 import json
 import sqlite3
 import sys
+from datetime import datetime, timedelta
 from decimal import ROUND_UP, Context, Decimal, Inexact, localcontext
 from pathlib import Path
 
@@ -23,6 +24,12 @@ from atlas_terminal.risk_connections import (
     price_returns,
 )
 from atlas_terminal.risk_demo import fictional_panel, fictional_time_series_panel
+from atlas_terminal.risk_markets import (
+    JPX33,
+    KSIC_SECTIONS,
+    MARKET_CURRENCIES,
+    MARKET_METHODOLOGIES,
+)
 from atlas_terminal.risk_models import RiskQuery, parse_risk
 from atlas_terminal.server import create_app
 from atlas_terminal.util import canonical, digest
@@ -31,6 +38,11 @@ from atlas_terminal.util import canonical, digest
 @pytest.fixture(scope="module")
 def panels():
     return {"cross_sectional": fictional_panel(), "time_series": fictional_time_series_panel()}
+
+
+@pytest.fixture(scope="module")
+def local_panels():
+    return {country: fictional_panel(country=country) for country in ("JP", "KR")}
 
 
 def relational(panel):
@@ -47,7 +59,7 @@ def relational(panel):
                 for name, value in session["factor_returns"].items()
             )
     if "fundamentals" in panel:
-        tables["fundamentals"] = panel["fundamentals"]
+        tables["fundamentals"] = [dict(row) for row in panel["fundamentals"]]
     return tables
 
 
@@ -639,10 +651,19 @@ def configure_file(path, specs):
     path.chmod(0o600)
 
 
-async def test_actual_mcp_one_call_runs_each_native_model_without_data_upload(tmp_path, panels):
+async def test_actual_mcp_one_call_runs_each_native_model_without_data_upload(
+    tmp_path, panels, local_panels
+):
+    inputs = panels | local_panels
     specs = [
-        write_connection(tmp_path / method, panel, method, "csv")
-        for method, panel in panels.items()
+        write_connection(
+            tmp_path / name,
+            panel,
+            "time_series" if name == "time_series" else "cross_sectional",
+            "csv",
+            connection_id=name,
+        )
+        for name, panel in inputs.items()
     ]
     config = tmp_path / "operator-connections.json"
     configure_file(config, specs)
@@ -672,12 +693,16 @@ async def test_actual_mcp_one_call_runs_each_native_model_without_data_upload(tm
         assert len(tools) == 7
         tool = next(t for t in tools if t.name == "atlas_risk")
         for spec in specs:
-            query = run_query(panels[spec.method], spec.connection_id, spec.method)
+            panel = inputs[spec.connection_id]
+            query = run_query(panel, spec.connection_id, spec.method)
             Draft202012Validator(tool.input_schema).validate({"query": query})
             result = await session.call_tool("atlas_risk", {"query": query})
             assert not result.is_error, result.content
             Draft202012Validator(tool.output_schema).validate(result.structured_content)
             assert result.structured_content["data"]["model"]["method"] == spec.method
+            assert result.structured_content["data"]["model"]["currency"] == panel["manifest"].get(
+                "currency", "USD"
+            )
             assert str(tmp_path) not in result.content[0].text
         bad = await session.call_tool("atlas_risk", {"query": query | {"path": "SECRET_SENTINEL"}})
         assert bad.is_error and "SECRET_SENTINEL" not in bad.content[0].text
@@ -765,3 +790,285 @@ def test_configuration_permissions_and_combined_quota_are_checked_before_registr
         with pytest.raises(AtlasError) as permissions:
             RiskConnections().catalog()
         assert permissions.value.code == "CONFIG_REQUIRED"
+
+
+@pytest.mark.parametrize("country", ["JP", "KR"])
+@pytest.mark.parametrize("kind", ["json", "csv", "sqlite"])
+def test_local_market_input_to_risk_and_restart(tmp_path, local_panels, country, kind):
+    panel = local_panels[country]
+    spec = write_connection(tmp_path / "input", panel, "cross_sectional", kind)
+    with Atlas("public", directory=tmp_path / "state") as atlas:
+        atlas.register_risk_connection(spec.connection_id, NativeRiskConnector(spec))
+        query = run_query(panel, spec.connection_id, "cross_sectional")
+        result = atlas.risk(query)
+        summary = result["data"]["model"]
+        assert summary["country"] == country
+        assert summary["currency"] == MARKET_CURRENCIES[country]
+        assert result["methodology_version"] == MARKET_METHODOLOGIES[country]
+        assert summary["industry_classification"] == panel["manifest"]["industry_classification"]
+        assert len([f for f in summary["factor_order"] if f.startswith("industry:")]) == 4
+        asset_id = panel["manifest"]["universe"][0]["asset_id"]
+        asset = atlas.risk(
+            {
+                "action": "get",
+                "model_id": summary["model_id"],
+                "view": "assets",
+                "asset_ids": [asset_id],
+            }
+        )["data"]["assets"][0]
+        assert asset["vintage"]["industry_code"] == panel["fundamentals"][0]["industry_code"]
+        assert asset["vintage"]["currency"] == MARKET_CURRENCIES[country]
+        holdout = atlas.risk(
+            {
+                "action": "validate",
+                "model_id": summary["model_id"],
+                "head_id": summary["input_head_id"],
+                "positions": query["positions"],
+            }
+        )["data"]
+        assert holdout["sessions"] == 20 and holdout["country"] == country
+        assert Decimal(holdout["realized_daily_sample_variance"]) > 0
+        assert atlas.risk(query) == result
+    with Atlas("public", directory=tmp_path / "state") as restarted:
+        saved = restarted.risk({"action": "get", "model_id": summary["model_id"]})["data"]
+        assert saved == summary
+
+
+def in_local_currency(panel, country):
+    converted = copy.deepcopy(panel)
+    currency = MARKET_CURRENCIES[country]
+    scale = Decimal("100" if country == "JP" else "1000")
+    converted["manifest"].update(
+        country=country,
+        currency=currency,
+        industry_classification="jpx33" if country == "JP" else "ksic10_section",
+    )
+    for asset in converted["manifest"]["universe"]:
+        asset.update(country=country, currency=currency)
+    with localcontext(Context(prec=42)):
+        for row in converted["fundamentals"]:
+            row["currency"] = currency
+            sic = row.pop("sic")
+            row["industry_code"] = {
+                "1311": "1050" if country == "JP" else "B",
+                "3571": "3650" if country == "JP" else "C",
+                "6021": "7050" if country == "JP" else "K",
+                "7372": "9050" if country == "JP" else "J",
+            }[sic]
+            for amount in ("book_equity", "total_assets", "net_income_ttm", "total_debt"):
+                row[amount] = format(Decimal(row[amount]) * scale, "f")
+        for row in converted["sessions"]:
+            for observation in row["observations"]:
+                observation["market_cap"] = format(Decimal(observation["market_cap"]) * scale, "f")
+    return converted
+
+
+@pytest.mark.parametrize("country", ["JP", "KR"])
+def test_currency_unit_scaling_and_industry_permutation_preserve_portfolio_risk(
+    tmp_path, panels, country
+):
+    original = panels["cross_sectional"]
+    converted = in_local_currency(original, country)
+    results = []
+    with Atlas("public", directory=tmp_path) as atlas:
+        for panel in (original, converted):
+            head = atlas.import_risk_panel(panel)["head_id"]
+            model = atlas.risk(
+                {"action": "fit", "head_id": head, "as_of": panel["sessions"][64]["end_at"]}
+            )["data"]
+            results.append(
+                atlas.risk(
+                    {
+                        "action": "analyze",
+                        "model_id": model["model_id"],
+                        "positions": [{"asset_id": "USDEMO000", "weight": "1"}],
+                    }
+                )["data"]["portfolio"]
+            )
+        for metric in ("daily_variance", "daily_volatility", "annualized_volatility"):
+            assert abs(Decimal(results[0][metric]) - Decimal(results[1][metric])) < Decimal("1e-32")
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "market_currency",
+        "mixed_country",
+        "mixed_currency",
+        "wrong_classification",
+        "fundamental_currency",
+        "undeclared_currency",
+        "missing_industry",
+        "us_sic_in_japan",
+        "both_classifications",
+        "unknown_jpx_code",
+    ],
+)
+def test_local_market_metadata_errors_fail_before_import(tmp_path, local_panels, mutation):
+    panel = copy.deepcopy(local_panels["JP"])
+    row = panel["fundamentals"][0]
+    if mutation == "market_currency":
+        panel["manifest"]["currency"] = "USD"
+    elif mutation == "mixed_country":
+        panel["manifest"]["universe"][0]["country"] = "KR"
+    elif mutation == "mixed_currency":
+        panel["manifest"]["universe"][0]["currency"] = "USD"
+    elif mutation == "wrong_classification":
+        panel["manifest"]["industry_classification"] = "sic_division"
+    elif mutation == "fundamental_currency":
+        row["currency"] = "USD"
+    elif mutation == "undeclared_currency":
+        row.pop("currency")
+    elif mutation == "missing_industry":
+        row.pop("industry_code")
+    elif mutation == "us_sic_in_japan":
+        row.pop("industry_code")
+        row["sic"] = "3571"
+    elif mutation == "both_classifications":
+        row["sic"] = "3571"
+    else:
+        row["industry_code"] = "9999"
+    with Atlas("public", directory=tmp_path) as atlas, pytest.raises(AtlasError):
+        atlas.import_risk_panel(panel)
+    assert not (tmp_path / "risk-models.sqlite3").exists()
+
+
+@pytest.mark.parametrize("mutation", ["numeric", "lowercase", "invalid_section", "pre_revision"])
+def test_korean_classification_requires_explicit_sections_and_consistent_revision(
+    tmp_path, local_panels, mutation
+):
+    panel = copy.deepcopy(local_panels["KR"])
+    row = panel["fundamentals"][0]
+    if mutation == "pre_revision":
+        row["available_at"] = "2024-06-30T14:59:59Z"
+    else:
+        row["industry_code"] = {"numeric": "26110", "lowercase": "c", "invalid_section": "V"}[
+            mutation
+        ]
+    with Atlas("public", directory=tmp_path) as atlas, pytest.raises(AtlasError):
+        atlas.import_risk_panel(panel)
+    assert not (tmp_path / "risk-models.sqlite3").exists()
+
+
+def test_holdouts_cannot_change_market_or_classification(tmp_path, panels, local_panels):
+    with Atlas("public", directory=tmp_path) as atlas:
+        for original, changed in (
+            (panels["cross_sectional"], in_local_currency(panels["cross_sectional"], "JP")),
+            (
+                local_panels["KR"],
+                local_panels["KR"]
+                | {
+                    "manifest": local_panels["KR"]["manifest"]
+                    | {"industry_classification": "ksic10_section"}
+                },
+            ),
+        ):
+            head = atlas.import_risk_panel(original)["head_id"]
+            model = atlas.risk(
+                {"action": "fit", "head_id": head, "as_of": original["sessions"][64]["end_at"]}
+            )["data"]
+            changed_head = atlas.import_risk_panel(changed)["head_id"]
+            with pytest.raises(AtlasError, match="market, currency and classification"):
+                atlas.risk(
+                    {
+                        "action": "validate",
+                        "model_id": model["model_id"],
+                        "head_id": changed_head,
+                        "positions": [
+                            {
+                                "asset_id": original["manifest"]["universe"][0]["asset_id"],
+                                "weight": "1",
+                            }
+                        ],
+                    }
+                )
+
+
+def test_korean_column_and_industry_mapping_and_nullable_sic(tmp_path, local_panels, monkeypatch):
+    panel = local_panels["KR"]
+    tables = relational(panel)
+    for row in tables["fundamentals"]:
+        row["Reported Sector"] = "source_" + row.pop("industry_code")
+        row["sic"] = ""
+    fields = set(tables["fundamentals"][0]) - {"Reported Sector", "sic"}
+    spec = write_connection(
+        tmp_path / "input",
+        panel,
+        "cross_sectional",
+        "csv",
+        table_data=tables,
+        columns={
+            "fundamentals": {k: k for k in fields}
+            | {"industry_code": "Reported Sector", "sic": "sic"}
+        },
+        industry_map={"source_" + s: s for s in KSIC_SECTIONS},
+    )
+    config = tmp_path / "connections.json"
+    configure_file(config, [spec])
+    monkeypatch.setenv("ATLAS_RISK_CONNECTIONS_FILE", str(config))
+    with TestClient(
+        create_app(provider="fixture", directory=tmp_path / "state", enable_risk=True)
+    ) as http:
+        result = http.post("/v1/risk", json=run_query(panel, spec.connection_id, "cross_sectional"))
+        assert result.status_code == 200, result.text
+        assert result.json()["data"]["model"]["currency"] == "KRW"
+
+
+def test_market_catalog_is_complete_and_does_not_create_state(tmp_path):
+    assert len(JPX33) == 33 and len(KSIC_SECTIONS) == 21
+    with Atlas("public", directory=tmp_path) as atlas:
+        markets = atlas.risk({"action": "catalog"})["data"]["methods"]["cross_sectional"]["markets"]
+    assert {c: m["currency"] for c, m in markets.items()} == {"US": "USD", "JP": "JPY", "KR": "KRW"}
+    assert markets["KR"]["industry_classifications"] == ["ksic10_section", "ksic11_section"]
+    assert not (tmp_path / "risk-models.sqlite3").exists()
+
+
+def test_legacy_us_panels_remain_usable_without_new_market_fields(tmp_path, panels):
+    panel = copy.deepcopy(panels["cross_sectional"])
+    for key in ("country", "currency", "industry_classification"):
+        panel["manifest"].pop(key)
+    for asset in panel["manifest"]["universe"]:
+        asset.pop("country")
+        asset.pop("currency")
+    for row in panel["fundamentals"]:
+        row.pop("currency")
+    with Atlas("public", directory=tmp_path) as atlas:
+        head = atlas.import_risk_panel(panel)["head_id"]
+        model = atlas.risk(
+            {"action": "fit", "head_id": head, "as_of": panel["sessions"][64]["end_at"]}
+        )["data"]
+    assert model["country"] == "US" and model["currency"] == "USD"
+    assert model["methodology_version"] == "atlas-us-fundamental-v1"
+
+
+def test_japanese_leading_zero_industry_and_nullable_columns_round_trip(tmp_path, local_panels):
+    panel = copy.deepcopy(local_panels["JP"])
+    for row in panel["fundamentals"]:
+        if row["industry_code"] == "1050":
+            row["industry_code"] = "0050"
+        row["sic"] = None
+    spec = write_connection(tmp_path / "input", panel, "cross_sectional", "csv")
+    with Atlas("public", directory=tmp_path / "state") as atlas:
+        atlas.register_risk_connection(spec.connection_id, NativeRiskConnector(spec))
+        result = atlas.risk(run_query(panel, spec.connection_id, "cross_sectional"))
+        assert "industry:jpx33_0050" in result["data"]["model"]["factor_order"]
+
+
+@pytest.mark.parametrize("country", ["US", "JP", "KR"])
+def test_extended_local_market_closures_have_explicit_bounds(
+    tmp_path, panels, local_panels, country
+):
+    panel = copy.deepcopy(panels["cross_sectional"] if country == "US" else local_panels[country])
+    for i, row in enumerate(panel["sessions"][10:]):
+        for key in ("end_at", "available_at") if i == 0 else ("start_at", "end_at", "available_at"):
+            row[key] = (datetime.fromisoformat(row[key]) + timedelta(days=7)).isoformat()
+    with Atlas("public", directory=tmp_path) as atlas:
+        if country == "US":
+            with pytest.raises(AtlasError, match="market gap bound"):
+                atlas.import_risk_panel(panel)
+            return
+        head = atlas.import_risk_panel(panel)["head_id"]
+        model = atlas.risk(
+            {"action": "fit", "head_id": head, "as_of": panel["sessions"][64]["end_at"]}
+        )["data"]
+        assert model["max_session_calendar_days"] == 14

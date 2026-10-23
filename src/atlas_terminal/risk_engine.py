@@ -2,12 +2,18 @@
 
 from collections.abc import Sequence
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from functools import cached_property
 from typing import Any
 
 from atlas_terminal.errors import AtlasError
+from atlas_terminal.risk_markets import (
+    JPX33,
+    KSIC_SECTIONS,
+    MARKET_METHODOLOGIES,
+    MAX_SESSION_DAYS,
+)
 from atlas_terminal.risk_math import (
     ONE,
     ZERO,
@@ -22,7 +28,6 @@ from atlas_terminal.risk_math import (
 from atlas_terminal.risk_models import (
     DEFAULT_STYLES,
     MAX_RISK_SESSIONS,
-    METHODOLOGY,
     STYLES,
     RiskAnalyzeQuery,
     RiskFitQuery,
@@ -38,6 +43,8 @@ LIMITATIONS = [
     "Input rights and historical availability are operator assertions, not independently verified.",
     "A balanced, supplied universe is required; survivorship/selection bias is not corrected.",
     "No consolidated price feed, security master, delisting engine, ETF look-through or FX risk.",
+    "Each fundamental model uses one US/USD, JP/JPY or KR/KRW universe; no country/FX factors.",
+    "Local accounting amounts must be comparable full currency units; no GAAP/IFRS conversion.",
     "Diagonal specific risk omits residual correlations; no liquidity or trading-cost estimate.",
     "Annualization is daily variance times 252 with fixed exposures and no serial correlation.",
     "Synthetic verification does not establish forecast accuracy on real portfolios.",
@@ -63,6 +70,27 @@ def industry(sic: str) -> str:
     raise AtlasError("RISK_INPUT_INCOMPLETE", "A supplied SIC has no supported division.")
 
 
+def local_industry(manifest: RiskManifest, row: RiskFundamental) -> str:
+    if row.currency != manifest.currency and not (
+        manifest.country == "US" and row.currency is None
+    ):
+        raise AtlasError("INVALID_INPUT", "Fundamental currency must match the local market.")
+    scheme = manifest.industry_classification
+    if scheme == "sic_division" and row.sic is not None:
+        return industry(row.sic)
+    if scheme == "jpx33" and row.sic is None and row.industry_code in JPX33:
+        return "jpx33_" + str(row.industry_code)
+    if scheme in {"ksic10_section", "ksic11_section"} and (
+        row.sic is None and row.industry_code in KSIC_SECTIONS
+    ):
+        if scheme == "ksic11_section" and row.available_at < datetime(2024, 6, 30, 15, tzinfo=UTC):
+            raise AtlasError("INVALID_INPUT", "KSIC 11 availability predates July 1, 2024 KST.")
+        return scheme + "_" + str(row.industry_code)
+    raise AtlasError(
+        "INVALID_INPUT", "Use a supported industry code in the declared market classification."
+    )
+
+
 @dataclass
 class RiskPanel:
     manifest: RiskManifest
@@ -76,6 +104,10 @@ class RiskPanel:
             raise AtlasError("INVALID_INPUT", "Risk panel exceeds observation bounds.")
         self.sessions.sort(key=lambda row: row.end_at)
         for i, session in enumerate(self.sessions):
+            if (session.end_at - session.start_at) > timedelta(
+                days=MAX_SESSION_DAYS[self.manifest.country]
+            ):
+                raise AtlasError("INVALID_INPUT", "Session exceeds the selected market gap bound.")
             if {r.asset_id for r in session.observations} != assets:
                 raise AtlasError(
                     "RISK_INPUT_INCOMPLETE",
@@ -97,6 +129,7 @@ class RiskPanel:
             if key in seen or row.asset_id not in assets or row.source_id not in sources:
                 raise AtlasError("INVALID_INPUT", "Duplicate fundamental vintage or unknown ID.")
             seen.add(key)
+            local_industry(self.manifest, row)
 
     @cached_property
     def asset_ids(self) -> list[str]:
@@ -126,9 +159,11 @@ class Exposures:
 
 def exposures(panel: RiskPanel, cutoff: datetime, styles: Sequence[str]) -> Exposures:
     known = panel.known_sessions(cutoff)
-    if not known or cutoff - known[-1].end_at > timedelta(days=7):
+    if not known or cutoff - known[-1].end_at > timedelta(
+        days=MAX_SESSION_DAYS[panel.manifest.country]
+    ):
         raise AtlasError(
-            "RISK_INPUT_INCOMPLETE", "No available market capitalization within 7 days."
+            "RISK_INPUT_INCOMPLETE", "No available capitalization within the market age bound."
         )
     caps_by_id = {r.asset_id: Decimal(r.market_cap) for r in known[-1].observations}
     assets = panel.asset_ids
@@ -153,7 +188,7 @@ def exposures(panel: RiskPanel, cutoff: datetime, styles: Sequence[str]) -> Expo
                 "RISK_INPUT_INCOMPLETE", "A fundamental period is older than 550 days."
             )
         fundamentals.append(latest)
-    industries = [industry(row.sic) for row in fundamentals]
+    industries = [local_industry(panel.manifest, row) for row in fundamentals]
     groups = sorted(set(industries))
     if len(groups) < 2 or any(industries.count(g) < 3 for g in groups):
         raise AtlasError(
@@ -230,6 +265,10 @@ def exposures(panel: RiskPanel, cutoff: datetime, styles: Sequence[str]) -> Expo
         [
             {
                 "asset_id": row.asset_id,
+                "country": panel.manifest.country,
+                "currency": panel.manifest.currency,
+                "industry_classification": panel.manifest.industry_classification,
+                "industry_code": str(row.sic or row.industry_code),
                 "period_end": utc_key(row.period_end),
                 "available_at": utc_key(row.available_at),
                 "source_id": row.source_id,
@@ -347,7 +386,7 @@ def fit_model(panel: RiskPanel, query: RiskFitQuery) -> dict[str, Any]:
         for v, g in zip(specific, forecast.industries, strict=True)
     ]
     summary = {
-        "methodology_version": METHODOLOGY,
+        "methodology_version": MARKET_METHODOLOGIES[panel.manifest.country],
         "method": "cross_sectional",
         "modeled_return": "total_return",
         "factor_return_origin": "estimated_cross_sectionally_from_lagged_characteristics",
@@ -355,7 +394,11 @@ def fit_model(panel: RiskPanel, query: RiskFitQuery) -> dict[str, Any]:
         "as_of": utc_key(query.as_of),
         "is_synthetic": panel.manifest.is_synthetic,
         "historical_availability": "caller_asserted_unverified",
-        "currency": "USD",
+        "country": panel.manifest.country,
+        "currency": panel.manifest.currency,
+        "industry_classification": panel.manifest.industry_classification,
+        "max_session_calendar_days": MAX_SESSION_DAYS[panel.manifest.country],
+        "max_capitalization_age_calendar_days": MAX_SESSION_DAYS[panel.manifest.country],
         "frequency": "daily",
         "return_convention": panel.manifest.return_convention,
         "assets": len(panel.asset_ids),
@@ -463,6 +506,8 @@ def analyze_model(artifact: dict[str, Any], query: RiskAnalyzeQuery) -> dict[str
         "model_id": query.model_id,
         "as_of": artifact["summary"]["as_of"],
         "currency": artifact["summary"]["currency"],
+        "country": artifact["summary"].get("country"),
+        "industry_classification": artifact["summary"].get("industry_classification"),
         "method": artifact["summary"].get("method", "cross_sectional"),
         "modeled_return": artifact["summary"].get("modeled_return", "total_return"),
         "portfolio": portfolio_risk(artifact, weights),
