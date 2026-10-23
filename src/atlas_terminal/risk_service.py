@@ -16,7 +16,7 @@ from atlas_terminal.risk_engine import (
     portfolio_risk,
     portfolio_weights,
 )
-from atlas_terminal.risk_markets import JPX33, KSIC_SECTIONS, market_catalog
+from atlas_terminal.risk_markets import JPX33, KSIC_SECTIONS, UK_SIC_SECTIONS, market_catalog
 from atlas_terminal.risk_math import ONE, covariance, dot, ewma_weights, text
 from atlas_terminal.risk_models import (
     MAX_RISK_BYTES,
@@ -101,6 +101,12 @@ def risk_catalog() -> dict[str, Any]:
             "models": MAX_MODELS,
         },
         "arithmetic": "Decimal, 42 significant digits; numeric inputs and outputs are strings",
+        "price_normalization": {
+            "GBP_quote_currency_required": ["GBP", "GBp", "GBX"],
+            "pence_to_GBP_divisor": "100",
+            "reported_market_cap_unit": "manifest currency, never the price quote subunit",
+            "foreign_currency_conversion": False,
+        },
         "timing": "Regression uses session-start information; forecast uses inputs known at as_of.",
         "styles": {
             "size": "ln(lagged market capitalization)",
@@ -116,6 +122,7 @@ def risk_catalog() -> dict[str, Any]:
             "jpx33": JPX33,
             "ksic10_section": list(KSIC_SECTIONS),
             "ksic11_section": list(KSIC_SECTIONS),
+            **{scheme: list(sections) for scheme, sections in UK_SIC_SECTIONS.items()},
             "issuer_assignments": "supplied by the operator with historical availability",
             "crosswalks_inferred": False,
         },

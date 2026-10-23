@@ -13,6 +13,7 @@ from atlas_terminal.risk_markets import (
     KSIC_SECTIONS,
     MARKET_METHODOLOGIES,
     MAX_SESSION_DAYS,
+    UK_SIC_SECTIONS,
 )
 from atlas_terminal.risk_math import (
     ONE,
@@ -43,7 +44,7 @@ LIMITATIONS = [
     "Input rights and historical availability are operator assertions, not independently verified.",
     "A balanced, supplied universe is required; survivorship/selection bias is not corrected.",
     "No consolidated price feed, security master, delisting engine, ETF look-through or FX risk.",
-    "Each fundamental model uses one US/USD, JP/JPY or KR/KRW universe; no country/FX factors.",
+    "Each fundamental model uses one local US, JP, KR or GB universe; no country/FX factors.",
     "Local accounting amounts must be comparable full currency units; no GAAP/IFRS conversion.",
     "Diagonal specific risk omits residual correlations; no liquidity or trading-cost estimate.",
     "Annualization is daily variance times 252 with fixed exposures and no serial correlation.",
@@ -85,6 +86,16 @@ def local_industry(manifest: RiskManifest, row: RiskFundamental) -> str:
     ):
         if scheme == "ksic11_section" and row.available_at < datetime(2024, 6, 30, 15, tzinfo=UTC):
             raise AtlasError("INVALID_INPUT", "KSIC 11 availability predates July 1, 2024 KST.")
+        return scheme + "_" + str(row.industry_code)
+    if (
+        scheme in UK_SIC_SECTIONS
+        and row.sic is None
+        and (row.industry_code in UK_SIC_SECTIONS[scheme])
+    ):
+        if scheme == "uksic2026_section" and row.available_at < datetime(
+            2026, 4, 13, 23, tzinfo=UTC
+        ):
+            raise AtlasError("INVALID_INPUT", "UK SIC 2026 availability predates April 14 BST.")
         return scheme + "_" + str(row.industry_code)
     raise AtlasError(
         "INVALID_INPUT", "Use a supported industry code in the declared market classification."

@@ -36,12 +36,12 @@ A CSV connection points to an absolute directory containing `manifest.json`, `se
 
 SQLite uses the same logical tables plus exactly one JSON row in `manifest(body TEXT)`. Amount columns must be stored or exposed as decimal text. Numeric `REAL` values are rejected rather than silently converted to strings. Atlas opens the database with `mode=ro`, `query_only=ON` and a read transaction. Tables and views are supported; there is no caller-supplied SQL. An operator may map logical table names to existing table/view names using `tables`, for example `{"returns":"adjusted_return_history"}`. The `manifest` table name is fixed.
 
-| Logical table  | Required columns                                                                                                                                                                                        |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sessions`     | `start_at`, `end_at`, `available_at`, `source_id`, `locator`                                                                                                                                            |
-| `returns`      | `end_at`, `asset_id`, `total_return`; also `market_cap` for cross-sectional inputs                                                                                                                      |
-| `fundamentals` | `asset_id`, `period_end`, `available_at`, `source_id`, `locator`, US `sic` or local `industry_code`, `book_equity`, `total_assets`, `net_income_ttm`, `total_debt`; explicit `currency` for Japan/Korea |
-| `factors`      | `end_at`, `factor_id`, `return`                                                                                                                                                                         |
+| Logical table  | Required columns                                                                                                                                                                                                |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sessions`     | `start_at`, `end_at`, `available_at`, `source_id`, `locator`                                                                                                                                                    |
+| `returns`      | `end_at`, `asset_id`, `total_return`; also `market_cap` for cross-sectional inputs                                                                                                                              |
+| `fundamentals` | `asset_id`, `period_end`, `available_at`, `source_id`, `locator`, US `sic` or local `industry_code`, `book_equity`, `total_assets`, `net_income_ttm`, `total_debt`; explicit `currency` for Japan/Korea/Britain |
+| `factors`      | `end_at`, `factor_id`, `return`                                                                                                                                                                                 |
 
 Time-series `sessions` also requires `factor_source_id` and `factor_locator`. Include `risk_free_return` only for `factor_convention="excess_return"`; it is required then. Empty CSV risk-free cells are omitted. A SQLite NULL also represents an omitted risk-free value.
 
@@ -78,6 +78,8 @@ simple total return = adjusted_close(end) / adjusted_close(start) - 1
 The ratio is rounded half-even to 18 decimal places. Its session availability is at least the maximum of the declared session availability and both source-price availability timestamps. Missing boundaries, duplicate/unused price rows, nonpositive prices and availability before close fail.
 
 For cross-sectional inputs, every ending price row must also contain either a positive `market_cap` or positive unadjusted `close` and positive whole `shares_outstanding`. Do not supply both bases. Capitalization is reported directly or calculated as `close * shares_outstanding`, in the manifest currency. Adjusted close is never multiplied by raw shares. Share availability and historical correctness remain operator assertions; do not use today's shares for a historical close. Time-series price inputs need no capitalization columns.
+
+GBP price inputs additionally require `quote_currency` on every row: `GBP` (pounds), `GBp` or `GBX` (pence). Pence `adjusted_close` and raw `close` are divided by exactly 100 before ratios/capitalization; reported `market_cap` stays GBP. Explicit per-row labels allow unit changes across sessions. Other currencies may omit the field, but a supplied value must match the manifest currency. Missing/unknown GBP quote labels fail; price magnitude never selects a unit. This is unit normalization, not currency conversion. See [British conventions](equity-markets.md#sterling-prices-quoted-in-pence). Include `quote_currency` when an explicit `columns.returns` mapping selects source price columns.
 
 ## Evidence and bounds
 

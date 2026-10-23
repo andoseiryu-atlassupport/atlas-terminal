@@ -2,24 +2,41 @@
 
 from typing import Any, Literal
 
-EquityMarket = Literal["US", "JP", "KR"]
-EquityCurrency = Literal["USD", "JPY", "KRW"]
-IndustryClassification = Literal["sic_division", "jpx33", "ksic10_section", "ksic11_section"]
+EquityMarket = Literal["US", "JP", "KR", "GB"]
+EquityCurrency = Literal["USD", "JPY", "KRW", "GBP"]
+IndustryClassification = Literal[
+    "sic_division",
+    "jpx33",
+    "ksic10_section",
+    "ksic11_section",
+    "uksic2007_section",
+    "uksic2026_section",
+]
 FundamentalMethodology = Literal[
-    "atlas-us-fundamental-v1", "atlas-jp-fundamental-v1", "atlas-kr-fundamental-v1"
+    "atlas-us-fundamental-v1",
+    "atlas-jp-fundamental-v1",
+    "atlas-kr-fundamental-v1",
+    "atlas-gb-fundamental-v1",
 ]
 
-MARKET_CURRENCIES: dict[EquityMarket, EquityCurrency] = {"US": "USD", "JP": "JPY", "KR": "KRW"}
-MAX_SESSION_DAYS: dict[EquityMarket, int] = {"US": 7, "JP": 14, "KR": 14}
+MARKET_CURRENCIES: dict[EquityMarket, EquityCurrency] = {
+    "US": "USD",
+    "JP": "JPY",
+    "KR": "KRW",
+    "GB": "GBP",
+}
+MAX_SESSION_DAYS: dict[EquityMarket, int] = {"US": 7, "JP": 14, "KR": 14, "GB": 7}
 MARKET_CLASSIFICATIONS: dict[EquityMarket, tuple[IndustryClassification, ...]] = {
     "US": ("sic_division",),
     "JP": ("jpx33",),
     "KR": ("ksic10_section", "ksic11_section"),
+    "GB": ("uksic2007_section", "uksic2026_section"),
 }
 MARKET_METHODOLOGIES: dict[EquityMarket, FundamentalMethodology] = {
     "US": "atlas-us-fundamental-v1",
     "JP": "atlas-jp-fundamental-v1",
     "KR": "atlas-kr-fundamental-v1",
+    "GB": "atlas-gb-fundamental-v1",
 }
 
 # Public SICC sector identifiers, not proprietary vendor classifications or issuer assignments.
@@ -60,6 +77,10 @@ JPX33 = {
 }
 # Only supplied top-level letters are accepted. No numeric KSIC/KRX/GICS crosswalk is inferred.
 KSIC_SECTIONS = tuple("ABCDEFGHIJKLMNOPQRSTU")
+UK_SIC_SECTIONS = {
+    "uksic2007_section": tuple("ABCDEFGHIJKLMNOPQRSTU"),
+    "uksic2026_section": tuple("ABCDEFGHIJKLMNOPQRSTUV"),
+}
 
 
 def market_catalog() -> dict[str, Any]:

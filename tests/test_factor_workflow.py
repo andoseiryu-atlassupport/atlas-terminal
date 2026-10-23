@@ -29,6 +29,7 @@ from atlas_terminal.risk_markets import (
     KSIC_SECTIONS,
     MARKET_CURRENCIES,
     MARKET_METHODOLOGIES,
+    UK_SIC_SECTIONS,
 )
 from atlas_terminal.risk_models import RiskQuery, parse_risk
 from atlas_terminal.server import create_app
@@ -42,7 +43,7 @@ def panels():
 
 @pytest.fixture(scope="module")
 def local_panels():
-    return {country: fictional_panel(country=country) for country in ("JP", "KR")}
+    return {country: fictional_panel(country=country) for country in ("JP", "KR", "GB")}
 
 
 def relational(panel):
@@ -792,7 +793,7 @@ def test_configuration_permissions_and_combined_quota_are_checked_before_registr
         assert permissions.value.code == "CONFIG_REQUIRED"
 
 
-@pytest.mark.parametrize("country", ["JP", "KR"])
+@pytest.mark.parametrize("country", ["JP", "KR", "GB"])
 @pytest.mark.parametrize("kind", ["json", "csv", "sqlite"])
 def test_local_market_input_to_risk_and_restart(tmp_path, local_panels, country, kind):
     panel = local_panels[country]
@@ -837,11 +838,15 @@ def test_local_market_input_to_risk_and_restart(tmp_path, local_panels, country,
 def in_local_currency(panel, country):
     converted = copy.deepcopy(panel)
     currency = MARKET_CURRENCIES[country]
-    scale = Decimal("100" if country == "JP" else "1000")
+    scale = Decimal({"JP": "100", "KR": "1000", "GB": "10"}[country])
     converted["manifest"].update(
         country=country,
         currency=currency,
-        industry_classification="jpx33" if country == "JP" else "ksic10_section",
+        industry_classification={
+            "JP": "jpx33",
+            "KR": "ksic10_section",
+            "GB": "uksic2007_section",
+        }[country],
     )
     for asset in converted["manifest"]["universe"]:
         asset.update(country=country, currency=currency)
@@ -863,7 +868,7 @@ def in_local_currency(panel, country):
     return converted
 
 
-@pytest.mark.parametrize("country", ["JP", "KR"])
+@pytest.mark.parametrize("country", ["JP", "KR", "GB"])
 def test_currency_unit_scaling_and_industry_permutation_preserve_portfolio_risk(
     tmp_path, panels, country
 ):
@@ -904,8 +909,9 @@ def test_currency_unit_scaling_and_industry_permutation_preserve_portfolio_risk(
         "unknown_jpx_code",
     ],
 )
-def test_local_market_metadata_errors_fail_before_import(tmp_path, local_panels, mutation):
-    panel = copy.deepcopy(local_panels["JP"])
+@pytest.mark.parametrize("country", ["JP", "GB"])
+def test_local_market_metadata_errors_fail_before_import(tmp_path, local_panels, mutation, country):
+    panel = copy.deepcopy(local_panels[country])
     row = panel["fundamentals"][0]
     if mutation == "market_currency":
         panel["manifest"]["currency"] = "USD"
@@ -1016,9 +1022,16 @@ def test_korean_column_and_industry_mapping_and_nullable_sic(tmp_path, local_pan
 
 def test_market_catalog_is_complete_and_does_not_create_state(tmp_path):
     assert len(JPX33) == 33 and len(KSIC_SECTIONS) == 21
+    assert len(UK_SIC_SECTIONS["uksic2007_section"]) == 21
+    assert len(UK_SIC_SECTIONS["uksic2026_section"]) == 22
     with Atlas("public", directory=tmp_path) as atlas:
         markets = atlas.risk({"action": "catalog"})["data"]["methods"]["cross_sectional"]["markets"]
-    assert {c: m["currency"] for c, m in markets.items()} == {"US": "USD", "JP": "JPY", "KR": "KRW"}
+    assert {c: m["currency"] for c, m in markets.items()} == {
+        "US": "USD",
+        "JP": "JPY",
+        "KR": "KRW",
+        "GB": "GBP",
+    }
     assert markets["KR"]["industry_classifications"] == ["ksic10_section", "ksic11_section"]
     assert not (tmp_path / "risk-models.sqlite3").exists()
 
@@ -1054,7 +1067,7 @@ def test_japanese_leading_zero_industry_and_nullable_columns_round_trip(tmp_path
         assert "industry:jpx33_0050" in result["data"]["model"]["factor_order"]
 
 
-@pytest.mark.parametrize("country", ["US", "JP", "KR"])
+@pytest.mark.parametrize("country", ["US", "JP", "KR", "GB"])
 def test_extended_local_market_closures_have_explicit_bounds(
     tmp_path, panels, local_panels, country
 ):
@@ -1063,7 +1076,7 @@ def test_extended_local_market_closures_have_explicit_bounds(
         for key in ("end_at", "available_at") if i == 0 else ("start_at", "end_at", "available_at"):
             row[key] = (datetime.fromisoformat(row[key]) + timedelta(days=7)).isoformat()
     with Atlas("public", directory=tmp_path) as atlas:
-        if country == "US":
+        if country in {"US", "GB"}:
             with pytest.raises(AtlasError, match="market gap bound"):
                 atlas.import_risk_panel(panel)
             return
@@ -1072,3 +1085,226 @@ def test_extended_local_market_closures_have_explicit_bounds(
             {"action": "fit", "head_id": head, "as_of": panel["sessions"][64]["end_at"]}
         )["data"]
         assert model["max_session_calendar_days"] == 14
+
+
+def uk_2026_panel(panel):
+    converted = copy.deepcopy(panel)
+    delta = datetime.fromisoformat("2026-04-20T16:30:00Z") - datetime.fromisoformat(
+        panel["sessions"][0]["start_at"]
+    )
+    converted["manifest"]["industry_classification"] = "uksic2026_section"
+    for row in converted["fundamentals"]:
+        for key in ("period_end", "available_at"):
+            row[key] = (datetime.fromisoformat(row[key]) + delta).isoformat()
+    for row in converted["sessions"]:
+        for key in ("start_at", "end_at", "available_at"):
+            row[key] = (datetime.fromisoformat(row[key]) + delta).isoformat()
+    return converted
+
+
+@pytest.mark.parametrize("revision", ["uksic2007_section", "uksic2026_section"])
+def test_british_revisions_are_explicit_and_cannot_change_in_holdout(
+    tmp_path, local_panels, revision
+):
+    panel = uk_2026_panel(local_panels["GB"])
+    panel["manifest"]["industry_classification"] = revision
+    with Atlas("public", directory=tmp_path) as atlas:
+        head = atlas.import_risk_panel(panel)["head_id"]
+        model = atlas.risk(
+            {"action": "fit", "head_id": head, "as_of": panel["sessions"][64]["end_at"]}
+        )["data"]
+        assert "industry:" + revision + "_J" in model["factor_order"]
+        panel["manifest"]["industry_classification"] = (
+            "uksic2007_section" if revision == "uksic2026_section" else "uksic2026_section"
+        )
+        changed = atlas.import_risk_panel(panel)["head_id"]
+        with pytest.raises(AtlasError, match="market, currency and classification"):
+            atlas.risk(
+                {
+                    "action": "validate",
+                    "model_id": model["model_id"],
+                    "head_id": changed,
+                    "positions": [{"asset_id": "GBDEMO000", "weight": "1"}],
+                }
+            )
+
+
+def test_uk_2026_accepts_new_section_v_without_reinterpreting_2007(tmp_path, local_panels):
+    panel = uk_2026_panel(local_panels["GB"])
+    for row in panel["fundamentals"]:
+        if row["industry_code"] == "B":
+            row["industry_code"] = "V"
+    with Atlas("public", directory=tmp_path) as atlas:
+        head = atlas.import_risk_panel(panel)["head_id"]
+        model = atlas.risk(
+            {"action": "fit", "head_id": head, "as_of": panel["sessions"][64]["end_at"]}
+        )["data"]
+        assert "industry:uksic2026_section_V" in model["factor_order"]
+        panel["manifest"]["industry_classification"] = "uksic2007_section"
+        with pytest.raises(AtlasError):
+            atlas.import_risk_panel(panel)
+
+
+@pytest.mark.parametrize(
+    "mutation", ["numeric", "lowercase", "unknown", "pence_currency", "early_revision"]
+)
+def test_british_invalid_classification_and_canonical_currency_fail(
+    tmp_path, local_panels, mutation
+):
+    panel = copy.deepcopy(local_panels["GB"])
+    if mutation == "early_revision":
+        panel["manifest"]["industry_classification"] = "uksic2026_section"
+    elif mutation == "pence_currency":
+        panel["fundamentals"][0]["currency"] = "GBX"
+    else:
+        panel["fundamentals"][0]["industry_code"] = {
+            "numeric": "62020",
+            "lowercase": "j",
+            "unknown": "W",
+        }[mutation]
+    with Atlas("public", directory=tmp_path) as atlas, pytest.raises(AtlasError):
+        atlas.import_risk_panel(panel)
+    assert not (tmp_path / "risk-models.sqlite3").exists()
+
+
+@pytest.mark.parametrize("initial_unit", ["GBp", "GBX"])
+@pytest.mark.parametrize("cap_basis", ["raw_shares", "reported"])
+def test_pence_to_pounds_and_unit_changes_use_exact_normalized_prices(initial_unit, cap_basis):
+    spec = RiskConnectionSpec(
+        connection_id="uk_prices",
+        kind="csv",
+        method="cross_sectional",
+        path="/operator/data",
+        return_input="adjusted_prices",
+    )
+    sessions = {
+        "2025-01-03T16:30:00+00:00": {
+            "start_at": "2025-01-02T16:30:00Z",
+            "available_at": "2025-01-03T16:30:00Z",
+        }
+    }
+    rows = [
+        {
+            "asset_id": "GB_FICTIONAL",
+            "end_at": "2025-01-02T16:30:00Z",
+            "available_at": "2025-01-02T16:30:00Z",
+            "adjusted_close": "250",
+            "close": "250",
+            "shares_outstanding": "1000",
+            "quote_currency": initial_unit,
+        },
+        {
+            "asset_id": "GB_FICTIONAL",
+            "end_at": "2025-01-03T16:30:00Z",
+            "available_at": "2025-01-03T16:30:00Z",
+            "adjusted_close": "2.75",
+            "close": "1.375",
+            "shares_outstanding": "2000",
+            "quote_currency": "GBP",
+        },
+    ]
+    if cap_basis == "reported":
+        for row, cap in zip(rows, ("2500", "2750"), strict=True):
+            row.pop("close")
+            row.pop("shares_outstanding")
+            row["market_cap"] = cap
+    before = copy.deepcopy(rows)
+    with localcontext(Context(prec=3, rounding=ROUND_UP)) as context:
+        context.traps[Inexact] = True
+        result = price_returns(spec, sessions, rows, {"country": "GB", "currency": "GBP"})
+    assert result[0]["total_return"] == "0.1" and result[0]["market_cap"] == "2750"
+    assert rows == before
+
+
+@pytest.mark.parametrize(
+    "currency,quote",
+    [("GBP", None), ("GBP", "gbp"), ("GBP", "USD"), ("USD", "GBX"), ("GBX", "GBX")],
+)
+def test_price_units_cannot_be_guessed_or_used_as_currency_conversion(currency, quote):
+    spec = RiskConnectionSpec(
+        connection_id="units",
+        kind="csv",
+        method="cross_sectional",
+        path="/operator/data",
+        return_input="adjusted_prices",
+    )
+    row = {
+        "end_at": "2025-01-02T16:30:00Z",
+        "available_at": "2025-01-02T16:30:00Z",
+        "asset_id": "FICTIONAL",
+        "adjusted_close": "250",
+    }
+    if quote is not None:
+        row["quote_currency"] = quote
+    with pytest.raises(ValueError):
+        price_returns(spec, {}, [row], {"currency": currency})
+
+
+@pytest.mark.parametrize("kind", ["csv", "sqlite"])
+def test_british_price_inputs_match_in_pounds_and_mixed_pence_quotes(
+    tmp_path, local_panels, kind, monkeypatch
+):
+    panel = local_panels["GB"]
+    specs = []
+    for mixed in (False, True):
+        tables = relational(panel)
+        prices = []
+        with localcontext(Context(prec=80)):
+            for asset in panel["manifest"]["universe"]:
+                asset_id = asset["asset_id"]
+                price = Decimal("100")
+                observations = [
+                    next(r for r in s["observations"] if r["asset_id"] == asset_id)
+                    for s in panel["sessions"]
+                ]
+                instants = [panel["sessions"][0]["start_at"]] + [
+                    s["end_at"] for s in panel["sessions"]
+                ]
+                for i, instant in enumerate(instants):
+                    obs = observations[max(0, i - 1)]
+                    if i:
+                        price = (price * (1 + Decimal(obs["total_return"]))).quantize(
+                            Decimal("1e-18")
+                        )
+                    quote = ("GBp" if i % 3 == 0 else "GBX") if mixed and i % 3 != 2 else "GBP"
+                    scale = Decimal(1) if quote == "GBP" else Decimal(100)
+                    prices.append(
+                        {
+                            "end_at": instant,
+                            "available_at": instant,
+                            "asset_id": asset_id,
+                            "adjusted_close": format(price * scale, "f"),
+                            "close": format(Decimal(obs["market_cap"]) / 10000000 * scale, "f"),
+                            "shares_outstanding": "10000000",
+                            "quote_currency": quote,
+                        }
+                    )
+        del tables["returns"]
+        tables["prices"] = prices
+        specs.append(
+            write_connection(
+                tmp_path / str(mixed),
+                panel,
+                "cross_sectional",
+                kind,
+                table_data=tables,
+                return_input="adjusted_prices",
+                connection_id="mixed" if mixed else "pounds",
+            )
+        )
+    config = tmp_path / "connections.json"
+    configure_file(config, specs)
+    monkeypatch.setenv("ATLAS_RISK_CONNECTIONS_FILE", str(config))
+    with TestClient(
+        create_app(provider="fixture", directory=tmp_path / "state", enable_risk=True)
+    ) as http:
+        results = [
+            http.post("/v1/risk", json=run_query(panel, s.connection_id, "cross_sectional"))
+            for s in specs
+        ]
+    assert all(r.status_code == 200 for r in results), [r.text for r in results]
+    assert (
+        results[0].json()["data"]["analysis"]["portfolio"]
+        == results[1].json()["data"]["analysis"]["portfolio"]
+    )
+    assert results[1].json()["data"]["input_evidence"]["normalization"]["quote_currency_rule"]

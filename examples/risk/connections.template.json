@@ -20,6 +20,12 @@
       "path": "/absolute/operator/korea-stock-panel.sqlite3"
     },
     {
+      "connection_id": "gb_stocks",
+      "kind": "csv",
+      "method": "cross_sectional",
+      "path": "/absolute/operator/british-stock-panel"
+    },
+    {
       "connection_id": "observed_factors",
       "kind": "sqlite",
       "method": "time_series",

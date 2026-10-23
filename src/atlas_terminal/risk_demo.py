@@ -22,14 +22,16 @@ def fictional_panel(
     """Simulate observations, never a market-data fixture or forecast-quality benchmark."""
     rng = Random(402)
     ids = [f"{country}DEMO{i:03d}" for i in range(assets)]
-    start = (
-        datetime(2024, 1, 2, 21, tzinfo=UTC)
-        if country == "US"
-        else datetime(2025, 1, 2, 6, 30, tzinfo=UTC)
-    )
+    hour, minute = {"US": (21, 0), "JP": (6, 30), "KR": (6, 30), "GB": (16, 30)}[country]
+    start = datetime(2024 if country == "US" else 2025, 1, 2, hour, minute, tzinfo=UTC)
     currency = MARKET_CURRENCIES[country]
-    scale = {"US": 1, "JP": 150, "KR": 1400}[country]  # Fictional amounts, not FX rates.
-    scheme = {"US": "sic_division", "JP": "jpx33", "KR": "ksic11_section"}[country]
+    scale = {"US": 1, "JP": 150, "KR": 1400, "GB": 1}[country]  # Fictional units, not FX.
+    scheme = {
+        "US": "sic_division",
+        "JP": "jpx33",
+        "KR": "ksic11_section",
+        "GB": "uksic2007_section",
+    }[country]
     caps = {asset: Decimal(rng.randrange(200, 2000)) * 1000000 * scale for asset in ids}
     fundamentals = []
     for i, asset in enumerate(ids):

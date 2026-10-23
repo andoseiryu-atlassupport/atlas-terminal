@@ -68,6 +68,7 @@ def main():
             "examples/risk/run-time-series.json",
             "examples/risk/run-japan.json",
             "examples/risk/run-korea.json",
+            "examples/risk/run-britain.json",
             "examples/mcp.risk.json",
             "docs/international-macro.md",
             "examples/research_panels/us_japan.json",

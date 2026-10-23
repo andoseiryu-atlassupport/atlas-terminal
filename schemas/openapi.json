@@ -4486,7 +4486,8 @@
                 "enum": [
                   "atlas-us-fundamental-v1",
                   "atlas-jp-fundamental-v1",
-                  "atlas-kr-fundamental-v1"
+                  "atlas-kr-fundamental-v1",
+                  "atlas-gb-fundamental-v1"
                 ]
               },
               {
@@ -8449,13 +8450,13 @@
           },
           "country": {
             "default": "US",
-            "enum": ["US", "JP", "KR"],
+            "enum": ["US", "JP", "KR", "GB"],
             "title": "Country",
             "type": "string"
           },
           "currency": {
             "default": "USD",
-            "enum": ["USD", "JPY", "KRW"],
+            "enum": ["USD", "JPY", "KRW", "GBP"],
             "title": "Currency",
             "type": "string"
           },
@@ -8730,7 +8731,7 @@
           "currency": {
             "anyOf": [
               {
-                "enum": ["USD", "JPY", "KRW"],
+                "enum": ["USD", "JPY", "KRW", "GBP"],
                 "type": "string"
               },
               {
@@ -8884,13 +8885,13 @@
           },
           "country": {
             "default": "US",
-            "enum": ["US", "JP", "KR"],
+            "enum": ["US", "JP", "KR", "GB"],
             "title": "Country",
             "type": "string"
           },
           "currency": {
             "default": "USD",
-            "enum": ["USD", "JPY", "KRW"],
+            "enum": ["USD", "JPY", "KRW", "GBP"],
             "title": "Currency",
             "type": "string"
           },
@@ -8900,7 +8901,9 @@
               "sic_division",
               "jpx33",
               "ksic10_section",
-              "ksic11_section"
+              "ksic11_section",
+              "uksic2007_section",
+              "uksic2026_section"
             ],
             "title": "Industry Classification",
             "type": "string"
