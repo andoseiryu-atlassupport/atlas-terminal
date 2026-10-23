@@ -1,0 +1,80 @@
+name: Publish reviewed PyPI release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing GitHub release tag, such as v0.6.0
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pypi-publication
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: pypi
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      RELEASE_TAG: ${{ inputs.tag }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Check out reviewed source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: "3.12"
+      - name: Validate release tag
+        run: |
+          python - <<'PY'
+          import os, re, subprocess, tomllib
+          tag = os.environ["RELEASE_TAG"]
+          if not re.fullmatch(r"v[0-9]+\.[0-9]+\.[0-9]+", tag):
+              raise SystemExit("Use a stable version tag.")
+          subprocess.run(["git", "merge-base", "--is-ancestor", tag, "origin/main"], check=True)
+          metadata = subprocess.check_output(["git", "show", tag + ":pyproject.toml"], text=True)
+          project = tomllib.loads(metadata)["project"]
+          if project["name"] != "atlas-terminal" or tag != "v" + project["version"]:
+              raise SystemExit("Release tag must match the reviewed package metadata.")
+          PY
+      - name: Download and verify existing GitHub release artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import hashlib, os, subprocess
+          from pathlib import Path
+          version = os.environ["RELEASE_TAG"][1:]
+          names = [f"atlas_terminal-{version}-py3-none-any.whl", f"atlas_terminal-{version}.tar.gz"]
+          checksum_file = f"SHA256SUMS-{version}.txt"
+          for name in [*names, checksum_file]:
+              subprocess.run(["gh", "release", "download", os.environ["RELEASE_TAG"],
+                              "--pattern", name, "--dir", "dist"], check=True)
+          checksums = {}
+          for line in (Path("dist") / checksum_file).read_text().splitlines():
+              digest, name = line.split("  ", 1)
+              if name in checksums:
+                  raise SystemExit("Duplicate release checksum.")
+              checksums[name] = digest
+          for name in names:
+              if hashlib.sha256((Path("dist") / name).read_bytes()).hexdigest() != checksums[name]:
+                  raise SystemExit("Release artifact checksum mismatch.")
+          (Path("dist") / checksum_file).unlink()
+          PY
+      - name: Install the pinned publication client
+        run: python -m pip install uv==0.12.23
+      - name: Publish with the configured PyPI trusted publisher
+        run: uv publish --trusted-publishing always dist/*.whl dist/*.tar.gz

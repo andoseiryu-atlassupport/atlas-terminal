@@ -1,10 +1,12 @@
 # Atlas Terminal
 
+**Free financial data for AI agents through one MCP connection.**
+
 <!-- mcp-name: io.github.andoseiryu-atlassupport/atlas-terminal -->
 
 Atlas Terminal gives AI agents company financials, US/Japan macro indicators and reference FX through one MCP connection, using free public primary sources. The same retrieval, calculation and evidence services are available through a CLI, Python SDK and HTTP API.
 
-[Documentation website](https://atlas-terminal-docs.citrus-genet-7815.chatgpt.site) · [Connect Codex](docs/codex.md) · [Examples](docs/use-cases.md) · [Capabilities](IMPLEMENTATION_STATUS.md) · [Data sources](DATA_SOURCES.md)
+[Documentation website](https://atlas-terminal-docs.citrus-genet-7815.chatgpt.site) · [Connect Codex](docs/codex.md) · [Reproducible examples](docs/research-examples.md) · [Capabilities](IMPLEMENTATION_STATUS.md) · [Data sources](DATA_SOURCES.md)
 
 ## Available data
 
@@ -26,14 +28,14 @@ Atlas provides 26 datasets from SEC EDGAR, BLS, US Treasury yields, Treasury Fis
 
 Values retain their units, periods, source hashes, retrieval times and JSON pointers or XML paths. Missing or ambiguous values are explicit. Derived metrics include their formulas and reported inputs.
 
-Series search filters registered macro/FX templates by text, country, frequency, source and unit. IMF/OECD metadata discovery retrieves new series without indicator-specific adapters; macro panels align observations with explicit aggregation, gaps and source evidence. For these additions, use a source checkout until the next tagged release. [Discovery and panel guide](docs/international-macro.md).
+Series search filters registered macro/FX templates by text, country, frequency, source and unit. IMF/OECD metadata discovery retrieves new series without indicator-specific adapters; macro panels align observations with explicit aggregation, gaps and source evidence. [Discovery and panel guide](docs/international-macro.md).
 
 ## Get started
 
 Use Python 3.12+ and [uv](https://docs.astral.sh/uv/). Install the tagged GitHub source distribution; the package is not yet published on PyPI:
 
 ```sh
-uv tool install 'git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.5.0'
+uv tool install 'git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.6.0'
 atlas research preset fx_context --base-currency USD --quote-currency JPY --include fx,us_sofr --provider fixture --json
 ```
 

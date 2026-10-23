@@ -10,11 +10,11 @@ Atlas Terminal connects AI agents to company financials, US/Japan and internatio
 | Retrieve US inflation, employment and rate context  | `us_macro_overview`: CPI, CPI YoY, payrolls, unemployment, Treasury yields, EFFR and SOFR | BLS, US Treasury, New York Fed      |
 | Retrieve USD/JPY with US inflation and rate context | `fx_context`: reference FX, CPI, Treasury yields, EFFR and SOFR                           | ECB, BLS, US Treasury, New York Fed |
 
-Select only the preset items you need. A preview shows the exact queries without source access. Results preserve units, observation periods, source retrieval times, explicit missingness and original source references. [Runnable examples](use-cases.md) · [Preset contracts](presets.md).
+Select only the preset items you need. A preview shows the exact queries without source access. Results preserve units, observation periods, source retrieval times, explicit missingness and original source references. [Reproducible research cases](research-examples.md) · [Preset contracts](presets.md).
 
 The [company, CPI and USD/JPY example](company-macro-fx.md) retrieves four datasets through one official MCP session and resolves every returned evidence ID. Its fictional run and explicit public-data mode are separate. [Public HTTP and remote checks](public-checks.md) explain how to verify a published deployment.
 
-[Series discovery and macro panels](international-macro.md) explain IMF/OECD dataflows, metadata-selected series and explicit calendar aggregation. These additions are available from the current source checkout ahead of the next release.
+[Series discovery and macro panels](international-macro.md) explain IMF/OECD dataflows, metadata-selected series and explicit calendar aggregation.
 
 ## Connect an agent
 
@@ -23,7 +23,7 @@ Start with the [Codex setup](codex.md) or [general MCP quickstart](quickstart.md
 Try the packaged fictional data before making any public-source requests:
 
 ```sh
-uvx --from 'git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.5.0' atlas research preset fx_context --base-currency USD --quote-currency JPY --include fx,us_sofr --provider fixture --json
+uvx --from 'git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.6.0' atlas research preset fx_context --base-currency USD --quote-currency JPY --include fx,us_sofr --provider fixture --json
 ```
 
 This example uses synthetic data, not current market observations. It needs Python 3.12+ and uv, and its first installation needs network access. The Python package is not yet published on PyPI.
@@ -34,4 +34,4 @@ Use [source and citation guidance](citations.md) to attribute numerical facts to
 
 Current or revised source snapshots are not point-in-time history. Atlas does not provide real-time prices, consolidated market quotes, analyst consensus, trading or complete news coverage. ECB reference FX is daily reference data. Source availability and redistribution terms remain source-specific. See [sources and terms](../DATA_SOURCES.md), [FAQ](faq.md) and [verification scope](verification.md).
 
-[GitHub repository](https://github.com/andoseiryu-atlassupport/atlas-terminal) · [Release notes](../CHANGELOG.md) · [Support](support.md) · [Privacy](privacy.md) · [Terms](terms.md)
+[GitHub repository](https://github.com/andoseiryu-atlassupport/atlas-terminal) · [Atlas and OpenBB](atlas-and-openbb.md) · [Release notes](../CHANGELOG.md) · [Support](support.md) · [Privacy](privacy.md) · [Terms](terms.md)

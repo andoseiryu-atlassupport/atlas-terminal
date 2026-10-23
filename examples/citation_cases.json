@@ -1,0 +1,96 @@
+{
+  "schema_version": "1.0.0",
+  "cases": [
+    {
+      "id": "inflation-rates-fx",
+      "title": "Retrieve US CPI, SOFR and USD/JPY through one MCP connection",
+      "items": [
+        {
+          "id": "cpi",
+          "query": {
+            "dataset": "economics",
+            "series": "cpi",
+            "limit": 1
+          }
+        },
+        {
+          "id": "sofr",
+          "query": {
+            "dataset": "reference_rates",
+            "series": "sofr",
+            "limit": 1
+          }
+        },
+        {
+          "id": "usd_jpy",
+          "query": {
+            "dataset": "fx_rates",
+            "base_currency": "USD",
+            "quote_currency": "JPY",
+            "limit": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "reported-free-cash-flow",
+      "title": "Trace free cash flow to reported SEC inputs",
+      "items": [
+        {
+          "id": "reported_inputs",
+          "query": {
+            "dataset": "statements",
+            "identifier": "AAPL",
+            "metrics": ["operating_cash_flow", "capital_expenditure"],
+            "period": "annual",
+            "count": 1
+          }
+        },
+        {
+          "id": "free_cash_flow",
+          "query": {
+            "dataset": "financial_analytics",
+            "identifier": "AAPL",
+            "metrics": ["free_cash_flow"],
+            "period": "annual",
+            "count": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "calendar-alignment",
+      "title": "Inspect quarterly macro aggregation, missing cells and exact inputs",
+      "items": [
+        {
+          "id": "panel",
+          "query": {
+            "dataset": "macro_panel",
+            "start_date": "2026-01-01",
+            "end_date": "2026-09-30",
+            "frequency": "quarterly",
+            "items": [
+              {
+                "id": "cpi",
+                "query": {
+                  "dataset": "economics",
+                  "series": "cpi"
+                },
+                "aggregation": "mean"
+              },
+              {
+                "id": "unemployment",
+                "query": {
+                  "dataset": "economics",
+                  "series": "unemployment"
+                },
+                "aggregation": "last"
+              }
+            ],
+            "allow_partial": true
+          }
+        }
+      ]
+    }
+  ]
+}

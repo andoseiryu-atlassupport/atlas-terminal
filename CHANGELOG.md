@@ -1,6 +1,10 @@
 # Release notes
 
-## Unreleased
+## 0.6.0
+
+- Capture three reproducible research cases through one official MCP connection, resolve original evidence and preserve content-addressed snapshots. Public observation-page export requires completed non-synthetic results.
+- Add controlled manual discovery observations with separate branded/unbranded rates, pending runs and unknown outcomes. Search probes and fixture checks never count as model citations.
+- Unify public package descriptions, correct generated dataset counts, and prepare manual trusted PyPI publication and search ownership verification. Actual external registrations remain separate.
 
 - Search registered macro/FX query templates by text, country, frequency, source and unit through existing catalog interfaces.
 - Discover IMF/OECD dataflows and classification codes, validate exact series dimensions and retrieve monthly, quarterly or annual SDMX observations with original XML evidence.
