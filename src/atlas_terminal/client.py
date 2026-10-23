@@ -96,8 +96,21 @@ class Atlas:
         dataset: Dataset | None = None,
         *,
         view: Literal["full", "compact"] = "full",
+        search: str | None = None,
+        country: str | None = None,
+        frequency: Literal["daily", "monthly", "quarterly", "annual"] | None = None,
+        source_id: str | None = None,
+        unit: str | None = None,
     ) -> dict[str, Any]:
-        return research_catalog(dataset, view)
+        return research_catalog(
+            dataset,
+            view,
+            search=search,
+            country=country,
+            frequency=frequency,
+            source_id=source_id,
+            unit=unit,
+        )
 
     def get_evidence(self, evidence_id: str) -> dict[str, Any]:
         """Read saved provenance without fetching a URL or initiating payment."""

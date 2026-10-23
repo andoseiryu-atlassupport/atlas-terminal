@@ -57,10 +57,25 @@ def demo(json_output: bool = typer.Option(False, "--json")) -> None:
 def research_catalog(
     dataset: Dataset | None = None,
     view: Literal["full", "compact"] = "full",
+    search: str | None = None,
+    country: str | None = None,
+    frequency: Literal["daily", "monthly", "quarterly", "annual"] | None = None,
+    source_id: str | None = None,
+    unit: str | None = None,
     json_output: bool = typer.Option(False, "--json"),
 ) -> None:
     """List free sources, datasets, units, query schema and unavailable coverage."""
-    output(Atlas.research_catalog(dataset, view=view))
+    output(
+        Atlas.research_catalog(
+            dataset,
+            view=view,
+            search=search,
+            country=country,
+            frequency=frequency,
+            source_id=source_id,
+            unit=unit,
+        )
+    )
 
 
 @research_app.command("get")
@@ -84,6 +99,11 @@ def research_get(
     quote_currency: Currency | None = None,
     start_date: str | None = None,
     end_date: str | None = None,
+    source_id: str | None = None,
+    dataflow: str | None = None,
+    search: str | None = None,
+    dimension: str | None = None,
+    dimensions: str | None = None,
     max_source_age_seconds: int | None = None,
     min_observation_date: str | None = None,
     allow_missing: bool | None = None,
@@ -114,8 +134,21 @@ def research_get(
         "quote_currency": quote_currency,
         "start_date": start_date,
         "end_date": end_date,
+        "source_id": source_id,
+        "dataflow": dataflow,
+        "search": search,
+        "dimension": dimension,
     }
     data.update({k: v for k, v in options.items() if v is not None})
+    if dimensions is not None:
+        try:
+            if len(dimensions) > 8192:
+                raise ValueError("Dimensions exceed bounds")
+            data["dimensions"] = json.loads(dimensions)
+        except ValueError:
+            raise AtlasError(
+                "INVALID_INPUT", "Provide dimensions as a bounded JSON object."
+            ) from None
     if metrics is not None:
         data["metrics"] = metrics.split(",")
     if identifiers is not None:
@@ -142,6 +175,32 @@ def research_get(
         if cursor is not None:
             response["cursor"] = cursor
         data["response"] = response
+    with Atlas(provider) as atlas:
+        output(atlas.get_research(data))
+
+
+@research_app.command("run")
+def research_run(
+    input_file: str = typer.Option(..., "--input"),
+    provider: str = "public",
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """Run any research query, including a macro panel, from a 16 KiB JSON file or stdin."""
+    try:
+        if input_file == "-":
+            body = sys.stdin.buffer.read(MAX_BATCH_REQUEST_BYTES + 1)
+        else:
+            with Path(input_file).open("rb") as file:
+                body = file.read(MAX_BATCH_REQUEST_BYTES + 1)
+        if len(body) > MAX_BATCH_REQUEST_BYTES:
+            raise ValueError("Request exceeds bounds")
+        data = json.loads(body)
+        if not isinstance(data, dict):
+            raise ValueError("Expected an object")
+    except (OSError, ValueError):
+        raise AtlasError(
+            "INVALID_INPUT", "Read a research JSON object of at most 16 KiB."
+        ) from None
     with Atlas(provider) as atlas:
         output(atlas.get_research(data))
 

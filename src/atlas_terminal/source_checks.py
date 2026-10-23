@@ -27,6 +27,8 @@ from atlas_terminal.research_quality import (
 from atlas_terminal.util import Database, canonical, digest, stamp, state_dir
 
 PROBES: dict[str, tuple[str, dict[str, Any]]] = {
+    "imf_catalog": ("imf", {"dataset": "sdmx_catalog", "source_id": "imf", "limit": 1}),
+    "oecd_catalog": ("oecd", {"dataset": "sdmx_catalog", "source_id": "oecd", "limit": 1}),
     "sec_profile": ("sec", {"dataset": "profile", "identifier": "AAPL"}),
     "bls_cpi": ("bls", {"dataset": "economics", "series": "cpi", "limit": 5}),
     "ecb_fx": (

@@ -11,6 +11,7 @@ from atlas_terminal.errors import AtlasError
 from atlas_terminal.macro_catalog import FX_CURRENCIES, MACRO_SERIES, REFERENCE_SERIES, Currency
 from atlas_terminal.models import Model, identifier
 from atlas_terminal.research_quality import ResearchRequirements
+from atlas_terminal.sdmx_sources import CODE_PATTERN, FLOW_PATTERN
 
 Dataset = Literal[
     "companies",
@@ -36,6 +37,9 @@ Dataset = Literal[
     "macro_analytics",
     "national_accounts",
     "japan_economics",
+    "sdmx_catalog",
+    "international_economics",
+    "macro_panel",
 ]
 
 FIELDS = {
@@ -62,10 +66,26 @@ FIELDS = {
     "macro_analytics": {"series", "year", "limit", "start_date", "end_date"},
     "national_accounts": {"series", "limit", "start_date", "end_date"},
     "japan_economics": {"series", "limit", "start_date", "end_date"},
+    "sdmx_catalog": {"source_id", "dataflow", "search", "dimension", "limit"},
+    "international_economics": {
+        "source_id",
+        "dataflow",
+        "dimensions",
+        "start_date",
+        "end_date",
+        "limit",
+    },
+    "macro_panel": {"items", "frequency", "start_date", "end_date", "allow_partial"},
 }
 
 
 def dataset_required(name: str) -> list[str]:
+    if name == "sdmx_catalog":
+        return ["source_id"]
+    if name == "international_economics":
+        return ["source_id", "dataflow", "dimensions", "start_date", "end_date"]
+    if name == "macro_panel":
+        return ["items", "start_date", "end_date"]
     if name == "compare":
         return ["identifiers"]
     if name in {
@@ -118,6 +138,19 @@ class ResponseOptions(Model):
 class CatalogQuery(Model):
     dataset: Dataset | None = None
     view: Literal["full", "compact"] = "full"
+    search: str | None = Field(default=None, min_length=1, max_length=100)
+    country: str | None = Field(default=None, pattern=r"^[A-Z]{2}$")
+    frequency: Literal["daily", "monthly", "quarterly", "annual"] | None = None
+    source_id: str | None = Field(default=None, pattern=r"^[a-z][a-z_]{0,39}$")
+    unit: str | None = Field(default=None, min_length=1, max_length=100)
+
+
+class PanelItem(Model):
+    id: str = Field(pattern=r"^[A-Za-z0-9_-]{1,64}$")
+    query: dict[str, Any] = Field(description="One macro/FX query; panel supplies dates and limit.")
+    aggregation: Literal["last", "mean"] = Field(
+        description="Explicit last available observation or arithmetic mean; never forward fills."
+    )
 
 
 def dataset_schema(schema: dict[str, Any]) -> None:
@@ -138,6 +171,15 @@ def dataset_schema(schema: dict[str, Any]) -> None:
                 properties[required] = {"type": "string", "minLength": 1, "maxLength": 100}
             elif required == "identifiers":
                 properties[required]["minItems"] = 1
+            elif required == "items":
+                properties[required]["minItems"] = 1
+            elif required == "dimensions":
+                properties[required]["minProperties"] = 1
+            elif "anyOf" in properties[required]:
+                choices = [
+                    part for part in properties[required]["anyOf"] if part.get("type") != "null"
+                ]
+                properties[required] = choices[0] if len(choices) == 1 else {"anyOf": choices}
         if name in {"statements", "financial_analytics", "compare"}:
             metrics: set[str] = set()
             if name != "financial_analytics":
@@ -211,6 +253,13 @@ class ResearchQuery(Model):
     quote_currency: Currency | None = None
     start_date: str | None = Field(default=None, pattern=r"^[0-9]{4}-[0-9]{2}-[0-9]{2}$")
     end_date: str | None = Field(default=None, pattern=r"^[0-9]{4}-[0-9]{2}-[0-9]{2}$")
+    source_id: Literal["imf", "oecd"] | None = None
+    dataflow: str | None = Field(default=None, pattern="^" + FLOW_PATTERN + "$", max_length=250)
+    dimensions: dict[str, str] = Field(default_factory=dict, max_length=32)
+    search: str | None = Field(default=None, min_length=1, max_length=100)
+    dimension: str | None = Field(default=None, pattern="^" + CODE_PATTERN + "$")
+    frequency: Literal["monthly", "quarterly", "annual"] = "monthly"
+    items: list[PanelItem] = Field(default_factory=list, max_length=10)
     response: ResponseOptions = Field(default_factory=ResponseOptions)
     requirements: ResearchRequirements | None = None
 
@@ -243,6 +292,29 @@ class ResearchQuery(Model):
 
     @model_validator(mode="after")
     def check_dataset(self) -> "ResearchQuery":
+        if self.dataset in {"sdmx_catalog", "international_economics"}:
+            if self.source_id is None:
+                raise AtlasError("INVALID_INPUT", "Choose imf or oecd.", fields=["source_id"])
+            if self.dimension is not None and self.dataflow is None:
+                raise AtlasError("INVALID_INPUT", "A dimension filter requires a dataflow.")
+        if self.dataset == "international_economics":
+            import re
+
+            if not self.dataflow or not self.start_date or not self.end_date or not self.dimensions:
+                raise AtlasError(
+                    "INVALID_INPUT", "Provide dataflow, exact dimensions and both dates."
+                )
+            if any(
+                not re.fullmatch(CODE_PATTERN, key) or not re.fullmatch(CODE_PATTERN, value)
+                for key, value in self.dimensions.items()
+            ):
+                raise AtlasError(
+                    "INVALID_INPUT", "Use exact SDMX dimension codes; wildcards are unavailable."
+                )
+        if self.dataset == "macro_panel":
+            from atlas_terminal.research_panel import panel_queries
+
+            panel_queries(self)
         if (self.start_date is None) != (self.end_date is None) or (
             self.start_date
             and self.end_date

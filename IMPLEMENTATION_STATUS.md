@@ -22,7 +22,9 @@ Atlas Terminal retrieves US equity research, macro data and reference FX from fr
 
 US national accounts add eight BEA series; Japanese macro adds ten BOJ/Statistical Dashboard series. `japan_macro_overview` and `us_japan_overview` expand through the shared batch service with dates, source IDs and per-item failures.
 
-Run `atlas research catalog --json` for identifiers, query fields, units and limits for all 23 datasets. The [research guide](docs/research.md) includes examples for each dataset.
+Run `atlas research catalog --json` for identifiers, query fields, units and limits for all 26 datasets. The [research guide](docs/research.md) includes examples for each dataset.
+
+IMF/OECD SDMX dataflow/code discovery and metadata-validated single-series reads add international monthly, quarterly and annual coverage. `macro_panel` aligns up to ten explicit queries with last/mean aggregation, exact inputs and missing cells. Offline series search covers registered series and supported FX pairs, with country/frequency/unit/source filters. These additions require the current source checkout until the next tagged release. [Discovery, limits and examples](docs/international-macro.md).
 
 ## Interfaces
 
@@ -46,7 +48,7 @@ Five named presets (`company_overview`, `us_macro_overview`, `fx_context`, `japa
 
 Connection diagnostics validate selected source configuration without creating source clients or echoing contact settings. Explicit network opt-in reuses fixed source probes, caches/quotas and private baselines in the configured state directory. Configuration readiness, probe status and synthetic mode remain distinct. Fixture diagnostics never run network probes.
 
-Opt-in source checks cover seven official source families with ten fixed probes. They capture raw-byte and structure hashes, observation dates, latency and changes against private last-success baselines. A manual workflow keeps live requests separate from offline CI. Fixture/mock checks do not establish live connectivity. See [operator source checks](docs/source-checks.md).
+Opt-in source checks cover twelve official source families with eighteen fixed probes. IMF/OECD probes check dataflow metadata, without certifying observation retrieval. They capture raw-byte and structure hashes, observation dates, latency and changes against private last-success baselines. A manual workflow keeps live requests separate from offline CI. Fixture/mock checks do not establish live connectivity. See [operator source checks](docs/source-checks.md).
 
 ## Provenance and data quality
 

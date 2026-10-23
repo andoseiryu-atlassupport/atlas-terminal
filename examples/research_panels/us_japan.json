@@ -1,0 +1,36 @@
+{
+  "dataset": "macro_panel",
+  "start_date": "2026-01-01",
+  "end_date": "2026-03-31",
+  "frequency": "quarterly",
+  "items": [
+    {
+      "id": "us_prices",
+      "query": {
+        "dataset": "international_economics",
+        "source_id": "imf",
+        "dataflow": "IMF.DEMO,ATLAS_MACRO,1.0",
+        "dimensions": {
+          "FREQUENCY": "M",
+          "COUNTRY": "USA",
+          "INDICATOR": "CPI"
+        }
+      },
+      "aggregation": "mean"
+    },
+    {
+      "id": "jp_prices",
+      "query": {
+        "dataset": "international_economics",
+        "source_id": "oecd",
+        "dataflow": "OECD.DEMO,ATLAS_MACRO,1.0",
+        "dimensions": {
+          "FREQ": "M",
+          "REF_AREA": "JPN",
+          "MEASURE": "CPI"
+        }
+      },
+      "aggregation": "mean"
+    }
+  ]
+}

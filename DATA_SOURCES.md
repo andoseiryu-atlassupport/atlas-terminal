@@ -35,6 +35,15 @@ The BOJ notice requests a notification when an API-backed service is published; 
 
 **Validation scope:** Response shapes, conditional caching, limits, missing values, units and provenance are tested with fictional fixtures and mock HTTP. ECB reference-rate documentation and conditions, New York Fed reference-rate terms, and Treasury XML documentation were inspected; BEA, BOJ, BLS and Statistical Dashboard API specifications were also inspected. Live source responses and runtime availability remain unverified; the NY Fed API documentation page could not be read fully. Other current terms pages and final dataset-specific redistribution checks remain unverified. Follow current source terms and limits before operation. See [validation scope](docs/verification.md) for test evidence.
 
+## International macro sources
+
+IMF and OECD public SDMX endpoints provide dataflow metadata and single-series monthly, quarterly and annual observations. Atlas does not require a key for these reads. Dataset-specific availability, attribution, original-producer rights and third-party notices still apply; free access is not a blanket redistribution license.
+
+- IMF: [API documentation](https://data.imf.org/en/Resource-Pages/IMF-API), [terms](https://www.imf.org/external/terms.htm). Preserve source observation status, units, scales and dataset definitions.
+- OECD: [API documentation](https://www.oecd.org/en/data/insights/data-explainers/2024/09/api.html), [API limits](https://www.oecd.org/en/data/insights/data-explainers/2024/11/Api-best-practices-and-recommendations.html), [terms](https://www.oecd.org/en/about/terms-conditions.html). Metadata is cached; 60 local HTTP attempts per rolling hour include retries, with separate upstream shared-IP restrictions.
+
+SDMX observations retain original XML bytes/hashes and metadata references. Decimal values are not silently rescaled; missing unit, scale or adjustment metadata remains null. Publisher status can identify provisional values or forecasts. [International discovery and panel methodology](docs/international-macro.md). Official API documentation was inspected; actual source responses and final dataset-specific redistribution checks remain unverified.
+
 ## Retrieval and processing
 
 Atlas accepts no arbitrary source URLs or mirrors and follows no redirects. Refresh failures never present expired cache entries as current data or switch to a paid provider. HTTP uses shared rate limits, at most three attempts and response size/time bounds. BLS daily attempts are persisted.

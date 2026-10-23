@@ -84,7 +84,15 @@ def create_mcp(
                         "atlas_purchase_status": {"quote_id"},
                         "atlas_purchase_reconcile": {"quote_id", "transaction"},
                         "atlas_purchase_x402": {"quote_id"},
-                        "atlas_research_catalog": {"dataset", "view"},
+                        "atlas_research_catalog": {
+                            "dataset",
+                            "view",
+                            "search",
+                            "country",
+                            "frequency",
+                            "source_id",
+                            "unit",
+                        },
                         "atlas_get_evidence": {"evidence_id"},
                     }.get(name)
                     if allowed is not None and set(arguments) - allowed:
@@ -160,9 +168,27 @@ def create_mcp(
     def atlas_research_catalog(
         dataset: Dataset | None = None,
         view: Literal["full", "compact"] = "full",
+        search: str | None = None,
+        country: str | None = None,
+        frequency: Literal["daily", "monthly", "quarterly", "annual"] | None = None,
+        source_id: str | None = None,
+        unit: str | None = None,
     ) -> CallToolResult:
-        """Discover free research. Filter by dataset; compact omits large schemas."""
-        return execute(lambda: atlas.research_catalog(dataset, view=view))
+        """Discover datasets and search macro/FX templates by text, country, frequency or source.
+
+        Search is offline. Use sdmx_catalog for live IMF/OECD dataflows and classification codes.
+        """
+        return execute(
+            lambda: atlas.research_catalog(
+                dataset,
+                view=view,
+                search=search,
+                country=country,
+                frequency=frequency,
+                source_id=source_id,
+                unit=unit,
+            )
+        )
 
     @server.tool(annotations=read)
     def atlas_get_research(query: ResearchQuery) -> Annotated[CallToolResult, ResearchResult]:

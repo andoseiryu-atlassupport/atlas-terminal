@@ -4,7 +4,7 @@ Atlas Terminal retrieves company financials, US/Japan macro data and reference F
 
 ## Capabilities
 
-- Ten public primary source families and 23 research datasets: SEC company, industry, financial, filing and ownership data; BLS inflation and employment series; nominal/real Treasury yields and debt; Federal Reserve releases; ECB reference FX; New York Fed EFFR/SOFR; BEA GDP/PCE/income; BOJ and Japanese government macro statistics.
+- Twelve public primary source families and 26 research datasets: SEC company, industry, financial, filing and ownership data; BLS inflation and employment series; nominal/real Treasury yields and debt; Federal Reserve releases; ECB reference FX; New York Fed EFFR/SOFR; BEA GDP/PCE/income; BOJ and Japanese government macro statistics; IMF/OECD SDMX metadata and international economic series.
 - Macro calculations include CPI/core CPI YoY, payroll monthly changes and the 10Y–2Y nominal spread, with original inputs and explicit missing baselines. FX cross rates use same-day ECB observations.
 - 37 reported financial concepts across annual, explicitly reported discrete quarters and YTD, raw XBRL contexts, six ratios, five YoY growth rates, FCF and FCF margin with traceable inputs.
 - Comparison of reported and derived financial metrics for up to ten specified issuers at the latest common reported end, with exact input-period alignment and explicit gaps.
@@ -20,6 +20,8 @@ Atlas Terminal retrieves company financials, US/Japan macro data and reference F
 - Immutable snapshots of five annual metrics and an optional x402 API. Payments default to off; testnet is restricted to Base Sepolia USDC, and mainnet is rejected.
 - On-demand reconciliation reads finalized chain evidence without signing or settling again. Hosted MCP supports external-wallet payment metadata; official Python and TypeScript clients have offline interoperability checks.
 - Purchase preflight and budget summaries support agent planning without signing or reserving funds. Optional task IDs and private replay capabilities preserve the same quote across response loss, restart and concurrent preparation.
+
+Registered-series search, metadata-driven IMF/OECD queries and calendar-aligned macro panels share the research interfaces. Panels require explicit aggregation and preserve input units, evidence, missing cells and independent source errors. Calendar alignment does not establish statistical comparability. See [discovery and panels](international-macro.md).
 
 ## Stack
 

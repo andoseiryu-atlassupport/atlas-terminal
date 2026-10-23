@@ -32,6 +32,25 @@ def private_state(tmp_path, monkeypatch):
 
 
 def query(dataset="statements", **extra):
+    if dataset == "sdmx_catalog":
+        return {"dataset": dataset, "source_id": "imf", **extra}
+    if dataset == "international_economics":
+        return {
+            "dataset": dataset,
+            "source_id": "imf",
+            "dataflow": "IMF.DEMO,ATLAS_MACRO,1.0",
+            "dimensions": {"FREQUENCY": "M", "COUNTRY": "USA", "INDICATOR": "CPI"},
+            "start_date": "2026-01-01",
+            "end_date": "2026-03-31",
+            **extra,
+        }
+    if dataset == "macro_panel":
+        return (
+            json.loads(
+                (Path(__file__).parents[1] / "examples/research_panels/us_japan.json").read_text()
+            )
+            | extra
+        )
     result = {"dataset": dataset}
     for key in dataset_required(dataset):
         result[key] = (

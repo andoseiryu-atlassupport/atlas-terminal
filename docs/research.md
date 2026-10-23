@@ -174,3 +174,7 @@ Consolidated prices, daily prices and adjustment factors, order books, options, 
 ## National accounts and Japanese macro
 
 `national_accounts` adds eight BEA series: nominal/real GDP, annualized GDP growth, PCE/core PCE indexes, personal/disposable income and personal consumption. Public retrieval requires a free registered `BEA_API_KEY`. `japan_economics` adds ten BOJ/Statistical Dashboard series without registration: prices, unemployment, short rates, Tokyo FX, Tankan and money/credit statistics. Both support paired observation dates, exact units and original byte evidence. See the [series catalog, history rules and examples](macro.md).
+
+## International discovery and macro panels
+
+Use catalog search to find registered macro/FX queries. `sdmx_catalog` discovers IMF/OECD dataflows and codes; `international_economics` validates exact dimensions before retrieval. `macro_panel` aligns explicit queries with last/mean aggregation and preserved inputs. [Query fields, limits and examples](international-macro.md).
