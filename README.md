@@ -4,6 +4,18 @@
 
 <!-- mcp-name: io.github.andoseiryu-atlassupport/atlas-terminal -->
 
+**Rates and FX research · 60 seconds · fictional data**
+
+[Watch the research replay](docs/assets/showcase/research.mp4)
+
+[Transcript and source evidence](docs/agent-research-walkthrough.md)
+
+**Japanese portfolio factor risk · 60 seconds · fictional data**
+
+[Watch the Japanese risk replay](docs/assets/showcase/japan-risk.mp4)
+
+[Transcript and model output](docs/japan-risk-walkthrough.md)
+
 Atlas Terminal gives AI agents company financials, US/Japan macro indicators and reference FX through one MCP connection, using free public primary sources. The same retrieval, calculation and evidence services are available through a CLI, Python SDK and HTTP API.
 
 Optional [native factor risk models](docs/risk-model.md) analyze supplied [US, Japanese, Korean and British stock histories](docs/equity-markets.md). One request reads a named JSON, CSV or SQLite connection, validates inputs, fits a cross-sectional or time-series model and analyzes a portfolio. The models are experimental; equity prices and verified historical vintages are not included.
