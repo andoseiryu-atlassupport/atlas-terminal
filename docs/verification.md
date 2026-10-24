@@ -24,6 +24,12 @@ Default tests prohibit IP sockets and use fictional sources or mocked transports
 
 Test cases use isolated private state directories so repeated verification does not consume an operator's persistent cache quota. The numerical and protocol assertions remain unchanged.
 
+## README video presentation
+
+On 2026-10-24 (UTC), the README video-layout change passed the required Ruff/style/type checks, 813 offline tests (2 live tests deselected), wheel/source build, distribution validation, recording checksums, 45-page documentation/internal-link build, Prettier and public-file scan. The existing MP4/VTT/report bytes were not changed.
+
+A live GitHub Markdown render removed a manually supplied HTML video element and rendered a repository MP4 URL as an ordinary link. Native README playback therefore requires verified GitHub media attachment URLs. Attachment upload and native README player rendering remain pending; repository-file links alone do not establish inline playback.
+
 ## Installed distributions and MCP execution
 
 The 0.7.0 wheel was installed offline into a fresh virtual environment from locked runtime dependencies. Both `showcase` commands passed outside the checkout with isolated Python imports from that installed package. Each used an actual official stdio MCP session. The installed `verify_installed.py` and `verify_remote_installed.py` checks also passed for CLI/SDK/MCP/loopback HTTP, restart, evidence and mock recovery without external source requests or real transfers.
