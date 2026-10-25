@@ -10,6 +10,7 @@ from typing import Any
 
 from atlas_terminal.client import Atlas
 from atlas_terminal.errors import AtlasError
+from atlas_terminal.fixed_income_sources import parse_jgb_csv
 from atlas_terminal.providers import (
     CachedHTTPTransport,
     SECProvider,
@@ -27,6 +28,7 @@ from atlas_terminal.research_quality import (
 from atlas_terminal.util import Database, canonical, digest, stamp, state_dir
 
 PROBES: dict[str, tuple[str, dict[str, Any]]] = {
+    "jgb_curve": ("japan_mof", {"dataset": "jgb_yields", "limit": 15}),
     "imf_catalog": ("imf", {"dataset": "sdmx_catalog", "source_id": "imf", "limit": 1}),
     "oecd_catalog": ("oecd", {"dataset": "sdmx_catalog", "source_id": "oecd", "limit": 1}),
     "sec_profile": ("sec", {"dataset": "profile", "identifier": "AAPL"}),
@@ -165,12 +167,18 @@ def source_shapes(snapshots: list[Snapshot]) -> list[dict[str, Any]]:
     rows = {}
     for snapshot in snapshots:
         is_xml = snapshot.body.removeprefix(b"\xef\xbb\xbf").lstrip().startswith(b"<")
-        structure = xml_shape(xml_root(snapshot.body)) if is_xml else json_shape(snapshot.data)
+        is_csv = snapshot.url.endswith(".csv")
+        if is_csv:
+            observations, _ = parse_jgb_csv(snapshot)
+            first = next(iter(observations.values()), None)
+            structure = {"columns": list(first.headers) if first else [], "units": "percent"}
+        else:
+            structure = xml_shape(xml_root(snapshot.body)) if is_xml else json_shape(snapshot.data)
         rows[snapshot.url] = {
             "raw_source_url": snapshot.url,
             "raw_sha256": snapshot.sha256,
             "retrieved_at": snapshot.retrieved_at,
-            "format": "xml" if is_xml else "json",
+            "format": "csv" if is_csv else "xml" if is_xml else "json",
             "shape_sha256": digest(canonical(structure)),
         }
     return [rows[url] for url in sorted(rows)]

@@ -67,7 +67,7 @@ async def test_official_streamable_client_presets_evidence_and_no_payment_tools(
         }
         assert all(tool.annotations.read_only_hint for tool in tools)
         catalog = await session.call_tool("atlas_research_catalog", {"view": "compact"})
-        assert len(catalog.structured_content["datasets"]) == 26
+        assert len(catalog.structured_content["datasets"]) == 27
         assert catalog.structured_content["documentation"]["citations"].endswith("citations.md")
         preset = await session.call_tool(
             "atlas_get_research_preset",

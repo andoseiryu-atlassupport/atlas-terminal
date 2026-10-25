@@ -8,6 +8,7 @@ from typing import Any
 
 from atlas_terminal.economic_catalog import JAPAN_SERIES
 from atlas_terminal.errors import AtlasError
+from atlas_terminal.macro_catalog import CURVE_SERIES
 from atlas_terminal.research_models import ResearchQuery, parse_research
 from atlas_terminal.util import canonical
 
@@ -81,11 +82,13 @@ def panel_queries(q: ResearchQuery) -> list[list[dict[str, Any]]]:
                 "INVALID_INPUT",
                 "Use one macro/FX query per item; the panel supplies dates and presentation.",
             )
-        if data.get("series") == "yield_spread_10y_2y":
-            raise AtlasError("INVALID_INPUT", "Treasury spread panels are not supported.")
         japan = JAPAN_SERIES.get(str(data.get("series")))
-        daily = dataset == "fx_rates" or (
-            dataset == "japan_economics" and japan is not None and japan["frequency"] == "DAILY"
+        daily = (
+            dataset == "fx_rates"
+            or (dataset == "macro_analytics" and data.get("series") in CURVE_SERIES)
+            or (
+                dataset == "japan_economics" and japan is not None and japan["frequency"] == "DAILY"
+            )
         )
         spans = [(q.start_date, q.end_date)]
         if daily:

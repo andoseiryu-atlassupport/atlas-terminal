@@ -19,6 +19,7 @@ from atlas_terminal.economic_sources import (
     validate_economic_url,
 )
 from atlas_terminal.errors import AtlasError
+from atlas_terminal.fixed_income_sources import JGB_BASE, JGB_URLS, parse_jgb_csv
 from atlas_terminal.macro_catalog import REFERENCE_SERIES
 from atlas_terminal.providers import CachedHTTPTransport, Snapshot, decode_json
 from atlas_terminal.sdmx_sources import BASES, SDMX_SOURCES, sdmx_source, valid_sdmx_url
@@ -66,6 +67,22 @@ BLS_SERIES = {
 }
 
 SOURCE_CATALOG = {
+    "japan_mof": {
+        "name": "Japan Ministry of Finance JGB interest rates",
+        "upstream_price": "0",
+        "api_key_required": False,
+        "contact_user_agent_required": False,
+        "documentation": JGB_BASE + "index.htm",
+        "terms": "https://www.mof.go.jp/about_mof/notice/index.html",
+        "use": (
+            "Attribute Ministry of Finance Japan and identify Atlas normalization or calculations; "
+            "retain the source public-data license and third-party exceptions."
+        ),
+        "cadence": (
+            "Business-day constant-maturity yields, 1–40 years. Historical and current-month "
+            "CSV files are combined with the current file authoritative for overlapping dates."
+        ),
+    },
     "ecb": {
         "name": "European Central Bank euro reference rates",
         "upstream_price": "0",
@@ -223,7 +240,7 @@ class PublicTransport(CachedHTTPTransport):
     @staticmethod
     def validate_url(url: str) -> None:
         if (
-            url in {DEBT_URL, FED_NEWS, ECB_FX_URL, *NYFED_RATES.values()}
+            url in {DEBT_URL, FED_NEWS, ECB_FX_URL, *NYFED_RATES.values(), *JGB_URLS}
             or valid_bls_url(url)
             or validate_economic_url(url)
             or valid_sdmx_url(url)
@@ -235,6 +252,9 @@ class PublicTransport(CachedHTTPTransport):
 
     @staticmethod
     def validate_body(url: str, body: bytes) -> None:
+        if url in JGB_URLS:
+            parse_jgb_csv(Snapshot(body, url, "2000-01-01T00:00:00Z"))
+            return
         if (
             url.startswith((BLS_BASE, BEA_BASE + "?", BOJ_BASE + "?"))
             or url == DEBT_URL
@@ -363,15 +383,19 @@ class PublicFixtures:
             series = next(name for name in REFERENCE_SERIES if NYFED_RATES[name] == url)
             name = series + ".json"
         elif url.startswith(TREASURY_REAL_BASE):
-            if not url.endswith("2026"):
+            if not url.endswith(("2025", "2026")):
                 raise AtlasError(
-                    "SOURCE_UNAVAILABLE", "Synthetic real-yield fixture covers 2026 only."
+                    "SOURCE_UNAVAILABLE", "Synthetic real-yield fixtures cover 2025–2026 only."
                 )
-            name = "real_yields.xml"
+            name = "real_yields_2025.xml" if url.endswith("2025") else "real_yields.xml"
         elif url.startswith(TREASURY_BASE):
-            if not url.endswith("2026"):
-                raise AtlasError("SOURCE_UNAVAILABLE", "Synthetic yield fixture covers 2026 only.")
-            name = "yields.xml"
+            if not url.endswith(("2025", "2026")):
+                raise AtlasError(
+                    "SOURCE_UNAVAILABLE", "Synthetic yield fixtures cover 2025–2026 only."
+                )
+            name = "yields_2025.xml" if url.endswith("2025") else "yields.xml"
+        elif url in JGB_URLS:
+            name = "jgb_history.csv" if url == JGB_URLS[0] else "jgb_current.csv"
         elif url == DEBT_URL:
             name = "debt.json"
         else:

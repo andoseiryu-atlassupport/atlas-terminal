@@ -15,7 +15,7 @@ from xml.etree.ElementTree import Element
 from atlas_terminal.documentation import DOCUMENTATION_ORIGIN, research_documentation
 from atlas_terminal.economic_catalog import JAPAN_SERIES, NATIONAL_ACCOUNTS
 from atlas_terminal.errors import AtlasError
-from atlas_terminal.macro_catalog import FX_CURRENCIES, MACRO_SERIES, REFERENCE_SERIES
+from atlas_terminal.macro_catalog import CURVE_SERIES, FX_CURRENCIES, MACRO_SERIES, REFERENCE_SERIES
 from atlas_terminal.normalize import number
 from atlas_terminal.providers import (
     DOCUMENT_PATTERN,
@@ -210,8 +210,13 @@ DATASETS = {
         "treasury",
         "observations",
     ),
+    "jgb_yields": (
+        "Japan MOF 1–40-year constant-maturity government bond yields",
+        "japan_mof",
+        "observations",
+    ),
     "macro_analytics": (
-        "CPI YoY, payroll monthly change and same-date Treasury curve spread",
+        "CPI/payroll changes and US/Japan government curve shapes, changes and US par yield gaps",
         "bls",
         "derived_observations",
     ),
@@ -304,9 +309,20 @@ def research_catalog(
                 "source": source,
                 "source_ids": ["imf", "oecd"]
                 if name in {"sdmx_catalog", "international_economics"}
-                else ["bls", "bea", "boj", "estat", "ecb", "new_york_fed", "imf", "oecd"]
+                else [
+                    "bls",
+                    "bea",
+                    "boj",
+                    "estat",
+                    "ecb",
+                    "new_york_fed",
+                    "imf",
+                    "oecd",
+                    "treasury",
+                    "japan_mof",
+                ]
                 if name == "macro_panel"
-                else ["bls", "treasury"]
+                else ["bls", "treasury", "japan_mof"]
                 if name == "macro_analytics"
                 else ["boj", "estat"]
                 if name == "japan_economics"
@@ -341,6 +357,7 @@ def research_catalog(
         "fx_currencies": list(FX_CURRENCIES),
         "reference_rate_series": REFERENCE_SERIES,
         "macro_series": MACRO_SERIES,
+        "curve_series": CURVE_SERIES,
         "limits": {"count": 20, "records": 500, "compare_issuers": 10, "xml_candidates": 6},
         "not_available": GAPS,
         "point_in_time": False,
@@ -402,6 +419,7 @@ def research_catalog(
             "japan_series",
             "reference_rate_series",
             "macro_series",
+            "curve_series",
         ]:
             result[key] = list(result[key])
         result["not_available"] = list(result["not_available"])
@@ -519,6 +537,7 @@ class ResearchService:
             "fx_rates",
             "reference_rates",
             "treasury_real_yields",
+            "jgb_yields",
             "macro_analytics",
             "national_accounts",
             "japan_economics",
@@ -1057,6 +1076,10 @@ class ResearchService:
             return reference_rates(self.public, q)
         if q.dataset == "treasury_real_yields":
             return real_yields(self.public, q)
+        if q.dataset == "jgb_yields":
+            from atlas_terminal.research_fixed_income import jgb_yields
+
+            return jgb_yields(self.public, q)
         if q.dataset == "macro_analytics":
             return macro_analytics(self.public, q, self.economics)
         records: list[dict[str, Any]]

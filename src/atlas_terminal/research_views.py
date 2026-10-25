@@ -28,6 +28,13 @@ class SourceEvidence(BaseModel):
                     "required": ["xml_local_path"],
                     "properties": {"xml_local_path": {"type": "string"}},
                 },
+                {
+                    "required": ["csv_row", "csv_column"],
+                    "properties": {
+                        "csv_row": {"type": "integer", "minimum": 1},
+                        "csv_column": {"type": "integer", "minimum": 1},
+                    },
+                },
             ]
         },
     )
@@ -36,6 +43,8 @@ class SourceEvidence(BaseModel):
     retrieved_at: str = Field(json_schema_extra={"format": "date-time"})
     json_pointer: str | None = None
     xml_local_path: str | None = None
+    csv_row: int | None = Field(default=None, ge=1, strict=True)
+    csv_column: int | None = Field(default=None, ge=1, strict=True)
 
     @model_validator(mode="after")
     def source_identity(self) -> "SourceEvidence":
@@ -45,7 +54,12 @@ class SourceEvidence(BaseModel):
             parsed.scheme not in {"http", "https"}
             or not parsed.hostname
             or retrieved.tzinfo is None
-            or (self.json_pointer is None and self.xml_local_path is None)
+            or (
+                self.json_pointer is None
+                and self.xml_local_path is None
+                and (self.csv_row is None or self.csv_column is None)
+            )
+            or (self.csv_row is None) != (self.csv_column is None)
         ):
             raise ValueError("Source URL, time and locator are required")
         return self
@@ -150,6 +164,11 @@ CONTEXT_FIELDS = {
     "period_end",
     "period_ends",
     "comparison_period",
+    "comparison_date",
+    "elapsed_calendar_days",
+    "country",
+    "currency",
+    "interpretation",
     "period_kind",
     "year",
     "unit",
@@ -193,7 +212,6 @@ CONTEXT_FIELDS = {
     "source_series",
     "rounding",
     "date_basis",
-    "country",
     "series_title",
     "table",
     "line_number",

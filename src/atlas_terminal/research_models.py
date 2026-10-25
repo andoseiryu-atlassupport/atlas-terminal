@@ -8,7 +8,13 @@ from pydantic import ConfigDict, Field, ValidationError, field_validator, model_
 
 from atlas_terminal.economic_catalog import JAPAN_SERIES, NATIONAL_ACCOUNTS
 from atlas_terminal.errors import AtlasError
-from atlas_terminal.macro_catalog import FX_CURRENCIES, MACRO_SERIES, REFERENCE_SERIES, Currency
+from atlas_terminal.macro_catalog import (
+    CURVE_SERIES,
+    FX_CURRENCIES,
+    MACRO_SERIES,
+    REFERENCE_SERIES,
+    Currency,
+)
 from atlas_terminal.models import Model, identifier
 from atlas_terminal.research_quality import ResearchRequirements
 from atlas_terminal.sdmx_sources import CODE_PATTERN, FLOW_PATTERN
@@ -34,6 +40,7 @@ Dataset = Literal[
     "fx_rates",
     "reference_rates",
     "treasury_real_yields",
+    "jgb_yields",
     "macro_analytics",
     "national_accounts",
     "japan_economics",
@@ -63,6 +70,7 @@ FIELDS = {
     "fx_rates": {"base_currency", "quote_currency", "limit", "start_date", "end_date"},
     "reference_rates": {"series", "limit"},
     "treasury_real_yields": {"year", "limit"},
+    "jgb_yields": {"year", "limit", "start_date", "end_date"},
     "macro_analytics": {"series", "year", "limit", "start_date", "end_date"},
     "national_accounts": {"series", "limit", "start_date", "end_date"},
     "japan_economics": {"series", "limit", "start_date", "end_date"},
@@ -102,6 +110,7 @@ def dataset_required(name: str) -> list[str]:
         "companies",
         "treasury_yields",
         "treasury_real_yields",
+        "jgb_yields",
         "federal_debt",
         "policy_news",
     }:
@@ -213,6 +222,27 @@ def dataset_schema(schema: dict[str, Any]) -> None:
             "required": ["dataset", *dataset_required(name)],
             "additionalProperties": False,
         }
+        if name == "macro_analytics":
+            real_series = [
+                key
+                for key, spec in CURVE_SERIES.items()
+                if any(term["curve"] == "real" for term in spec["terms"])
+            ]
+            branch["allOf"] = [
+                {
+                    "if": {"properties": {"series": {"enum": real_series}}, "required": ["series"]},
+                    "then": {
+                        "properties": {
+                            "year": {
+                                "anyOf": [
+                                    {"type": "integer", "minimum": 2003, "maximum": 2100},
+                                    {"type": "null"},
+                                ]
+                            }
+                        }
+                    },
+                }
+            ]
         if "start_date" in fields:
             branch["dependentRequired"] = {"start_date": ["end_date"], "end_date": ["start_date"]}
         if name == "fx_rates":
@@ -322,14 +352,13 @@ class ResearchQuery(Model):
                 self.start_date > self.end_date
                 or int(self.end_date[:4]) - int(self.start_date[:4]) > 29
                 or self.year is not None
-                or self.series == "yield_spread_10y_2y"
             )
         ):
             raise AtlasError(
                 "INVALID_INPUT",
                 (
                     "Provide both ordered observation dates spanning at most 30 "
-                    "calendar years; do not combine with year or yield-spread queries."
+                    "calendar years; do not combine with year."
                 ),
                 fields=["start_date", "end_date"],
             )
@@ -391,6 +420,17 @@ class ResearchQuery(Model):
             raise AtlasError(
                 "INVALID_INPUT", "Treasury real-yield coverage starts in 2003.", fields=["year"]
             )
+        if self.dataset == "macro_analytics" and self.series in CURVE_SERIES:
+            spec = CURVE_SERIES[self.series]
+            if MACRO_SERIES[self.series]["source_id"] == "treasury":
+                earliest = int(self.start_date[:4]) if self.start_date else self.year
+                minimum = 2003 if any(term["curve"] == "real" for term in spec["terms"]) else 1990
+                if earliest is not None and earliest < minimum:
+                    raise AtlasError(
+                        "INVALID_INPUT",
+                        f"The requested Treasury curve coverage starts in {minimum}.",
+                        fields=["year", "start_date"],
+                    )
         if self.unit and not self.concept:
             raise AtlasError(
                 "INVALID_INPUT", "A unit filter requires a concept.", fields=["concept"]

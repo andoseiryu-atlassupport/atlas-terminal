@@ -573,7 +573,7 @@ async def test_actual_stdio_connection_has_research_plus_opt_in_risk(fitted, tmp
         assert Decimal(result.structured_content["data"]["portfolio"]["daily_volatility"]) > ZERO
         research = await session.call_tool("atlas_research_catalog", {"view": "compact"})
         assert not research.is_error
-        assert len(research.structured_content["datasets"]) == 26
+        assert len(research.structured_content["datasets"]) == 27
         invalid = await session.call_tool(
             "atlas_risk", {"query": {"action": "catalog", "secret": "SECRET_SENTINEL"}}
         )

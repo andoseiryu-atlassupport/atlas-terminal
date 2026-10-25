@@ -48,6 +48,12 @@ IMF and OECD public SDMX endpoints provide dataflow metadata and single-series m
 
 SDMX observations retain original XML bytes/hashes and metadata references. Decimal values are not silently rescaled; missing unit, scale or adjustment metadata remains null. Publisher status can identify provisional values or forecasts. [International discovery and panel methodology](docs/international-macro.md). Official API documentation was inspected; actual source responses and final dataset-specific redistribution checks remain unverified.
 
+## Japan government bond curves
+
+`jgb_yields` uses the Ministry of Finance Japan's fixed English [historical CSV](https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/historical/jgbcme_all.csv) and [current-month CSV](https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/jgbcme.csv), with [MOF public-data terms and exceptions](https://www.mof.go.jp/about_mof/notice/index.html). Attribute MOF, identify Atlas processing and retain source-specific conditions. Dates and tenor labels are normalized; values stay in percent per annum. Original hashes and logical CSV row/column positions remain available. Complete current rows replace overlapping historical rows, including nulls; no older value fills a missing current tenor. Atlas calculates slopes, butterflies and changes separately from reported yields.
+
+The adapter contract was checked against public code references to the official English CSV format; live MOF retrieval and the current official terms page could not be inspected from this development environment. No source access, redistribution grant or real-market compatibility is established by the fictional fixtures. [Methodology and limits](docs/fixed-income.md).
+
 ## Retrieval and processing
 
 Atlas accepts no arbitrary source URLs or mirrors and follows no redirects. Refresh failures never present expired cache entries as current data or switch to a paid provider. HTTP uses shared rate limits, at most three attempts and response size/time bounds. BLS daily attempts are persisted.

@@ -22,9 +22,11 @@ Atlas Terminal retrieves US equity research, macro data and reference FX from fr
 
 US national accounts add eight BEA series; Japanese macro adds ten BOJ/Statistical Dashboard series. `japan_macro_overview` and `us_japan_overview` expand through the shared batch service with dates, source IDs and per-item failures.
 
-Run `atlas research catalog --json` for identifiers, query fields, units and limits for all 26 datasets. The [research guide](docs/research.md) includes examples for each dataset.
+Run `atlas research catalog --json` for identifiers, query fields, units and limits for all 27 datasets. The [research guide](docs/research.md) includes examples for each dataset.
 
 IMF/OECD SDMX dataflow/code discovery and metadata-validated single-series reads add international monthly, quarterly and annual coverage. `macro_panel` aligns up to ten explicit queries with last/mean aggregation, exact inputs and missing cells. Offline series search covers registered series and supported FX pairs, with country/frequency/unit/source filters. [Discovery, limits and examples](docs/international-macro.md).
+
+Japanese government bonds add Ministry of Finance 1–40-year constant-maturity yields. Three bond presets cover US, Japan or combined context through the existing six research tools. Same-date curve slopes, butterflies, US nominal/real par gaps and preceding-observation changes retain exact inputs and basis-point formulas. MOF original CSV cells resolve through compact evidence IDs, with current-month rows authoritative over overlapping history. Par inflation compensation is a proxy, not pure expected inflation. Live MOF/Treasury compatibility for this expansion remains unverified. [Government bond guide](docs/fixed-income.md).
 
 ## Interfaces
 

@@ -1,6 +1,6 @@
 # Validation scope
 
-Recorded on 2026-10-23 (UTC) for Atlas Terminal 0.7.0, with Python 3.12.14 and Node.js 24.19.0 on Linux. Local verification, GitHub Actions, public deployment, official-source access and model observations are distinct evidence.
+Recorded on 2026-10-25 (UTC) for the source checkout following Atlas Terminal 0.7.0, with Python 3.12.14 and Node.js 24.19.0 on Linux. Local verification, GitHub Actions, public deployment, official-source access and model observations are distinct evidence.
 
 Version 0.7.0 includes the experimental native factor risk extension and installed walkthroughs described below. The prior 0.6.0 release did not include risk estimation. Local wheel checks remain separate evidence from a published GitHub release.
 
@@ -10,11 +10,11 @@ Version 0.7.0 includes the experimental native factor risk extension and install
 | --------------------------------------------------------- | ----------------------------------------------------------- |
 | `uv run --offline ruff check .`                           | PASS                                                        |
 | `uv run --offline ruff format --check .`                  | PASS                                                        |
-| `uv run --offline mypy`                                   | PASS; 55 source files                                       |
-| `uv run --offline pytest`                                 | PASS; 813 tests, 2 live tests deselected                    |
+| `uv run --offline mypy`                                   | PASS; 57 source files                                       |
+| `uv run --offline pytest`                                 | PASS; 868 tests, 2 live tests deselected                    |
 | `uv run --offline python -m build --no-isolation`         | PASS; wheel and source distribution                         |
 | `uv run --offline python scripts/verify_distribution.py`  | PASS; metadata, required contents and forbidden paths       |
-| `uv run --offline python scripts/build_docs.py`           | PASS; 45 HTML pages and internal file/section links         |
+| `uv run --offline python scripts/build_docs.py`           | PASS; 46 HTML pages and internal file/section links         |
 | `uv run --offline python scripts/verify_showcases.py`     | PASS; both recorded versions, data modes and checksums      |
 | `uv run --offline python scripts/prepare_distribution.py` | PREPARED; versioned plugin ZIP and Registry draft           |
 | `npm run check`                                           | PASS; Prettier and whitespace                               |
@@ -23,6 +23,14 @@ Version 0.7.0 includes the experimental native factor risk extension and install
 Default tests prohibit IP sockets and use fictional sources or mocked transports. They do not retrieve live official data or transfer funds. Archive validation rejects private/runtime paths, dependency trees, unsafe paths and links; source archives contain project source and verification material rather than installed dependencies. The credential-pattern scan is a heuristic, not a guarantee against every secret format.
 
 Test cases use isolated private state directories so repeated verification does not consume an operator's persistent cache quota. The numerical and protocol assertions remain unchanged.
+
+## Government-bond research expansion
+
+On 2026-10-25 (UTC), local checks passed for 27 datasets, 13 source families, 27 government-curve calculation series and eight presets. The 53 new fixed-income cases cover hand-calculated US/Japan spreads and butterflies, nominal/real par gaps, preceding-observation changes, null/date matching, weekend gaps, caller decimal precision/traps, MOF CSV overlap precedence, original-cell locators, malformed inputs, encodings, fixed endpoint validation, compact evidence/pagination, quality gates, dated panels, CLI/SDK/HTTP and an actual official stdio MCP session. Existing Streamable HTTP and opt-in equity-risk checks also passed after the catalog expansion.
+
+A newly built 0.7.0 source-checkout wheel was installed offline into a fresh virtual environment using locked runtime dependencies. Outside the repository, imports resolved to the installed wheel and all three bond presets executed with fictional data. This is not a new published release or a replacement for the existing 0.7.0 release assets. Wheel/source archive checks, 46-page documentation/internal links and both existing recording checksums passed; the prior recorded source bytes were unchanged.
+
+The MOF English CSV contract was compared with public format references, including [the pinned FinanceToolkit source](https://github.com/JerBouma/FinanceToolkit/blob/fd2e313e8c287ac907900ff20af586330ccd9564/financetoolkit/economics/mof_model.py). Direct official Treasury/MOF retrieval and the current MOF terms page could not be checked under this environment's outbound host restrictions. Mock HTTP/parser success does not establish actual source compatibility, redistribution permission, market freshness or bond-return accuracy. No security pricing, duration/DV01, auction, repo or FX hedge-cost validation was performed.
 
 ## Installed distributions and MCP execution
 

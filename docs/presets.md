@@ -2,6 +2,8 @@
 
 One Atlas MCP connection exposes company, US/Japan macro and reference FX data. Named presets expand into ordinary free research queries and execute through the shared batch service. The same service is available in the Python SDK, CLI and local HTTP API. There is no LLM dependency, data subscription or wallet requirement.
 
+Three additional government-bond presets, `us_bond_context`, `japan_bond_context` and `us_japan_bond_context`, combine curves, local changes, funding and optional reference FX. Each accepts a curve `year`, selection, preview and item-level requirements. The year applies to curve items only; dates for funding, CPI and FX remain independent. [Bond preset items and methodology](fixed-income.md#bond-presets-through-one-connection).
+
 ## Discover and preview
 
 `atlas_research_catalog` includes a `presets` section with preset names, accepted parameters, required fields and item IDs. The full catalog includes input and output schemas; `view="compact"` omits them. Discovery and preview make no source requests.

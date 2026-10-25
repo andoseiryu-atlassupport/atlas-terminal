@@ -8,14 +8,13 @@ from typing import Any
 
 from atlas_terminal.economic_dates import window_metadata, within
 from atlas_terminal.errors import AtlasError
-from atlas_terminal.macro_catalog import MACRO_SERIES, REFERENCE_SERIES
+from atlas_terminal.macro_catalog import CURVE_SERIES, MACRO_SERIES, REFERENCE_SERIES
 from atlas_terminal.normalize import number
 from atlas_terminal.providers import Snapshot, Transport
 from atlas_terminal.public_sources import (
     ECB_FX_URL,
     NYFED_RATES,
     SOURCE_CATALOG,
-    TREASURY_BASE,
     TREASURY_REAL_BASE,
     local_name,
     xml_root,
@@ -307,7 +306,26 @@ def treasury_rows(snapshot: Snapshot, year: int, *, real: bool) -> list[dict[str
     if local_name(root) != "feed":
         raise source_error("Expected a Treasury yield feed.")
     prefix = "TC_" if real else "BC_"
-    maturities = ("5YEAR", "7YEAR", "10YEAR", "20YEAR", "30YEAR") if real else ("2YEAR", "10YEAR")
+    maturities = (
+        ("5YEAR", "7YEAR", "10YEAR", "20YEAR", "30YEAR")
+        if real
+        else (
+            "1MONTH",
+            "1_5MONTH",
+            "2MONTH",
+            "3MONTH",
+            "4MONTH",
+            "6MONTH",
+            "1YEAR",
+            "2YEAR",
+            "3YEAR",
+            "5YEAR",
+            "7YEAR",
+            "10YEAR",
+            "20YEAR",
+            "30YEAR",
+        )
+    )
     records, dates, found = [], set(), False
     for index, entry in enumerate((n for n in root if local_name(n) == "entry"), 1):
         contents = [n for n in entry if local_name(n) == "content"]
@@ -473,7 +491,11 @@ def macro_analytics(
     economics: Callable[[ResearchQuery], dict[str, Any]],
 ) -> dict[str, Any]:
     assert q.series in MACRO_SERIES
-    if q.series != "yield_spread_10y_2y":
+    if q.series in CURVE_SERIES:
+        from atlas_terminal.research_fixed_income import curve_analytics
+
+        return curve_analytics(transport, q)
+    else:
         dates = {}
         if q.start_date and q.end_date:
             start = date.fromisoformat(q.start_date)
@@ -491,47 +513,3 @@ def macro_analytics(
         # Each source request is still validated and bounded to ten years.
         underlying = underlying.model_copy(update=dates)
         return monthly_analytics(q, economics(underlying))
-    year = q.year or date.today().year
-    snapshot = transport.get(TREASURY_BASE + str(year), 21600)
-    grouped: dict[str, dict[str, dict[str, Any]]] = {}
-    for row in treasury_rows(snapshot, year, real=False):
-        grouped.setdefault(row["date"], {})[row["maturity"]] = row
-    records = []
-    for observed, row in sorted(grouped.items(), reverse=True):
-        inputs = [row[maturity] for maturity in ("10YEAR", "2YEAR")]
-        value = None
-        if all(item["value"] is not None for item in inputs):
-            difference = exact_difference(inputs[0]["value"], inputs[1]["value"])
-            with localcontext(Context(prec=max(28, len(difference.as_tuple().digits) + 4))):
-                value = number(difference * 100)
-        records.append(
-            {
-                "series": q.series,
-                "date": observed,
-                "value": value,
-                "unit": "basis_points",
-                "derived": True,
-                "status": "derived" if value is not None else "unavailable",
-                "reason": "Missing same-date 10-year or 2-year nominal par yield."
-                if value is None
-                else None,
-                "formula": MACRO_SERIES[q.series]["formula"],
-                "inputs": inputs,
-                "published_at": None,
-                "frequency": "business_daily",
-                "decimal_precision": None,
-            }
-        )
-    return result_page(
-        records,
-        [reference(snapshot, "/", xml=True)],
-        q.limit,
-        window=f"Treasury selected calendar year {year}",
-        source_id="treasury",
-        limitations=[
-            "10-year minus 2-year nominal par yields from the same Treasury observation date.",
-            "Inputs are percentage points per annum; "
-            "multiplying their difference by 100 yields basis points.",
-            "No mixing dates, interpolation, market quotes or inference from real yields.",
-        ],
-    )
