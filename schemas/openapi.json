@@ -477,6 +477,8 @@
                     "macro_analytics",
                     "national_accounts",
                     "japan_economics",
+                    "europe_economics",
+                    "uk_economics",
                     "sdmx_catalog",
                     "international_economics",
                     "macro_panel"
@@ -3989,7 +3991,12 @@
               "us_japan_bond_context",
               "euro_area_bond_context",
               "australia_bond_context",
-              "global_bond_context"
+              "global_bond_context",
+              "japan_activity_overview",
+              "us_activity_overview",
+              "euro_area_macro_overview",
+              "uk_macro_overview",
+              "global_macro_overview"
             ],
             "title": "Preset"
           },
@@ -4269,6 +4276,8 @@
               "macro_analytics",
               "national_accounts",
               "japan_economics",
+              "europe_economics",
+              "uk_economics",
               "sdmx_catalog",
               "international_economics",
               "macro_panel"
@@ -5599,20 +5608,36 @@
               "series": {
                 "enum": [
                   "CES0000000001",
+                  "CES0500000002",
                   "CES0500000003",
+                  "CES3000000001",
                   "CUSR0000SA0",
                   "CUUR0000SA0",
                   "CUUR0000SA0L1E",
+                  "JTS000000000000000HIL",
                   "JTS000000000000000JOL",
+                  "JTS000000000000000LDL",
+                  "JTS000000000000000QUL",
                   "LNS11300000",
+                  "LNS12300000",
+                  "LNS13008636",
                   "LNS14000000",
+                  "WPSFD4",
+                  "average_weekly_hours",
                   "core_cpi",
                   "cpi",
                   "cpi_sa",
+                  "employment_population_ratio",
                   "hourly_earnings",
+                  "job_hires",
+                  "job_layoffs",
                   "job_openings",
+                  "job_quits",
+                  "long_term_unemployment",
+                  "manufacturing_payrolls",
                   "participation",
                   "payrolls",
+                  "ppi_final_demand",
                   "unemployment"
                 ],
                 "maxLength": 100,
@@ -6938,14 +6963,22 @@
               },
               "series": {
                 "enum": [
+                  "business_investment_real",
                   "core_pce_price_index",
                   "disposable_personal_income",
+                  "exports_real",
+                  "gdp_consumption_real",
                   "gdp_growth",
                   "gdp_nominal",
                   "gdp_real",
+                  "government_consumption_investment_real",
+                  "imports_real",
                   "pce_price_index",
+                  "pce_real",
                   "personal_consumption",
-                  "personal_income"
+                  "personal_income",
+                  "personal_saving_rate",
+                  "residential_investment_real"
                 ],
                 "maxLength": 100,
                 "minLength": 1,
@@ -7017,14 +7050,217 @@
                 "enum": [
                   "bank_loans",
                   "call_rate",
+                  "core_cpi",
                   "cpi",
+                  "gdp_deflator",
+                  "gdp_nominal",
+                  "gdp_real",
+                  "household_consumption_real",
+                  "housing_starts",
+                  "industrial_inventories",
+                  "industrial_production",
+                  "industrial_shipments",
+                  "job_offers_ratio",
                   "monetary_base",
                   "money_stock_m2",
                   "real_effective_exchange_rate",
+                  "real_wages",
+                  "retail_sales",
                   "tankan_manufacturing",
                   "tankan_nonmanufacturing",
                   "unemployment",
                   "usd_jpy_tokyo"
+                ],
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string"
+              },
+              "start_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Start Date"
+              },
+              "response": {
+                "$ref": "#/components/schemas/ResponseOptions"
+              },
+              "requirements": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ResearchRequirements"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              }
+            },
+            "required": ["dataset", "series"],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "dependentRequired": {
+              "end_date": ["start_date"],
+              "start_date": ["end_date"]
+            },
+            "properties": {
+              "dataset": {
+                "const": "europe_economics",
+                "type": "string"
+              },
+              "end_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "End Date"
+              },
+              "limit": {
+                "default": 100,
+                "maximum": 500,
+                "minimum": 1,
+                "title": "Limit",
+                "type": "integer"
+              },
+              "series": {
+                "enum": [
+                  "de_gdp_growth",
+                  "de_gdp_nominal",
+                  "de_gdp_real",
+                  "de_hicp",
+                  "de_hicp_yoy",
+                  "de_industrial_production",
+                  "de_retail_sales",
+                  "de_unemployment",
+                  "ea_gdp_growth",
+                  "ea_gdp_nominal",
+                  "ea_gdp_real",
+                  "ea_hicp",
+                  "ea_hicp_yoy",
+                  "ea_industrial_production",
+                  "ea_retail_sales",
+                  "ea_unemployment",
+                  "es_gdp_growth",
+                  "es_gdp_nominal",
+                  "es_gdp_real",
+                  "es_hicp",
+                  "es_hicp_yoy",
+                  "es_industrial_production",
+                  "es_retail_sales",
+                  "es_unemployment",
+                  "eu_gdp_growth",
+                  "eu_gdp_nominal",
+                  "eu_gdp_real",
+                  "eu_hicp",
+                  "eu_hicp_yoy",
+                  "eu_industrial_production",
+                  "eu_retail_sales",
+                  "eu_unemployment",
+                  "fr_gdp_growth",
+                  "fr_gdp_nominal",
+                  "fr_gdp_real",
+                  "fr_hicp",
+                  "fr_hicp_yoy",
+                  "fr_industrial_production",
+                  "fr_retail_sales",
+                  "fr_unemployment",
+                  "it_gdp_growth",
+                  "it_gdp_nominal",
+                  "it_gdp_real",
+                  "it_hicp",
+                  "it_hicp_yoy",
+                  "it_industrial_production",
+                  "it_retail_sales",
+                  "it_unemployment"
+                ],
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string"
+              },
+              "start_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Start Date"
+              },
+              "response": {
+                "$ref": "#/components/schemas/ResponseOptions"
+              },
+              "requirements": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ResearchRequirements"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              }
+            },
+            "required": ["dataset", "series"],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "dependentRequired": {
+              "end_date": ["start_date"],
+              "start_date": ["end_date"]
+            },
+            "properties": {
+              "dataset": {
+                "const": "uk_economics",
+                "type": "string"
+              },
+              "end_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "End Date"
+              },
+              "limit": {
+                "default": 100,
+                "maximum": 500,
+                "minimum": 1,
+                "title": "Limit",
+                "type": "integer"
+              },
+              "series": {
+                "enum": [
+                  "cpi",
+                  "cpi_yoy",
+                  "gdp_growth",
+                  "gdp_real",
+                  "unemployment"
                 ],
                 "maxLength": 100,
                 "minLength": 1,
@@ -7294,6 +7530,8 @@
               "macro_analytics",
               "national_accounts",
               "japan_economics",
+              "europe_economics",
+              "uk_economics",
               "sdmx_catalog",
               "international_economics",
               "macro_panel"
@@ -8871,6 +9109,566 @@
           },
           {
             "additionalProperties": false,
+            "dependentRequired": {
+              "end_date": ["start_date"],
+              "start_date": ["end_date"]
+            },
+            "properties": {
+              "end_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "End Date"
+              },
+              "include": {
+                "anyOf": [
+                  {
+                    "items": {
+                      "enum": [
+                        "gdp_real",
+                        "gdp_nominal",
+                        "industrial_production",
+                        "industrial_inventories",
+                        "retail_sales",
+                        "household_consumption_real",
+                        "real_wages",
+                        "job_offers_ratio",
+                        "housing_starts",
+                        "core_cpi"
+                      ]
+                    },
+                    "maxItems": 10,
+                    "minItems": 1,
+                    "type": "array",
+                    "uniqueItems": true
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Include"
+              },
+              "preset": {
+                "const": "japan_activity_overview",
+                "type": "string"
+              },
+              "preview": {
+                "default": false,
+                "title": "Preview",
+                "type": "boolean"
+              },
+              "requirements": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ResearchRequirements"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              },
+              "requirements_by_item": {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/ResearchRequirements"
+                },
+                "maxProperties": 10,
+                "propertyNames": {
+                  "enum": [
+                    "gdp_real",
+                    "gdp_nominal",
+                    "industrial_production",
+                    "industrial_inventories",
+                    "retail_sales",
+                    "household_consumption_real",
+                    "real_wages",
+                    "job_offers_ratio",
+                    "housing_starts",
+                    "core_cpi"
+                  ]
+                },
+                "title": "Requirements By Item",
+                "type": "object"
+              },
+              "start_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Start Date"
+              },
+              "view": {
+                "default": "compact",
+                "enum": ["full", "compact"],
+                "title": "View",
+                "type": "string"
+              }
+            },
+            "required": ["preset"],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "dependentRequired": {
+              "end_date": ["start_date"],
+              "start_date": ["end_date"]
+            },
+            "properties": {
+              "end_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "End Date"
+              },
+              "include": {
+                "anyOf": [
+                  {
+                    "items": {
+                      "enum": [
+                        "gdp_real",
+                        "gdp_consumption_real",
+                        "business_investment_real",
+                        "residential_investment_real",
+                        "exports_real",
+                        "imports_real",
+                        "pce_real",
+                        "personal_saving_rate",
+                        "ppi",
+                        "weekly_hours"
+                      ]
+                    },
+                    "maxItems": 10,
+                    "minItems": 1,
+                    "type": "array",
+                    "uniqueItems": true
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Include"
+              },
+              "preset": {
+                "const": "us_activity_overview",
+                "type": "string"
+              },
+              "preview": {
+                "default": false,
+                "title": "Preview",
+                "type": "boolean"
+              },
+              "requirements": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ResearchRequirements"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              },
+              "requirements_by_item": {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/ResearchRequirements"
+                },
+                "maxProperties": 10,
+                "propertyNames": {
+                  "enum": [
+                    "gdp_real",
+                    "gdp_consumption_real",
+                    "business_investment_real",
+                    "residential_investment_real",
+                    "exports_real",
+                    "imports_real",
+                    "pce_real",
+                    "personal_saving_rate",
+                    "ppi",
+                    "weekly_hours"
+                  ]
+                },
+                "title": "Requirements By Item",
+                "type": "object"
+              },
+              "start_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Start Date"
+              },
+              "view": {
+                "default": "compact",
+                "enum": ["full", "compact"],
+                "title": "View",
+                "type": "string"
+              }
+            },
+            "required": ["preset"],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "dependentRequired": {
+              "end_date": ["start_date"],
+              "start_date": ["end_date"]
+            },
+            "properties": {
+              "end_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "End Date"
+              },
+              "include": {
+                "anyOf": [
+                  {
+                    "items": {
+                      "enum": [
+                        "gdp_real",
+                        "gdp_nominal",
+                        "gdp_growth",
+                        "hicp",
+                        "hicp_yoy",
+                        "unemployment",
+                        "industrial_production",
+                        "retail_sales",
+                        "eur_usd"
+                      ]
+                    },
+                    "maxItems": 10,
+                    "minItems": 1,
+                    "type": "array",
+                    "uniqueItems": true
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Include"
+              },
+              "preset": {
+                "const": "euro_area_macro_overview",
+                "type": "string"
+              },
+              "preview": {
+                "default": false,
+                "title": "Preview",
+                "type": "boolean"
+              },
+              "requirements": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ResearchRequirements"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              },
+              "requirements_by_item": {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/ResearchRequirements"
+                },
+                "maxProperties": 10,
+                "propertyNames": {
+                  "enum": [
+                    "gdp_real",
+                    "gdp_nominal",
+                    "gdp_growth",
+                    "hicp",
+                    "hicp_yoy",
+                    "unemployment",
+                    "industrial_production",
+                    "retail_sales",
+                    "eur_usd"
+                  ]
+                },
+                "title": "Requirements By Item",
+                "type": "object"
+              },
+              "start_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Start Date"
+              },
+              "view": {
+                "default": "compact",
+                "enum": ["full", "compact"],
+                "title": "View",
+                "type": "string"
+              }
+            },
+            "required": ["preset"],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "dependentRequired": {
+              "end_date": ["start_date"],
+              "start_date": ["end_date"]
+            },
+            "properties": {
+              "end_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "End Date"
+              },
+              "include": {
+                "anyOf": [
+                  {
+                    "items": {
+                      "enum": [
+                        "cpi",
+                        "cpi_yoy",
+                        "gdp_real",
+                        "gdp_growth",
+                        "unemployment",
+                        "gbp_usd"
+                      ]
+                    },
+                    "maxItems": 10,
+                    "minItems": 1,
+                    "type": "array",
+                    "uniqueItems": true
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Include"
+              },
+              "preset": {
+                "const": "uk_macro_overview",
+                "type": "string"
+              },
+              "preview": {
+                "default": false,
+                "title": "Preview",
+                "type": "boolean"
+              },
+              "requirements": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ResearchRequirements"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              },
+              "requirements_by_item": {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/ResearchRequirements"
+                },
+                "maxProperties": 10,
+                "propertyNames": {
+                  "enum": [
+                    "cpi",
+                    "cpi_yoy",
+                    "gdp_real",
+                    "gdp_growth",
+                    "unemployment",
+                    "gbp_usd"
+                  ]
+                },
+                "title": "Requirements By Item",
+                "type": "object"
+              },
+              "start_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Start Date"
+              },
+              "view": {
+                "default": "compact",
+                "enum": ["full", "compact"],
+                "title": "View",
+                "type": "string"
+              }
+            },
+            "required": ["preset"],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "dependentRequired": {
+              "end_date": ["start_date"],
+              "start_date": ["end_date"]
+            },
+            "properties": {
+              "end_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "End Date"
+              },
+              "include": {
+                "anyOf": [
+                  {
+                    "items": {
+                      "enum": [
+                        "us_gdp",
+                        "us_cpi",
+                        "jp_gdp",
+                        "jp_cpi",
+                        "ea_gdp",
+                        "ea_hicp",
+                        "gb_gdp",
+                        "gb_cpi",
+                        "de_gdp",
+                        "fr_gdp"
+                      ]
+                    },
+                    "maxItems": 10,
+                    "minItems": 1,
+                    "type": "array",
+                    "uniqueItems": true
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Include"
+              },
+              "preset": {
+                "const": "global_macro_overview",
+                "type": "string"
+              },
+              "preview": {
+                "default": false,
+                "title": "Preview",
+                "type": "boolean"
+              },
+              "requirements": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ResearchRequirements"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              },
+              "requirements_by_item": {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/ResearchRequirements"
+                },
+                "maxProperties": 10,
+                "propertyNames": {
+                  "enum": [
+                    "us_gdp",
+                    "us_cpi",
+                    "jp_gdp",
+                    "jp_cpi",
+                    "ea_gdp",
+                    "ea_hicp",
+                    "gb_gdp",
+                    "gb_cpi",
+                    "de_gdp",
+                    "fr_gdp"
+                  ]
+                },
+                "title": "Requirements By Item",
+                "type": "object"
+              },
+              "start_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Start Date"
+              },
+              "view": {
+                "default": "compact",
+                "enum": ["full", "compact"],
+                "title": "View",
+                "type": "string"
+              }
+            },
+            "required": ["preset"],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
             "properties": {
               "include": {
                 "anyOf": [
@@ -9167,7 +9965,12 @@
               "us_japan_bond_context",
               "euro_area_bond_context",
               "australia_bond_context",
-              "global_bond_context"
+              "global_bond_context",
+              "japan_activity_overview",
+              "us_activity_overview",
+              "euro_area_macro_overview",
+              "uk_macro_overview",
+              "global_macro_overview"
             ],
             "title": "Preset",
             "type": "string"
@@ -9402,11 +10205,13 @@
                     "imf",
                     "oecd",
                     "japan_mof",
-                    "rba"
+                    "rba",
+                    "eurostat",
+                    "ons"
                   ],
                   "type": "string"
                 },
-                "maxItems": 14,
+                "maxItems": 16,
                 "minItems": 1,
                 "type": "array"
               },

@@ -14,15 +14,15 @@ Atlas Terminal retrieves US equity research, macro data and reference FX from fr
 | XBRL           | Concept and unit inventories, plus observations with their original accounting contexts                |
 | Disclosures    | All-form filing discovery and ownership, fund, proxy, offering and corporate-action filing groups      |
 | Ownership      | Form 3/4/5 records and a manager's 13F information table, retrieved one filing at a time               |
-| Economics      | Eight BLS series covering consumer prices, employment, unemployment, wages and job openings            |
+| Economics      | Sixteen BLS series covering consumer prices, employment, unemployment, wages and job openings          |
 | Treasury       | Daily nominal and TIPS-based real par yield curves; federal Debt to the Penny observations             |
 | Macro analysis | CPI/core CPI YoY, payroll monthly changes and the same-day 10Y–2Y nominal spread, with original inputs |
 | Rates / FX     | Overnight EFFR/SOFR; ECB daily reference FX for 31 currencies, with per-currency history limits        |
 | Policy         | Federal Reserve release headlines, publication times and original links                                |
 
-US national accounts add eight BEA series; Japanese macro adds ten BOJ/Statistical Dashboard series. `japan_macro_overview` and `us_japan_overview` expand through the shared batch service with dates, source IDs and per-item failures.
+US national accounts add sixteen BEA series; Japanese macro adds twenty-two BOJ/Statistical Dashboard series. Eurostat adds 48 exact European selections and ONS adds five UK series. Five activity/global presets join the existing macro presets through shared batches with dates, source IDs and per-item failures. [Series and statistical definitions](docs/economic-indicators.md).
 
-Run `atlas research catalog --json` for identifiers, query fields, units and limits for all 29 datasets. The [research guide](docs/research.md) includes examples for each dataset.
+Run `atlas research catalog --json` for identifiers, query fields, units and limits for all 31 datasets. The [research guide](docs/research.md) includes examples for each dataset.
 
 IMF/OECD SDMX dataflow/code discovery and metadata-validated single-series reads add international monthly, quarterly and annual coverage. `macro_panel` aligns up to ten explicit queries with last/mean aggregation, exact inputs and missing cells. Offline series search covers registered series and supported FX pairs, with country/frequency/unit/source filters. [Discovery, limits and examples](docs/international-macro.md).
 
@@ -52,7 +52,7 @@ Five named presets (`company_overview`, `us_macro_overview`, `fx_context`, `japa
 
 Connection diagnostics validate selected source configuration without creating source clients or echoing contact settings. Explicit network opt-in reuses fixed source probes, caches/quotas and private baselines in the configured state directory. Configuration readiness, probe status and synthetic mode remain distinct. Fixture diagnostics never run network probes.
 
-Opt-in source checks cover twelve official source families with eighteen fixed probes. IMF/OECD probes check dataflow metadata, without certifying observation retrieval. They capture raw-byte and structure hashes, observation dates, latency and changes against private last-success baselines. A manual workflow keeps live requests separate from offline CI. Fixture/mock checks do not establish live connectivity. See [operator source checks](docs/source-checks.md).
+Opt-in source checks cover sixteen official source families with twenty-four fixed probes. IMF/OECD probes check dataflow metadata, without certifying observation retrieval. They capture raw-byte and structure hashes, observation dates, latency and changes against private last-success baselines. A manual workflow keeps live requests separate from offline CI. Fixture/mock checks do not establish live connectivity. See [operator source checks](docs/source-checks.md).
 
 ## Optional native factor risk models
 
@@ -93,7 +93,7 @@ Optional task `intent_id` values bind an exact validated annual query to one quo
 
 Consolidated equity prices, daily prices and adjustment factors, order books, options, analyst consensus, newswire articles, earnings-call transcripts, a complete security master or corporate-action history, PIT and trading are unavailable.
 
-FX uses the full published ECB history for 31 currencies with per-currency gaps. BLS observation-date queries span up to 30 calendar years in ten-year requests; the default remains the latest three years. Eight BEA national-account series and ten Japanese macro series use explicit units and periods. EFFR/SOFR still covers the latest 90 effective observations. Real Treasury yields cover one selected year from 2003 onward. No holiday filling, real-time FX, term SOFR or historical release vintages are provided. See [macro coverage](docs/macro.md).
+FX uses the full published ECB history for 31 currencies with per-currency gaps. BLS observation-date queries span up to 30 calendar years in ten-year requests; the default remains the latest three years. Sixteen BEA national-account series and twenty-two Japanese macro series use explicit units and periods. EFFR/SOFR still covers the latest 90 effective observations. Real Treasury yields cover one selected year from 2003 onward. No holiday filling, real-time FX, term SOFR or historical release vintages are provided. See [macro coverage](docs/macro.md).
 
 The reference HTTP API supports one process, one private SQLite volume and loopback connections. The separate research-only MCP HTTP service adds exact host/origin validation, explicit bearer or anonymous access, request-size/rate/concurrency limits and stateless JSON Streamable HTTP. It requires one process and a persistent state volume behind operator-managed HTTPS. It has no payment handlers, OAuth, tenant isolation or distributed limiter. No official public remote endpoint is operated. Mainnet, distributed budgets and background reconciliation are unsupported. Reconciliation may remain unresolved for legacy deadlines, old nonce logs without a transaction hint, ambiguous batched receipts and pre-submission crashes. Live RPC/Facilitator behavior and real transfers remain unverified.
 

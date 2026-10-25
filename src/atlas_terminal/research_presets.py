@@ -37,6 +37,11 @@ PresetName = Literal[
     "euro_area_bond_context",
     "australia_bond_context",
     "global_bond_context",
+    "japan_activity_overview",
+    "us_activity_overview",
+    "euro_area_macro_overview",
+    "uk_macro_overview",
+    "global_macro_overview",
 ]
 PRESETS: dict[str, dict[str, Any]] = {
     "us_bond_context": {
@@ -269,6 +274,128 @@ PRESETS: dict[str, dict[str, Any]] = {
         },
     },
 }
+PRESETS.update(
+    {
+        "japan_activity_overview": {
+            "description": (
+                "Japan GDP, production, consumption, real wages, jobs and housing; independent "
+                "observation dates."
+            ),
+            "fields": ["start_date", "end_date"],
+            "required": [],
+            "items": {
+                key: {"dataset": "japan_economics", "series": key, "limit": 1}
+                for key in (
+                    "gdp_real",
+                    "gdp_nominal",
+                    "industrial_production",
+                    "industrial_inventories",
+                    "retail_sales",
+                    "household_consumption_real",
+                    "real_wages",
+                    "job_offers_ratio",
+                    "housing_starts",
+                    "core_cpi",
+                )
+            },
+        },
+        "us_activity_overview": {
+            "description": (
+                "US real GDP demand components, real consumption, saving and labor/producer "
+                "prices; BEA requires a free key."
+            ),
+            "fields": ["start_date", "end_date"],
+            "required": [],
+            "items": {
+                **{
+                    key: {"dataset": "national_accounts", "series": key, "limit": 1}
+                    for key in (
+                        "gdp_real",
+                        "gdp_consumption_real",
+                        "business_investment_real",
+                        "residential_investment_real",
+                        "exports_real",
+                        "imports_real",
+                        "pce_real",
+                        "personal_saving_rate",
+                    )
+                },
+                "ppi": {"dataset": "economics", "series": "ppi_final_demand", "limit": 1},
+                "weekly_hours": {
+                    "dataset": "economics",
+                    "series": "average_weekly_hours",
+                    "limit": 1,
+                },
+            },
+        },
+        "euro_area_macro_overview": {
+            "description": (
+                "Eurostat euro-area GDP, HICP, labor, industry and retail with EUR/USD; inspect "
+                "original geography labels."
+            ),
+            "fields": ["start_date", "end_date"],
+            "required": [],
+            "items": {
+                **{
+                    key: {"dataset": "europe_economics", "series": "ea_" + key, "limit": 1}
+                    for key in (
+                        "gdp_real",
+                        "gdp_nominal",
+                        "gdp_growth",
+                        "hicp",
+                        "hicp_yoy",
+                        "unemployment",
+                        "industrial_production",
+                        "retail_sales",
+                    )
+                },
+                "eur_usd": {
+                    "dataset": "fx_rates",
+                    "base_currency": "EUR",
+                    "quote_currency": "USD",
+                    "limit": 1,
+                },
+            },
+        },
+        "uk_macro_overview": {
+            "description": "ONS UK CPI, GDP and three-month rolling unemployment, plus GBP/USD.",
+            "fields": ["start_date", "end_date"],
+            "required": [],
+            "items": {
+                **{
+                    key: {"dataset": "uk_economics", "series": key, "limit": 1}
+                    for key in ("cpi", "cpi_yoy", "gdp_real", "gdp_growth", "unemployment")
+                },
+                "gbp_usd": {
+                    "dataset": "fx_rates",
+                    "base_currency": "GBP",
+                    "quote_currency": "USD",
+                    "limit": 1,
+                },
+            },
+        },
+        "global_macro_overview": {
+            "description": (
+                "US, Japan, euro-area and UK GDP/prices plus German and French GDP; dates and "
+                "definitions are independent."
+            ),
+            "fields": ["start_date", "end_date"],
+            "required": [],
+            "items": {
+                "us_gdp": {"dataset": "national_accounts", "series": "gdp_real", "limit": 1},
+                "us_cpi": {"dataset": "economics", "series": "cpi", "limit": 1},
+                "jp_gdp": {"dataset": "japan_economics", "series": "gdp_real", "limit": 1},
+                "jp_cpi": {"dataset": "japan_economics", "series": "cpi", "limit": 1},
+                "ea_gdp": {"dataset": "europe_economics", "series": "ea_gdp_real", "limit": 1},
+                "ea_hicp": {"dataset": "europe_economics", "series": "ea_hicp_yoy", "limit": 1},
+                "gb_gdp": {"dataset": "uk_economics", "series": "gdp_real", "limit": 1},
+                "gb_cpi": {"dataset": "uk_economics", "series": "cpi", "limit": 1},
+                "de_gdp": {"dataset": "europe_economics", "series": "de_gdp_growth", "limit": 1},
+                "fr_gdp": {"dataset": "europe_economics", "series": "fr_gdp_growth", "limit": 1},
+            },
+        },
+    }
+)
 PRESETS.update(
     {
         "euro_area_bond_context": {

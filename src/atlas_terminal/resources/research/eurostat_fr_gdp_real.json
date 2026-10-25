@@ -1,0 +1,108 @@
+{
+  "version": "2.0",
+  "class": "dataset",
+  "label": "SYNTHETIC: France: real GDP, chain-linked million EUR (2020)",
+  "source": "ESTAT",
+  "updated": "2026-10-20T00:00:00Z",
+  "extension": {
+    "id": "NAMQ_10_GDP",
+    "agencyId": "ESTAT",
+    "synthetic": true
+  },
+  "id": [
+    "freq",
+    "unit",
+    "s_adj",
+    "na_item",
+    "geo",
+    "time"
+  ],
+  "size": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    3
+  ],
+  "dimension": {
+    "freq": {
+      "label": "freq",
+      "category": {
+        "index": {
+          "Q": 0
+        },
+        "label": {
+          "Q": "Q"
+        }
+      }
+    },
+    "unit": {
+      "label": "unit",
+      "category": {
+        "index": {
+          "CLV20_MEUR": 0
+        },
+        "label": {
+          "CLV20_MEUR": "CLV20_MEUR"
+        }
+      }
+    },
+    "s_adj": {
+      "label": "s_adj",
+      "category": {
+        "index": {
+          "SCA": 0
+        },
+        "label": {
+          "SCA": "SCA"
+        }
+      }
+    },
+    "na_item": {
+      "label": "na_item",
+      "category": {
+        "index": {
+          "B1GQ": 0
+        },
+        "label": {
+          "B1GQ": "B1GQ"
+        }
+      }
+    },
+    "geo": {
+      "label": "geo",
+      "category": {
+        "index": {
+          "FR": 0
+        },
+        "label": {
+          "FR": "FR"
+        }
+      }
+    },
+    "time": {
+      "label": "Time",
+      "category": {
+        "index": {
+          "2026-Q1": 0,
+          "2026-Q2": 1,
+          "2026-Q3": 2
+        },
+        "label": {
+          "2026-Q1": "2026-Q1",
+          "2026-Q2": "2026-Q2",
+          "2026-Q3": "2026-Q3"
+        }
+      }
+    }
+  },
+  "value": {
+    "0": "100.0000",
+    "1": "101.2500",
+    "2": "102.5000"
+  },
+  "status": {
+    "2": "p"
+  }
+}

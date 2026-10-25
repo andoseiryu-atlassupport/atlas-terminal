@@ -6,7 +6,13 @@ from typing import Any
 
 from atlas_terminal.economic_catalog import JAPAN_SERIES, NATIONAL_ACCOUNTS
 from atlas_terminal.economic_dates import month_end, window_metadata, within, years
-from atlas_terminal.economic_sources import bea_url, boj_url, estat_data_url, estat_metadata_url
+from atlas_terminal.economic_sources import (
+    bea_url,
+    boj_url,
+    estat_cycle,
+    estat_data_url,
+    estat_metadata_url,
+)
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.providers import Transport
 from atlas_terminal.public_sources import BLS_BASE, BLS_SERIES, SOURCE_CATALOG, bls_url, xml_root
@@ -435,15 +441,22 @@ def estat_economics(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
     assert q.series in JAPAN_SERIES
     spec = JAPAN_SERIES[q.series]
     seasonal = "2" if spec["seasonally_adjusted"] else "1"
+    cycle = estat_cycle(q.series)
     meta = transport.get(estat_metadata_url(q.series), 86400)
     root = xml_root(meta.body)
     if root.tag != "GET_META_INDICATOR_INF" or root.findtext("RESULT/STATUS") != "0":
         raise source_error("Statistical Dashboard indicator discovery failed.")
     candidates = []
-    expected = unicodedata.normalize("NFKC", spec["code"]).replace(" ", "")
+
+    def normalized_label(value: str) -> str:
+        label = re.sub(r"\s+", "", unicodedata.normalize("NFKC", value))
+        label = re.sub(r"^\(季節調整値\)", "", label)
+        return re.sub(r"[0-9]{4}年基準$", "", label)
+
+    expected = normalized_label(spec["code"])
     for i, node in enumerate(root.findall("METADATA_INF/CLASS_INF/CLASS_OBJ"), 1):
-        label = unicodedata.normalize("NFKC", node.get("name", "")).replace(" ", "")
-        if not re.fullmatch(re.escape(expected) + r"(?:[0-9]{4}年基準)?", label):
+        label = normalized_label(node.get("name", ""))
+        if label != expected:
             continue
         elements = [
             child
@@ -451,7 +464,7 @@ def estat_economics(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
             if all(
                 (n := child.find(tag)) is not None and n.get("code") == expected_code
                 for tag, expected_code in (
-                    ("Cycle", "1"),
+                    ("Cycle", cycle),
                     ("RegionalRank", "2"),
                     ("IsSeasonal", seasonal),
                 )
@@ -512,7 +525,7 @@ def estat_economics(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
                 "indicator": code,
                 "stat": spec["database"],
                 "regionCode": "00000",
-                "cycle": "1",
+                "cycle": cycle,
                 "regionRank": "2",
                 "isSeasonal": seasonal,
             }.items()
@@ -521,14 +534,17 @@ def estat_economics(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
                 "Statistical Dashboard dimensions do not match the requested government series."
             )
         period = p.get("time", "")
-        if not re.fullmatch(r"[0-9]{6}00", period):
-            raise source_error("Invalid Statistical Dashboard monthly period.")
         try:
-            observed = month_end(int(period[:4]), int(period[4:6]))
+            if cycle == "2" and re.fullmatch(r"[0-9]{4}[1-4]Q00", period):
+                observed = month_end(int(period[:4]), int(period[4]) * 3)
+            elif cycle == "1" and re.fullmatch(r"[0-9]{6}00", period):
+                observed = month_end(int(period[:4]), int(period[4:6]))
+            else:
+                raise ValueError("Frequency mismatch")
         except ValueError:
-            raise source_error("Invalid Statistical Dashboard monthly period.") from None
+            raise source_error("Invalid Statistical Dashboard observation period.") from None
         if observed in seen:
-            raise source_error("Duplicate Statistical Dashboard monthly observation.")
+            raise source_error("Duplicate Statistical Dashboard observation period.")
         seen.add(observed)
         unit = classes.get("unit", {}).get(p.get("unit", ""))
         survey = classes.get("stat", {}).get(spec["database"])
@@ -537,6 +553,8 @@ def estat_economics(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
             raise source_error(
                 "Statistical Dashboard observation lacks unit, survey or provisional metadata."
             )
+        if normalized_label(title) != expected:
+            raise source_error("Statistical Dashboard value metadata differs from discovery.")
         if not within(observed, start, end):
             continue
         text = (value_node.text or "").strip()
@@ -551,12 +569,17 @@ def estat_economics(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
                 "date": observed,
                 "date_basis": "observation_period_end",
                 "year": period[:4],
-                "period": "M" + period[4:6],
-                "period_kind": "month",
-                "frequency": "monthly",
+                "period": "Q" + period[4] if cycle == "2" else "M" + period[4:6],
+                "period_kind": "quarter" if cycle == "2" else "month",
+                "source_period": period,
+                "frequency": spec["frequency"].lower(),
                 "value": value,
                 "unit": unit,
                 "seasonally_adjusted": spec["seasonally_adjusted"],
+                "annualized": spec.get("annualized", False),
+                "base_period": (
+                    match[0][:4] if (match := re.search(r"[0-9]{4}年基準", title)) else None
+                ),
                 "is_provisional": p["isProvisional"] == "1",
                 "survey_code": spec["database"],
                 "survey_name": survey,
@@ -582,8 +605,8 @@ def estat_economics(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
         window=f"Japan Statistical Dashboard {start} through {end}",
         limitations=[
             (
-                "Only national CPI and Labour Force Survey observations with "
-                "explicit matching frequency and seasonal adjustment are accepted."
+                "Only curated government survey observations with explicit national geography, "
+                "matching frequency, indicator identity and seasonal adjustment are accepted."
             ),
             (
                 "The unique active indicator is resolved from official metadata; "
@@ -603,9 +626,7 @@ def estat_economics(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
                 "This service uses the Statistical Dashboard API. The content of "
                 "this service is not guaranteed by the Government of Japan."
             ),
-            "original_sources": (
-                "Statistics Bureau of Japan: Consumer Price Index and Labour Force Survey."
-            ),
+            "original_sources": sorted({row["survey_name"] for row in records}),
             "modifications": (
                 "Dates and numeric strings normalized; published observation "
                 "values are not rebased or seasonally adjusted by Atlas."

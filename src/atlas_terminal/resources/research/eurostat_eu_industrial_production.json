@@ -1,0 +1,121 @@
+{
+  "version": "2.0",
+  "class": "dataset",
+  "label": "SYNTHETIC: European Union, 27 countries from 2020: industrial production, index 2021=100",
+  "source": "ESTAT",
+  "updated": "2026-10-20T00:00:00Z",
+  "extension": {
+    "id": "STS_INPR_M",
+    "agencyId": "ESTAT",
+    "synthetic": true
+  },
+  "id": [
+    "freq",
+    "unit",
+    "s_adj",
+    "indic_bt",
+    "nace_r2",
+    "geo",
+    "time"
+  ],
+  "size": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    3
+  ],
+  "dimension": {
+    "freq": {
+      "label": "freq",
+      "category": {
+        "index": {
+          "M": 0
+        },
+        "label": {
+          "M": "M"
+        }
+      }
+    },
+    "unit": {
+      "label": "unit",
+      "category": {
+        "index": {
+          "I21": 0
+        },
+        "label": {
+          "I21": "I21"
+        }
+      }
+    },
+    "s_adj": {
+      "label": "s_adj",
+      "category": {
+        "index": {
+          "SCA": 0
+        },
+        "label": {
+          "SCA": "SCA"
+        }
+      }
+    },
+    "indic_bt": {
+      "label": "indic_bt",
+      "category": {
+        "index": {
+          "PRD": 0
+        },
+        "label": {
+          "PRD": "PRD"
+        }
+      }
+    },
+    "nace_r2": {
+      "label": "nace_r2",
+      "category": {
+        "index": {
+          "B-D": 0
+        },
+        "label": {
+          "B-D": "B-D"
+        }
+      }
+    },
+    "geo": {
+      "label": "geo",
+      "category": {
+        "index": {
+          "EU27_2020": 0
+        },
+        "label": {
+          "EU27_2020": "EU27_2020"
+        }
+      }
+    },
+    "time": {
+      "label": "Time",
+      "category": {
+        "index": {
+          "2026-07": 0,
+          "2026-08": 1,
+          "2026-09": 2
+        },
+        "label": {
+          "2026-07": "2026-07",
+          "2026-08": "2026-08",
+          "2026-09": "2026-09"
+        }
+      }
+    }
+  },
+  "value": {
+    "0": "100.0000",
+    "1": "101.2500",
+    "2": "102.5000"
+  },
+  "status": {
+    "2": "p"
+  }
+}

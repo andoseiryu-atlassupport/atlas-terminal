@@ -5,6 +5,7 @@ from typing import Any
 from atlas_terminal.economic_catalog import JAPAN_SERIES, NATIONAL_ACCOUNTS
 from atlas_terminal.macro_catalog import CURVE_SERIES, FX_CURRENCIES, MACRO_SERIES, REFERENCE_SERIES
 from atlas_terminal.public_sources import BLS_SERIES, SOURCE_CATALOG
+from atlas_terminal.regional_economic_catalog import EUROPE_SERIES, UK_SERIES
 from atlas_terminal.research_models import CatalogQuery
 
 
@@ -35,6 +36,14 @@ def series_catalog(filters: CatalogQuery) -> dict[str, Any]:
             "australia": ["Australian government bond", "豪州", "オーストラリア", "国債"],
             "inflation_compensation": ["breakeven proxy", "inflation", "インフレ補償"],
             "tankan": ["短観"],
+            "production": ["生産", "鉱工業"],
+            "retail": ["小売", "消費"],
+            "consumption": ["消費"],
+            "wage": ["賃金", "給与"],
+            "housing": ["住宅", "着工"],
+            "job_offers": ["有効求人倍率", "雇用"],
+            "hicp": ["inflation", "CPI", "物価", "インフレ"],
+            "ppi": ["producer price", "物価", "インフレ"],
         }.items():
             if term in key:
                 aliases.extend(words)
@@ -112,6 +121,41 @@ def series_catalog(filters: CatalogQuery) -> dict[str, Any]:
             "percent_per_annum",
             {"series": key},
             history="latest_90_observations",
+        )
+    for key, european in EUROPE_SERIES.items():
+        add(
+            "europe_economics",
+            key,
+            european["title"],
+            "eurostat",
+            european["country"],
+            "monthly" if european["frequency"] == "M" else "quarterly",
+            european["filters"]["unit"],
+            {"series": key},
+            source_table=european["dataset"],
+            dimensions=european["filters"],
+            seasonally_adjusted=european["seasonally_adjusted"],
+            annualized=False,
+            base_period=european["base_period"],
+        )
+    for key, british in UK_SERIES.items():
+        add(
+            "uk_economics",
+            key,
+            british["title"],
+            "ons",
+            "GB",
+            "monthly" if british["frequency"] == "M" else "quarterly",
+            None,
+            {"series": key},
+            source_series=british["cdid"],
+            source_table=british["dataset"],
+            seasonally_adjusted=british["seasonally_adjusted"],
+            annualized=False,
+            reference_period_kind="three_month_rolling"
+            if british["rolling_months"] == 3
+            else "calendar_period",
+            unit_basis="source_metadata",
         )
     for key, spec_macro in MACRO_SERIES.items():
         add(

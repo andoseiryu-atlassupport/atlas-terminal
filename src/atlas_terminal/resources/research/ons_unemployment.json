@@ -1,0 +1,30 @@
+{
+  "description": {
+    "cdid": "MGSX",
+    "datasetId": "LMS",
+    "title": "SYNTHETIC: UK unemployment rate, age 16+, three-month rolling periods",
+    "unit": "%",
+    "releaseDate": "2026-10-20T00:00:00.000Z",
+    "synthetic": true
+  },
+  "months": [
+    {
+      "date": "2026 JUL",
+      "value": "100.00"
+    },
+    {
+      "date": "2026 AUG",
+      "value": "101.2500"
+    },
+    {
+      "date": "2026 SEP",
+      "value": "102.5000"
+    }
+  ],
+  "years": [
+    {
+      "date": "2026",
+      "value": "999999"
+    }
+  ]
+}

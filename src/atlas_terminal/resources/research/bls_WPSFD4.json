@@ -1,0 +1,48 @@
+{
+  "status": "REQUEST_SUCCEEDED",
+  "message": [
+    "SYNTHETIC; not market observations."
+  ],
+  "Results": {
+    "series": [
+      {
+        "seriesID": "WPSFD4",
+        "data": [
+          {
+            "year": "2026",
+            "period": "M09",
+            "periodName": "September",
+            "value": "103.2500",
+            "footnotes": [
+              {
+                "text": "Fictional test data."
+              }
+            ]
+          },
+          {
+            "year": "2026",
+            "period": "M08",
+            "periodName": "August",
+            "value": "102.0000",
+            "footnotes": [
+              {
+                "text": "Fictional test data."
+              }
+            ]
+          },
+          {
+            "year": "2026",
+            "period": "M07",
+            "periodName": "July",
+            "value": "100.00",
+            "footnotes": [
+              {
+                "text": "Fictional test data."
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

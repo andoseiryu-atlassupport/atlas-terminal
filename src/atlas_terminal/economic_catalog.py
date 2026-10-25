@@ -4,7 +4,7 @@ Table identifiers and BOJ codes follow the publishers' API manuals and main-seri
 list. e-Stat indicators are resolved from official metadata, never guessed IDs.
 """
 
-from typing import TypedDict
+from typing import NotRequired, TypedDict
 
 
 class AccountSpec(TypedDict):
@@ -84,6 +84,7 @@ class JapanSpec(TypedDict):
     code: str
     frequency: str
     seasonally_adjusted: bool | None
+    annualized: NotRequired[bool]
 
 
 JAPAN_SERIES: dict[str, JapanSpec] = {
@@ -168,3 +169,172 @@ JAPAN_SERIES: dict[str, JapanSpec] = {
         "seasonally_adjusted": True,
     },
 }
+
+# Resolve current indicator IDs from publisher metadata; never splice index bases.
+for _key, _title, _survey, _label, _frequency, _adjusted in (
+    (
+        "gdp_nominal",
+        "Japan nominal GDP, expenditure approach",
+        "00100409",
+        "国内総生産（支出側）（名目）",
+        "QUARTERLY",
+        True,
+    ),
+    (
+        "gdp_real",
+        "Japan real GDP, expenditure approach",
+        "00100409",
+        "国内総生産（支出側）（実質）",
+        "QUARTERLY",
+        True,
+    ),
+    (
+        "gdp_deflator",
+        "Japan GDP deflator, chain-linked",
+        "00100409",
+        "GDPデフレーター（名目）（連鎖方式）",
+        "QUARTERLY",
+        True,
+    ),
+    (
+        "core_cpi",
+        "Japan CPI excluding fresh food",
+        "00200573",
+        "消費者物価指数（生鮮食品を除く総合）",
+        "MONTHLY",
+        False,
+    ),
+    (
+        "industrial_production",
+        "Japan industrial production index",
+        "00550300",
+        "鉱工業生産指数",
+        "MONTHLY",
+        True,
+    ),
+    (
+        "industrial_shipments",
+        "Japan industrial shipments index",
+        "00550300",
+        "鉱工業出荷指数",
+        "MONTHLY",
+        True,
+    ),
+    (
+        "industrial_inventories",
+        "Japan industrial inventories index",
+        "00550300",
+        "鉱工業在庫指数",
+        "MONTHLY",
+        True,
+    ),
+    (
+        "retail_sales",
+        "Japan retail sales, nominal",
+        "00550030",
+        "小売業販売額（名目）",
+        "MONTHLY",
+        False,
+    ),
+    (
+        "household_consumption_real",
+        "Japan real consumption index, two-or-more-person households",
+        "00200561",
+        "二人以上の世帯 消費支出（季節調整済実質指数）",
+        "MONTHLY",
+        True,
+    ),
+    (
+        "job_offers_ratio",
+        "Japan active job openings-to-applicants ratio",
+        "00450222",
+        "有効求人倍率",
+        "MONTHLY",
+        True,
+    ),
+    (
+        "real_wages",
+        "Japan real wage index, total cash earnings",
+        "00450071",
+        "実質賃金指数（現金給与総額）",
+        "MONTHLY",
+        False,
+    ),
+    (
+        "housing_starts",
+        "Japan new dwelling starts",
+        "00600120",
+        "新設住宅着工戸数",
+        "MONTHLY",
+        False,
+    ),
+):
+    JAPAN_SERIES[_key] = {
+        "source_id": "estat",
+        "title": _title,
+        "database": _survey,
+        "code": _label,
+        "frequency": _frequency,
+        "seasonally_adjusted": _adjusted,
+        "annualized": _key in {"gdp_nominal", "gdp_real"},
+    }
+
+for _key, _title, _table, _frequency, _description, _annualized in (
+    (
+        "gdp_consumption_real",
+        "Real personal consumption expenditures",
+        "T10106",
+        "Q",
+        "Personal consumption expenditures",
+        True,
+    ),
+    (
+        "business_investment_real",
+        "Real nonresidential fixed investment",
+        "T10106",
+        "Q",
+        "Nonresidential",
+        True,
+    ),
+    (
+        "residential_investment_real",
+        "Real residential fixed investment",
+        "T10106",
+        "Q",
+        "Residential",
+        True,
+    ),
+    (
+        "government_consumption_investment_real",
+        "Real government consumption and investment",
+        "T10106",
+        "Q",
+        "Government consumption expenditures and gross investment",
+        True,
+    ),
+    ("exports_real", "Real exports of goods and services", "T10106", "Q", "Exports", True),
+    ("imports_real", "Real imports of goods and services", "T10106", "Q", "Imports", True),
+    (
+        "personal_saving_rate",
+        "Personal saving as a percentage of disposable personal income",
+        "T20600",
+        "M",
+        r"Personal saving as a percentage of disposable personal income(?: \(DPI\))?",
+        False,
+    ),
+    (
+        "pce_real",
+        "Real personal consumption expenditures",
+        "T20806",
+        "M",
+        r"Personal consumption expenditures(?: \(PCE\))?",
+        True,
+    ),
+):
+    NATIONAL_ACCOUNTS[_key] = {
+        "table": _table,
+        "frequency": _frequency,
+        "title": _title,
+        "description_pattern": _description,
+        "annualized": _annualized,
+    }

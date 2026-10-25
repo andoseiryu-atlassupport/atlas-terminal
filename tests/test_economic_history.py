@@ -211,7 +211,11 @@ def test_bea_private_key_wire_only_echo_not_returned_and_units_not_rescaled(
     requests = []
     body = fixture_json("bea_T10106.json")
     body["BEAAPI"]["Request"] = {"RequestParam": [{"ParameterValue": KEY}]}
-    body["BEAAPI"]["Results"]["Data"][-1]["DataValue"] = "1,234.500"
+    next(
+        row
+        for row in body["BEAAPI"]["Results"]["Data"]
+        if row["LineDescription"] == "Gross domestic product" and row["TimePeriod"] == "2026Q3"
+    )["DataValue"] = "1,234.500"
     raw = json.dumps(body).encode()
 
     def handler(request):

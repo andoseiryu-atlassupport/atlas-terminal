@@ -17,6 +17,7 @@ from atlas_terminal.macro_catalog import (
 )
 from atlas_terminal.models import Model, identifier
 from atlas_terminal.regional_bond_sources import EURO_SERIES
+from atlas_terminal.regional_economic_catalog import EUROPE_SERIES, UK_SERIES
 from atlas_terminal.research_quality import ResearchRequirements
 from atlas_terminal.sdmx_sources import CODE_PATTERN, FLOW_PATTERN
 
@@ -47,6 +48,8 @@ Dataset = Literal[
     "macro_analytics",
     "national_accounts",
     "japan_economics",
+    "europe_economics",
+    "uk_economics",
     "sdmx_catalog",
     "international_economics",
     "macro_panel",
@@ -79,6 +82,8 @@ FIELDS = {
     "macro_analytics": {"series", "year", "limit", "start_date", "end_date"},
     "national_accounts": {"series", "limit", "start_date", "end_date"},
     "japan_economics": {"series", "limit", "start_date", "end_date"},
+    "europe_economics": {"series", "limit", "start_date", "end_date"},
+    "uk_economics": {"series", "limit", "start_date", "end_date"},
     "sdmx_catalog": {"source_id", "dataflow", "search", "dimension", "limit"},
     "international_economics": {
         "source_id",
@@ -107,6 +112,8 @@ def dataset_required(name: str) -> list[str]:
         "macro_analytics",
         "national_accounts",
         "japan_economics",
+        "europe_economics",
+        "uk_economics",
         "euro_area_yields",
     }:
         return ["series"]
@@ -214,6 +221,10 @@ def dataset_schema(schema: dict[str, Any]) -> None:
         if name in {"national_accounts", "japan_economics"}:
             properties["series"]["enum"] = sorted(
                 NATIONAL_ACCOUNTS if name == "national_accounts" else JAPAN_SERIES
+            )
+        if name in {"europe_economics", "uk_economics"}:
+            properties["series"]["enum"] = sorted(
+                EUROPE_SERIES if name == "europe_economics" else UK_SERIES
             )
         if name == "fx_rates":
             for key in ("base_currency", "quote_currency"):
@@ -431,6 +442,12 @@ class ResearchQuery(Model):
         if self.dataset in {"national_accounts", "japan_economics"}:
             selected = NATIONAL_ACCOUNTS if self.dataset == "national_accounts" else JAPAN_SERIES
             if self.series not in selected:
+                raise AtlasError(
+                    "INVALID_INPUT", "Choose a series from the dataset catalog.", fields=["series"]
+                )
+        if self.dataset in {"europe_economics", "uk_economics"}:
+            regional = EUROPE_SERIES if self.dataset == "europe_economics" else UK_SERIES
+            if self.series not in regional:
                 raise AtlasError(
                     "INVALID_INPUT", "Choose a series from the dataset catalog.", fields=["series"]
                 )

@@ -29,7 +29,7 @@ Run `atlas showcase research --provider public --allow-network` for actual ECB/N
 
 ## Available data
 
-Atlas provides 29 datasets from SEC EDGAR, BLS, US Treasury yields, Treasury Fiscal Data, the Federal Reserve, the ECB, the New York Fed, BEA, the Bank of Japan, Japan's Statistical Dashboard, Japan's Ministry of Finance, IMF, OECD and the Reserve Bank of Australia.
+Atlas provides 31 datasets from SEC EDGAR, BLS, US Treasury yields, Treasury Fiscal Data, the Federal Reserve, the ECB, the New York Fed, BEA, the Bank of Japan, Japan's Statistical Dashboard, Japan's Ministry of Finance, IMF, OECD, the Reserve Bank of Australia, Eurostat and the UK Office for National Statistics.
 
 | Area        | Information                                                                                                                           |
 | ----------- | ------------------------------------------------------------------------------------------------------------------------------------- |
@@ -39,13 +39,16 @@ Atlas provides 29 datasets from SEC EDGAR, BLS, US Treasury yields, Treasury Fis
 | XBRL        | Concept inventory and raw observations with their taxonomy, units and contexts                                                        |
 | Disclosures | All-form filing discovery, including ownership, fund, proxy, offering and corporate-action filings                                    |
 | Ownership   | Form 3/4/5 transactions and positions; a selected manager's 13F information table                                                     |
-| Macro       | Eight BLS series, CPI/core CPI YoY, payroll monthly changes, nominal/real Treasury par yields, 10Y–2Y spread and federal debt         |
+| Macro       | Sixteen BLS price/labor series, CPI/core CPI YoY, payroll changes, government curves and federal debt                                 |
 | Rates / FX  | EFFR and SOFR overnight rates; ECB daily reference FX for 31 currencies, with traceable inverse and cross calculations                |
-| US accounts | BEA nominal/real GDP, GDP growth, PCE/core PCE price indexes, personal/disposable income and consumption                              |
-| Japan       | CPI, unemployment, overnight call rate, Tokyo USD/JPY, Tankan, monetary base, M2, bank loans and real effective FX                    |
+| US accounts | Sixteen BEA GDP, demand-component, PCE/income and saving-rate series                                                                  |
+| Japan       | Twenty-two GDP, production, consumption, prices, wages, employment, housing and BOJ financial series                                  |
+| Europe / UK | Eurostat GDP, HICP, unemployment, production and retail for six regions; five ONS CPI/GDP/rolling-unemployment series                 |
 | Policy      | Federal Reserve release headlines, publication times and original links                                                               |
 
 Values retain their units, periods, source hashes, retrieval times and JSON pointers or XML paths. Missing or ambiguous values are explicit. Derived metrics include their formulas and reported inputs.
+
+Use `japan_activity_overview`, `us_activity_overview`, `euro_area_macro_overview`, `uk_macro_overview` or `global_macro_overview` to retrieve selected economic context through one connection. [Series, definitions, source requirements and examples](docs/economic-indicators.md). These additions are in the latest source checkout; the existing `v0.7.0` release remains unchanged.
 
 Series search filters registered macro/FX templates by text, country, frequency, source and unit. IMF/OECD metadata discovery retrieves new series without indicator-specific adapters; macro panels align observations with explicit aggregation, gaps and source evidence. [Discovery and panel guide](docs/international-macro.md).
 
