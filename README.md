@@ -29,7 +29,7 @@ Run `atlas showcase research --provider public --allow-network` for actual ECB/N
 
 ## Available data
 
-Atlas provides 27 datasets from SEC EDGAR, BLS, US Treasury yields, Treasury Fiscal Data, the Federal Reserve, the ECB, the New York Fed, BEA, the Bank of Japan, Japan's Statistical Dashboard, Japan's Ministry of Finance, IMF and OECD.
+Atlas provides 29 datasets from SEC EDGAR, BLS, US Treasury yields, Treasury Fiscal Data, the Federal Reserve, the ECB, the New York Fed, BEA, the Bank of Japan, Japan's Statistical Dashboard, Japan's Ministry of Finance, IMF, OECD and the Reserve Bank of Australia.
 
 | Area        | Information                                                                                                                           |
 | ----------- | ------------------------------------------------------------------------------------------------------------------------------------- |
@@ -49,7 +49,7 @@ Values retain their units, periods, source hashes, retrieval times and JSON poin
 
 Series search filters registered macro/FX templates by text, country, frequency, source and unit. IMF/OECD metadata discovery retrieves new series without indicator-specific adapters; macro panels align observations with explicit aggregation, gaps and source evidence. [Discovery and panel guide](docs/international-macro.md).
 
-Government-bond presets combine US nominal/real curves, Japanese 1–40-year yields, local slopes, butterflies, rate changes, funding context and reference FX through the same connection. Japanese observations retain original MOF CSV cells. The US nominal/real par gap is an inflation-compensation proxy, not pure expected inflation. [US/Japan bond guide](docs/fixed-income.md).
+Government-bond presets combine US nominal/real curves, Japanese 1–40-year yields, local slopes, butterflies, rate changes, funding context and reference FX through the same connection. Japanese observations retain original MOF CSV cells. The US nominal/real par gap is an inflation-compensation proxy, not pure expected inflation. [Government-bond guide](docs/fixed-income.md). ECB euro area AAA/all-rating spot curves and RBA Australian government yields add regional presets and a four-region `global_bond_context`. Source curve basis, compounding and currencies remain explicit.
 
 ```sh
 uv run --offline atlas research preset us_bond_context --year 2025 --provider fixture --json
@@ -123,7 +123,7 @@ The original full stdio mode, without `--research-only`, exposes fourteen tools 
 
 Research accepts optional `response` settings for compact provenance references, field selection and snapshot pagination. `atlas_get_evidence` retrieves the original provenance by ID. Errors include a structured next action and a retry delay when known. The same contracts work through CLI, SDK and HTTP. [Agent usage](docs/agents.md).
 
-Results link the relevant Atlas documentation while preserving original publisher attribution. Cite SEC, BLS, Treasury, Federal Reserve, ECB, New York Fed, BEA, BOJ or Statistics Bureau provenance for numerical facts, and Atlas methodology for its calculation and selection rules. [Citation guidance](docs/citations.md).
+Results link the relevant Atlas documentation while preserving original publisher attribution. Cite SEC, BLS, Treasury, Federal Reserve, ECB, New York Fed, BEA, BOJ, Statistics Bureau, Japan MOF or RBA provenance for numerical facts, and Atlas methodology for its calculation and selection rules. [Citation guidance](docs/citations.md).
 
 Optional `requirements` gate source age, the latest usable observation date, missing values, derived records and truncation before returning data. Failed conditions return `QUALITY_NOT_MET`; pages recheck time-dependent conditions. `Atlas.get_research_batch`, MCP `atlas_get_research_batch`, HTTP `POST /v1/research/batch` and `atlas research batch` process up to ten independent reads with an ID and status per item. [Requirements and batches](docs/agents.md#require-data-quality-explicitly).
 

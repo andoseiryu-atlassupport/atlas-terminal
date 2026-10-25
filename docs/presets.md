@@ -4,6 +4,8 @@ One Atlas MCP connection exposes company, US/Japan macro and reference FX data. 
 
 Three additional government-bond presets, `us_bond_context`, `japan_bond_context` and `us_japan_bond_context`, combine curves, local changes, funding and optional reference FX. Each accepts a curve `year`, selection, preview and item-level requirements. The year applies to curve items only; dates for funding, CPI and FX remain independent. [Bond preset items and methodology](fixed-income.md#bond-presets-through-one-connection).
 
+`euro_area_bond_context` and `australia_bond_context` add source-local curves, shapes, changes and reference FX. `global_bond_context` retrieves US nominal/real, Japanese, ECB AAA/all-rating and Australian curves with reference USD/JPY, EUR/USD, AUD/USD and SOFR in ten items. A shared year selects curve records only; conventions and observation dates remain source-specific. [Regional details](fixed-income.md#euro-area-and-australia).
+
 ## Discover and preview
 
 `atlas_research_catalog` includes a `presets` section with preset names, accepted parameters, required fields and item IDs. The full catalog includes input and output schemas; `view="compact"` omits them. Discovery and preview make no source requests.

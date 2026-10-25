@@ -215,8 +215,18 @@ DATASETS = {
         "japan_mof",
         "observations",
     ),
+    "euro_area_yields": (
+        "ECB euro area AAA/all-rating continuously compounded zero-coupon spot curves",
+        "ecb",
+        "observations",
+    ),
+    "australia_yields": (
+        "RBA Australian government nominal 2/3/5/10-year interpolated yields",
+        "rba",
+        "observations",
+    ),
     "macro_analytics": (
-        "CPI/payroll changes and US/Japan government curve shapes, changes and US par yield gaps",
+        "US/Japan/euro area/Australia curve analytics, US par yield gaps, CPI and payroll changes",
         "bls",
         "derived_observations",
     ),
@@ -320,9 +330,10 @@ def research_catalog(
                     "oecd",
                     "treasury",
                     "japan_mof",
+                    "rba",
                 ]
                 if name == "macro_panel"
-                else ["bls", "treasury", "japan_mof"]
+                else ["bls", "treasury", "japan_mof", "ecb", "rba"]
                 if name == "macro_analytics"
                 else ["boj", "estat"]
                 if name == "japan_economics"
@@ -538,6 +549,8 @@ class ResearchService:
             "reference_rates",
             "treasury_real_yields",
             "jgb_yields",
+            "euro_area_yields",
+            "australia_yields",
             "macro_analytics",
             "national_accounts",
             "japan_economics",
@@ -1080,6 +1093,10 @@ class ResearchService:
             from atlas_terminal.research_fixed_income import jgb_yields
 
             return jgb_yields(self.public, q)
+        if q.dataset in {"euro_area_yields", "australia_yields"}:
+            from atlas_terminal.research_fixed_income import regional_yields
+
+            return regional_yields(self.public, q)
         if q.dataset == "macro_analytics":
             return macro_analytics(self.public, q, self.economics)
         records: list[dict[str, Any]]

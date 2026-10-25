@@ -1,0 +1,10 @@
+Title,SYNTHETIC F2; fictional indexed bond,"Fictional government, 5 year","Fictional government, 10 year","Fictional government, 2 year","Fictional government, 3 year"
+Description,SYNTHETIC: no market observations,,,,
+Frequency,Daily,Daily,Daily,Daily,Daily
+Type,Original,Original,Original,Original,Original
+Units,Per cent per annum,Per cent per annum,Per cent per annum,Per cent per annum,Per cent per annum
+Source,RBA,RBA,RBA,RBA,RBA
+Series ID,FCMYGBAGID,FCMYGBAG5D,FCMYGBAG10D,FCMYGBAG2D,FCMYGBAG3D
+15-Oct-2026,1.00,3.20,3.40,3.00,3.10
+16-Oct-2026,1.10,.,3.50,3.10,3.20
+19-Oct-2026,1.20,3.60,3.80,3.20,3.30

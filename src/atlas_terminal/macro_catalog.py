@@ -52,8 +52,11 @@ class MacroSpec(TypedDict):
     country: NotRequired[str]
 
 
+CurveName = Literal["nominal", "real", "jgb", "ecb_aaa", "ecb_all", "rba"]
+
+
 class CurveTerm(TypedDict):
-    curve: Literal["nominal", "real", "jgb"]
+    curve: CurveName
     maturity: str
     coefficient: int
     role: str
@@ -66,6 +69,60 @@ class CurveSpec(TypedDict):
 
 
 CURVE_SERIES: dict[str, CurveSpec] = {}
+
+
+class CurveMarket(TypedDict):
+    source_id: str
+    dataset: str
+    country: str
+    currency: str
+    label: str
+
+
+CURVE_MARKETS: dict[str, CurveMarket] = {
+    "nominal": {
+        "source_id": "treasury",
+        "dataset": "treasury_yields",
+        "country": "US",
+        "currency": "USD",
+        "label": "US nominal",
+    },
+    "real": {
+        "source_id": "treasury",
+        "dataset": "treasury_real_yields",
+        "country": "US",
+        "currency": "USD",
+        "label": "US real",
+    },
+    "jgb": {
+        "source_id": "japan_mof",
+        "dataset": "jgb_yields",
+        "country": "JP",
+        "currency": "JPY",
+        "label": "Japanese",
+    },
+    "ecb_aaa": {
+        "source_id": "ecb",
+        "dataset": "euro_area_yields",
+        "country": "EA",
+        "currency": "EUR",
+        "label": "Euro area AAA spot",
+    },
+    "ecb_all": {
+        "source_id": "ecb",
+        "dataset": "euro_area_yields",
+        "country": "EA",
+        "currency": "EUR",
+        "label": "Euro area all-rating spot",
+    },
+    "rba": {
+        "source_id": "rba",
+        "dataset": "australia_yields",
+        "country": "AU",
+        "currency": "AUD",
+        "label": "Australian government",
+    },
+}
 
 
 MACRO_SERIES: dict[str, MacroSpec] = {
@@ -102,26 +159,20 @@ def register_curve_series(
     previous_observation: bool = False,
     interpretation: str = "Same-date constant-maturity yield shape, in basis points.",
 ) -> None:
-    japanese = terms[0]["curve"] == "jgb"
+    market = CURVE_MARKETS[terms[0]["curve"]]
     CURVE_SERIES[name] = {
         "terms": terms,
         "previous_observation": previous_observation,
         "interpretation": interpretation,
     }
     MACRO_SERIES[name] = {
-        "source_id": "japan_mof" if japanese else "treasury",
-        "source_series": (
-            "jgb_yields"
-            if japanese
-            else "treasury_real_yields"
-            if terms[0]["curve"] == "real"
-            else "treasury_yields"
-        ),
+        "source_id": market["source_id"],
+        "source_series": market["dataset"],
         "lag_months": 0,
         "formula": formula,
         "unit": "basis_points",
         "title": title,
-        "country": "JP" if japanese else "US",
+        "country": market["country"],
     }
 
 
@@ -133,7 +184,7 @@ for _prefix, _curve_name, _pairs in (
         (("10YEAR", "2YEAR"), ("20YEAR", "10YEAR"), ("30YEAR", "10YEAR"), ("40YEAR", "30YEAR")),
     ),
 ):
-    _curve = cast(Literal["nominal", "real", "jgb"], _curve_name)
+    _curve = cast(CurveName, _curve_name)
     for _long, _short in _pairs:
         _long_label = _long.replace("YEAR", "y").replace("MONTH", "m")
         _short_label = _short.replace("YEAR", "y").replace("MONTH", "m")
@@ -180,7 +231,7 @@ for _prefix, _curve_name, _maturities in (
     ("real_yield", "real", ("5YEAR", "10YEAR", "30YEAR")),
     ("jgb_yield", "jgb", ("2YEAR", "5YEAR", "10YEAR", "20YEAR", "30YEAR", "40YEAR")),
 ):
-    _curve = cast(Literal["nominal", "real", "jgb"], _curve_name)
+    _curve = cast(CurveName, _curve_name)
     for _maturity in _maturities:
         _label = _maturity.replace("YEAR", "y")
         register_curve_series(
@@ -196,4 +247,60 @@ for _prefix, _curve_name, _maturities in (
                 "Change from the immediately preceding source observation, not a calendar-day "
                 "or security-price return. A missing previous yield is not skipped."
             ),
+        )
+
+for _prefix, _regional_curve, _regional_pairs, _regional_changes in (
+    (
+        "euro_aaa",
+        "ecb_aaa",
+        (("10YEAR", "2YEAR"), ("30YEAR", "5YEAR"), ("30YEAR", "10YEAR")),
+        ("2YEAR", "5YEAR", "10YEAR", "30YEAR"),
+    ),
+    (
+        "euro_all",
+        "ecb_all",
+        (("10YEAR", "2YEAR"), ("30YEAR", "5YEAR"), ("30YEAR", "10YEAR")),
+        ("2YEAR", "5YEAR", "10YEAR", "30YEAR"),
+    ),
+    (
+        "australia",
+        "rba",
+        (("10YEAR", "2YEAR"), ("10YEAR", "3YEAR")),
+        ("2YEAR", "3YEAR", "5YEAR", "10YEAR"),
+    ),
+):
+    _curve = cast(CurveName, _regional_curve)
+    _label = CURVE_MARKETS[_curve]["label"]
+    for _long, _short in _regional_pairs:
+        register_curve_series(
+            f"{_prefix}_spread_{_long.replace('YEAR', 'y')}_{_short.replace('YEAR', 'y')}",
+            f"{_label} {_long} minus {_short}",
+            [
+                {"curve": _curve, "maturity": _long, "coefficient": 1, "role": "long"},
+                {"curve": _curve, "maturity": _short, "coefficient": -1, "role": "short"},
+            ],
+            f"({_long} - {_short}) * 100",
+        )
+    register_curve_series(
+        f"{_prefix}_butterfly_2y_5y_10y",
+        f"{_label} 2y/5y/10y butterfly",
+        [
+            {"curve": _curve, "maturity": "5YEAR", "coefficient": 2, "role": "belly"},
+            {"curve": _curve, "maturity": "2YEAR", "coefficient": -1, "role": "short_wing"},
+            {"curve": _curve, "maturity": "10YEAR", "coefficient": -1, "role": "long_wing"},
+        ],
+        "(2 * 5YEAR - 2YEAR - 10YEAR) * 100",
+        interpretation="Twice the belly minus both wings within one source curve; not trade P&L.",
+    )
+    for _maturity in _regional_changes:
+        register_curve_series(
+            f"{_prefix}_yield_change_{_maturity.replace('YEAR', 'y')}",
+            f"{_label} {_maturity} change",
+            [
+                {"curve": _curve, "maturity": _maturity, "coefficient": 1, "role": "current"},
+                {"curve": _curve, "maturity": _maturity, "coefficient": -1, "role": "previous"},
+            ],
+            f"(current_{_maturity} - previous_{_maturity}) * 100",
+            previous_observation=True,
+            interpretation="Preceding-observation change; nulls and calendar gaps remain explicit.",
         )

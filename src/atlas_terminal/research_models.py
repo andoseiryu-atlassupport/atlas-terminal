@@ -16,6 +16,7 @@ from atlas_terminal.macro_catalog import (
     Currency,
 )
 from atlas_terminal.models import Model, identifier
+from atlas_terminal.regional_bond_sources import EURO_SERIES
 from atlas_terminal.research_quality import ResearchRequirements
 from atlas_terminal.sdmx_sources import CODE_PATTERN, FLOW_PATTERN
 
@@ -41,6 +42,8 @@ Dataset = Literal[
     "reference_rates",
     "treasury_real_yields",
     "jgb_yields",
+    "euro_area_yields",
+    "australia_yields",
     "macro_analytics",
     "national_accounts",
     "japan_economics",
@@ -71,6 +74,8 @@ FIELDS = {
     "reference_rates": {"series", "limit"},
     "treasury_real_yields": {"year", "limit"},
     "jgb_yields": {"year", "limit", "start_date", "end_date"},
+    "euro_area_yields": {"series", "year", "limit", "start_date", "end_date"},
+    "australia_yields": {"year", "limit", "start_date", "end_date"},
     "macro_analytics": {"series", "year", "limit", "start_date", "end_date"},
     "national_accounts": {"series", "limit", "start_date", "end_date"},
     "japan_economics": {"series", "limit", "start_date", "end_date"},
@@ -102,6 +107,7 @@ def dataset_required(name: str) -> list[str]:
         "macro_analytics",
         "national_accounts",
         "japan_economics",
+        "euro_area_yields",
     }:
         return ["series"]
     if name == "fx_rates":
@@ -111,6 +117,7 @@ def dataset_required(name: str) -> list[str]:
         "treasury_yields",
         "treasury_real_yields",
         "jgb_yields",
+        "australia_yields",
         "federal_debt",
         "policy_news",
     }:
@@ -216,6 +223,10 @@ def dataset_schema(schema: dict[str, Any]) -> None:
             )
         if name == "treasury_real_yields":
             properties["year"]["anyOf"][0]["minimum"] = 2003
+        if name == "euro_area_yields":
+            properties["series"] = {"type": "string", "enum": list(EURO_SERIES)}
+        if name in {"euro_area_yields", "australia_yields"}:
+            properties["year"]["anyOf"][0]["minimum"] = 2004 if name == "euro_area_yields" else 2013
         branch: dict[str, Any] = {
             "type": "object",
             "properties": properties,
@@ -243,6 +254,23 @@ def dataset_schema(schema: dict[str, Any]) -> None:
                     },
                 }
             ]
+            for source, minimum in (("ecb", 2004), ("rba", 2013)):
+                names = [key for key in CURVE_SERIES if MACRO_SERIES[key]["source_id"] == source]
+                branch["allOf"].append(
+                    {
+                        "if": {"properties": {"series": {"enum": names}}, "required": ["series"]},
+                        "then": {
+                            "properties": {
+                                "year": {
+                                    "anyOf": [
+                                        {"type": "integer", "minimum": minimum, "maximum": 2100},
+                                        {"type": "null"},
+                                    ]
+                                }
+                            }
+                        },
+                    }
+                )
         if "start_date" in fields:
             branch["dependentRequired"] = {"start_date": ["end_date"], "end_date": ["start_date"]}
         if name == "fx_rates":
@@ -431,6 +459,26 @@ class ResearchQuery(Model):
                         f"The requested Treasury curve coverage starts in {minimum}.",
                         fields=["year", "start_date"],
                     )
+        if self.dataset == "euro_area_yields" and self.series not in EURO_SERIES:
+            raise AtlasError("INVALID_INPUT", "Choose aaa_spot or all_spot.", fields=["series"])
+        regional_source = (
+            "ecb"
+            if self.dataset == "euro_area_yields"
+            else "rba"
+            if self.dataset == "australia_yields"
+            else MACRO_SERIES[self.series]["source_id"]
+            if self.dataset == "macro_analytics" and self.series in CURVE_SERIES
+            else None
+        )
+        if regional_source in {"ecb", "rba"}:
+            minimum = 2004 if regional_source == "ecb" else 2013
+            earliest = int(self.start_date[:4]) if self.start_date else self.year
+            if earliest is not None and earliest < minimum:
+                raise AtlasError(
+                    "INVALID_INPUT",
+                    f"This curve starts in {minimum}.",
+                    fields=["year", "start_date"],
+                )
         if self.unit and not self.concept:
             raise AtlasError(
                 "INVALID_INPUT", "A unit filter requires a concept.", fields=["concept"]

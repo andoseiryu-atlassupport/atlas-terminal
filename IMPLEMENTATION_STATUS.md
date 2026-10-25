@@ -22,11 +22,13 @@ Atlas Terminal retrieves US equity research, macro data and reference FX from fr
 
 US national accounts add eight BEA series; Japanese macro adds ten BOJ/Statistical Dashboard series. `japan_macro_overview` and `us_japan_overview` expand through the shared batch service with dates, source IDs and per-item failures.
 
-Run `atlas research catalog --json` for identifiers, query fields, units and limits for all 27 datasets. The [research guide](docs/research.md) includes examples for each dataset.
+Run `atlas research catalog --json` for identifiers, query fields, units and limits for all 29 datasets. The [research guide](docs/research.md) includes examples for each dataset.
 
 IMF/OECD SDMX dataflow/code discovery and metadata-validated single-series reads add international monthly, quarterly and annual coverage. `macro_panel` aligns up to ten explicit queries with last/mean aggregation, exact inputs and missing cells. Offline series search covers registered series and supported FX pairs, with country/frequency/unit/source filters. [Discovery, limits and examples](docs/international-macro.md).
 
 Japanese government bonds add Ministry of Finance 1–40-year constant-maturity yields. Three bond presets cover US, Japan or combined context through the existing six research tools. Same-date curve slopes, butterflies, US nominal/real par gaps and preceding-observation changes retain exact inputs and basis-point formulas. MOF original CSV cells resolve through compact evidence IDs, with current-month rows authoritative over overlapping history. Par inflation compensation is a proxy, not pure expected inflation. Live MOF/Treasury compatibility for this expansion remains unverified. [Government bond guide](docs/fixed-income.md).
+
+Euro area government research adds separate ECB AAA/all-rating, continuously compounded zero-coupon spot curves. Australian government research adds RBA interpolated nominal 2/3/5/10-year yields. Twenty-three additional source-local slopes, butterflies and preceding-observation changes bring the curve registry to 50 series. Regional and four-region presets retain source conventions and independent observation dates; no individual European sovereign, UK gilt or cross-country basis/FX conversion is inferred. [Regional bond coverage](docs/fixed-income.md#euro-area-and-australia).
 
 ## Interfaces
 

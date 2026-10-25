@@ -1676,6 +1676,162 @@
         },
         {
           "additionalProperties": false,
+          "dependentRequired": {
+            "end_date": ["start_date"],
+            "start_date": ["end_date"]
+          },
+          "properties": {
+            "dataset": {
+              "const": "euro_area_yields",
+              "type": "string"
+            },
+            "end_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "End Date"
+            },
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "series": {
+              "enum": ["aaa_spot", "all_spot"],
+              "type": "string"
+            },
+            "start_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Start Date"
+            },
+            "year": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 2004,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Year"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": ["dataset", "series"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "dependentRequired": {
+            "end_date": ["start_date"],
+            "start_date": ["end_date"]
+          },
+          "properties": {
+            "dataset": {
+              "const": "australia_yields",
+              "type": "string"
+            },
+            "end_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "End Date"
+            },
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "start_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Start Date"
+            },
+            "year": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 2013,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Year"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": ["dataset"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
           "allOf": [
             {
               "if": {
@@ -1702,6 +1858,83 @@
                       {
                         "maximum": 2100,
                         "minimum": 2003,
+                        "type": "integer"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "series": {
+                    "enum": [
+                      "euro_aaa_spread_10y_2y",
+                      "euro_aaa_spread_30y_5y",
+                      "euro_aaa_spread_30y_10y",
+                      "euro_aaa_butterfly_2y_5y_10y",
+                      "euro_aaa_yield_change_2y",
+                      "euro_aaa_yield_change_5y",
+                      "euro_aaa_yield_change_10y",
+                      "euro_aaa_yield_change_30y",
+                      "euro_all_spread_10y_2y",
+                      "euro_all_spread_30y_5y",
+                      "euro_all_spread_30y_10y",
+                      "euro_all_butterfly_2y_5y_10y",
+                      "euro_all_yield_change_2y",
+                      "euro_all_yield_change_5y",
+                      "euro_all_yield_change_10y",
+                      "euro_all_yield_change_30y"
+                    ]
+                  }
+                },
+                "required": ["series"]
+              },
+              "then": {
+                "properties": {
+                  "year": {
+                    "anyOf": [
+                      {
+                        "maximum": 2100,
+                        "minimum": 2004,
+                        "type": "integer"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "series": {
+                    "enum": [
+                      "australia_spread_10y_2y",
+                      "australia_spread_10y_3y",
+                      "australia_butterfly_2y_5y_10y",
+                      "australia_yield_change_2y",
+                      "australia_yield_change_3y",
+                      "australia_yield_change_5y",
+                      "australia_yield_change_10y"
+                    ]
+                  }
+                },
+                "required": ["series"]
+              },
+              "then": {
+                "properties": {
+                  "year": {
+                    "anyOf": [
+                      {
+                        "maximum": 2100,
+                        "minimum": 2013,
                         "type": "integer"
                       },
                       {
@@ -1744,8 +1977,31 @@
             },
             "series": {
               "enum": [
+                "australia_butterfly_2y_5y_10y",
+                "australia_spread_10y_2y",
+                "australia_spread_10y_3y",
+                "australia_yield_change_10y",
+                "australia_yield_change_2y",
+                "australia_yield_change_3y",
+                "australia_yield_change_5y",
                 "core_cpi_yoy",
                 "cpi_yoy",
+                "euro_aaa_butterfly_2y_5y_10y",
+                "euro_aaa_spread_10y_2y",
+                "euro_aaa_spread_30y_10y",
+                "euro_aaa_spread_30y_5y",
+                "euro_aaa_yield_change_10y",
+                "euro_aaa_yield_change_2y",
+                "euro_aaa_yield_change_30y",
+                "euro_aaa_yield_change_5y",
+                "euro_all_butterfly_2y_5y_10y",
+                "euro_all_spread_10y_2y",
+                "euro_all_spread_30y_10y",
+                "euro_all_spread_30y_5y",
+                "euro_all_yield_change_10y",
+                "euro_all_yield_change_2y",
+                "euro_all_yield_change_30y",
+                "euro_all_yield_change_5y",
                 "jgb_butterfly_2y_5y_10y",
                 "jgb_spread_10y_2y",
                 "jgb_spread_20y_10y",
@@ -2208,6 +2464,8 @@
             "reference_rates",
             "treasury_real_yields",
             "jgb_yields",
+            "euro_area_yields",
+            "australia_yields",
             "macro_analytics",
             "national_accounts",
             "japan_economics",
@@ -2945,6 +3203,8 @@
             "reference_rates",
             "treasury_real_yields",
             "jgb_yields",
+            "euro_area_yields",
+            "australia_yields",
             "macro_analytics",
             "national_accounts",
             "japan_economics",
@@ -4518,6 +4778,290 @@
           },
           "required": ["preset"],
           "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "include": {
+              "anyOf": [
+                {
+                  "items": {
+                    "enum": [
+                      "aaa_curve",
+                      "all_curve",
+                      "aaa_slope_2s10s",
+                      "aaa_slope_5s30s",
+                      "aaa_butterfly",
+                      "aaa_change_10y",
+                      "all_change_10y",
+                      "eur_usd"
+                    ]
+                  },
+                  "maxItems": 10,
+                  "minItems": 1,
+                  "type": "array",
+                  "uniqueItems": true
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Include"
+            },
+            "preset": {
+              "const": "euro_area_bond_context",
+              "type": "string"
+            },
+            "preview": {
+              "default": false,
+              "title": "Preview",
+              "type": "boolean"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "requirements_by_item": {
+              "additionalProperties": {
+                "$ref": "#/$defs/ResearchRequirements"
+              },
+              "maxProperties": 10,
+              "propertyNames": {
+                "enum": [
+                  "aaa_curve",
+                  "all_curve",
+                  "aaa_slope_2s10s",
+                  "aaa_slope_5s30s",
+                  "aaa_butterfly",
+                  "aaa_change_10y",
+                  "all_change_10y",
+                  "eur_usd"
+                ]
+              },
+              "title": "Requirements By Item",
+              "type": "object"
+            },
+            "view": {
+              "default": "compact",
+              "enum": ["full", "compact"],
+              "title": "View",
+              "type": "string"
+            },
+            "year": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 1990,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Year"
+            }
+          },
+          "required": ["preset"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "include": {
+              "anyOf": [
+                {
+                  "items": {
+                    "enum": [
+                      "government_curve",
+                      "slope_2s10s",
+                      "slope_3s10s",
+                      "butterfly",
+                      "change_10y",
+                      "change_2y",
+                      "aud_usd"
+                    ]
+                  },
+                  "maxItems": 10,
+                  "minItems": 1,
+                  "type": "array",
+                  "uniqueItems": true
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Include"
+            },
+            "preset": {
+              "const": "australia_bond_context",
+              "type": "string"
+            },
+            "preview": {
+              "default": false,
+              "title": "Preview",
+              "type": "boolean"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "requirements_by_item": {
+              "additionalProperties": {
+                "$ref": "#/$defs/ResearchRequirements"
+              },
+              "maxProperties": 10,
+              "propertyNames": {
+                "enum": [
+                  "government_curve",
+                  "slope_2s10s",
+                  "slope_3s10s",
+                  "butterfly",
+                  "change_10y",
+                  "change_2y",
+                  "aud_usd"
+                ]
+              },
+              "title": "Requirements By Item",
+              "type": "object"
+            },
+            "view": {
+              "default": "compact",
+              "enum": ["full", "compact"],
+              "title": "View",
+              "type": "string"
+            },
+            "year": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 1990,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Year"
+            }
+          },
+          "required": ["preset"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "include": {
+              "anyOf": [
+                {
+                  "items": {
+                    "enum": [
+                      "us_nominal_curve",
+                      "us_real_curve",
+                      "jgb_curve",
+                      "euro_aaa_curve",
+                      "euro_all_curve",
+                      "australia_curve",
+                      "usd_jpy",
+                      "eur_usd",
+                      "aud_usd",
+                      "sofr"
+                    ]
+                  },
+                  "maxItems": 10,
+                  "minItems": 1,
+                  "type": "array",
+                  "uniqueItems": true
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Include"
+            },
+            "preset": {
+              "const": "global_bond_context",
+              "type": "string"
+            },
+            "preview": {
+              "default": false,
+              "title": "Preview",
+              "type": "boolean"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "requirements_by_item": {
+              "additionalProperties": {
+                "$ref": "#/$defs/ResearchRequirements"
+              },
+              "maxProperties": 10,
+              "propertyNames": {
+                "enum": [
+                  "us_nominal_curve",
+                  "us_real_curve",
+                  "jgb_curve",
+                  "euro_aaa_curve",
+                  "euro_all_curve",
+                  "australia_curve",
+                  "usd_jpy",
+                  "eur_usd",
+                  "aud_usd",
+                  "sofr"
+                ]
+              },
+              "title": "Requirements By Item",
+              "type": "object"
+            },
+            "view": {
+              "default": "compact",
+              "enum": ["full", "compact"],
+              "title": "View",
+              "type": "string"
+            },
+            "year": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 1990,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Year"
+            }
+          },
+          "required": ["preset"],
+          "type": "object"
         }
       ],
       "properties": {
@@ -4530,7 +5074,10 @@
             "us_japan_overview",
             "us_bond_context",
             "japan_bond_context",
-            "us_japan_bond_context"
+            "us_japan_bond_context",
+            "euro_area_bond_context",
+            "australia_bond_context",
+            "global_bond_context"
           ],
           "title": "Preset",
           "type": "string"
@@ -4906,7 +5453,10 @@
             "us_japan_overview",
             "us_bond_context",
             "japan_bond_context",
-            "us_japan_bond_context"
+            "us_japan_bond_context",
+            "euro_area_bond_context",
+            "australia_bond_context",
+            "global_bond_context"
           ],
           "title": "Preset",
           "type": "string"
@@ -5099,11 +5649,12 @@
                   "estat",
                   "imf",
                   "oecd",
-                  "japan_mof"
+                  "japan_mof",
+                  "rba"
                 ],
                 "type": "string"
               },
-              "maxItems": 13,
+              "maxItems": 14,
               "minItems": 1,
               "type": "array"
             },

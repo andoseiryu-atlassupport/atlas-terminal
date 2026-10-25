@@ -10,7 +10,7 @@ from typing import Any
 
 from atlas_terminal.client import Atlas
 from atlas_terminal.errors import AtlasError
-from atlas_terminal.fixed_income_sources import parse_jgb_csv
+from atlas_terminal.fixed_income_sources import JGB_URLS, parse_jgb_csv
 from atlas_terminal.providers import (
     CachedHTTPTransport,
     SECProvider,
@@ -19,6 +19,7 @@ from atlas_terminal.providers import (
     Transport,
 )
 from atlas_terminal.public_sources import SOURCE_CATALOG, PublicTransport, xml_root
+from atlas_terminal.regional_bond_sources import ECB_CURVE_BASE, source_csv
 from atlas_terminal.research_quality import (
     ResearchRequirements,
     assess_quality,
@@ -28,6 +29,9 @@ from atlas_terminal.research_quality import (
 from atlas_terminal.util import Database, canonical, digest, stamp, state_dir
 
 PROBES: dict[str, tuple[str, dict[str, Any]]] = {
+    "ecb_aaa_curve": ("ecb", {"dataset": "euro_area_yields", "series": "aaa_spot", "limit": 11}),
+    "ecb_all_curve": ("ecb", {"dataset": "euro_area_yields", "series": "all_spot", "limit": 11}),
+    "rba_curve": ("rba", {"dataset": "australia_yields", "limit": 4}),
     "jgb_curve": ("japan_mof", {"dataset": "jgb_yields", "limit": 15}),
     "imf_catalog": ("imf", {"dataset": "sdmx_catalog", "source_id": "imf", "limit": 1}),
     "oecd_catalog": ("oecd", {"dataset": "sdmx_catalog", "source_id": "oecd", "limit": 1}),
@@ -167,11 +171,20 @@ def source_shapes(snapshots: list[Snapshot]) -> list[dict[str, Any]]:
     rows = {}
     for snapshot in snapshots:
         is_xml = snapshot.body.removeprefix(b"\xef\xbb\xbf").lstrip().startswith(b"<")
-        is_csv = snapshot.url.endswith(".csv")
+        is_csv = snapshot.url.endswith(".csv") or snapshot.url.startswith(ECB_CURVE_BASE)
         if is_csv:
-            observations, _ = parse_jgb_csv(snapshot)
-            first = next(iter(observations.values()), None)
-            structure = {"columns": list(first.headers) if first else [], "units": "percent"}
+            if snapshot.url in JGB_URLS or snapshot.url.endswith(
+                ("jgb_current.csv", "jgb_history.csv")
+            ):
+                observations, _ = parse_jgb_csv(snapshot)
+                first = next(iter(observations.values()), None)
+                header = list(first.headers) if first else []
+            else:
+                header = next(
+                    (row for row in source_csv(snapshot) if row and row[0] in {"KEY", "Series ID"}),
+                    [],
+                )
+            structure = {"columns": header, "units": "percent"}
         else:
             structure = xml_shape(xml_root(snapshot.body)) if is_xml else json_shape(snapshot.data)
         rows[snapshot.url] = {

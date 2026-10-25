@@ -3,7 +3,7 @@
 from typing import Any
 
 from atlas_terminal.economic_catalog import JAPAN_SERIES, NATIONAL_ACCOUNTS
-from atlas_terminal.macro_catalog import FX_CURRENCIES, MACRO_SERIES, REFERENCE_SERIES
+from atlas_terminal.macro_catalog import CURVE_SERIES, FX_CURRENCIES, MACRO_SERIES, REFERENCE_SERIES
 from atlas_terminal.public_sources import BLS_SERIES, SOURCE_CATALOG
 from atlas_terminal.research_models import CatalogQuery
 
@@ -31,6 +31,8 @@ def series_catalog(filters: CatalogQuery) -> dict[str, Any]:
             "rate": ["金利"],
             "yield": ["bond", "government bond", "債券", "国債", "利回り"],
             "jgb": ["Japan government bond", "日本国債", "金利"],
+            "euro": ["euro area", "欧州", "ユーロ圏", "国債"],
+            "australia": ["Australian government bond", "豪州", "オーストラリア", "国債"],
             "inflation_compensation": ["breakeven proxy", "inflation", "インフレ補償"],
             "tankan": ["短観"],
         }.items():
@@ -118,7 +120,7 @@ def series_catalog(filters: CatalogQuery) -> dict[str, Any]:
             spec_macro.get("title", key.replace("_", " ")),
             spec_macro["source_id"],
             spec_macro.get("country", "US"),
-            "daily" if spec_macro["source_id"] in {"treasury", "japan_mof"} else "monthly",
+            "daily" if key in CURVE_SERIES else "monthly",
             spec_macro["unit"],
             {"series": key},
             derived=True,
@@ -129,6 +131,28 @@ def series_catalog(filters: CatalogQuery) -> dict[str, Any]:
         "Japan MOF government bond yield curve, 1–40 years",
         "japan_mof",
         "JP",
+        "daily",
+        "percent_per_annum",
+        {},
+    )
+    for series, title in (("aaa_spot", "AAA-rated"), ("all_spot", "all-rating")):
+        add(
+            "euro_area_yields",
+            "euro_" + series,
+            "Euro area " + title + " government zero-coupon spot curve",
+            "ecb",
+            "EA",
+            "daily",
+            "percent_per_annum",
+            {"series": series},
+            compounding="continuous",
+        )
+    add(
+        "australia_yields",
+        "australia_curve",
+        "Australian government 2/3/5/10-year yields",
+        "rba",
+        "AU",
         "daily",
         "percent_per_annum",
         {},

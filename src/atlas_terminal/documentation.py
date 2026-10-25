@@ -11,6 +11,8 @@ def research_documentation(dataset: str) -> dict[str, str]:
         "treasury_yields",
         "treasury_real_yields",
         "jgb_yields",
+        "euro_area_yields",
+        "australia_yields",
         "federal_debt",
         "reference_rates",
         "fx_rates",
@@ -24,7 +26,11 @@ def research_documentation(dataset: str) -> dict[str, str]:
     }
     methodology = "macro" if dataset in macro else "methodology"
     guide = (
-        "fixed-income" if dataset == "jgb_yields" else "macro" if dataset in macro else "research"
+        "fixed-income"
+        if dataset in {"jgb_yields", "euro_area_yields", "australia_yields"}
+        else "macro"
+        if dataset in macro
+        else "research"
     )
     return {
         "guide": f"{DOCUMENTATION_ORIGIN}/docs/{guide}.md",
