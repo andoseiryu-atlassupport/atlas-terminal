@@ -1,0 +1,6 @@
+SYNTHETIC JGB interest rates; not market observations,,,,,,,,,,,,,,,(Unit : %)
+Date,1Y,2Y,3Y,4Y,5Y,6Y,7Y,8Y,9Y,10Y,15Y,20Y,25Y,30Y,40Y
+2026/10/16,-0.05,0.10,0.20,0.30,0.40,0.50,0.60,0.70,0.80,1.15,1.40,1.60,1.80,2.00,-
+2026/10/19,-0.01,0.20,0.30,0.40,0.50,0.60,0.70,0.80,0.90,1.20,1.50,1.70,1.90,2.10,2.40
+
+Note: Every observation in this fixture is fictional.

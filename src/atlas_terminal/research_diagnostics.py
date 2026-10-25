@@ -26,6 +26,7 @@ SourceId = Literal[
     "estat",
     "imf",
     "oecd",
+    "japan_mof",
 ]
 ConfigurationState = Literal["ready", "configuration_required", "synthetic"]
 ConnectivityState = Literal["not_checked", "pass", "fail", "not_run"]
@@ -33,7 +34,7 @@ DiagnosticStatus = Literal["configured", "action_required", "verified", "degrade
 
 
 class ResearchDiagnosticsQuery(Model):
-    sources: list[SourceId] | None = Field(default=None, min_length=1, max_length=12)
+    sources: list[SourceId] | None = Field(default=None, min_length=1, max_length=13)
     allow_network: bool = Field(default=False, strict=True)
 
     @field_validator("sources")

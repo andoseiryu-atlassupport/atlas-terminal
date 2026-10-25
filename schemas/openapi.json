@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Atlas Terminal reference API",
-    "version": "0.6.0"
+    "version": "0.7.0"
   },
   "paths": {
     "/healthz": {
@@ -471,6 +471,7 @@
                     "fx_rates",
                     "reference_rates",
                     "treasury_real_yields",
+                    "jgb_yields",
                     "macro_analytics",
                     "national_accounts",
                     "japan_economics",
@@ -3980,7 +3981,10 @@
               "us_macro_overview",
               "fx_context",
               "japan_macro_overview",
-              "us_japan_overview"
+              "us_japan_overview",
+              "us_bond_context",
+              "japan_bond_context",
+              "us_japan_bond_context"
             ],
             "title": "Preset"
           },
@@ -4254,6 +4258,7 @@
               "fx_rates",
               "reference_rates",
               "treasury_real_yields",
+              "jgb_yields",
               "macro_analytics",
               "national_accounts",
               "japan_economics",
@@ -4688,6 +4693,19 @@
               }
             },
             "required": ["xml_local_path"]
+          },
+          {
+            "properties": {
+              "csv_row": {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              "csv_column": {
+                "type": "integer",
+                "minimum": 1.0
+              }
+            },
+            "required": ["csv_row", "csv_column"]
           }
         ],
         "properties": {
@@ -4727,6 +4745,30 @@
               }
             ],
             "title": "Xml Local Path"
+          },
+          "csv_row": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Csv Row"
+          },
+          "csv_column": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Csv Column"
           }
         },
         "additionalProperties": true,
@@ -6382,6 +6424,119 @@
             },
             "properties": {
               "dataset": {
+                "const": "jgb_yields",
+                "type": "string"
+              },
+              "end_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "End Date"
+              },
+              "limit": {
+                "default": 100,
+                "maximum": 500,
+                "minimum": 1,
+                "title": "Limit",
+                "type": "integer"
+              },
+              "start_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Start Date"
+              },
+              "year": {
+                "anyOf": [
+                  {
+                    "maximum": 2100,
+                    "minimum": 1990,
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Year"
+              },
+              "response": {
+                "$ref": "#/components/schemas/ResponseOptions"
+              },
+              "requirements": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ResearchRequirements"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              }
+            },
+            "required": ["dataset"],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "series": {
+                      "enum": [
+                        "par_inflation_compensation_5y",
+                        "par_inflation_compensation_7y",
+                        "par_inflation_compensation_10y",
+                        "par_inflation_compensation_20y",
+                        "par_inflation_compensation_30y",
+                        "real_yield_change_5y",
+                        "real_yield_change_10y",
+                        "real_yield_change_30y"
+                      ]
+                    }
+                  },
+                  "required": ["series"]
+                },
+                "then": {
+                  "properties": {
+                    "year": {
+                      "anyOf": [
+                        {
+                          "maximum": 2100,
+                          "minimum": 2003,
+                          "type": "integer"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ],
+            "dependentRequired": {
+              "end_date": ["start_date"],
+              "start_date": ["end_date"]
+            },
+            "properties": {
+              "dataset": {
                 "const": "macro_analytics",
                 "type": "string"
               },
@@ -6409,8 +6564,34 @@
                 "enum": [
                   "core_cpi_yoy",
                   "cpi_yoy",
+                  "jgb_butterfly_2y_5y_10y",
+                  "jgb_spread_10y_2y",
+                  "jgb_spread_20y_10y",
+                  "jgb_spread_30y_10y",
+                  "jgb_spread_40y_30y",
+                  "jgb_yield_change_10y",
+                  "jgb_yield_change_20y",
+                  "jgb_yield_change_2y",
+                  "jgb_yield_change_30y",
+                  "jgb_yield_change_40y",
+                  "jgb_yield_change_5y",
+                  "par_inflation_compensation_10y",
+                  "par_inflation_compensation_20y",
+                  "par_inflation_compensation_30y",
+                  "par_inflation_compensation_5y",
+                  "par_inflation_compensation_7y",
                   "payrolls_change_mom",
-                  "yield_spread_10y_2y"
+                  "real_yield_change_10y",
+                  "real_yield_change_30y",
+                  "real_yield_change_5y",
+                  "yield_butterfly_2y_5y_10y",
+                  "yield_change_10y",
+                  "yield_change_2y",
+                  "yield_change_30y",
+                  "yield_change_5y",
+                  "yield_spread_10y_2y",
+                  "yield_spread_10y_3m",
+                  "yield_spread_30y_5y"
                 ],
                 "maxLength": 100,
                 "minLength": 1,
@@ -6844,6 +7025,7 @@
               "fx_rates",
               "reference_rates",
               "treasury_real_yields",
+              "jgb_yields",
               "macro_analytics",
               "national_accounts",
               "japan_economics",
@@ -7235,6 +7417,296 @@
       "ResearchPresetQuery": {
         "additionalProperties": false,
         "oneOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "include": {
+                "anyOf": [
+                  {
+                    "items": {
+                      "enum": [
+                        "nominal_curve",
+                        "real_curve",
+                        "slope_2s10s",
+                        "slope_3m10y",
+                        "slope_5s30s",
+                        "butterfly",
+                        "inflation_compensation_10y",
+                        "nominal_change_10y",
+                        "real_change_10y",
+                        "sofr"
+                      ]
+                    },
+                    "maxItems": 10,
+                    "minItems": 1,
+                    "type": "array",
+                    "uniqueItems": true
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Include"
+              },
+              "preset": {
+                "const": "us_bond_context",
+                "type": "string"
+              },
+              "preview": {
+                "default": false,
+                "title": "Preview",
+                "type": "boolean"
+              },
+              "requirements": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ResearchRequirements"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              },
+              "requirements_by_item": {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/ResearchRequirements"
+                },
+                "maxProperties": 10,
+                "propertyNames": {
+                  "enum": [
+                    "nominal_curve",
+                    "real_curve",
+                    "slope_2s10s",
+                    "slope_3m10y",
+                    "slope_5s30s",
+                    "butterfly",
+                    "inflation_compensation_10y",
+                    "nominal_change_10y",
+                    "real_change_10y",
+                    "sofr"
+                  ]
+                },
+                "title": "Requirements By Item",
+                "type": "object"
+              },
+              "view": {
+                "default": "compact",
+                "enum": ["full", "compact"],
+                "title": "View",
+                "type": "string"
+              },
+              "year": {
+                "anyOf": [
+                  {
+                    "maximum": 2100,
+                    "minimum": 1990,
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Year"
+              }
+            },
+            "required": ["preset"],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "include": {
+                "anyOf": [
+                  {
+                    "items": {
+                      "enum": [
+                        "jgb_curve",
+                        "slope_2s10s",
+                        "slope_10s30s",
+                        "slope_30s40s",
+                        "butterfly",
+                        "yield_change_10y",
+                        "call_rate",
+                        "cpi"
+                      ]
+                    },
+                    "maxItems": 10,
+                    "minItems": 1,
+                    "type": "array",
+                    "uniqueItems": true
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Include"
+              },
+              "preset": {
+                "const": "japan_bond_context",
+                "type": "string"
+              },
+              "preview": {
+                "default": false,
+                "title": "Preview",
+                "type": "boolean"
+              },
+              "requirements": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ResearchRequirements"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              },
+              "requirements_by_item": {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/ResearchRequirements"
+                },
+                "maxProperties": 10,
+                "propertyNames": {
+                  "enum": [
+                    "jgb_curve",
+                    "slope_2s10s",
+                    "slope_10s30s",
+                    "slope_30s40s",
+                    "butterfly",
+                    "yield_change_10y",
+                    "call_rate",
+                    "cpi"
+                  ]
+                },
+                "title": "Requirements By Item",
+                "type": "object"
+              },
+              "view": {
+                "default": "compact",
+                "enum": ["full", "compact"],
+                "title": "View",
+                "type": "string"
+              },
+              "year": {
+                "anyOf": [
+                  {
+                    "maximum": 2100,
+                    "minimum": 1990,
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Year"
+              }
+            },
+            "required": ["preset"],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "include": {
+                "anyOf": [
+                  {
+                    "items": {
+                      "enum": [
+                        "us_curve",
+                        "jgb_curve",
+                        "us_slope_2s10s",
+                        "jp_slope_2s10s",
+                        "us_change_10y",
+                        "jp_change_10y",
+                        "us_inflation_compensation_10y",
+                        "sofr",
+                        "jp_call_rate",
+                        "usd_jpy"
+                      ]
+                    },
+                    "maxItems": 10,
+                    "minItems": 1,
+                    "type": "array",
+                    "uniqueItems": true
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Include"
+              },
+              "preset": {
+                "const": "us_japan_bond_context",
+                "type": "string"
+              },
+              "preview": {
+                "default": false,
+                "title": "Preview",
+                "type": "boolean"
+              },
+              "requirements": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ResearchRequirements"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              },
+              "requirements_by_item": {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/ResearchRequirements"
+                },
+                "maxProperties": 10,
+                "propertyNames": {
+                  "enum": [
+                    "us_curve",
+                    "jgb_curve",
+                    "us_slope_2s10s",
+                    "jp_slope_2s10s",
+                    "us_change_10y",
+                    "jp_change_10y",
+                    "us_inflation_compensation_10y",
+                    "sofr",
+                    "jp_call_rate",
+                    "usd_jpy"
+                  ]
+                },
+                "title": "Requirements By Item",
+                "type": "object"
+              },
+              "view": {
+                "default": "compact",
+                "enum": ["full", "compact"],
+                "title": "View",
+                "type": "string"
+              },
+              "year": {
+                "anyOf": [
+                  {
+                    "maximum": 2100,
+                    "minimum": 1990,
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Year"
+              }
+            },
+            "required": ["preset"],
+            "type": "object"
+          },
           {
             "additionalProperties": false,
             "properties": {
@@ -8140,7 +8612,10 @@
               "us_macro_overview",
               "fx_context",
               "japan_macro_overview",
-              "us_japan_overview"
+              "us_japan_overview",
+              "us_bond_context",
+              "japan_bond_context",
+              "us_japan_bond_context"
             ],
             "title": "Preset",
             "type": "string"
@@ -8373,11 +8848,12 @@
                     "boj",
                     "estat",
                     "imf",
-                    "oecd"
+                    "oecd",
+                    "japan_mof"
                   ],
                   "type": "string"
                 },
-                "maxItems": 12,
+                "maxItems": 13,
                 "minItems": 1,
                 "type": "array"
               },

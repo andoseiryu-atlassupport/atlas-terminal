@@ -518,4 +518,4 @@ async def test_real_mcp_discovers_new_query_schemas_and_returns_all_four_macro_d
             "atlas_research_catalog", {"dataset": "macro_analytics", "view": "compact"}
         )
         assert set(catalog.structured_content["macro_series"]) == set(MACRO_SERIES)
-        assert set(catalog.structured_content["sources"]) == {"bls", "treasury"}
+        assert set(catalog.structured_content["sources"]) == {"bls", "treasury", "japan_mof"}

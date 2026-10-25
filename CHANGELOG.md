@@ -1,5 +1,11 @@
 # Release notes
 
+## Unreleased
+
+- Add Japan MOF 1–40-year government curves with original CSV row/column evidence, strict source parsing and explicit historical/current-month overlap handling.
+- Add US/Japan government curve slopes, 2s5s10s butterflies, preceding-observation changes and US nominal/real par inflation-compensation proxies with exact basis-point arithmetic.
+- Add US, Japan and combined government-bond presets through existing research interfaces, searchable series, dated panels and an opt-in MOF source probe. No security prices, duration/DV01, hedge costs or live-source validation are supplied by this change.
+
 ## 0.7.0
 
 - Run `atlas showcase research` and `atlas showcase japan-risk` from an installed package through actual official MCP client sessions. Inspect complete JSON, resolved evidence, model metadata and holdout output; public research requires explicit network opt-in.

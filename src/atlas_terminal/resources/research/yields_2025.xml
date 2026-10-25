@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices">
+  <title>SYNTHETIC government curve, not market observations</title>
+  <entry><content type="application/xml"><m:properties>
+    <d:NEW_DATE>2025-12-29T00:00:00</d:NEW_DATE>
+    <d:BC_1MONTH>3.90</d:BC_1MONTH><d:BC_3MONTH>4.10</d:BC_3MONTH>
+    <d:BC_2YEAR>3.80</d:BC_2YEAR><d:BC_5YEAR>4.00</d:BC_5YEAR>
+    <d:BC_7YEAR>4.05</d:BC_7YEAR><d:BC_10YEAR>4.20</d:BC_10YEAR>
+    <d:BC_20YEAR>4.40</d:BC_20YEAR><d:BC_30YEAR>4.60</d:BC_30YEAR>
+  </m:properties></content></entry>
+  <entry><content type="application/xml"><m:properties>
+    <d:NEW_DATE>2025-12-30T00:00:00</d:NEW_DATE>
+    <d:BC_1MONTH>4.00</d:BC_1MONTH><d:BC_3MONTH>4.50</d:BC_3MONTH>
+    <d:BC_2YEAR>4.00</d:BC_2YEAR><d:BC_5YEAR>4.10</d:BC_5YEAR>
+    <d:BC_7YEAR>4.20</d:BC_7YEAR><d:BC_10YEAR>4.40</d:BC_10YEAR>
+    <d:BC_20YEAR>4.60</d:BC_20YEAR><d:BC_30YEAR>4.80</d:BC_30YEAR>
+  </m:properties></content></entry>
+  <entry><content type="application/xml"><m:properties>
+    <d:NEW_DATE>2025-12-31T00:00:00</d:NEW_DATE>
+    <d:BC_1MONTH>4.05</d:BC_1MONTH><d:BC_3MONTH>4.60</d:BC_3MONTH>
+    <d:BC_2YEAR>4.20</d:BC_2YEAR><d:BC_5YEAR>4.10</d:BC_5YEAR>
+    <d:BC_7YEAR>4.25</d:BC_7YEAR><d:BC_10YEAR>4.50</d:BC_10YEAR>
+    <d:BC_20YEAR>4.70</d:BC_20YEAR><d:BC_30YEAR>4.90</d:BC_30YEAR>
+  </m:properties></content></entry>
+</feed>

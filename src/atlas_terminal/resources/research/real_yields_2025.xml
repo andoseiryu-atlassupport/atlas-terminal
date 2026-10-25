@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices">
+  <title>SYNTHETIC real government curve, not market observations</title>
+  <entry><content type="application/xml"><m:properties>
+    <d:NEW_DATE>2025-12-29T00:00:00</d:NEW_DATE>
+    <d:TC_5YEAR>-0.10</d:TC_5YEAR><d:TC_7YEAR>1.00</d:TC_7YEAR>
+    <d:TC_10YEAR>1.40</d:TC_10YEAR><d:TC_20YEAR>1.70</d:TC_20YEAR>
+    <d:TC_30YEAR>1.80</d:TC_30YEAR>
+  </m:properties></content></entry>
+  <entry><content type="application/xml"><m:properties>
+    <d:NEW_DATE>2025-12-30T00:00:00</d:NEW_DATE>
+    <d:TC_5YEAR>0.90</d:TC_5YEAR><d:TC_7YEAR m:null="true"/>
+    <d:TC_10YEAR>1.45</d:TC_10YEAR><d:TC_20YEAR>1.80</d:TC_20YEAR>
+    <d:TC_30YEAR>1.90</d:TC_30YEAR>
+  </m:properties></content></entry>
+  <entry><content type="application/xml"><m:properties>
+    <d:NEW_DATE>2025-12-31T00:00:00</d:NEW_DATE>
+    <d:TC_5YEAR>1.00</d:TC_5YEAR><d:TC_7YEAR>1.20</d:TC_7YEAR>
+    <d:TC_10YEAR>1.50</d:TC_10YEAR><d:TC_20YEAR>1.90</d:TC_20YEAR>
+    <d:TC_30YEAR>2.00</d:TC_30YEAR>
+  </m:properties></content></entry>
+</feed>

@@ -36,6 +36,8 @@ Results include missing-data status, periods, coverage and source terms. Discove
 
 `limit` ranges from 1–500; financial `count` ranges from 1–20; comparisons accept at most ten identifiers. Unknown fields, fields unrelated to the selected dataset and booleans used as counts are rejected. The filing `form` filter is an exact match. Original form names, including `SCHEDULE 13D` and legacy `SC 13D`, are preserved.
 
+Government-bond research adds `jgb_yields` with an optional `year` or paired observation dates and `limit`, plus US/Japan curve analytics through `macro_analytics`. Three bond presets combine curves, local changes, funding and FX using the same interfaces. [Datasets, exact series names and CSV evidence](fixed-income.md).
+
 ## Examples
 
 These examples use fictional data without network access. For public sources, use `--provider public` and replace `ATLASDEMO` with a real ticker or CIK.

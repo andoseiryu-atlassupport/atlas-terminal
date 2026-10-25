@@ -29,6 +29,9 @@ def series_catalog(filters: CatalogQuery) -> dict[str, Any]:
             "unemployment": ["失業", "雇用"],
             "gdp": ["国内総生産", "成長"],
             "rate": ["金利"],
+            "yield": ["bond", "government bond", "債券", "国債", "利回り"],
+            "jgb": ["Japan government bond", "日本国債", "金利"],
+            "inflation_compensation": ["breakeven proxy", "inflation", "インフレ補償"],
             "tankan": ["短観"],
         }.items():
             if term in key:
@@ -112,14 +115,24 @@ def series_catalog(filters: CatalogQuery) -> dict[str, Any]:
         add(
             "macro_analytics",
             key,
-            key.replace("_", " "),
+            spec_macro.get("title", key.replace("_", " ")),
             spec_macro["source_id"],
-            "US",
-            "daily" if key == "yield_spread_10y_2y" else "monthly",
+            spec_macro.get("country", "US"),
+            "daily" if spec_macro["source_id"] in {"treasury", "japan_mof"} else "monthly",
             spec_macro["unit"],
             {"series": key},
             derived=True,
         )
+    add(
+        "jgb_yields",
+        "jgb_curve",
+        "Japan MOF government bond yield curve, 1–40 years",
+        "japan_mof",
+        "JP",
+        "daily",
+        "percent_per_annum",
+        {},
+    )
     for base in FX_CURRENCIES:
         for quote in FX_CURRENCIES:
             if base != quote:

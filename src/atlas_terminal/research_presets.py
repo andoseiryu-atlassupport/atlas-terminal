@@ -7,7 +7,7 @@ from typing import Any, Literal
 from pydantic import ConfigDict, Field, ValidationError, field_validator, model_validator
 
 from atlas_terminal.errors import AtlasError
-from atlas_terminal.macro_catalog import Currency
+from atlas_terminal.macro_catalog import CURVE_SERIES, MACRO_SERIES, Currency
 from atlas_terminal.models import Model, identifier
 from atlas_terminal.public_sources import SOURCE_CATALOG
 from atlas_terminal.research_batch import (
@@ -31,8 +31,137 @@ PresetName = Literal[
     "fx_context",
     "japan_macro_overview",
     "us_japan_overview",
+    "us_bond_context",
+    "japan_bond_context",
+    "us_japan_bond_context",
 ]
 PRESETS: dict[str, dict[str, Any]] = {
+    "us_bond_context": {
+        "description": (
+            "US nominal/real curves, slopes, butterfly, inflation-compensation proxy and changes."
+        ),
+        "fields": ["year"],
+        "required": [],
+        "items": {
+            "nominal_curve": {"dataset": "treasury_yields", "limit": 14},
+            "real_curve": {"dataset": "treasury_real_yields", "limit": 5},
+            "slope_2s10s": {
+                "dataset": "macro_analytics",
+                "series": "yield_spread_10y_2y",
+                "limit": 1,
+            },
+            "slope_3m10y": {
+                "dataset": "macro_analytics",
+                "series": "yield_spread_10y_3m",
+                "limit": 1,
+            },
+            "slope_5s30s": {
+                "dataset": "macro_analytics",
+                "series": "yield_spread_30y_5y",
+                "limit": 1,
+            },
+            "butterfly": {
+                "dataset": "macro_analytics",
+                "series": "yield_butterfly_2y_5y_10y",
+                "limit": 1,
+            },
+            "inflation_compensation_10y": {
+                "dataset": "macro_analytics",
+                "series": "par_inflation_compensation_10y",
+                "limit": 1,
+            },
+            "nominal_change_10y": {
+                "dataset": "macro_analytics",
+                "series": "yield_change_10y",
+                "limit": 1,
+            },
+            "real_change_10y": {
+                "dataset": "macro_analytics",
+                "series": "real_yield_change_10y",
+                "limit": 1,
+            },
+            "sofr": {"dataset": "reference_rates", "series": "sofr", "limit": 1},
+        },
+    },
+    "japan_bond_context": {
+        "description": "Japan JGB curve, slopes, butterfly and changes with BOJ funding and CPI.",
+        "fields": ["year"],
+        "required": [],
+        "items": {
+            "jgb_curve": {"dataset": "jgb_yields", "limit": 15},
+            "slope_2s10s": {
+                "dataset": "macro_analytics",
+                "series": "jgb_spread_10y_2y",
+                "limit": 1,
+            },
+            "slope_10s30s": {
+                "dataset": "macro_analytics",
+                "series": "jgb_spread_30y_10y",
+                "limit": 1,
+            },
+            "slope_30s40s": {
+                "dataset": "macro_analytics",
+                "series": "jgb_spread_40y_30y",
+                "limit": 1,
+            },
+            "butterfly": {
+                "dataset": "macro_analytics",
+                "series": "jgb_butterfly_2y_5y_10y",
+                "limit": 1,
+            },
+            "yield_change_10y": {
+                "dataset": "macro_analytics",
+                "series": "jgb_yield_change_10y",
+                "limit": 1,
+            },
+            "call_rate": {"dataset": "japan_economics", "series": "call_rate", "limit": 1},
+            "cpi": {"dataset": "japan_economics", "series": "cpi", "limit": 1},
+        },
+    },
+    "us_japan_bond_context": {
+        "description": (
+            "US/Japan government curves and changes with US real-yield gap, funding and USD/JPY."
+        ),
+        "fields": ["year"],
+        "required": [],
+        "items": {
+            "us_curve": {"dataset": "treasury_yields", "limit": 14},
+            "jgb_curve": {"dataset": "jgb_yields", "limit": 15},
+            "us_slope_2s10s": {
+                "dataset": "macro_analytics",
+                "series": "yield_spread_10y_2y",
+                "limit": 1,
+            },
+            "jp_slope_2s10s": {
+                "dataset": "macro_analytics",
+                "series": "jgb_spread_10y_2y",
+                "limit": 1,
+            },
+            "us_change_10y": {
+                "dataset": "macro_analytics",
+                "series": "yield_change_10y",
+                "limit": 1,
+            },
+            "jp_change_10y": {
+                "dataset": "macro_analytics",
+                "series": "jgb_yield_change_10y",
+                "limit": 1,
+            },
+            "us_inflation_compensation_10y": {
+                "dataset": "macro_analytics",
+                "series": "par_inflation_compensation_10y",
+                "limit": 1,
+            },
+            "sofr": {"dataset": "reference_rates", "series": "sofr", "limit": 1},
+            "jp_call_rate": {"dataset": "japan_economics", "series": "call_rate", "limit": 1},
+            "usd_jpy": {
+                "dataset": "fx_rates",
+                "base_currency": "USD",
+                "quote_currency": "JPY",
+                "limit": 1,
+            },
+        },
+    },
     "company_overview": {
         "description": "Issuer profile, reported financials, growth/FCF and filing metadata.",
         "fields": ["identifier", "period", "count"],
@@ -335,7 +464,9 @@ def preset_plan(query: ResearchPresetQuery) -> ResearchPresetPlan:
                 data.update(period=query.period, count=query.count)
         if data["dataset"] == "fx_rates" and query.preset == "fx_context":
             data.update(base_currency=query.base_currency, quote_currency=query.quote_currency)
-        if data["dataset"] == "treasury_yields":
+        if data["dataset"] in {"treasury_yields", "treasury_real_yields", "jgb_yields"} or (
+            data["dataset"] == "macro_analytics" and data["series"] in CURVE_SERIES
+        ):
             data["year"] = query.year if query.year is not None else utcnow().year
             year_basis = "explicit" if query.year is not None else "current_utc_year"
         # Always include complete-result quality metadata, even in compact responses.
@@ -351,6 +482,8 @@ def preset_plan(query: ResearchPresetQuery) -> ResearchPresetPlan:
             from atlas_terminal.economic_catalog import JAPAN_SERIES
 
             source_id = JAPAN_SERIES[data["series"]]["source_id"]
+        if data["dataset"] == "macro_analytics":
+            source_id = MACRO_SERIES[data["series"]]["source_id"]
         items.append(PresetPlanItem(id=name, query=data, source_ids=[source_id]))
     parse_batch({"items": [{"id": item.id, "query": item.query} for item in items]})
     return ResearchPresetPlan(
