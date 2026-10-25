@@ -19,6 +19,7 @@ from atlas_terminal.client import Atlas
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.providers import SecTransport
 from atlas_terminal.public_sources import ECB_FX_URL, NYFED_RATES, PublicTransport
+from atlas_terminal.regional_bond_sources import ecb_curve_identity
 from atlas_terminal.research_diagnostics import (
     ResearchDiagnosticsQuery,
     ResearchDiagnosticsResult,
@@ -50,6 +51,7 @@ def private_state(tmp_path, monkeypatch):
     monkeypatch.setattr("atlas_terminal.util.utcnow", lambda: NOW)
     monkeypatch.setattr("atlas_terminal.research_quality.utcnow", lambda: NOW)
     monkeypatch.setattr("atlas_terminal.research_presets.utcnow", lambda: NOW)
+    monkeypatch.setattr("atlas_terminal.research_fixed_income.utcnow", lambda: NOW)
 
 
 def normalized(data):
@@ -304,6 +306,10 @@ def test_opted_in_diagnostics_reuse_real_probe_logic_with_mock_http(tmp_path, mo
 
     def handler(request):
         requests.append(request)
+        if selected := ecb_curve_identity(str(request.url)):
+            return httpx.Response(
+                200, content=resource.joinpath(selected[0] + "_2026.csv").read_bytes()
+            )
         name = (
             "fx.xml"
             if str(request.url) == ECB_FX_URL
@@ -338,7 +344,7 @@ def test_opted_in_diagnostics_reuse_real_probe_logic_with_mock_http(tmp_path, mo
             {"sources": ["ecb", "new_york_fed"], "allow_network": True}
         )
     assert result["status"] == "verified" and result["network_checks_executed"]
-    assert len(requests) == 3 and all(row["connectivity"] == "pass" for row in result["sources"])
+    assert len(requests) == 5 and all(row["connectivity"] == "pass" for row in result["sources"])
     assert (root / "source-checks.sqlite3").exists()
     assert all("@" not in request.headers["user-agent"] for request in requests)
     ResearchDiagnosticsResult.model_validate(result)

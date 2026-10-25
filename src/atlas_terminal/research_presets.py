@@ -34,6 +34,9 @@ PresetName = Literal[
     "us_bond_context",
     "japan_bond_context",
     "us_japan_bond_context",
+    "euro_area_bond_context",
+    "australia_bond_context",
+    "global_bond_context",
 ]
 PRESETS: dict[str, dict[str, Any]] = {
     "us_bond_context": {
@@ -266,6 +269,129 @@ PRESETS: dict[str, dict[str, Any]] = {
         },
     },
 }
+PRESETS.update(
+    {
+        "euro_area_bond_context": {
+            "description": "ECB AAA/all-rating spot curves, local shapes/changes and EUR/USD.",
+            "fields": ["year"],
+            "required": [],
+            "items": {
+                "aaa_curve": {"dataset": "euro_area_yields", "series": "aaa_spot", "limit": 11},
+                "all_curve": {"dataset": "euro_area_yields", "series": "all_spot", "limit": 11},
+                "aaa_slope_2s10s": {
+                    "dataset": "macro_analytics",
+                    "series": "euro_aaa_spread_10y_2y",
+                    "limit": 1,
+                },
+                "aaa_slope_5s30s": {
+                    "dataset": "macro_analytics",
+                    "series": "euro_aaa_spread_30y_5y",
+                    "limit": 1,
+                },
+                "aaa_butterfly": {
+                    "dataset": "macro_analytics",
+                    "series": "euro_aaa_butterfly_2y_5y_10y",
+                    "limit": 1,
+                },
+                "aaa_change_10y": {
+                    "dataset": "macro_analytics",
+                    "series": "euro_aaa_yield_change_10y",
+                    "limit": 1,
+                },
+                "all_change_10y": {
+                    "dataset": "macro_analytics",
+                    "series": "euro_all_yield_change_10y",
+                    "limit": 1,
+                },
+                "eur_usd": {
+                    "dataset": "fx_rates",
+                    "base_currency": "EUR",
+                    "quote_currency": "USD",
+                    "limit": 1,
+                },
+            },
+        },
+        "australia_bond_context": {
+            "description": "RBA government yields, local shapes/changes and AUD/USD.",
+            "fields": ["year"],
+            "required": [],
+            "items": {
+                "government_curve": {"dataset": "australia_yields", "limit": 4},
+                "slope_2s10s": {
+                    "dataset": "macro_analytics",
+                    "series": "australia_spread_10y_2y",
+                    "limit": 1,
+                },
+                "slope_3s10s": {
+                    "dataset": "macro_analytics",
+                    "series": "australia_spread_10y_3y",
+                    "limit": 1,
+                },
+                "butterfly": {
+                    "dataset": "macro_analytics",
+                    "series": "australia_butterfly_2y_5y_10y",
+                    "limit": 1,
+                },
+                "change_10y": {
+                    "dataset": "macro_analytics",
+                    "series": "australia_yield_change_10y",
+                    "limit": 1,
+                },
+                "change_2y": {
+                    "dataset": "macro_analytics",
+                    "series": "australia_yield_change_2y",
+                    "limit": 1,
+                },
+                "aud_usd": {
+                    "dataset": "fx_rates",
+                    "base_currency": "AUD",
+                    "quote_currency": "USD",
+                    "limit": 1,
+                },
+            },
+        },
+        "global_bond_context": {
+            "description": "Four-region government curves and reference FX.",
+            "fields": ["year"],
+            "required": [],
+            "items": {
+                "us_nominal_curve": {"dataset": "treasury_yields", "limit": 14},
+                "us_real_curve": {"dataset": "treasury_real_yields", "limit": 5},
+                "jgb_curve": {"dataset": "jgb_yields", "limit": 15},
+                "euro_aaa_curve": {
+                    "dataset": "euro_area_yields",
+                    "series": "aaa_spot",
+                    "limit": 11,
+                },
+                "euro_all_curve": {
+                    "dataset": "euro_area_yields",
+                    "series": "all_spot",
+                    "limit": 11,
+                },
+                "australia_curve": {"dataset": "australia_yields", "limit": 4},
+                "usd_jpy": {
+                    "dataset": "fx_rates",
+                    "base_currency": "USD",
+                    "quote_currency": "JPY",
+                    "limit": 1,
+                },
+                "eur_usd": {
+                    "dataset": "fx_rates",
+                    "base_currency": "EUR",
+                    "quote_currency": "USD",
+                    "limit": 1,
+                },
+                "aud_usd": {
+                    "dataset": "fx_rates",
+                    "base_currency": "AUD",
+                    "quote_currency": "USD",
+                    "limit": 1,
+                },
+                "sofr": {"dataset": "reference_rates", "series": "sofr", "limit": 1},
+            },
+        },
+    }
+)
 COMMON_FIELDS = {"preset", "include", "requirements", "requirements_by_item", "view", "preview"}
 
 
@@ -464,9 +590,13 @@ def preset_plan(query: ResearchPresetQuery) -> ResearchPresetPlan:
                 data.update(period=query.period, count=query.count)
         if data["dataset"] == "fx_rates" and query.preset == "fx_context":
             data.update(base_currency=query.base_currency, quote_currency=query.quote_currency)
-        if data["dataset"] in {"treasury_yields", "treasury_real_yields", "jgb_yields"} or (
-            data["dataset"] == "macro_analytics" and data["series"] in CURVE_SERIES
-        ):
+        if data["dataset"] in {
+            "treasury_yields",
+            "treasury_real_yields",
+            "jgb_yields",
+            "euro_area_yields",
+            "australia_yields",
+        } or (data["dataset"] == "macro_analytics" and data["series"] in CURVE_SERIES):
             data["year"] = query.year if query.year is not None else utcnow().year
             year_basis = "explicit" if query.year is not None else "current_utc_year"
         # Always include complete-result quality metadata, even in compact responses.

@@ -1,5 +1,6 @@
 """Same-date government curves and exact, evidence-backed basis-point analytics."""
 
+from collections.abc import Iterator
 from datetime import date
 from decimal import Context, Decimal, localcontext
 from itertools import islice
@@ -12,14 +13,123 @@ from atlas_terminal.fixed_income_sources import (
     JgbObservation,
     parse_jgb_csv,
 )
-from atlas_terminal.macro_catalog import CURVE_SERIES, MACRO_SERIES
+from atlas_terminal.macro_catalog import CURVE_MARKETS, CURVE_SERIES, MACRO_SERIES
 from atlas_terminal.normalize import number
 from atlas_terminal.providers import Transport
 from atlas_terminal.public_sources import SOURCE_CATALOG, TREASURY_BASE, TREASURY_REAL_BASE
+from atlas_terminal.regional_bond_sources import (
+    ECB_MATURITIES,
+    EURO_SERIES,
+    RBA_SERIES,
+    RBA_URL,
+    REGIONAL_CONTEXT,
+    ecb_curve_url,
+    parse_ecb_curve,
+    parse_rba_curve,
+)
 from atlas_terminal.research_financials import reference
 from atlas_terminal.research_macro import result_page, treasury_rows
 from atlas_terminal.research_models import ResearchQuery
 from atlas_terminal.util import utcnow
+
+
+def regional_curves(
+    transport: Transport,
+    curve: str,
+    q: ResearchQuery,
+) -> tuple[dict[str, dict[str, dict[str, Any]]], list[dict[str, Any]]]:
+    results: dict[str, dict[str, dict[str, Any]]] = {}
+    sources = []
+    if curve == "rba":
+        observations, document = parse_rba_curve(transport.get(RBA_URL, 21600))
+        return observations, [document]
+    first = int(q.start_date[:4]) if q.start_date else q.year or utcnow().year
+    last = int(q.end_date[:4]) if q.end_date else first
+    for year in range(first, last + 1):
+        observations, document = parse_ecb_curve(
+            transport.get(ecb_curve_url(curve, year), 21600),
+            curve,
+            year,
+        )
+        results.update(observations)
+        sources.append({**document, "selected_year": year})
+    return results, sources
+
+
+def regional_attribution(curve: str) -> list[dict[str, Any]]:
+    market = CURVE_MARKETS[curve]
+    return [
+        {
+            "source_id": market["source_id"],
+            "notice": "Source: Reserve Bank of Australia, F2 government bond yields."
+            if curve == "rba"
+            else "Source: European Central Bank, euro area government yield curves.",
+            "terms_url": SOURCE_CATALOG[market["source_id"]]["terms"],
+            "modifications": "Dates/tenors normalized; curve analytics are Atlas calculations.",
+        }
+    ]
+
+
+def regional_yields(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
+    curve = "rba" if q.dataset == "australia_yields" else EURO_SERIES[q.series or ""]
+    observations, sources = regional_curves(transport, curve, q)
+    maturities = list(RBA_SERIES.values()) if curve == "rba" else list(ECB_MATURITIES.values())
+    selected = [
+        observed
+        for observed in sorted(observations, reverse=True)
+        if (q.year is None or int(observed[:4]) == q.year)
+        and within(observed, q.start_date, q.end_date)
+    ]
+
+    def records() -> Iterator[dict[str, Any]]:
+        for observed in selected:
+            for maturity in maturities:
+                yield observations[observed].get(maturity) or {
+                    **REGIONAL_CONTEXT[curve],
+                    "date": observed,
+                    "maturity": maturity,
+                    "value": None,
+                    "unit": "percent_per_annum",
+                    "frequency": "business_daily",
+                    "status": "unavailable",
+                    "reason": "No source observation for this tenor/date.",
+                    "published_at": None,
+                    "source": next(
+                        (
+                            source
+                            for source in sources
+                            if source.get("selected_year") == int(observed[:4])
+                        ),
+                        sources[0],
+                    ),
+                }
+
+    total = len(selected) * len(maturities)
+    result = result_page(
+        list(islice(records(), q.limit)),
+        sources,
+        q.limit,
+        window="RBA published F2 history"
+        if curve == "rba"
+        else "ECB selected calendar-year YC files",
+        source_id=CURVE_MARKETS[curve]["source_id"],
+        attributions=regional_attribution(curve),
+        limitations=[
+            "ECB fitted euro area spot curve; continuous zero-coupon rates."
+            if curve != "rba"
+            else "RBA interpolated 2/3/5/10-year nominal yields; indexed bonds excluded.",
+            "No conversion across source conventions or currencies.",
+            "One record is one tenor/date; no Atlas interpolation or holiday fill.",
+            "Observation dates are not publication timestamps or historical information vintages.",
+        ],
+        **REGIONAL_CONTEXT[curve],
+    )
+    result["coverage"].update(
+        window_metadata([{"date": observed} for observed in selected], q.start_date, q.end_date),
+        observed_records=total,
+        truncated=total > q.limit,
+    )
+    return result
 
 
 def jgb_curves(
@@ -114,6 +224,8 @@ def curve_analytics(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
     spec = CURVE_SERIES[q.series]
     macro = MACRO_SERIES[q.series]
     japanese = macro["source_id"] == "japan_mof"
+    curve_name = spec["terms"][0]["curve"]
+    regional = curve_name in REGIONAL_CONTEXT
     curves: dict[str, dict[str, dict[str, dict[str, Any]]]] = {}
     documents: dict[tuple[str, int], dict[str, Any]] = {}
     sources: list[dict[str, Any]] = []
@@ -134,6 +246,9 @@ def curve_analytics(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
             for observed, row in observations.items()
             if observed in needed_dates
         }
+    elif regional:
+        regional_observations, sources = regional_curves(transport, curve_name, q)
+        curves[curve_name] = regional_observations
     else:
         first = int(q.start_date[:4]) if q.start_date else q.year or utcnow().year
         last = int(q.end_date[:4]) if q.end_date else first
@@ -181,7 +296,7 @@ def curve_analytics(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
             "value": value,
             "unit": "basis_points",
             "country": macro["country"],
-            "currency": "JPY" if japanese else "USD",
+            "currency": CURVE_MARKETS[curve_name]["currency"],
             "derived": True,
             "status": "derived" if value is not None else "unavailable",
             "reason": "Missing dated yield; no date mixing, null skipping or interpolation."
@@ -193,6 +308,7 @@ def curve_analytics(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
             "published_at": None,
             "frequency": "business_daily",
             "decimal_precision": None,
+            **(REGIONAL_CONTEXT[curve_name] if regional else {}),
         }
         if spec["previous_observation"]:
             record["comparison_date"] = previous
@@ -209,9 +325,17 @@ def curve_analytics(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
         q.limit,
         window="MOF historical and current-month files"
         if japanese
+        else "RBA published F2 history"
+        if curve_name == "rba"
+        else "ECB selected calendar-year YC files"
+        if regional
         else f"Treasury selected calendar years {first}–{last}",
         source_id=macro["source_id"],
-        attributions=jgb_attribution() if japanese else [],
+        attributions=jgb_attribution()
+        if japanese
+        else regional_attribution(curve_name)
+        if regional
+        else [],
         limitations=[
             spec["interpretation"],
             "Source yields are percent per annum; 100 basis points is one percentage point.",

@@ -22,6 +22,13 @@ from atlas_terminal.errors import AtlasError
 from atlas_terminal.fixed_income_sources import JGB_BASE, JGB_URLS, parse_jgb_csv
 from atlas_terminal.macro_catalog import REFERENCE_SERIES
 from atlas_terminal.providers import CachedHTTPTransport, Snapshot, decode_json
+from atlas_terminal.regional_bond_sources import (
+    ECB_CURVE_BASE,
+    RBA_URL,
+    ecb_curve_identity,
+    parse_ecb_curve,
+    parse_rba_curve,
+)
 from atlas_terminal.sdmx_sources import BASES, SDMX_SOURCES, sdmx_source, valid_sdmx_url
 from atlas_terminal.util import state_dir
 
@@ -67,6 +74,19 @@ BLS_SERIES = {
 }
 
 SOURCE_CATALOG = {
+    "rba": {
+        "name": "Reserve Bank of Australia government bond yields",
+        "upstream_price": "0",
+        "api_key_required": False,
+        "contact_user_agent_required": False,
+        "documentation": "https://www.rba.gov.au/statistics/tables/",
+        "terms": "https://www.rba.gov.au/copyright/",
+        "use": (
+            "Attribute RBA and original providers; identify Atlas modifications and retain "
+            "copyright conditions and third-party exceptions."
+        ),
+        "cadence": "F2 business-day interpolated nominal government yields at 2/3/5/10 years.",
+    },
     "japan_mof": {
         "name": "Japan Ministry of Finance JGB interest rates",
         "upstream_price": "0",
@@ -84,19 +104,21 @@ SOURCE_CATALOG = {
         ),
     },
     "ecb": {
-        "name": "European Central Bank euro reference rates",
+        "name": "European Central Bank reference FX and euro area government curves",
         "upstream_price": "0",
         "api_key_required": False,
         "contact_user_agent_required": False,
         "documentation": "https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html",
+        "yield_curve_documentation": "https://www.ecb.europa.eu/stats/financial_markets_and_interest_rates/euro_area_yield_curves/html/index.en.html",
         "terms": "https://www.ecb.europa.eu/services/using-our-site/disclaimer/html/index.en.html",
         "use": (
             "Attribute ECB, identify modifications and retain source conditions; "
-            "information-purpose reference rates, not executable quotes."
+            "reference FX and estimated government curves are not executable quotes."
         ),
         "cadence": (
             "European working-day reference observations; full published XML history, "
-            "currency-specific start/end dates and no holiday filling."
+            "currency-specific start/end dates and no holiday filling. "
+            "Separate YC requests provide AAA/all-rating euro area spot curves."
         ),
     },
     "new_york_fed": {
@@ -240,7 +262,8 @@ class PublicTransport(CachedHTTPTransport):
     @staticmethod
     def validate_url(url: str) -> None:
         if (
-            url in {DEBT_URL, FED_NEWS, ECB_FX_URL, *NYFED_RATES.values(), *JGB_URLS}
+            url in {DEBT_URL, FED_NEWS, ECB_FX_URL, RBA_URL, *NYFED_RATES.values(), *JGB_URLS}
+            or ecb_curve_identity(url) is not None
             or valid_bls_url(url)
             or validate_economic_url(url)
             or valid_sdmx_url(url)
@@ -252,6 +275,12 @@ class PublicTransport(CachedHTTPTransport):
 
     @staticmethod
     def validate_body(url: str, body: bytes) -> None:
+        if selection := ecb_curve_identity(url):
+            parse_ecb_curve(Snapshot(body, url, "2000-01-01T00:00:00Z"), *selection)
+            return
+        if url == RBA_URL:
+            parse_rba_curve(Snapshot(body, url, "2000-01-01T00:00:00Z"))
+            return
         if url in JGB_URLS:
             parse_jgb_csv(Snapshot(body, url, "2000-01-01T00:00:00Z"))
             return
@@ -273,6 +302,8 @@ class PublicTransport(CachedHTTPTransport):
 
     def request(self, url: str, headers: dict[str, str]) -> Any:
         self.validate_url(url)
+        if ecb_curve_identity(url) is not None or url == RBA_URL:
+            headers = {**headers, "Accept": "text/csv"}
         if sdmx_source(url):
             headers = {
                 **headers,
@@ -396,6 +427,15 @@ class PublicFixtures:
             name = "yields_2025.xml" if url.endswith("2025") else "yields.xml"
         elif url in JGB_URLS:
             name = "jgb_history.csv" if url == JGB_URLS[0] else "jgb_current.csv"
+        elif url.startswith(ECB_CURVE_BASE):
+            selection = ecb_curve_identity(url)
+            assert selection is not None
+            curve, year = selection
+            if year != 2026:
+                raise AtlasError("SOURCE_UNAVAILABLE", "Fictional ECB curves cover 2026 only.")
+            name = curve + "_2026.csv"
+        elif url == RBA_URL:
+            name = "rba_yields.csv"
         elif url == DEBT_URL:
             name = "debt.json"
         else:

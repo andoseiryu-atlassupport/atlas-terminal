@@ -54,6 +54,14 @@ SDMX observations retain original XML bytes/hashes and metadata references. Deci
 
 The adapter contract was checked against public code references to the official English CSV format; live MOF retrieval and the current official terms page could not be inspected from this development environment. No source access, redistribution grant or real-market compatibility is established by the fictional fixtures. [Methodology and limits](docs/fixed-income.md).
 
+## ECB euro area curves and RBA government yields
+
+ECB YC adds separate AAA/all-rating euro area central-government zero-coupon spot curves through the fixed SDMX CSV endpoint at `data-api.ecb.europa.eu`. Preserve [ECB conditions](https://www.ecb.europa.eu/services/using-our-site/disclaimer/html/index.en.html), rating universe, continuous compounding, percent units and source-cell evidence. The curves are publisher estimates, not individual sovereign quotes or Atlas par-curve conversions.
+
+RBA F2 adds the four daily nominal Australian government series at 2/3/5/10 years from the fixed [F2 CSV](https://www.rba.gov.au/statistics/tables/csv/f2-data.csv). Preserve [RBA copyright conditions](https://www.rba.gov.au/copyright/), original providers and third-party exceptions. The exact nominal daily IDs exclude indexed bonds and monthly series. Units, frequency and CSV evidence remain explicit; no unsupported maturity or inflation gap is inferred.
+
+The formats were compared with pinned public [ECB](https://github.com/JerBouma/FinanceToolkit/blob/fd2e313e8c287ac907900ff20af586330ccd9564/financetoolkit/economics/ecb_model.py) and [RBA](https://github.com/JerBouma/FinanceToolkit/blob/fd2e313e8c287ac907900ff20af586330ccd9564/financetoolkit/fixedincome/rba_model.py) format references. Direct live source access and the current source-terms pages were not inspected from this development environment. This does not establish a redistribution grant. [Regional methodology](docs/fixed-income.md#euro-area-and-australia).
+
 ## Retrieval and processing
 
 Atlas accepts no arbitrary source URLs or mirrors and follows no redirects. Refresh failures never present expired cache entries as current data or switch to a paid provider. HTTP uses shared rate limits, at most three attempts and response size/time bounds. BLS daily attempts are persisted.

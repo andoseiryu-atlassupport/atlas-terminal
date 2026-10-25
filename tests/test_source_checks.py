@@ -3,7 +3,7 @@
 import json
 import subprocess
 import sys
-from datetime import date
+from datetime import UTC, date, datetime
 from importlib.resources import files
 
 import httpx
@@ -19,6 +19,7 @@ from atlas_terminal.public_sources import (
     NYFED_RATES,
     PublicTransport,
 )
+from atlas_terminal.regional_bond_sources import ecb_curve_identity
 from atlas_terminal.source_checks import (
     SCHEMA,
     RecordingTransport,
@@ -36,6 +37,9 @@ RESOURCE = files("atlas_terminal").joinpath("resources", "research")
 def private_state(tmp_path, monkeypatch):
     monkeypatch.setenv("ATLAS_STATE_DIR", str(tmp_path / "state"))
     monkeypatch.delenv("SEC_USER_AGENT", raising=False)
+    monkeypatch.setattr(
+        "atlas_terminal.research_fixed_income.utcnow", lambda: datetime(2026, 10, 20, tzinfo=UTC)
+    )
 
 
 def mocked_factory(mode, requests):
@@ -44,6 +48,10 @@ def mocked_factory(mode, requests):
 
         def handler(request):
             requests.append(request)
+            if selected := ecb_curve_identity(str(request.url)):
+                return httpx.Response(
+                    200, content=RESOURCE.joinpath(selected[0] + "_2026.csv").read_bytes()
+                )
             if str(request.url) == ECB_FX_URL:
                 return httpx.Response(200, content=RESOURCE.joinpath("fx.xml").read_bytes())
             name = "effr" if str(request.url) == NYFED_RATES["effr"] else "sofr"
@@ -78,7 +86,7 @@ def test_disabled_probes_never_construct_a_client_or_store(tmp_path):
         pytest.fail("Disabled check constructed a client")
 
     result = check_sources(["ecb", "new_york_fed"], directory=tmp_path, client_factory=forbidden)
-    assert result["status"] == "NOT_RUN" and len(result["checks"]) == 3
+    assert result["status"] == "NOT_RUN" and len(result["checks"]) == 5
     assert all(row["status"] == "NOT_RUN" for row in result["checks"])
     assert not (tmp_path / "source-checks.sqlite3").exists()
 
@@ -114,7 +122,7 @@ def test_mock_http_probes_record_changes_and_preserve_last_success_after_failure
         )
 
     first = run()
-    assert first["status"] == "PASS" and len(requests) == 3
+    assert first["status"] == "PASS" and len(requests) == 5
     assert all(row["changes"]["shape_changed"] is None for row in first["checks"])
     assert all(row["latest_observation_date"] == "2026-10-19" for row in first["checks"])
     mode[0] = "values"

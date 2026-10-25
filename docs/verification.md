@@ -10,8 +10,8 @@ Version 0.7.0 includes the experimental native factor risk extension and install
 | --------------------------------------------------------- | ----------------------------------------------------------- |
 | `uv run --offline ruff check .`                           | PASS                                                        |
 | `uv run --offline ruff format --check .`                  | PASS                                                        |
-| `uv run --offline mypy`                                   | PASS; 57 source files                                       |
-| `uv run --offline pytest`                                 | PASS; 868 tests, 2 live tests deselected                    |
+| `uv run --offline mypy`                                   | PASS; 58 source files                                       |
+| `uv run --offline pytest`                                 | PASS; 926 tests, 2 live tests deselected                    |
 | `uv run --offline python -m build --no-isolation`         | PASS; wheel and source distribution                         |
 | `uv run --offline python scripts/verify_distribution.py`  | PASS; metadata, required contents and forbidden paths       |
 | `uv run --offline python scripts/build_docs.py`           | PASS; 46 HTML pages and internal file/section links         |
@@ -23,6 +23,14 @@ Version 0.7.0 includes the experimental native factor risk extension and install
 Default tests prohibit IP sockets and use fictional sources or mocked transports. They do not retrieve live official data or transfer funds. Archive validation rejects private/runtime paths, dependency trees, unsafe paths and links; source archives contain project source and verification material rather than installed dependencies. The credential-pattern scan is a heuristic, not a guarantee against every secret format.
 
 Test cases use isolated private state directories so repeated verification does not consume an operator's persistent cache quota. The numerical and protocol assertions remain unchanged.
+
+## Euro area and Australian government bonds
+
+On 2026-10-25 (UTC), 926 offline tests passed, with two live cases deselected. The source catalog has 29 datasets, 14 source families, 50 government-curve calculation series and eleven presets. The 54 regional cases cover 23 hand-calculated slopes/butterflies/changes; ECB AAA/all-rating identity, dimensions, unit/multiplier and status checks; negative rates, nulls and duplicate rejection; RBA daily nominal-ID/frequency/unit checks with indexed bonds excluded; original CSV-cell hashes; correct-year evidence for missing multi-year tenors; compact context preservation; quality gates; calendar panels; CLI/SDK/HTTP and a real official stdio MCP session using one connection. Existing per-dataset compact reconstruction and source-check tests include both new datasets and ECB/RBA probes.
+
+Ruff formatting/style and mypy passed for 58 source files. Wheel/source archive validation passed with 117 wheel files and 295 source files. The rebuilt 0.7.0 source-checkout wheel was installed offline with locked runtime dependencies; imports resolved inside that installation outside the repository, and European, Australian and four-region bond presets executed with fictional data. Documentation/internal links passed for 46 pages, and both prior showcase recording checksums remained unchanged. This is an unreleased source extension, not a replacement of existing 0.7.0 release assets.
+
+The ECB and RBA CSV contracts were compared with the pinned public format references in [data sources](../DATA_SOURCES.md#ecb-euro-area-curves-and-rba-government-yields). Direct live `data-api.ecb.europa.eu` and `www.rba.gov.au` access and current source-terms pages remain unverified under outbound host restrictions. Mock/parser success does not establish actual source availability, redistribution rights, synchronized observations or forecast accuracy. ECB euro area composite spot curves are not individual European sovereigns or UK gilts, and no cross-country compounding/FX normalization was validated.
 
 ## Government-bond research expansion
 

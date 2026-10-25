@@ -192,7 +192,10 @@ def test_same_maturity_par_gaps_do_not_join_different_observation_dates_or_skip_
 
 
 def test_arithmetic_and_original_values_ignore_callers_precision_and_inexact_traps():
-    queries = [query(name, year=2026 if name.startswith("jgb") else 2025) for name in CURVE_SERIES]
+    queries = [
+        query(name, year=2025 if MACRO_SERIES[name]["country"] == "US" else 2026)
+        for name in CURVE_SERIES
+    ]
     with application() as atlas:
         expected = [atlas.get_research(data)["records"] for data in queries]
         with localcontext() as context:

@@ -1,4 +1,4 @@
-# US Treasury and Japanese government bond research
+# Government bond research across four regions
 
 Retrieve government curves, inspect their shape and changes, and resolve the original observations through one Atlas MCP connection. `jgb_yields` adds Ministry of Finance Japan data to US nominal/real Treasury curves, overnight rates, inflation and reference FX. CLI, SDK, MCP and HTTP share these services. These curves require no subscription, wallet or API key.
 
@@ -60,6 +60,38 @@ uv run --offline atlas research get macro_analytics --series jgb_yield_change_10
 ```
 
 Date ranges require both ordered bounds, at most 30 calendar years, and no `year`. US nominal analytics start in 1990; real-input calculations start in 2003. [Macro panels](international-macro.md) support these single-valued series through explicit `last`/`mean` aggregation with original dates.
+
+## Euro area and Australia
+
+`euro_area_yields` requires `series=aaa_spot` or `series=all_spot`. ECB YC publishes separate fitted, continuously compounded zero-coupon spot curves for AAA-rated and all-rated euro area central-government bonds. These are composite euro area curves, not Germany, France, Italy, the UK or all European sovereigns. Atlas uses `country=EA` as a region label and retains ECB reference area `U2`; currency stays EUR.
+
+The 11 selected tenors are 3/6 months and 1/2/3/5/7/10/15/20/30 years. Fixed requests select the exact rating universe, spot-rate codes and one calendar year per file. The parser checks full series keys, conflicting dimension fields, `UNIT=PCPA`, zero unit multiplier, dates and observation status. Unknown/missing statuses do not become observed rates; duplicate tenor/date rows fail. No par-to-spot, compounding or currency conversion is performed.
+
+`australia_yields` reads the RBA F2 CSV and maps the exact daily nominal series `FCMYGBAG2D`, `FCMYGBAG3D`, `FCMYGBAG5D`, `FCMYGBAG10D`, regardless of column position. Daily-frequency and percent-unit metadata are required. RBA's published interpolation is identified in `rate_type`; Atlas performs no extra interpolation. Indexed bonds in the same table are excluded, and no unsupported 30-year or Australian inflation-compensation curve is invented. The source compounding convention is preserved without claiming that it has been normalized to ECB continuous compounding.
+
+Both datasets accept an optional `year` or paired inclusive observation dates. ECB coverage starts in 2004 and RBA F2 in 2013. The standard 30-calendar-year bound applies. ECB changes use selected source years and expose a missing predecessor before that window; RBA can use a preceding row from its published full-history file. Null preceding values are not skipped. Limits apply after date filtering; the latest complete selected tenor set takes 11 ECB records or four RBA records.
+
+All values keep original CSV row/column evidence, publisher attribution, `rate_type`, `compounding`, `curve_universe`, country and currency. Compact field selection retains these interpretation fields. Source estimations are publisher observations; Atlas's own slopes/butterflies/changes are separately marked derived.
+
+Registered `macro_analytics` series add:
+
+- `euro_aaa_spread_10y_2y`, `_30y_5y`, `_30y_10y`, `euro_aaa_butterfly_2y_5y_10y` and `euro_aaa_yield_change_2y`, `_5y`, `_10y`, `_30y`.
+- The same eight names with the `euro_all` prefix use only the all-rating curve.
+- `australia_spread_10y_2y`, `_10y_3y`, `australia_butterfly_2y_5y_10y` and `australia_yield_change_2y`, `_3y`, `_5y`, `_10y`.
+
+They use the existing exact basis-point formulas within one source convention. The AAA/all-rating distinction is not an individual sovereign credit spread. Cross-country yields are not made economically equivalent by sharing a unit label.
+
+```sh
+uv run --offline atlas research get euro_area_yields --series aaa_spot --year 2026 --limit 11 --provider fixture --json
+uv run --offline atlas research get australia_yields --year 2026 --limit 4 --provider fixture --json
+uv run --offline atlas research preset euro_area_bond_context --year 2026 --provider fixture --json
+uv run --offline atlas research preset australia_bond_context --year 2026 --provider fixture --json
+uv run --offline atlas research preset global_bond_context --year 2026 --provider fixture --json
+```
+
+The regional presets add curves, local shapes/changes and reference EUR/USD or AUD/USD. The global preset retrieves US nominal/real, Japanese, both euro area and Australian curves, three reference FX pairs and SOFR in ten independent items. It uses the same six research MCP tools, with preview, per-item quality controls and resolved evidence. It does not imply synchronized observations, a currency-hedged return or a global bond risk model.
+
+Public execution requires HTTPS access to `data-api.ecb.europa.eu` and `www.rba.gov.au`. ECB/RBA wire contracts were inspected through public code references; direct live retrieval and the current source-terms pages remain unverified under development-host restrictions. Preserve [ECB conditions](https://www.ecb.europa.eu/services/using-our-site/disclaimer/html/index.en.html), [RBA copyright/third-party exceptions](https://www.rba.gov.au/copyright/) and original provider notices. Fixture values are fictional.
 
 ## Bond presets through one connection
 

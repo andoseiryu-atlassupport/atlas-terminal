@@ -38,6 +38,8 @@ Results include missing-data status, periods, coverage and source terms. Discove
 
 Government-bond research adds `jgb_yields` with an optional `year` or paired observation dates and `limit`, plus US/Japan curve analytics through `macro_analytics`. Three bond presets combine curves, local changes, funding and FX using the same interfaces. [Datasets, exact series names and CSV evidence](fixed-income.md).
 
+Euro area and Australian government research uses `euro_area_yields` (required `series` of `aaa_spot` or `all_spot`) and `australia_yields`. Both accept `year` or paired observation dates and `limit`. ECB spot rates remain distinct from nominal par/benchmark yields. [Regional contracts and presets](fixed-income.md#euro-area-and-australia).
+
 ## Examples
 
 These examples use fictional data without network access. For public sources, use `--provider public` and replace `ATLASDEMO` with a real ticker or CIK.

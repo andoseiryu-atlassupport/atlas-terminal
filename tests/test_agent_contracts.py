@@ -58,6 +58,8 @@ def query(dataset="statements", **extra):
         )
     if dataset == "national_accounts":
         result["series"] = "gdp_real"
+    if dataset == "euro_area_yields":
+        result.update(series="aaa_spot", year=2026)
     if dataset == "fx_rates":
         result.update(base_currency="USD", quote_currency="JPY")
     if dataset in {"reference_rates", "macro_analytics"}:
