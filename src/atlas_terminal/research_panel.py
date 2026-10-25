@@ -20,6 +20,8 @@ SUPPORTED = {
     "reference_rates",
     "macro_analytics",
     "international_economics",
+    "europe_economics",
+    "uk_economics",
 }
 MAX_PANEL_BYTES = 4 * 1024 * 1024
 CONTEXT = (
@@ -32,6 +34,9 @@ CONTEXT = (
     "metric_name",
     "base_currency",
     "quote_currency",
+    "reference_area",
+    "reference_period_kind",
+    "reference_period_months",
 )
 
 

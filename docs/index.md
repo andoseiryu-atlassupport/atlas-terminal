@@ -1,6 +1,6 @@
 # Financial data for AI agents through one MCP connection
 
-Atlas Terminal connects AI agents to company financials, US/Japan and international macro indicators and reference foreign exchange data from free public primary sources. One MCP connection exposes 29 datasets, eleven multi-source presets and traceable evidence. A Python SDK, CLI and HTTP API use the same services. Research needs no data subscription, wallet or built-in LLM. BEA national accounts require a free registered API key.
+Atlas Terminal connects AI agents to company financials, US/Japan and international macro indicators and reference foreign exchange data from free public primary sources. One MCP connection exposes 31 datasets, sixteen multi-source presets and traceable evidence. A Python SDK, CLI and HTTP API use the same services. Research needs no data subscription, wallet or built-in LLM. BEA national accounts require a free registered API key.
 
 US/Japan/euro area/Australia [government-bond research](fixed-income.md) adds Japanese 1–40-year curves, local slopes, butterflies, rate changes and US nominal/real par inflation-compensation proxies with original inputs.
 

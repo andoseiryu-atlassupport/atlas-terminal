@@ -14,6 +14,8 @@ uv run atlas research check-sources --sources ecb --max-observation-lag-days 7 -
 | ----------------- | ---------------------------------------------------------------- |
 | `sec`             | AAPL current issuer directory resolution and submissions profile |
 | `bls`             | Registration-free CPI observations                               |
+| `eurostat`        | Current ECOICOP-v2 euro-area HICP annual change                  |
+| `ons`             | UK all-items CPI index                                           |
 | `ecb`             | ECB reference USD/JPY using same-date EUR inputs                 |
 | `new_york_fed`    | Overnight EFFR and SOFR                                          |
 | `treasury`        | Current-year nominal curve, real curve and 10Y–2Y spread         |
@@ -47,6 +49,8 @@ Runner-local baselines are temporary in this workflow. Persistent cross-run comp
 
 Parser, fingerprint, failure-isolation, source-contact separation, baseline persistence and integrity tests use fictional inputs and HTTP MockTransport. They do not establish actual source connectivity. In the recorded implementation environment, the enforced outbound allowlist excludes official data hosts, so live probes remain unverified. An operator must allow the intended endpoints before running them; SEC additionally needs its private contact setting, and BEA needs its free registered key.
 
-The required direct-request hosts are `www.ecb.europa.eu`, `markets.newyorkfed.org`, `api.bls.gov`, `home.treasury.gov`, `api.fiscaldata.treasury.gov`, `www.federalreserve.gov`, `www.sec.gov` `data.sec.gov`, `apps.bea.gov`, `www.stat-search.boj.or.jp` `dashboard.e-stat.go.jp`, `api.imf.org` and `sdmx.oecd.org`. Atlas still enforces its narrower fixed URL catalog and refuses redirects. Keep TLS verification and the execution environment's proxy path enabled.
+The required direct-request hosts include `www.ecb.europa.eu`, `markets.newyorkfed.org`, `api.bls.gov`, `home.treasury.gov`, `api.fiscaldata.treasury.gov`, `www.federalreserve.gov`, `www.sec.gov`, `data.sec.gov`, `apps.bea.gov`, `www.stat-search.boj.or.jp`, `dashboard.e-stat.go.jp`, `api.imf.org`, `sdmx.oecd.org`, `www.mof.go.jp`, `data-api.ecb.europa.eu`, `www.rba.gov.au`, `ec.europa.eu` and `www.ons.gov.uk`. Atlas still enforces its narrower fixed URL catalog and refuses redirects. Keep TLS verification and the execution environment's proxy path enabled.
+
+Eurostat HICP and ONS CPI add two fixed observation probes. Select `--sources eurostat,ons` to check their live parsers on a host with permitted network access. These checks are distinct from fictional offline contract tests. [Statistical definitions and current HICP selection](economic-indicators.md).
 
 [Agent requirements](agents.md#require-data-quality-explicitly) · [Source conditions](../DATA_SOURCES.md) · [Validation scope](verification.md)

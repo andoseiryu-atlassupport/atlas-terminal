@@ -1,0 +1,30 @@
+{
+  "description": {
+    "cdid": "IHYQ",
+    "datasetId": "PN2",
+    "title": "SYNTHETIC: UK real GDP quarter-on-quarter growth, not annualized",
+    "unit": "%",
+    "releaseDate": "2026-10-20T00:00:00.000Z",
+    "synthetic": true
+  },
+  "quarters": [
+    {
+      "date": "2026 Q1",
+      "value": "100.00"
+    },
+    {
+      "date": "2026 Q2",
+      "value": "101.2500"
+    },
+    {
+      "date": "2026 Q3",
+      "value": "102.5000"
+    }
+  ],
+  "years": [
+    {
+      "date": "2026",
+      "value": "999999"
+    }
+  ]
+}

@@ -8,6 +8,8 @@ Three additional government-bond presets, `us_bond_context`, `japan_bond_context
 
 ## Discover and preview
 
+Five additional economic presets accept optional paired observation dates: `japan_activity_overview` (10 items), `us_activity_overview` (10), `euro_area_macro_overview` (9), `uk_macro_overview` (6) and `global_macro_overview` (10). They cover GDP, real activity, consumption and labour/price indicators through existing batches, with selection, preview and independent errors. BEA items require a free key; other included statistical sources do not. Definitions, annualization, euro-area composition and UK three-month rolling unemployment remain source-specific. [Exact series, source contracts and remaining gaps](economic-indicators.md).
+
 `atlas_research_catalog` includes a `presets` section with preset names, accepted parameters, required fields and item IDs. The full catalog includes input and output schemas; `view="compact"` omits them. Discovery and preview make no source requests.
 
 | Preset                 | Parameters                                                                             | Included item IDs                                                                                                              |

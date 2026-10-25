@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Add 81 registered official macro selections: twelve Japanese GDP/activity/price/labour/housing series, eight BLS price/labour series, eight BEA demand/consumption/saving series, 48 Eurostat European selections and five UK ONS series.
+- Add strict Eurostat JSON-stat 2.0 and ONS time-series adapters, current ECOICOP-v2 HICP selection, quarterly Japanese Dashboard periods and explicit UK rolling unemployment windows, preserving exact values and original evidence.
+- Add Japanese/US activity, euro-area/UK and global macro presets through the existing six research tools, plus searchable definitions, calendar panels, diagnostics and source probes. New live-source compatibility remains unverified; consensus and release vintages are unavailable.
+
 - Add ECB AAA/all-rating euro area zero-coupon spot curves and RBA nominal government curves with strict series, unit, frequency and original CSV-cell evidence.
 - Add 23 regional curve calculations, European/Australian presets and a four-region government-bond preset through the existing research interfaces; retain curve universe and compounding without cross-country conversions.
 

@@ -10,11 +10,11 @@ Version 0.7.0 includes the experimental native factor risk extension and install
 | --------------------------------------------------------- | ----------------------------------------------------------- |
 | `uv run --offline ruff check .`                           | PASS                                                        |
 | `uv run --offline ruff format --check .`                  | PASS                                                        |
-| `uv run --offline mypy`                                   | PASS; 58 source files                                       |
-| `uv run --offline pytest`                                 | PASS; 926 tests, 2 live tests deselected                    |
+| `uv run --offline mypy`                                   | PASS; 61 source files                                       |
+| `uv run --offline pytest`                                 | PASS; 1,053 tests, 2 live tests deselected                  |
 | `uv run --offline python -m build --no-isolation`         | PASS; wheel and source distribution                         |
 | `uv run --offline python scripts/verify_distribution.py`  | PASS; metadata, required contents and forbidden paths       |
-| `uv run --offline python scripts/build_docs.py`           | PASS; 46 HTML pages and internal file/section links         |
+| `uv run --offline python scripts/build_docs.py`           | PASS; 47 HTML pages and internal file/section links         |
 | `uv run --offline python scripts/verify_showcases.py`     | PASS; both recorded versions, data modes and checksums      |
 | `uv run --offline python scripts/prepare_distribution.py` | PREPARED; versioned plugin ZIP and Registry draft           |
 | `npm run check`                                           | PASS; Prettier and whitespace                               |
@@ -23,6 +23,16 @@ Version 0.7.0 includes the experimental native factor risk extension and install
 Default tests prohibit IP sockets and use fictional sources or mocked transports. They do not retrieve live official data or transfer funds. Archive validation rejects private/runtime paths, dependency trees, unsafe paths and links; source archives contain project source and verification material rather than installed dependencies. The credential-pattern scan is a heuristic, not a guarantee against every secret format.
 
 Test cases use isolated private state directories so repeated verification does not consume an operator's persistent cache quota. The numerical and protocol assertions remain unchanged.
+
+## Expanded official economic indicators
+
+On 2026-10-25 (UTC), all 1,053 offline tests passed, with two live cases deselected. The source catalog has 31 datasets, 16 source families and 16 presets. Registries contain 16 BLS, 16 BEA, 22 Japanese, 48 European and five UK economic selections: 81 additional country/measure selections, including regional variants. The existing six research-only MCP tools are unchanged.
+
+The 95 new regional cases cover exact Eurostat dataset/dimension/agency/unit/adjustment identity, current ECOICOP-v2 HICP selectors, dense/sparse JSON-stat cells and time-dimension positions, missing/zero/negative values, exact JSON decimals, category/index/period bounds, forecast handling, ONS CDID/dataset/frequency identity, original labels and three-month unemployment windows, quarterly Japanese Dashboard periods and metadata-title agreement, endpoint allowlists, evidence hashes, compact context, source requirements, search, presets, panels, CLI/HTTP and a real official stdio MCP session. Expanded BEA/Japan registries also run through existing per-series evidence checks. All source bytes are fictional. Two existing fictional BEA table fixtures were deliberately extended with additional lines while retaining their existing values; showcase bytes and checksums remain unchanged.
+
+Ruff, formatting and mypy passed for 61 source files. Wheel/source archive validation passed with 206 wheel files and 391 source files; documentation and internal links passed for 47 pages. A rebuilt wheel was installed offline with locked dependencies into a fresh environment: imports resolved inside that installation outside the source checkout, and all 107 fictional statistical selections plus the five new presets executed. Plugin/Registry files were prepared locally without publication. These additions are an unreleased source extension, not replacement assets for `v0.7.0`.
+
+Official Dashboard monthly/quarterly API and survey-code manuals, Eurostat API specifications and 2026 HICP transition information, and ONS series pages/API guidance and current OGL terms were inspected. This establishes documented source contracts, not actual live API compatibility. Direct official-source requests are blocked by this environment's outbound host policy; new Dashboard selectors, Eurostat/ONS API responses and runtime availability remain unverified. Missing/ambiguous Dashboard metadata fails explicitly. Definitions, units, index bases, annualization, changing euro-area membership and overlapping UK labour windows are not harmonized. See [coverage and remaining gaps](economic-indicators.md).
 
 ## Euro area and Australian government bonds
 

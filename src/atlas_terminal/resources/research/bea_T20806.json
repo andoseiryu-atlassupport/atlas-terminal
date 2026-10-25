@@ -1,0 +1,60 @@
+{
+  "BEAAPI": {
+    "Request": {
+      "RequestParam": []
+    },
+    "Results": {
+      "Data": [
+        {
+          "TableName": "T20806",
+          "SeriesCode": "SYNTH_pce_real",
+          "LineNumber": "45",
+          "LineDescription": "Personal consumption expenditures",
+          "TimePeriod": "2025M09",
+          "Metric_Name": "Chained Dollars",
+          "CL_UNIT": "Billions of chained 2017 dollars",
+          "UNIT_MULT": "9",
+          "DataValue": "100.25"
+        },
+        {
+          "TableName": "T20806",
+          "SeriesCode": "SYNTH_pce_real",
+          "LineNumber": "45",
+          "LineDescription": "Personal consumption expenditures",
+          "TimePeriod": "2026M07",
+          "Metric_Name": "Chained Dollars",
+          "CL_UNIT": "Billions of chained 2017 dollars",
+          "UNIT_MULT": "9",
+          "DataValue": "102.25"
+        },
+        {
+          "TableName": "T20806",
+          "SeriesCode": "SYNTH_pce_real",
+          "LineNumber": "45",
+          "LineDescription": "Personal consumption expenditures",
+          "TimePeriod": "2026M08",
+          "Metric_Name": "Chained Dollars",
+          "CL_UNIT": "Billions of chained 2017 dollars",
+          "UNIT_MULT": "9",
+          "DataValue": "104.25"
+        },
+        {
+          "TableName": "T20806",
+          "SeriesCode": "SYNTH_pce_real",
+          "LineNumber": "45",
+          "LineDescription": "Personal consumption expenditures",
+          "TimePeriod": "2026M09",
+          "Metric_Name": "Chained Dollars",
+          "CL_UNIT": "Billions of chained 2017 dollars",
+          "UNIT_MULT": "9",
+          "DataValue": "106.25"
+        }
+      ],
+      "Notes": [
+        {
+          "NoteText": "Fictional test data; not BEA observations."
+        }
+      ]
+    }
+  }
+}

@@ -20,6 +20,8 @@ def research_documentation(dataset: str) -> dict[str, str]:
         "policy_news",
         "national_accounts",
         "japan_economics",
+        "europe_economics",
+        "uk_economics",
         "sdmx_catalog",
         "international_economics",
         "macro_panel",

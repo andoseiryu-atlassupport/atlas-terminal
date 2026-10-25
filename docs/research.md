@@ -22,7 +22,7 @@ Results include missing-data status, periods, coverage and source terms. Discove
 | `ownership_filings`        | 13D/13G beneficial ownership reports                           | `identifier`, `limit`                                        | Filing references                   |
 | `fund_filings`             | N-PORT, N-PX, N-CSR and related reports                        | `identifier`, `limit`                                        | Filing references                   |
 | `corporate_action_filings` | Current reports, proxies, offerings and tender-related filings | `identifier`, `limit`                                        | Filing references                   |
-| `economics`                | Eight BLS inflation/employment series                          | `series`, `limit`                                            | Economic observations               |
+| `economics`                | Sixteen BLS price/labour series                                | `series`, `limit`, optional paired dates                     | Economic observations               |
 | `treasury_yields`          | Daily Treasury par yields                                      | `year`, `limit`                                              | Observations by date and maturity   |
 | `fx_rates`                 | ECB daily reference FX, with inverse/cross calculations        | Required `base_currency`, `quote_currency`; optional `limit` | Dated quote units per base unit     |
 | `reference_rates`          | New York Fed overnight EFFR/SOFR                               | Required `series`; optional `limit`                          | Effective daily observations        |
@@ -30,6 +30,8 @@ Results include missing-data status, periods, coverage and source terms. Discove
 | `macro_analytics`          | CPI/core CPI YoY, payroll change and 10Y–2Y nominal spread     | Required `series`; optional `year`, `limit`                  | Derived values with original inputs |
 | `federal_debt`             | Debt to the Penny                                              | `limit`                                                      | Daily debt observations             |
 | `policy_news`              | Federal Reserve releases                                       | `limit`                                                      | Headlines, dates and source links   |
+| `europe_economics`         | Eurostat GDP, HICP, labour, industry and retail                | `series`, `limit`, optional paired dates                     | European economic observations      |
+| `uk_economics`             | ONS CPI, GDP and rolling unemployment                          | `series`, `limit`, optional paired dates                     | UK economic observations            |
 | `compare`                  | Common reported period for up to ten specified issuers         | `identifiers`, `metrics`, `period`, `allow_partial`          | Aligned reported/derived financials |
 
 `identifier` accepts a ticker, CIK or company name. For 13F, use the **reporting manager's CIK**. An issuer CIK does not reverse-search every manager holding that issuer. Insider reports are likewise limited to the resolved filing history. Omitting `accession` selects the latest matching filing. Original filings and amendments are not merged automatically.
@@ -161,7 +163,7 @@ XML discovery uses filing history and safe directory filenames, examining at mos
 
 ## Economics and policy
 
-BLS `series` accepts `cpi`, `cpi_sa`, `core_cpi`, `unemployment`, `participation`, `payrolls`, `hourly_earnings` and `job_openings`, or their registered series IDs. Unregistered V1 retrieval defaults to the latest three years; paired `start_date`/`end_date` select up to 30 calendar years in ten-year POST requests. Units, seasonal adjustment, footnotes and M13 annual averages are preserved. The raw `economics` dataset does not calculate changes or reconstruct release-time vintages. `macro_analytics` calculates changes from exact monthly inputs in the selected current/revised source history. A shared cache and private database enforce 25 HTTP attempts per UTC day. Other programs and users sharing an IP may consume the upstream allowance first.
+BLS `series` accepts sixteen registered selectors or their official IDs. The original selectors are `cpi`, `cpi_sa`, `core_cpi`, `unemployment`, `participation`, `payrolls`, `hourly_earnings` and `job_openings`; [eight additional price/labour selectors](economic-indicators.md#us-additions) cover PPI, manufacturing, hours, JOLTS flows and long-term unemployment. Unregistered V1 retrieval defaults to the latest three years; paired `start_date`/`end_date` select up to 30 calendar years in ten-year POST requests. Units, seasonal adjustment, footnotes and M13 annual averages are preserved. The raw `economics` dataset does not calculate changes or reconstruct release-time vintages. `macro_analytics` calculates changes from exact monthly inputs in the selected current/revised source history. A shared cache and private database enforce 25 HTTP attempts per UTC day. Other programs and users sharing an IP may consume the upstream allowance first.
 
 Treasury yields use the selected year's nominal par curve. Each record is one date/maturity pair, so a record limit can truncate a day's curve; coverage identifies truncation. Fiscal Data returns one page of at most 500 recent records. Federal Reserve output contains retained official headlines and links, not general company news or article bodies.
 
@@ -177,7 +179,7 @@ Consolidated prices, daily prices and adjustment factors, order books, options, 
 
 ## National accounts and Japanese macro
 
-`national_accounts` adds eight BEA series: nominal/real GDP, annualized GDP growth, PCE/core PCE indexes, personal/disposable income and personal consumption. Public retrieval requires a free registered `BEA_API_KEY`. `japan_economics` adds ten BOJ/Statistical Dashboard series without registration: prices, unemployment, short rates, Tokyo FX, Tankan and money/credit statistics. Both support paired observation dates, exact units and original byte evidence. See the [series catalog, history rules and examples](macro.md).
+`national_accounts` adds sixteen BEA series: nominal/real GDP, annualized GDP growth, PCE/core PCE indexes, personal/disposable income and personal consumption. Public retrieval requires a free registered `BEA_API_KEY`. `japan_economics` adds twenty-two BOJ/Statistical Dashboard series without registration: prices, unemployment, short rates, Tokyo FX, Tankan and money/credit statistics. Both support paired observation dates, exact units and original byte evidence. `europe_economics` and `uk_economics` add Eurostat/ONS GDP, prices, employment and real activity through the same interfaces. [Expanded economic indicators](economic-indicators.md). See the [series catalog, history rules and examples](macro.md).
 
 ## International discovery and macro panels
 

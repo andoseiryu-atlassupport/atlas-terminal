@@ -136,6 +136,50 @@
           "CL_UNIT": "Billions of dollars",
           "UNIT_MULT": "9",
           "DataValue": "106.25"
+        },
+        {
+          "TableName": "T20600",
+          "SeriesCode": "SYNTH_personal_saving_rate",
+          "LineNumber": "44",
+          "LineDescription": "Personal saving as a percentage of disposable personal income",
+          "TimePeriod": "2025M09",
+          "Metric_Name": "Percent",
+          "CL_UNIT": "Percent",
+          "UNIT_MULT": "0",
+          "DataValue": "100.25"
+        },
+        {
+          "TableName": "T20600",
+          "SeriesCode": "SYNTH_personal_saving_rate",
+          "LineNumber": "44",
+          "LineDescription": "Personal saving as a percentage of disposable personal income",
+          "TimePeriod": "2026M07",
+          "Metric_Name": "Percent",
+          "CL_UNIT": "Percent",
+          "UNIT_MULT": "0",
+          "DataValue": "102.25"
+        },
+        {
+          "TableName": "T20600",
+          "SeriesCode": "SYNTH_personal_saving_rate",
+          "LineNumber": "44",
+          "LineDescription": "Personal saving as a percentage of disposable personal income",
+          "TimePeriod": "2026M08",
+          "Metric_Name": "Percent",
+          "CL_UNIT": "Percent",
+          "UNIT_MULT": "0",
+          "DataValue": "104.25"
+        },
+        {
+          "TableName": "T20600",
+          "SeriesCode": "SYNTH_personal_saving_rate",
+          "LineNumber": "44",
+          "LineDescription": "Personal saving as a percentage of disposable personal income",
+          "TimePeriod": "2026M09",
+          "Metric_Name": "Percent",
+          "CL_UNIT": "Percent",
+          "UNIT_MULT": "0",
+          "DataValue": "106.25"
         }
       ],
       "Notes": [

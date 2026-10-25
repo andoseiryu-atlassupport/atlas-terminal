@@ -29,6 +29,11 @@ from atlas_terminal.research_quality import (
 from atlas_terminal.util import Database, canonical, digest, stamp, state_dir
 
 PROBES: dict[str, tuple[str, dict[str, Any]]] = {
+    "eurostat_hicp": (
+        "eurostat",
+        {"dataset": "europe_economics", "series": "ea_hicp_yoy", "limit": 1},
+    ),
+    "ons_cpi": ("ons", {"dataset": "uk_economics", "series": "cpi", "limit": 1}),
     "ecb_aaa_curve": ("ecb", {"dataset": "euro_area_yields", "series": "aaa_spot", "limit": 11}),
     "ecb_all_curve": ("ecb", {"dataset": "euro_area_yields", "series": "all_spot", "limit": 11}),
     "rba_curve": ("rba", {"dataset": "australia_yields", "limit": 4}),

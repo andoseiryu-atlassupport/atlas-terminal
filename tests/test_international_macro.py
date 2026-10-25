@@ -306,7 +306,10 @@ def test_registered_series_search_filters_return_executable_queries_and_stay_off
         search="物価", country="JP", frequency="monthly", source_id="estat"
     )
     rows = result["series_search"]["records"]
-    assert [row["query"] for row in rows] == [{"dataset": "japan_economics", "series": "cpi"}]
+    assert [row["query"] for row in rows] == [
+        {"dataset": "japan_economics", "series": "cpi"},
+        {"dataset": "japan_economics", "series": "core_cpi"},
+    ]
     assert result["series_search"]["network_access"] is False
     for row in Atlas.research_catalog()["series_search"]["records"]:
         parse_research(row["query"])

@@ -29,6 +29,10 @@ from atlas_terminal.regional_bond_sources import (
     parse_ecb_curve,
     parse_rba_curve,
 )
+from atlas_terminal.regional_economic_sources import (
+    REGIONAL_ECONOMIC_SOURCES,
+    regional_economic_identity,
+)
 from atlas_terminal.sdmx_sources import BASES, SDMX_SOURCES, sdmx_source, valid_sdmx_url
 from atlas_terminal.util import state_dir
 
@@ -71,6 +75,39 @@ BLS_SERIES = {
         True,
     ),
     "job_openings": ("JTS000000000000000JOL", "Total nonfarm job openings", "thousand_jobs", True),
+    "ppi_final_demand": ("WPSFD4", "PPI final demand", "index_2009_11_100", True),
+    "manufacturing_payrolls": (
+        "CES3000000001",
+        "Manufacturing payroll employment",
+        "thousand_persons",
+        True,
+    ),
+    "average_weekly_hours": (
+        "CES0500000002",
+        "Average weekly hours, all private employees",
+        "hours_per_week",
+        True,
+    ),
+    "employment_population_ratio": (
+        "LNS12300000",
+        "Employment-population ratio, age 16 and over",
+        "percent",
+        True,
+    ),
+    "job_quits": ("JTS000000000000000QUL", "Total nonfarm quits", "thousand_jobs", True),
+    "job_hires": ("JTS000000000000000HIL", "Total nonfarm hires", "thousand_jobs", True),
+    "job_layoffs": (
+        "JTS000000000000000LDL",
+        "Total nonfarm layoffs and discharges",
+        "thousand_jobs",
+        True,
+    ),
+    "long_term_unemployment": (
+        "LNS13008636",
+        "Unemployed for 27 weeks and over",
+        "thousand_persons",
+        True,
+    ),
 }
 
 SOURCE_CATALOG = {
@@ -203,6 +240,7 @@ SOURCE_CATALOG = {
 }
 SOURCE_CATALOG.update(ECONOMIC_SOURCES)
 SOURCE_CATALOG.update(SDMX_SOURCES)
+SOURCE_CATALOG.update(REGIONAL_ECONOMIC_SOURCES)
 
 
 def bls_url(series_id: str, first: int, last: int) -> str:
@@ -267,6 +305,7 @@ class PublicTransport(CachedHTTPTransport):
             or valid_bls_url(url)
             or validate_economic_url(url)
             or valid_sdmx_url(url)
+            or regional_economic_identity(url) is not None
             or re.fullmatch(re.escape(TREASURY_BASE) + r"(?:199[0-9]|20[0-9]{2}|2100)", url)
             or re.fullmatch(re.escape(TREASURY_REAL_BASE) + r"(?:200[3-9]|20[1-9][0-9]|2100)", url)
         ):
@@ -286,6 +325,7 @@ class PublicTransport(CachedHTTPTransport):
             return
         if (
             url.startswith((BLS_BASE, BEA_BASE + "?", BOJ_BASE + "?"))
+            or regional_economic_identity(url) is not None
             or url == DEBT_URL
             or url in NYFED_RATES.values()
         ):
@@ -302,6 +342,8 @@ class PublicTransport(CachedHTTPTransport):
 
     def request(self, url: str, headers: dict[str, str]) -> Any:
         self.validate_url(url)
+        if regional_economic_identity(url) is not None:
+            headers = {**headers, "Accept": "application/json"}
         if ecb_curve_identity(url) is not None or url == RBA_URL:
             headers = {**headers, "Accept": "text/csv"}
         if sdmx_source(url):
@@ -379,7 +421,9 @@ class PublicFixtures:
 
     def get(self, url: str, ttl: int) -> Snapshot:
         PublicTransport.validate_url(url)
-        if source := sdmx_source(url):
+        if regional := regional_economic_identity(url):
+            name = f"{regional[0]}_{regional[1]}.json"
+        elif source := sdmx_source(url):
             kind = "structure" if url.startswith(BASES[source] + "/dataflow/") else "data"
             name = f"sdmx_{source}_{kind}.xml"
         elif url.startswith(BLS_BASE):
@@ -406,7 +450,18 @@ class PublicFixtures:
                 )
                 name = "estat_" + key + "_metadata.xml"
             else:
-                key = "cpi" if p["IndicatorCode"] == ["9900000000000000001"] else "unemployment"
+                codes = {"9900000000000000001": "cpi", "9900000000000000002": "unemployment"}
+                for key, spec in JAPAN_SERIES.items():
+                    if spec["source_id"] == "estat" and key not in {"cpi", "unemployment"}:
+                        body = (
+                            files("atlas_terminal")
+                            .joinpath("resources", "research", f"estat_{key}_metadata.xml")
+                            .read_bytes()
+                        )
+                        code = xml_root(body).find("METADATA_INF/CLASS_INF/CLASS_OBJ")
+                        assert code is not None
+                        codes[code.get("code", "")] = key
+                key = codes[p["IndicatorCode"][0]]
                 name = "estat_" + key + ".xml"
         elif url == ECB_FX_URL:
             name = "fx.xml"

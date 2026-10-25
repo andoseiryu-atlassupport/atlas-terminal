@@ -13,6 +13,19 @@ BOJ_BASE = "https://www.stat-search.boj.or.jp/api/v1/getDataCode"
 ESTAT_BASE = "https://dashboard.e-stat.go.jp/api/1.0/Xml/"
 
 
+def estat_cycle(series: str) -> str:
+    return "2" if JAPAN_SERIES[series]["frequency"] == "QUARTERLY" else "1"
+
+
+def estat_period(series: str, observed: str) -> str:
+    point = date.fromisoformat(observed)
+    return (
+        f"{point.year}{(point.month - 1) // 3 + 1}Q00"
+        if estat_cycle(series) == "2"
+        else observed[:7].replace("-", "") + "00"
+    )
+
+
 def bea_key() -> str:
     key = os.environ.get("BEA_API_KEY", "")
     if not re.fullmatch(r"[A-Za-z0-9-]{36}", key):
@@ -77,7 +90,7 @@ def estat_metadata_url(series: str) -> str:
                 "Lang": "JP",
                 "StatCode": spec["database"],
                 "SearchIndicatorWord": spec["code"],
-                "Cycle": "1",
+                "Cycle": estat_cycle(series),
                 "RegionalRank": "2",
                 "IsSeasonalAdjustment": "2" if spec["seasonally_adjusted"] else "1",
             }
@@ -95,11 +108,11 @@ def estat_data_url(series: str, code: str, start: str, end: str) -> str:
                 "Lang": "JP",
                 "IndicatorCode": code,
                 "RegionCode": "00000",
-                "Cycle": "1",
+                "Cycle": estat_cycle(series),
                 "RegionalRank": "2",
                 "IsSeasonalAdjustment": "2" if spec["seasonally_adjusted"] else "1",
-                "TimeFrom": start[:7].replace("-", "") + "00",
-                "TimeTo": end[:7].replace("-", "") + "00",
+                "TimeFrom": estat_period(series, start),
+                "TimeTo": estat_period(series, end),
                 "MetaGetFlg": "Y",
                 "SectionHeaderFlg": "1",
             }
@@ -159,9 +172,15 @@ def validate_economic_url(url: str) -> bool:
                 estat_metadata_url(k) for k, s in JAPAN_SERIES.items() if s["source_id"] == "estat"
             }
         low, high = p["TimeFrom"], p["TimeTo"]
-        if not all(re.fullmatch(r"[0-9]{6}00", v) for v in (low, high)):
-            return False
-        start, end = (date(int(v[:4]), int(v[4:6]), 1).isoformat() for v in (low, high))
+
+        def observed(value: str) -> str:
+            if re.fullmatch(r"[0-9]{4}[1-4]Q00", value):
+                return date(int(value[:4]), int(value[4]) * 3 - 2, 1).isoformat()
+            if re.fullmatch(r"[0-9]{6}00", value):
+                return date(int(value[:4]), int(value[4:6]), 1).isoformat()
+            raise ValueError("Invalid Dashboard period")
+
+        start, end = observed(low), observed(high)
         return (
             bool(re.fullmatch(r"[0-9]{19}", p["IndicatorCode"]))
             and "1900-01-01" <= start <= end <= "2100-12-31"
@@ -221,11 +240,11 @@ ECONOMIC_SOURCES = {
         "use": (
             "Credit the Statistical Dashboard API and original government "
             "survey; identify modifications and the government non-guarantee "
-            "notice. Only the curated government CPI and Labour Force Survey "
-            "series are selected."
+            "notice. Only curated public government statistical surveys are selected; "
+            "private-provider indicators on the Dashboard are excluded."
         ),
         "cadence": (
-            "Monthly statistics; publication and dashboard update dates may "
+            "Monthly and quarterly statistics; publication and dashboard update dates may "
             "differ. No registration or application ID required for this "
             "separate Dashboard API."
         ),
