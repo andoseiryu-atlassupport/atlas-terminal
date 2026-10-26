@@ -42,6 +42,11 @@ PresetName = Literal[
     "euro_area_macro_overview",
     "uk_macro_overview",
     "global_macro_overview",
+    "us_activity_extended",
+    "japan_external_corporate",
+    "australia_macro_overview",
+    "canada_macro_overview",
+    "china_macro_overview",
 ]
 PRESETS: dict[str, dict[str, Any]] = {
     "us_bond_context": {
@@ -519,6 +524,74 @@ PRESETS.update(
         },
     }
 )
+for _name, _description, _dataset, _series in (
+    (
+        "us_activity_extended",
+        (
+            "US retail, housing, durable goods, industrial activity and weekly "
+            "claims; independent sources/dates."
+        ),
+        "activity_economics",
+        [
+            "us_retail_sales",
+            "us_housing_starts",
+            "us_housing_permits",
+            "us_durable_goods_orders",
+            "us_industrial_production",
+            "us_capacity_utilization",
+            "us_initial_claims",
+            "us_continued_claims",
+        ],
+    ),
+    (
+        "japan_external_corporate",
+        (
+            "Japan machinery orders, customs trade, current account and nonfinancial "
+            "corporate profits/investment."
+        ),
+        "japan_economics",
+        [
+            "machinery_orders",
+            "trade_exports",
+            "trade_imports",
+            "trade_balance",
+            "current_account",
+            "corporate_profits",
+            "corporate_capex",
+        ],
+    ),
+    (
+        "australia_macro_overview",
+        (
+            "ABS quarterly GDP/CPI and monthly unemployment; frequencies and "
+            "geographic scope remain distinct."
+        ),
+        "activity_economics",
+        ["au_gdp_real", "au_cpi_quarterly", "au_unemployment"],
+    ),
+    (
+        "canada_macro_overview",
+        "Statistics Canada monthly CPI, unemployment and all-industry real GDP at annual rates.",
+        "activity_economics",
+        ["ca_cpi", "ca_unemployment", "ca_gdp_real"],
+    ),
+    (
+        "china_macro_overview",
+        (
+            "China OECD monthly CPI and World Bank annual GDP; not a domestic "
+            "quarterly or release-time feed."
+        ),
+        "activity_economics",
+        ["cn_cpi", "cn_cpi_yoy", "cn_gdp_growth_annual", "cn_gdp_nominal_annual"],
+    ),
+):
+    PRESETS[_name] = {
+        "description": _description,
+        "fields": ["start_date", "end_date"],
+        "required": [],
+        "items": {key: {"dataset": _dataset, "series": key, "limit": 1} for key in _series},
+    }
+
 COMMON_FIELDS = {"preset", "include", "requirements", "requirements_by_item", "view", "preview"}
 
 
@@ -700,9 +773,21 @@ def parse_preset(data: ResearchPresetQuery | dict[str, Any]) -> ResearchPresetQu
         ) from None
 
 
-def preset_plan(query: ResearchPresetQuery) -> ResearchPresetPlan:
+def preset_source(data: dict[str, Any]) -> str:
+    from atlas_terminal.activity_catalog import ACTIVITY_SERIES
+    from atlas_terminal.economic_catalog import JAPAN_SERIES
     from atlas_terminal.research import DATASETS
 
+    if data["dataset"] == "activity_economics":
+        return ACTIVITY_SERIES[data["series"]]["source_id"]
+    if data["dataset"] == "japan_economics":
+        return JAPAN_SERIES[data["series"]]["source_id"]
+    if data["dataset"] == "macro_analytics":
+        return str(MACRO_SERIES[data["series"]]["source_id"])
+    return DATASETS[data["dataset"]][1]
+
+
+def preset_plan(query: ResearchPresetQuery) -> ResearchPresetPlan:
     spec = PRESETS[query.preset]
     selected = query.include if query.include is not None else list(spec["items"])
     items = []
@@ -734,13 +819,7 @@ def preset_plan(query: ResearchPresetQuery) -> ResearchPresetPlan:
             requirements.update(query.requirements_by_item[name].model_dump(exclude_unset=True))
         data.update(requirements=requirements, response={"view": query.view})
         parse_research(data)
-        source_id = DATASETS[data["dataset"]][1]
-        if data["dataset"] == "japan_economics":
-            from atlas_terminal.economic_catalog import JAPAN_SERIES
-
-            source_id = JAPAN_SERIES[data["series"]]["source_id"]
-        if data["dataset"] == "macro_analytics":
-            source_id = MACRO_SERIES[data["series"]]["source_id"]
+        source_id = preset_source(data)
         items.append(PresetPlanItem(id=name, query=data, source_ids=[source_id]))
     parse_batch({"items": [{"id": item.id, "query": item.query} for item in items]})
     return ResearchPresetPlan(
@@ -806,8 +885,6 @@ def item_overview(item: dict[str, Any], plan: PresetPlanItem) -> ResearchItemOve
 
 
 def preset_catalog(*, include_schema: bool = True) -> dict[str, Any]:
-    from atlas_terminal.research import DATASETS
-
     result: dict[str, Any] = {
         "tool": "atlas_get_research_preset",
         "http_path": "/v1/research/preset",
@@ -822,7 +899,7 @@ def preset_catalog(*, include_schema: bool = True) -> dict[str, Any]:
                     {
                         "id": key,
                         "dataset": value["dataset"],
-                        "source_id": DATASETS[value["dataset"]][1],
+                        "source_id": preset_source(value),
                     }
                     for key, value in spec["items"].items()
                 ],

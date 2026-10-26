@@ -9,6 +9,13 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qs, urlencode
 
+from atlas_terminal.activity_sources import (
+    ACTIVITY_SOURCES,
+    G17_URLS,
+    STATCAN_BASE,
+    activity_identity,
+    activity_key,
+)
 from atlas_terminal.economic_catalog import JAPAN_SERIES
 from atlas_terminal.economic_sources import (
     BEA_BASE,
@@ -241,6 +248,14 @@ SOURCE_CATALOG = {
 SOURCE_CATALOG.update(ECONOMIC_SOURCES)
 SOURCE_CATALOG.update(SDMX_SOURCES)
 SOURCE_CATALOG.update(REGIONAL_ECONOMIC_SOURCES)
+SOURCE_CATALOG.update(ACTIVITY_SOURCES)
+SOURCE_CATALOG["federal_reserve"].update(
+    name="Federal Reserve press releases and G.17 industrial statistics",
+    use=(
+        "Official releases and G.17 industrial production/capacity utilization, "
+        "with original definitions and revised snapshots."
+    ),
+)
 
 
 def bls_url(series_id: str, first: int, last: int) -> str:
@@ -306,6 +321,7 @@ class PublicTransport(CachedHTTPTransport):
             or validate_economic_url(url)
             or valid_sdmx_url(url)
             or regional_economic_identity(url) is not None
+            or activity_identity(url) is not None
             or re.fullmatch(re.escape(TREASURY_BASE) + r"(?:199[0-9]|20[0-9]{2}|2100)", url)
             or re.fullmatch(re.escape(TREASURY_REAL_BASE) + r"(?:200[3-9]|20[1-9][0-9]|2100)", url)
         ):
@@ -314,6 +330,20 @@ class PublicTransport(CachedHTTPTransport):
 
     @staticmethod
     def validate_body(url: str, body: bytes) -> None:
+        if activity_selection := activity_identity(url):
+            if url in G17_URLS:
+                if b'"B50001:' not in body or b"\x00" in body:
+                    raise ValueError("Expected G.17 fixed-width text")
+            else:
+                value = decode_json(body)
+                if not isinstance(value, (dict, list)) or not value:
+                    raise ValueError("Expected nonempty official activity JSON")
+                if activity_selection[0] in {"census", "fred"}:
+                    if activity_key(activity_selection[0]).encode() in body:
+                        raise ValueError("Source echoed a private credential")
+                    if isinstance(value, dict) and ("error_code" in value or "error" in value):
+                        raise ValueError("Source rejected the activity request")
+            return
         if selection := ecb_curve_identity(url):
             parse_ecb_curve(Snapshot(body, url, "2000-01-01T00:00:00Z"), *selection)
             return
@@ -338,10 +368,28 @@ class PublicTransport(CachedHTTPTransport):
         self.validate_url(url)
         if url.startswith(BEA_BASE + "?"):
             bea_key()
+        if (activity := activity_identity(url)) and activity[0] in {"census", "fred"}:
+            activity_key(activity[0])
         return super().get(url, ttl, force_refresh=force_refresh)
 
     def request(self, url: str, headers: dict[str, str]) -> Any:
         self.validate_url(url)
+        if activity := activity_identity(url):
+            source, _, kind = activity
+            if source in {"census", "fred"}:
+                key_name = "key" if source == "census" else "api_key"
+                return self.client.stream(
+                    "GET",
+                    url + "&" + urlencode({key_name: activity_key(source)}),
+                    headers={**headers, "Accept": "application/json"},
+                )
+            if source == "statcan" and kind == "metadata" and "getSeriesInfoFromVector?" in url:
+                return self.client.stream(
+                    "POST",
+                    STATCAN_BASE + "getSeriesInfoFromVector",
+                    headers={**headers, "Accept": "application/json"},
+                    json=[{"vectorId": int(parse_qs(url.split("?", 1)[1])["vectorId"][0])}],
+                )
         if regional_economic_identity(url) is not None:
             headers = {**headers, "Accept": "application/json"}
         if ecb_curve_identity(url) is not None or url == RBA_URL:
@@ -421,11 +469,47 @@ class PublicFixtures:
 
     def get(self, url: str, ttl: int) -> Snapshot:
         PublicTransport.validate_url(url)
-        if regional := regional_economic_identity(url):
+        if activity := activity_identity(url):
+            source, series, kind = activity
+            name = (
+                ("g17_" + ("ip_sa.txt" if series == "us_industrial_production" else "utl_sa.txt"))
+                if source == "federal_reserve"
+                else f"activity_{series}_{kind}.json"
+            )
+        elif regional := regional_economic_identity(url):
             name = f"{regional[0]}_{regional[1]}.json"
-        elif source := sdmx_source(url):
-            kind = "structure" if url.startswith(BASES[source] + "/dataflow/") else "data"
-            name = f"sdmx_{source}_{kind}.xml"
+        elif sdmx_name := sdmx_source(url):
+            kind = "structure" if url.startswith(BASES[sdmx_name] + "/dataflow/") else "data"
+            from atlas_terminal.activity_catalog import ACTIVITY_SERIES
+            from atlas_terminal.sdmx_sources import structure_url
+
+            curated = None
+            for activity_name, activity_spec in ACTIVITY_SERIES.items():
+                if (
+                    activity_spec["source_id"] not in {"abs", "oecd"}
+                    or activity_spec["source_id"] != sdmx_name
+                ):
+                    continue
+                activity_codes = list(activity_spec.get("dimensions", {}).values())
+                flow_prefix = ",".join(activity_spec["code"].split(",")[:2]) + ","
+                structure_urls = {structure_url(sdmx_name, activity_spec["code"])}
+                if activity_spec["code"].endswith(",latest"):
+                    structure_urls.add(
+                        structure_url(
+                            sdmx_name, activity_spec["code"].removesuffix(",latest") + ",1.0.0"
+                        )
+                    )
+                if url in structure_urls or (
+                    url.startswith(BASES[sdmx_name] + "/data/" + flow_prefix)
+                    and "/" + ".".join(activity_codes) + "?" in url
+                ):
+                    curated = activity_name
+                    break
+            name = (
+                f"activity_{curated}_{kind}.xml"
+                if curated is not None
+                else f"sdmx_{sdmx_name}_{kind}.xml"
+            )
         elif url.startswith(BLS_BASE):
             name = "bls_" + url.removeprefix(BLS_BASE).split("?")[0] + ".json"
         elif url.startswith(BEA_BASE + "?"):

@@ -22,6 +22,7 @@ def research_documentation(dataset: str) -> dict[str, str]:
         "japan_economics",
         "europe_economics",
         "uk_economics",
+        "activity_economics",
         "sdmx_catalog",
         "international_economics",
         "macro_panel",
@@ -30,6 +31,8 @@ def research_documentation(dataset: str) -> dict[str, str]:
     guide = (
         "fixed-income"
         if dataset in {"jgb_yields", "euro_area_yields", "australia_yields"}
+        else "economic-indicators"
+        if dataset == "activity_economics"
         else "macro"
         if dataset in macro
         else "research"

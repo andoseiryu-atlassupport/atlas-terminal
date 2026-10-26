@@ -35,6 +35,10 @@ class SourceEvidence(BaseModel):
                         "csv_column": {"type": "integer", "minimum": 1},
                     },
                 },
+                {
+                    "required": ["text_line"],
+                    "properties": {"text_line": {"type": "integer", "minimum": 1}},
+                },
             ]
         },
     )
@@ -45,6 +49,9 @@ class SourceEvidence(BaseModel):
     xml_local_path: str | None = None
     csv_row: int | None = Field(default=None, ge=1, strict=True)
     csv_column: int | None = Field(default=None, ge=1, strict=True)
+    text_line: int | None = Field(default=None, ge=1, strict=True)
+    text_column_start: int | None = Field(default=None, ge=1, strict=True)
+    text_column_end: int | None = Field(default=None, ge=1, strict=True)
 
     @model_validator(mode="after")
     def source_identity(self) -> "SourceEvidence":
@@ -58,8 +65,18 @@ class SourceEvidence(BaseModel):
                 self.json_pointer is None
                 and self.xml_local_path is None
                 and (self.csv_row is None or self.csv_column is None)
+                and self.text_line is None
             )
             or (self.csv_row is None) != (self.csv_column is None)
+            or (self.text_column_start is None) != (self.text_column_end is None)
+            or (
+                self.text_column_start is not None
+                and (
+                    self.text_line is None
+                    or self.text_column_end is None
+                    or self.text_column_start > self.text_column_end
+                )
+            )
         ):
             raise ValueError("Source URL, time and locator are required")
         return self
@@ -127,6 +144,25 @@ CREATE TABLE IF NOT EXISTS research_evidence (
 # Field selection never strips context needed to interpret a selected value.
 # Reported inputs/formulas and per-issuer coverage remain intact too.
 CONTEXT_FIELDS = {
+    "source_value",
+    "source_dimensions",
+    "source_status",
+    "source_security_level",
+    "source_symbol",
+    "source_release_time",
+    "source_period_raw",
+    "original_producer",
+    "original_producers",
+    "disseminator",
+    "source_note",
+    "source_unit",
+    "source_indicator_title",
+    "source_description",
+    "source_last_updated",
+    "coordinate",
+    "code_metadata_source",
+    "unit_code",
+    "unit_basis",
     "id",
     "dataflow",
     "dimensions",

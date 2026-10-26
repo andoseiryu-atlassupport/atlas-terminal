@@ -12,6 +12,7 @@ from typing import Any, Literal
 from urllib.parse import urlsplit
 from xml.etree.ElementTree import Element
 
+from atlas_terminal.activity_catalog import ACTIVITY_SERIES
 from atlas_terminal.documentation import DOCUMENTATION_ORIGIN, research_documentation
 from atlas_terminal.economic_catalog import JAPAN_SERIES, NATIONAL_ACCOUNTS
 from atlas_terminal.errors import AtlasError
@@ -118,6 +119,11 @@ FAMILIES = {
     "institutional_holdings": {"13F-HR", "13F-HR/A"},
 }
 DATASETS = {
+    "activity_economics": (
+        "Official US activity/claims, Australian/Canadian macro and Chinese CPI/annual GDP",
+        "census",
+        "observations",
+    ),
     "europe_economics": (
         "Eurostat European GDP, HICP, employment, production and retail sales",
         "eurostat",
@@ -272,7 +278,7 @@ def research_catalog(
     *,
     search: str | None = None,
     country: str | None = None,
-    frequency: Literal["daily", "monthly", "quarterly", "annual"] | None = None,
+    frequency: Literal["daily", "weekly", "monthly", "quarterly", "annual"] | None = None,
     source_id: str | None = None,
     unit: str | None = None,
 ) -> dict[str, Any]:
@@ -328,8 +334,10 @@ def research_catalog(
                 "id": name,
                 "description": title,
                 "source": source,
-                "source_ids": ["imf", "oecd"]
+                "source_ids": ["imf", "oecd", "abs"]
                 if name in {"sdmx_catalog", "international_economics"}
+                else sorted({spec["source_id"] for spec in ACTIVITY_SERIES.values()})
+                if name == "activity_economics"
                 else [
                     "bls",
                     "bea",
@@ -344,6 +352,12 @@ def research_catalog(
                     "rba",
                     "eurostat",
                     "ons",
+                    "census",
+                    "federal_reserve",
+                    "fred",
+                    "abs",
+                    "statcan",
+                    "world_bank",
                 ]
                 if name == "macro_panel"
                 else ["bls", "treasury", "japan_mof", "ecb", "rba"]
@@ -374,6 +388,7 @@ def research_catalog(
         "japan_series": JAPAN_SERIES,
         "europe_series": EUROPE_SERIES,
         "uk_series": UK_SERIES,
+        "activity_series": ACTIVITY_SERIES,
         "history": {
             "date_selection": "inclusive_observation_period_end",
             "max_calendar_years": 30,
@@ -573,6 +588,7 @@ class ResearchService:
             "japan_economics",
             "europe_economics",
             "uk_economics",
+            "activity_economics",
             "sdmx_catalog",
             "international_economics",
         }:
@@ -1089,6 +1105,10 @@ class ResearchService:
 
     def public_data(self, q: ResearchQuery) -> dict[str, Any]:
         assert self.public is not None
+        if q.dataset == "activity_economics":
+            from atlas_terminal.research_activity import activity_economics
+
+            return activity_economics(self.public, q)
         if q.dataset in {"europe_economics", "uk_economics"}:
             from atlas_terminal.research_regional_economics import europe_economics, uk_economics
 

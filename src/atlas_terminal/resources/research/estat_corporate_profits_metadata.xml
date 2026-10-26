@@ -1,0 +1,2 @@
+<?xml version='1.0' encoding='utf-8'?>
+<GET_META_INDICATOR_INF><RESULT><STATUS>0</STATUS></RESULT><METADATA_INF><CLASS_INF><CLASS_OBJ name="経常利益（全産業（金融業、保険業を除く））" code="9900000000000000045"><CLASS name="経常利益（全産業（金融業、保険業を除く））" fromDate="20000100" toDate="99999999" statName="SYNTHETIC government survey" unit="SYNTHETIC million JPY"><Cycle code="2" /><RegionalRank code="2" /><IsSeasonal code="1" /></CLASS></CLASS_OBJ></CLASS_INF></METADATA_INF></GET_META_INDICATOR_INF>

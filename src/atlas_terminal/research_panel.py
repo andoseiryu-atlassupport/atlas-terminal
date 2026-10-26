@@ -22,6 +22,7 @@ SUPPORTED = {
     "international_economics",
     "europe_economics",
     "uk_economics",
+    "activity_economics",
 }
 MAX_PANEL_BYTES = 4 * 1024 * 1024
 CONTEXT = (
@@ -237,7 +238,14 @@ def macro_panel(
                 )
             context = {key: rows[0].get(key) for key in CONTEXT} if rows else {}
             input_frequency = rows[0].get("frequency") if rows else None
-            ranks = {"daily": 0, "business_daily": 0, "monthly": 1, "quarterly": 2, "annual": 3}
+            ranks = {
+                "daily": 0,
+                "business_daily": 0,
+                "weekly": 0,
+                "monthly": 1,
+                "quarterly": 2,
+                "annual": 3,
+            }
             if rows and (not context.get("unit") or input_frequency not in ranks):
                 raise AtlasError(
                     "INCOMPLETE_COVERAGE",
@@ -314,7 +322,7 @@ def macro_panel(
         "limitations": [
             "Independent current/revised reads are not atomic snapshots or release vintages.",
             "Units, base years, seasonal adjustments and definitions may differ across columns.",
-            "Daily aggregates use observed dates; complete business-day coverage is not certified.",
+            "Daily/weekly aggregates use observed dates; full calendar coverage is not certified.",
             "Last selects the last available observation, without certifying a period-end fixing.",
             "No forward filling, interpolation, upsampling, rebasing or automatic unit conversion.",
         ],

@@ -1,6 +1,6 @@
 # Discover and align macro series
 
-Series search, IMF/OECD retrieval and macro panels use the same SDK, CLI, MCP and HTTP research service. No wallet, subscription or LLM is required. Live IMF/OECD compatibility remains unverified; examples marked `fixture` use fictional source bytes.
+Series search, IMF/OECD/ABS retrieval and macro panels use the same SDK, CLI, MCP and HTTP research service. No wallet, subscription or LLM is required. Live IMF/OECD/ABS compatibility remains unverified; examples marked `fixture` use fictional source bytes.
 
 ## Search existing series
 
@@ -11,7 +11,7 @@ uv run atlas research catalog --country US --unit percent_per_annum --json
 
 The corresponding MCP call is `atlas_research_catalog` with `{"search":"inflation","country":"US","frequency":"monthly","source_id":"bls","view":"compact"}`. Python uses `Atlas.research_catalog(search="inflation", country="US")`; HTTP accepts the same filters on `GET /v1/research/catalog`.
 
-`series_search.records` contains executable query templates, source IDs, units when known, frequency, seasonal-adjustment metadata, key requirements and source terms. Search covers registered BLS/BEA/Japanese/reference-rate/derived series and supported ECB currency pairs. Text matching is case-insensitive and includes selected Japanese aliases and source series codes. All text terms must match. `country` includes `US`, `JP`, `EA`, `EU`, `DE`, `FR`, `IT`, `ES`, `GB` and `AU` for registered national/regional series; FX pairs have no country assignment. [European and UK official economic selectors](economic-indicators.md). `unit` is an exact filter; unknown source-resolved units remain null.
+`series_search.records` contains executable query templates, source IDs, units when known, frequency, seasonal-adjustment metadata, key requirements and source terms. Search covers registered BLS/BEA/Japanese/reference-rate/derived series and supported ECB currency pairs. Text matching is case-insensitive and includes selected Japanese aliases and source series codes. All text terms must match. `country` includes `US`, `JP`, `EA`, `EU`, `DE`, `FR`, `IT`, `ES`, `GB`, `AU`, `CA` and `CN` for registered national/regional series; FX pairs have no country assignment. [European and UK official economic selectors](economic-indicators.md). `unit` is an exact filter; unknown source-resolved units remain null.
 
 This search is offline. It describes supported queries, not current availability or the full BLS/BEA/BOJ universe. Results are bounded to 100 templates in full view or 20 in compact view; refine filters when `truncated=true`. The registries used by retrieval also generate these templates, so a new registered series does not need a separate search implementation.
 
@@ -32,7 +32,7 @@ Then submit `international_economics` with:
 
 | Field                    | Meaning                                                                          |
 | ------------------------ | -------------------------------------------------------------------------------- |
-| `source_id`              | `imf` or `oecd`                                                                  |
+| `source_id`              | `imf`, `oecd` or `abs`                                                           |
 | `dataflow`               | Exact returned `agency,id,version`                                               |
 | `dimensions`             | A JSON object containing every series dimension and one exact code per dimension |
 | `start_date`, `end_date` | Inclusive observation period-end filters, up to 30 calendar years                |
@@ -40,13 +40,15 @@ Then submit `international_economics` with:
 
 Atlas resolves and validates the structure before requesting data. It builds the series key in the publisher's dimension order. New dataflows or codes can be used through metadata without adding indicator-specific Python code. Arbitrary URLs, wildcard series requests, multiple codes per dimension and unknown codes are rejected. Only monthly, quarterly and annual observations are supported; unsupported structures fail explicitly.
 
-The shared parser supports SDMX 2.1 structure metadata, generic data XML and structure-specific data XML. IMF reads use its SDMX 2.1 structure and 3.0 data endpoints; OECD reads use its public SDMX REST API. Values stay decimal strings in their reported scale. Returned fields preserve dimension labels, unit codes, multipliers, base periods, adjustment, observation status and other source attributes. Missing metadata stays null. A reported value may be provisional or a forecast: inspect observation status and source definitions. No publication timestamp or vintage is inferred.
+The shared parser supports SDMX 2.1 structure metadata, generic data XML and structure-specific data XML. IMF reads use its SDMX 2.1 structure and 3.0 data endpoints; OECD and ABS reads use their public SDMX REST APIs. ABS requires no API key; its beta API may lag website releases. Values stay decimal strings in their reported scale. Returned fields preserve dimension labels, unit codes, multipliers, base periods, adjustment, observation status and other source attributes. Missing metadata stays null. A reported value may be provisional or a forecast: inspect observation status and source definitions. No publication timestamp or vintage is inferred.
 
 Metadata is cached for 24 hours and observations for six hours. OECD attempts share a persistent rolling limit of 60 per hour, including retries; upstream IP limits apply independently. Requests retain normal response-size bounds, finite retries and redirect rejection. Metadata and data source hashes are both retained. See [sources and terms](../DATA_SOURCES.md).
 
 ## Build a calendar-aligned panel
 
 `macro_panel` accepts 1–10 named series, a target frequency (`monthly`, `quarterly` or `annual`), and dates bounding complete calendar periods. Each item explicitly selects `aggregation: "last"` or `"mean"`. Dates, a 500-record read limit and full evidence are supplied by the panel; omit those fields from individual queries.
+
+The curated `activity_economics` queries also work in panels. Weekly DOL claims keep original Saturday dates and use observed-date coverage, without inventing missing weeks or a business calendar. Any returned null makes the aggregate unavailable. Annual WDI GDP cannot be upsampled to monthly/quarterly values. Source annualization, scales and frequency stay explicit; calendar grouping does not harmonize them.
 
 Run the packaged fictional IMF/OECD example:
 

@@ -8,7 +8,7 @@ uv run atlas research check-sources --sources bls,treasury --allow-network --jso
 uv run atlas research check-sources --sources ecb --max-observation-lag-days 7 --allow-network --json
 ```
 
-`--sources all` includes every source family. SEC requires a privately configured, identifying `SEC_USER_AGENT`; missing/invalid configuration reports `NOT_RUN`, independently of other probes. BEA requires a private free registered `BEA_API_KEY` and also reports `NOT_RUN` without it. Keep contact values and keys outside model inputs, source control and logs.
+`--sources all` includes every source family. SEC requires a privately configured, identifying `SEC_USER_AGENT`; missing/invalid configuration reports `NOT_RUN`, independently of other probes. BEA, Census and FRED require separate private free registered API keys and also report `NOT_RUN` without them. Keep contact values and keys outside model inputs, source control and logs.
 
 | Source ID         | Fixed probes                                                     |
 | ----------------- | ---------------------------------------------------------------- |
@@ -20,16 +20,23 @@ uv run atlas research check-sources --sources ecb --max-observation-lag-days 7 -
 | `new_york_fed`    | Overnight EFFR and SOFR                                          |
 | `treasury`        | Current-year nominal curve, real curve and 10Y–2Y spread         |
 | `fiscaldata`      | Debt to the Penny                                                |
-| `federal_reserve` | Retained official release RSS metadata                           |
+| `federal_reserve` | Official release RSS metadata and G.17 industrial production     |
 | `bea`             | Real GDP and core PCE price index                                |
 | `boj`             | Overnight call rate and large-manufacturer Tankan                |
 | `estat`           | National CPI and seasonally adjusted unemployment                |
+| `census`          | US advance retail sales                                          |
+| `fred`            | US DOL initial claims                                            |
+| `abs`             | Australian quarterly chain-volume GDP                            |
+| `statcan`         | Canadian monthly national CPI                                    |
+| `world_bank`      | Chinese annual real GDP growth                                   |
 
 Each run conditionally revalidates every used URL through the same private SEC/public cache stores, rate limits and BLS daily-attempt counter as ordinary research. A prior unexpired cache entry alone cannot satisfy the check; HTTP 304 is valid revalidation. Within a run, repeated URLs share the newly checked snapshot, including nominal Treasury data reused for the spread. Checked source bodies remain in the normal private cache with their original byte hashes and refreshed check times. Payment state is unaffected. Use the same `ATLAS_STATE_DIR` as ordinary research to share local quotas.
 
 Successful probes require parsed observations, captured source bytes and source retrieval/check times within one hour. Reports include source URLs, byte SHA-256, bounded structural SHA-256, format, latest usable observation date, returned record count and elapsed milliseconds. They do not publish full source bodies, contact headers or credentials. Source conditions remain separate; metadata-only profiles have no observation date.
 
 JSON structural fingerprints retain field names and types, excluding data values and repeated array items. Numeric-keyed SEC directory maps omit changing record IDs. XML fingerprints retain expanded element/attribute names and distinct child structures, excluding text/attribute values and repeated rows. Structural inspection stops after eight levels and bounds object field inspection to 256 keys. A new optional field or null variant can change a fingerprint without breaking the parser; drift is a review signal.
+
+G.17 direct-text probes record the documented series/year/month fixed-width layout separately from JSON/XML. A parsed activity probe remains evidence only for that selected response; it does not validate every curated selector or a future release.
 
 The private `ATLAS_STATE_DIR/source-checks.sqlite3` stores only the last successful report per fixed probe, with integrity hashes. A subsequent success reports `raw_bytes_changed`, `shape_changed`, `latest_observation_changed` and `latest_observation_regressed`. Initial comparisons are null. Failures retain the last-success baseline; integrity failures are explicit and do not overwrite it. This is not a historical value-difference feed or a reconstruction of past information availability.
 
@@ -41,15 +48,15 @@ IMF and OECD each add a dataflow-catalogue probe. A PASS for those probes checks
 
 ## Manual workflow
 
-[Official source checks](../.github/workflows/source-checks.yml) is a separate `workflow_dispatch` workflow with an explicit `allow_network` boolean and selected source IDs. It uses pinned actions, read-only repository permissions and locked dependencies. The default source list excludes SEC; selecting it requires the repository's private `SEC_USER_AGENT` secret. Selecting BEA requires the private `BEA_API_KEY` secret. Structured reports are printed even when a probe step fails. Default offline CI and pull-request tests make no live source requests.
+[Official source checks](../.github/workflows/source-checks.yml) is a separate `workflow_dispatch` workflow with an explicit `allow_network` boolean and selected source IDs. It uses pinned actions, read-only repository permissions and locked dependencies. The default source list excludes SEC; selecting it requires the repository's private `SEC_USER_AGENT` secret. Selecting BEA, Census or FRED requires the corresponding private `BEA_API_KEY`, `CENSUS_API_KEY` or `FRED_API_KEY` repository secret. Structured reports are printed even when a probe step fails. Default offline CI and pull-request tests make no live source requests.
 
 Runner-local baselines are temporary in this workflow. Persistent cross-run comparison uses the operator command on a persistent private state volume. No recurring schedule, external monitoring service or public status endpoint is installed.
 
 ## Recorded verification limits
 
-Parser, fingerprint, failure-isolation, source-contact separation, baseline persistence and integrity tests use fictional inputs and HTTP MockTransport. They do not establish actual source connectivity. In the recorded implementation environment, the enforced outbound allowlist excludes official data hosts, so live probes remain unverified. An operator must allow the intended endpoints before running them; SEC additionally needs its private contact setting, and BEA needs its free registered key.
+Parser, fingerprint, failure-isolation, source-contact separation, baseline persistence and integrity tests use fictional inputs and HTTP MockTransport. They do not establish actual source connectivity. In the recorded implementation environment, the enforced outbound allowlist excludes official data hosts, so live probes remain unverified. An operator must allow the intended endpoints before running them; SEC additionally needs its private contact setting, and BEA/Census/FRED need their separate free registered keys.
 
-The required direct-request hosts include `www.ecb.europa.eu`, `markets.newyorkfed.org`, `api.bls.gov`, `home.treasury.gov`, `api.fiscaldata.treasury.gov`, `www.federalreserve.gov`, `www.sec.gov`, `data.sec.gov`, `apps.bea.gov`, `www.stat-search.boj.or.jp`, `dashboard.e-stat.go.jp`, `api.imf.org`, `sdmx.oecd.org`, `www.mof.go.jp`, `data-api.ecb.europa.eu`, `www.rba.gov.au`, `ec.europa.eu` and `www.ons.gov.uk`. Atlas still enforces its narrower fixed URL catalog and refuses redirects. Keep TLS verification and the execution environment's proxy path enabled.
+The required direct-request hosts include `www.ecb.europa.eu`, `markets.newyorkfed.org`, `api.bls.gov`, `home.treasury.gov`, `api.fiscaldata.treasury.gov`, `www.federalreserve.gov`, `www.sec.gov`, `data.sec.gov`, `apps.bea.gov`, `www.stat-search.boj.or.jp`, `dashboard.e-stat.go.jp`, `api.imf.org`, `sdmx.oecd.org`, `www.mof.go.jp`, `data-api.ecb.europa.eu`, `www.rba.gov.au`, `ec.europa.eu`, `www.ons.gov.uk`, `api.census.gov`, `api.stlouisfed.org`, `data.api.abs.gov.au`, `www150.statcan.gc.ca` and `api.worldbank.org`. Atlas still enforces its narrower fixed URL catalog and refuses redirects. Keep TLS verification and the execution environment's proxy path enabled.
 
 Eurostat HICP and ONS CPI add two fixed observation probes. Select `--sources eurostat,ons` to check their live parsers on a host with permitted network access. These checks are distinct from fictional offline contract tests. [Statistical definitions and current HICP selection](economic-indicators.md).
 

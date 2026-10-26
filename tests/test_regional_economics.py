@@ -363,10 +363,11 @@ def test_new_schema_enforces_series_identity_and_required_fields():
 
 
 @pytest.mark.asyncio
-async def test_one_official_mcp_connection_reads_japan_europe_uk_and_evidence():
+async def test_one_official_mcp_connection_reads_japan_europe_uk_and_evidence(tmp_path):
     params = StdioServerParameters(
         command=sys.executable,
         args=["-m", "atlas_terminal", "mcp", "serve", "--research-only", "--provider", "fixture"],
+        env={"ATLAS_STATE_DIR": str(tmp_path / "mcp-state")},
     )
     async with stdio_client(params) as (reader, writer), ClientSession(reader, writer) as session:
         await session.initialize()

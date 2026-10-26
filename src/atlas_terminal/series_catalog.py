@@ -2,6 +2,7 @@
 
 from typing import Any
 
+from atlas_terminal.activity_catalog import ACTIVITY_SERIES
 from atlas_terminal.economic_catalog import JAPAN_SERIES, NATIONAL_ACCOUNTS
 from atlas_terminal.macro_catalog import CURVE_SERIES, FX_CURRENCIES, MACRO_SERIES, REFERENCE_SERIES
 from atlas_terminal.public_sources import BLS_SERIES, SOURCE_CATALOG
@@ -44,6 +45,12 @@ def series_catalog(filters: CatalogQuery) -> dict[str, Any]:
             "job_offers": ["有効求人倍率", "雇用"],
             "hicp": ["inflation", "CPI", "物価", "インフレ"],
             "ppi": ["producer price", "物価", "インフレ"],
+            "machinery": ["機械受注", "設備投資"],
+            "claims": ["失業保険", "新規申請", "雇用"],
+            "corporate": ["法人企業統計", "設備投資", "企業利益"],
+            "current_account": ["経常収支", "国際収支"],
+            "trade": ["貿易", "輸出", "輸入"],
+            "durable": ["耐久財", "受注"],
         }.items():
             if term in key:
                 aliases.extend(words)
@@ -80,6 +87,21 @@ def series_catalog(filters: CatalogQuery) -> dict[str, Any]:
             {"series": key},
             source_series=code,
             seasonally_adjusted=adjusted,
+        )
+    for key, activity in ACTIVITY_SERIES.items():
+        add(
+            "activity_economics",
+            key,
+            activity["title"],
+            activity["source_id"],
+            activity["country"],
+            activity["frequency"],
+            activity["unit"],
+            {"series": key},
+            source_series=activity["code"],
+            seasonally_adjusted=activity["seasonally_adjusted"],
+            annualized=activity["annualized"],
+            metadata_url=activity["metadata_url"],
         )
     for key, spec in NATIONAL_ACCOUNTS.items():
         add(

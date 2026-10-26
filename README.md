@@ -29,28 +29,32 @@ Run `atlas showcase research --provider public --allow-network` for actual ECB/N
 
 ## Available data
 
-Atlas provides 31 datasets from SEC EDGAR, BLS, US Treasury yields, Treasury Fiscal Data, the Federal Reserve, the ECB, the New York Fed, BEA, the Bank of Japan, Japan's Statistical Dashboard, Japan's Ministry of Finance, IMF, OECD, the Reserve Bank of Australia, Eurostat and the UK Office for National Statistics.
+Atlas provides 32 datasets from SEC EDGAR, BLS, US Treasury yields, Treasury Fiscal Data, the Federal Reserve, the ECB, the New York Fed, BEA, the Bank of Japan, Japan's Statistical Dashboard, Japan's Ministry of Finance, IMF, OECD, the Reserve Bank of Australia, Eurostat, the UK Office for National Statistics, US Census, FRED-distributed DOL claims, the Australian Bureau of Statistics, Statistics Canada and World Bank WDI.
 
-| Area        | Information                                                                                                                           |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| Companies   | Current ticker / CIK directory, issuer profiles, SIC industry, exchanges and fiscal year end                                          |
-| Financials  | 37 US-GAAP concepts covering income, balance sheets, cash flow, EPS, shares and dividends; annual, reported discrete quarters and YTD |
-| Analysis    | Six ratios, five year-over-year growth rates, free cash flow and FCF margin; comparison of up to ten issuers at a common period       |
-| XBRL        | Concept inventory and raw observations with their taxonomy, units and contexts                                                        |
-| Disclosures | All-form filing discovery, including ownership, fund, proxy, offering and corporate-action filings                                    |
-| Ownership   | Form 3/4/5 transactions and positions; a selected manager's 13F information table                                                     |
-| Macro       | Sixteen BLS price/labor series, CPI/core CPI YoY, payroll changes, government curves and federal debt                                 |
-| Rates / FX  | EFFR and SOFR overnight rates; ECB daily reference FX for 31 currencies, with traceable inverse and cross calculations                |
-| US accounts | Sixteen BEA GDP, demand-component, PCE/income and saving-rate series                                                                  |
-| Japan       | Twenty-two GDP, production, consumption, prices, wages, employment, housing and BOJ financial series                                  |
-| Europe / UK | Eurostat GDP, HICP, unemployment, production and retail for six regions; five ONS CPI/GDP/rolling-unemployment series                 |
-| Policy      | Federal Reserve release headlines, publication times and original links                                                               |
+| Area         | Information                                                                                                                           |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Companies    | Current ticker / CIK directory, issuer profiles, SIC industry, exchanges and fiscal year end                                          |
+| Financials   | 37 US-GAAP concepts covering income, balance sheets, cash flow, EPS, shares and dividends; annual, reported discrete quarters and YTD |
+| Analysis     | Six ratios, five year-over-year growth rates, free cash flow and FCF margin; comparison of up to ten issuers at a common period       |
+| XBRL         | Concept inventory and raw observations with their taxonomy, units and contexts                                                        |
+| Disclosures  | All-form filing discovery, including ownership, fund, proxy, offering and corporate-action filings                                    |
+| Ownership    | Form 3/4/5 transactions and positions; a selected manager's 13F information table                                                     |
+| Macro        | Sixteen BLS price/labor series, CPI/core CPI YoY, payroll changes, government curves and federal debt                                 |
+| Rates / FX   | EFFR and SOFR overnight rates; ECB daily reference FX for 31 currencies, with traceable inverse and cross calculations                |
+| US accounts  | Sixteen BEA GDP, demand-component, PCE/income and saving-rate series                                                                  |
+| US activity  | Retail, housing, durable goods, industrial production, capacity utilization and weekly unemployment claims                            |
+| AU / CA / CN | Three Australian, three Canadian and four Chinese GDP/price/labour selections, with distinct source frequencies                       |
+| Japan        | Twenty-nine selections including machinery orders, trade, current account, corporate statistics and BOJ financial series              |
+| Europe / UK  | Eurostat GDP, HICP, unemployment, production and retail for six regions; five ONS CPI/GDP/rolling-unemployment series                 |
+| Policy       | Federal Reserve release headlines, publication times and original links                                                               |
 
-Values retain their units, periods, source hashes, retrieval times and JSON pointers or XML paths. Missing or ambiguous values are explicit. Derived metrics include their formulas and reported inputs.
+Values retain their units, periods, source hashes, retrieval times and JSON pointers, XML paths, CSV cells or fixed-width text positions. Missing or ambiguous values are explicit. Derived metrics include their formulas and reported inputs.
 
 Use `japan_activity_overview`, `us_activity_overview`, `euro_area_macro_overview`, `uk_macro_overview` or `global_macro_overview` to retrieve selected economic context through one connection. [Series, definitions, source requirements and examples](docs/economic-indicators.md). These additions are in the latest source checkout; the existing `v0.7.0` release remains unchanged.
 
-Series search filters registered macro/FX templates by text, country, frequency, source and unit. IMF/OECD metadata discovery retrieves new series without indicator-specific adapters; macro panels align observations with explicit aggregation, gaps and source evidence. [Discovery and panel guide](docs/international-macro.md).
+Use `us_activity_extended`, `japan_external_corporate`, `australia_macro_overview`, `canada_macro_overview` or `china_macro_overview` for the additional activity selections. Census and FRED need separate free API keys; Australian/Canadian/Chinese endpoints need no key. China's WDI GDP is annual and Australia's selected CPI is quarterly. Live availability remains unverified; preview lists each source; the catalog and diagnostics describe key requirements.
+
+Series search filters registered macro/FX templates by text, country, frequency, source and unit. IMF/OECD/ABS metadata discovery retrieves new series without indicator-specific adapters; macro panels align observations with explicit aggregation, gaps and source evidence. [Discovery and panel guide](docs/international-macro.md).
 
 Government-bond presets combine US nominal/real curves, Japanese 1–40-year yields, local slopes, butterflies, rate changes, funding context and reference FX through the same connection. Japanese observations retain original MOF CSV cells. The US nominal/real par gap is an inflation-compensation proxy, not pure expected inflation. [Government-bond guide](docs/fixed-income.md). ECB euro area AAA/all-rating spot curves and RBA Australian government yields add regional presets and a four-region `global_bond_context`. Source curve basis, compounding and currencies remain explicit.
 
@@ -88,7 +92,7 @@ uv run atlas research get treasury_real_yields --year 2026 --json
 uv run atlas research get macro_analytics --series cpi_yoy --json
 ```
 
-Research needs no data subscription, wallet or LLM. BEA national accounts require a free registered `BEA_API_KEY` set privately in the process environment. Japan macro and other non-SEC sources work without registration. Commands return JSON, and errors use nonzero exit codes. Dataset names, metrics, series identifiers and query limits are listed in `research catalog` and the [research guide](docs/research.md).
+Research needs no data subscription, wallet or LLM. BEA, Census and FRED require separate free API keys configured privately in the process environment. Japanese, Australian, Canadian and Chinese statistical selections need no registration. Commands return JSON, and errors use nonzero exit codes. Dataset names, metrics, series identifiers and query limits are listed in `research catalog` and the [research guide](docs/research.md).
 
 Growth matches actual prior-year periods; `0.25` means 25%. Free cash flow is reported operating cash flow minus PP&E acquisition payments. Comparisons select the latest shared reported period end and suppress values with different actual input dates. Missing quarters and nonpositive growth baselines remain unavailable. [Calculation rules](docs/research.md#growth-and-cash-flow-analytics).
 

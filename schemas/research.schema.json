@@ -2217,7 +2217,10 @@
                 "bank_loans",
                 "call_rate",
                 "core_cpi",
+                "corporate_capex",
+                "corporate_profits",
                 "cpi",
+                "current_account",
                 "gdp_deflator",
                 "gdp_nominal",
                 "gdp_real",
@@ -2227,6 +2230,7 @@
                 "industrial_production",
                 "industrial_shipments",
                 "job_offers_ratio",
+                "machinery_orders",
                 "monetary_base",
                 "money_stock_m2",
                 "real_effective_exchange_rate",
@@ -2234,6 +2238,9 @@
                 "retail_sales",
                 "tankan_manufacturing",
                 "tankan_nonmanufacturing",
+                "trade_balance",
+                "trade_exports",
+                "trade_imports",
                 "unemployment",
                 "usd_jpy_tokyo"
               ],
@@ -2465,6 +2472,93 @@
         },
         {
           "additionalProperties": false,
+          "dependentRequired": {
+            "end_date": ["start_date"],
+            "start_date": ["end_date"]
+          },
+          "properties": {
+            "dataset": {
+              "const": "activity_economics",
+              "type": "string"
+            },
+            "end_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "End Date"
+            },
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "series": {
+              "enum": [
+                "au_cpi_quarterly",
+                "au_gdp_real",
+                "au_unemployment",
+                "ca_cpi",
+                "ca_gdp_real",
+                "ca_unemployment",
+                "cn_cpi",
+                "cn_cpi_yoy",
+                "cn_gdp_growth_annual",
+                "cn_gdp_nominal_annual",
+                "us_capacity_utilization",
+                "us_continued_claims",
+                "us_durable_goods_orders",
+                "us_housing_permits",
+                "us_housing_starts",
+                "us_industrial_production",
+                "us_initial_claims",
+                "us_retail_sales"
+              ],
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            "start_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Start Date"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": ["dataset", "series"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
           "properties": {
             "dataset": {
               "const": "sdmx_catalog",
@@ -2519,7 +2613,7 @@
               "title": "Search"
             },
             "source_id": {
-              "enum": ["imf", "oecd"],
+              "enum": ["imf", "oecd", "abs"],
               "type": "string"
             },
             "response": {
@@ -2577,7 +2671,7 @@
               "type": "integer"
             },
             "source_id": {
-              "enum": ["imf", "oecd"],
+              "enum": ["imf", "oecd", "abs"],
               "type": "string"
             },
             "start_date": {
@@ -2698,6 +2792,7 @@
             "japan_economics",
             "europe_economics",
             "uk_economics",
+            "activity_economics",
             "sdmx_catalog",
             "international_economics",
             "macro_panel"
@@ -2955,7 +3050,7 @@
         "source_id": {
           "anyOf": [
             {
-              "enum": ["imf", "oecd"],
+              "enum": ["imf", "oecd", "abs"],
               "type": "string"
             },
             {
@@ -3439,6 +3534,7 @@
             "japan_economics",
             "europe_economics",
             "uk_economics",
+            "activity_economics",
             "sdmx_catalog",
             "international_economics",
             "macro_panel"
@@ -3686,6 +3782,15 @@
             }
           },
           "required": ["csv_row", "csv_column"]
+        },
+        {
+          "properties": {
+            "text_line": {
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          "required": ["text_line"]
         }
       ],
       "properties": {
@@ -3753,6 +3858,45 @@
           ],
           "default": null,
           "title": "Csv Column"
+        },
+        "text_line": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Text Line"
+        },
+        "text_column_start": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Text Column Start"
+        },
+        "text_column_end": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Text Column End"
         }
       },
       "required": ["raw_source_url", "raw_sha256", "retrieved_at"],
@@ -5853,6 +5997,514 @@
           },
           "required": ["preset"],
           "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "dependentRequired": {
+            "end_date": ["start_date"],
+            "start_date": ["end_date"]
+          },
+          "properties": {
+            "end_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "End Date"
+            },
+            "include": {
+              "anyOf": [
+                {
+                  "items": {
+                    "enum": [
+                      "us_retail_sales",
+                      "us_housing_starts",
+                      "us_housing_permits",
+                      "us_durable_goods_orders",
+                      "us_industrial_production",
+                      "us_capacity_utilization",
+                      "us_initial_claims",
+                      "us_continued_claims"
+                    ]
+                  },
+                  "maxItems": 10,
+                  "minItems": 1,
+                  "type": "array",
+                  "uniqueItems": true
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Include"
+            },
+            "preset": {
+              "const": "us_activity_extended",
+              "type": "string"
+            },
+            "preview": {
+              "default": false,
+              "title": "Preview",
+              "type": "boolean"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "requirements_by_item": {
+              "additionalProperties": {
+                "$ref": "#/$defs/ResearchRequirements"
+              },
+              "maxProperties": 10,
+              "propertyNames": {
+                "enum": [
+                  "us_retail_sales",
+                  "us_housing_starts",
+                  "us_housing_permits",
+                  "us_durable_goods_orders",
+                  "us_industrial_production",
+                  "us_capacity_utilization",
+                  "us_initial_claims",
+                  "us_continued_claims"
+                ]
+              },
+              "title": "Requirements By Item",
+              "type": "object"
+            },
+            "start_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Start Date"
+            },
+            "view": {
+              "default": "compact",
+              "enum": ["full", "compact"],
+              "title": "View",
+              "type": "string"
+            }
+          },
+          "required": ["preset"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "dependentRequired": {
+            "end_date": ["start_date"],
+            "start_date": ["end_date"]
+          },
+          "properties": {
+            "end_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "End Date"
+            },
+            "include": {
+              "anyOf": [
+                {
+                  "items": {
+                    "enum": [
+                      "machinery_orders",
+                      "trade_exports",
+                      "trade_imports",
+                      "trade_balance",
+                      "current_account",
+                      "corporate_profits",
+                      "corporate_capex"
+                    ]
+                  },
+                  "maxItems": 10,
+                  "minItems": 1,
+                  "type": "array",
+                  "uniqueItems": true
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Include"
+            },
+            "preset": {
+              "const": "japan_external_corporate",
+              "type": "string"
+            },
+            "preview": {
+              "default": false,
+              "title": "Preview",
+              "type": "boolean"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "requirements_by_item": {
+              "additionalProperties": {
+                "$ref": "#/$defs/ResearchRequirements"
+              },
+              "maxProperties": 10,
+              "propertyNames": {
+                "enum": [
+                  "machinery_orders",
+                  "trade_exports",
+                  "trade_imports",
+                  "trade_balance",
+                  "current_account",
+                  "corporate_profits",
+                  "corporate_capex"
+                ]
+              },
+              "title": "Requirements By Item",
+              "type": "object"
+            },
+            "start_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Start Date"
+            },
+            "view": {
+              "default": "compact",
+              "enum": ["full", "compact"],
+              "title": "View",
+              "type": "string"
+            }
+          },
+          "required": ["preset"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "dependentRequired": {
+            "end_date": ["start_date"],
+            "start_date": ["end_date"]
+          },
+          "properties": {
+            "end_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "End Date"
+            },
+            "include": {
+              "anyOf": [
+                {
+                  "items": {
+                    "enum": [
+                      "au_gdp_real",
+                      "au_cpi_quarterly",
+                      "au_unemployment"
+                    ]
+                  },
+                  "maxItems": 10,
+                  "minItems": 1,
+                  "type": "array",
+                  "uniqueItems": true
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Include"
+            },
+            "preset": {
+              "const": "australia_macro_overview",
+              "type": "string"
+            },
+            "preview": {
+              "default": false,
+              "title": "Preview",
+              "type": "boolean"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "requirements_by_item": {
+              "additionalProperties": {
+                "$ref": "#/$defs/ResearchRequirements"
+              },
+              "maxProperties": 10,
+              "propertyNames": {
+                "enum": ["au_gdp_real", "au_cpi_quarterly", "au_unemployment"]
+              },
+              "title": "Requirements By Item",
+              "type": "object"
+            },
+            "start_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Start Date"
+            },
+            "view": {
+              "default": "compact",
+              "enum": ["full", "compact"],
+              "title": "View",
+              "type": "string"
+            }
+          },
+          "required": ["preset"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "dependentRequired": {
+            "end_date": ["start_date"],
+            "start_date": ["end_date"]
+          },
+          "properties": {
+            "end_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "End Date"
+            },
+            "include": {
+              "anyOf": [
+                {
+                  "items": {
+                    "enum": ["ca_cpi", "ca_unemployment", "ca_gdp_real"]
+                  },
+                  "maxItems": 10,
+                  "minItems": 1,
+                  "type": "array",
+                  "uniqueItems": true
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Include"
+            },
+            "preset": {
+              "const": "canada_macro_overview",
+              "type": "string"
+            },
+            "preview": {
+              "default": false,
+              "title": "Preview",
+              "type": "boolean"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "requirements_by_item": {
+              "additionalProperties": {
+                "$ref": "#/$defs/ResearchRequirements"
+              },
+              "maxProperties": 10,
+              "propertyNames": {
+                "enum": ["ca_cpi", "ca_unemployment", "ca_gdp_real"]
+              },
+              "title": "Requirements By Item",
+              "type": "object"
+            },
+            "start_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Start Date"
+            },
+            "view": {
+              "default": "compact",
+              "enum": ["full", "compact"],
+              "title": "View",
+              "type": "string"
+            }
+          },
+          "required": ["preset"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "dependentRequired": {
+            "end_date": ["start_date"],
+            "start_date": ["end_date"]
+          },
+          "properties": {
+            "end_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "End Date"
+            },
+            "include": {
+              "anyOf": [
+                {
+                  "items": {
+                    "enum": [
+                      "cn_cpi",
+                      "cn_cpi_yoy",
+                      "cn_gdp_growth_annual",
+                      "cn_gdp_nominal_annual"
+                    ]
+                  },
+                  "maxItems": 10,
+                  "minItems": 1,
+                  "type": "array",
+                  "uniqueItems": true
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Include"
+            },
+            "preset": {
+              "const": "china_macro_overview",
+              "type": "string"
+            },
+            "preview": {
+              "default": false,
+              "title": "Preview",
+              "type": "boolean"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "requirements_by_item": {
+              "additionalProperties": {
+                "$ref": "#/$defs/ResearchRequirements"
+              },
+              "maxProperties": 10,
+              "propertyNames": {
+                "enum": [
+                  "cn_cpi",
+                  "cn_cpi_yoy",
+                  "cn_gdp_growth_annual",
+                  "cn_gdp_nominal_annual"
+                ]
+              },
+              "title": "Requirements By Item",
+              "type": "object"
+            },
+            "start_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Start Date"
+            },
+            "view": {
+              "default": "compact",
+              "enum": ["full", "compact"],
+              "title": "View",
+              "type": "string"
+            }
+          },
+          "required": ["preset"],
+          "type": "object"
         }
       ],
       "properties": {
@@ -5873,7 +6525,12 @@
             "us_activity_overview",
             "euro_area_macro_overview",
             "uk_macro_overview",
-            "global_macro_overview"
+            "global_macro_overview",
+            "us_activity_extended",
+            "japan_external_corporate",
+            "australia_macro_overview",
+            "canada_macro_overview",
+            "china_macro_overview"
           ],
           "title": "Preset",
           "type": "string"
@@ -6257,7 +6914,12 @@
             "us_activity_overview",
             "euro_area_macro_overview",
             "uk_macro_overview",
-            "global_macro_overview"
+            "global_macro_overview",
+            "us_activity_extended",
+            "japan_external_corporate",
+            "australia_macro_overview",
+            "canada_macro_overview",
+            "china_macro_overview"
           ],
           "title": "Preset",
           "type": "string"
@@ -6453,11 +7115,16 @@
                   "japan_mof",
                   "rba",
                   "eurostat",
-                  "ons"
+                  "ons",
+                  "census",
+                  "fred",
+                  "abs",
+                  "statcan",
+                  "world_bank"
                 ],
                 "type": "string"
               },
-              "maxItems": 16,
+              "maxItems": 32,
               "minItems": 1,
               "type": "array"
             },
@@ -6653,6 +7320,15 @@
             }
           },
           "required": ["csv_row", "csv_column"]
+        },
+        {
+          "properties": {
+            "text_line": {
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          "required": ["text_line"]
         }
       ],
       "properties": {
@@ -6720,6 +7396,45 @@
           ],
           "default": null,
           "title": "Csv Column"
+        },
+        "text_line": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Text Line"
+        },
+        "text_column_start": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Text Column Start"
+        },
+        "text_column_end": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Text Column End"
         }
       },
       "required": ["raw_source_url", "raw_sha256", "retrieved_at"],

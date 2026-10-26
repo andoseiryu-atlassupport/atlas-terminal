@@ -7,6 +7,7 @@ from urllib.parse import parse_qsl, urlencode
 BASES = {
     "imf": "https://api.imf.org/external/sdmx/2.1",
     "oecd": "https://sdmx.oecd.org/public/rest",
+    "abs": "https://data.api.abs.gov.au/rest",
 }
 IMF_DATA = "https://api.imf.org/external/sdmx/3.0/data/dataflow"
 FLOW_PATTERN = (
@@ -50,7 +51,7 @@ def data_url(source: str, flow: str, key: str, start: str, end: str) -> str:
                 "startPeriod": start[:4] + "-01-01",
                 "endPeriod": end[:4] + "-12-31",
                 "dimensionAtObservation": "TIME_PERIOD",
-                "format": "genericdata",
+                **({"format": "genericdata"} if source != "abs" else {}),
             }
         )
     )
@@ -107,6 +108,24 @@ def valid_sdmx_url(url: str) -> bool:
 
 
 SDMX_SOURCES = {
+    "abs": {
+        "name": "Australian Bureau of Statistics Data API",
+        "upstream_price": "0",
+        "api_key_required": False,
+        "contact_user_agent_required": False,
+        "documentation": "https://www.abs.gov.au/statistics/application-programming-interfaces-apis/data-api-user-guide",
+        "terms": "https://www.abs.gov.au/website-privacy-copyright-and-disclaimer",
+        "use": (
+            "Source: Australian Bureau of Statistics. CC BY 4.0 except where "
+            "otherwise stated; retain original definitions, notices and identify "
+            "modifications; no endorsement."
+        ),
+        "cadence": (
+            "Beta Data API, no API key; monthly/quarterly current or revised "
+            "observations. API data can lag the ABS website; six-hour data cache and "
+            "one-day metadata cache."
+        ),
+    },
     "imf": {
         "name": "International Monetary Fund Data",
         "upstream_price": "0",

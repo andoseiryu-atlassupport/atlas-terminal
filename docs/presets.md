@@ -1,12 +1,14 @@
 # Research presets and connection diagnostics
 
-One Atlas MCP connection exposes company, US/Japan macro and reference FX data. Named presets expand into ordinary free research queries and execute through the shared batch service. The same service is available in the Python SDK, CLI and local HTTP API. There is no LLM dependency, data subscription or wallet requirement.
+One Atlas MCP connection exposes company data, international macro indicators, government curves and reference FX. Named presets expand into ordinary free research queries and execute through the shared batch service. The same service is available in the Python SDK, CLI and local HTTP API. There is no LLM dependency, data subscription or wallet requirement.
 
 Three additional government-bond presets, `us_bond_context`, `japan_bond_context` and `us_japan_bond_context`, combine curves, local changes, funding and optional reference FX. Each accepts a curve `year`, selection, preview and item-level requirements. The year applies to curve items only; dates for funding, CPI and FX remain independent. [Bond preset items and methodology](fixed-income.md#bond-presets-through-one-connection).
 
 `euro_area_bond_context` and `australia_bond_context` add source-local curves, shapes, changes and reference FX. `global_bond_context` retrieves US nominal/real, Japanese, ECB AAA/all-rating and Australian curves with reference USD/JPY, EUR/USD, AUD/USD and SOFR in ten items. A shared year selects curve records only; conventions and observation dates remain source-specific. [Regional details](fixed-income.md#euro-area-and-australia).
 
 ## Discover and preview
+
+Additional activity presets are `us_activity_extended` (8 items), `japan_external_corporate` (7), `australia_macro_overview` (3), `canada_macro_overview` (3) and `china_macro_overview` (4). They accept optional paired dates, selected item IDs and quality requirements. Their JSON templates live in `examples/research_presets/`. Preview lists sources and configuration diagnosis checks free Census/FRED key requirements before any read; the other new sources need no key. China's GDP remains annual WDI data and Australia's selected CPI remains quarterly. [Definitions and coverage limits](economic-indicators.md).
 
 Five additional economic presets accept optional paired observation dates: `japan_activity_overview` (10 items), `us_activity_overview` (10), `euro_area_macro_overview` (9), `uk_macro_overview` (6) and `global_macro_overview` (10). They cover GDP, real activity, consumption and labour/price indicators through existing batches, with selection, preview and independent errors. BEA items require a free key; other included statistical sources do not. Definitions, annualization, euro-area composition and UK three-month rolling unemployment remain source-specific. [Exact series, source contracts and remaining gaps](economic-indicators.md).
 
@@ -130,7 +132,7 @@ uv run --offline atlas research doctor --sources ecb,new_york_fed --json
 uv run --offline atlas research doctor --json
 ```
 
-The public provider reports SEC as `configuration_required` until its private `SEC_USER_AGENT` passes the same validator as SEC retrieval. BEA is `configuration_required` until its private free registered `BEA_API_KEY` is present. Other sources need no API key. `configured` only means the selected source configuration is ready; connectivity is `not_checked`. The default all-source diagnostic exits 4 if SEC or BEA configuration is missing, even when non-SEC sources are configured.
+The public provider reports SEC as `configuration_required` until its private `SEC_USER_AGENT` passes the same validator as SEC retrieval. BEA, Census and FRED are `configuration_required` until their private free registered `BEA_API_KEY`, `CENSUS_API_KEY` and `FRED_API_KEY` settings are present. Other sources need no API key. `configured` only means the selected source configuration is ready; connectivity is `not_checked`. The default all-source diagnostic exits 4 if SEC, BEA, Census or FRED configuration is missing, even when non-SEC sources are configured.
 
 Explicitly opt in to fixed read-only connectivity probes:
 

@@ -424,7 +424,7 @@ def test_csv_evidence_pagination_quality_http_and_cli_share_the_same_results(tmp
     assert json.loads(run.stdout) == expected
 
 
-async def test_one_actual_mcp_connection_runs_japan_preset_and_resolves_csv_evidence():
+async def test_one_actual_mcp_connection_runs_japan_preset_and_resolves_csv_evidence(tmp_path):
     params = StdioServerParameters(
         command=sys.executable,
         args=[
@@ -436,6 +436,7 @@ async def test_one_actual_mcp_connection_runs_japan_preset_and_resolves_csv_evid
             "fixture",
             "--research-only",
         ],
+        env={"ATLAS_STATE_DIR": str(tmp_path / "mcp-state")},
     )
     async with stdio_client(params) as (read, write), ClientSession(read, write) as session:
         await session.initialize()

@@ -6,6 +6,7 @@ from typing import Any, Literal
 
 from pydantic import ConfigDict, Field, ValidationError, field_validator, model_validator
 
+from atlas_terminal.activity_catalog import ACTIVITY_SERIES
 from atlas_terminal.economic_catalog import JAPAN_SERIES, NATIONAL_ACCOUNTS
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.macro_catalog import (
@@ -50,6 +51,7 @@ Dataset = Literal[
     "japan_economics",
     "europe_economics",
     "uk_economics",
+    "activity_economics",
     "sdmx_catalog",
     "international_economics",
     "macro_panel",
@@ -84,6 +86,7 @@ FIELDS = {
     "japan_economics": {"series", "limit", "start_date", "end_date"},
     "europe_economics": {"series", "limit", "start_date", "end_date"},
     "uk_economics": {"series", "limit", "start_date", "end_date"},
+    "activity_economics": {"series", "limit", "start_date", "end_date"},
     "sdmx_catalog": {"source_id", "dataflow", "search", "dimension", "limit"},
     "international_economics": {
         "source_id",
@@ -114,6 +117,7 @@ def dataset_required(name: str) -> list[str]:
         "japan_economics",
         "europe_economics",
         "uk_economics",
+        "activity_economics",
         "euro_area_yields",
     }:
         return ["series"]
@@ -163,7 +167,7 @@ class CatalogQuery(Model):
     view: Literal["full", "compact"] = "full"
     search: str | None = Field(default=None, min_length=1, max_length=100)
     country: str | None = Field(default=None, pattern=r"^[A-Z]{2}$")
-    frequency: Literal["daily", "monthly", "quarterly", "annual"] | None = None
+    frequency: Literal["daily", "weekly", "monthly", "quarterly", "annual"] | None = None
     source_id: str | None = Field(default=None, pattern=r"^[a-z][a-z_]{0,39}$")
     unit: str | None = Field(default=None, min_length=1, max_length=100)
 
@@ -226,6 +230,8 @@ def dataset_schema(schema: dict[str, Any]) -> None:
             properties["series"]["enum"] = sorted(
                 EUROPE_SERIES if name == "europe_economics" else UK_SERIES
             )
+        if name == "activity_economics":
+            properties["series"]["enum"] = sorted(ACTIVITY_SERIES)
         if name == "fx_rates":
             for key in ("base_currency", "quote_currency"):
                 properties[key] = {"type": "string", "enum": list(FX_CURRENCIES)}
@@ -322,7 +328,7 @@ class ResearchQuery(Model):
     quote_currency: Currency | None = None
     start_date: str | None = Field(default=None, pattern=r"^[0-9]{4}-[0-9]{2}-[0-9]{2}$")
     end_date: str | None = Field(default=None, pattern=r"^[0-9]{4}-[0-9]{2}-[0-9]{2}$")
-    source_id: Literal["imf", "oecd"] | None = None
+    source_id: Literal["imf", "oecd", "abs"] | None = None
     dataflow: str | None = Field(default=None, pattern="^" + FLOW_PATTERN + "$", max_length=250)
     dimensions: dict[str, str] = Field(default_factory=dict, max_length=32)
     search: str | None = Field(default=None, min_length=1, max_length=100)
@@ -363,7 +369,7 @@ class ResearchQuery(Model):
     def check_dataset(self) -> "ResearchQuery":
         if self.dataset in {"sdmx_catalog", "international_economics"}:
             if self.source_id is None:
-                raise AtlasError("INVALID_INPUT", "Choose imf or oecd.", fields=["source_id"])
+                raise AtlasError("INVALID_INPUT", "Choose imf, oecd or abs.", fields=["source_id"])
             if self.dimension is not None and self.dataflow is None:
                 raise AtlasError("INVALID_INPUT", "A dimension filter requires a dataflow.")
         if self.dataset == "international_economics":
@@ -451,6 +457,10 @@ class ResearchQuery(Model):
                 raise AtlasError(
                     "INVALID_INPUT", "Choose a series from the dataset catalog.", fields=["series"]
                 )
+        if self.dataset == "activity_economics" and self.series not in ACTIVITY_SERIES:
+            raise AtlasError(
+                "INVALID_INPUT", "Choose an activity series from the catalog.", fields=["series"]
+            )
         if self.dataset == "fx_rates" and (
             self.base_currency is None
             or self.quote_currency is None

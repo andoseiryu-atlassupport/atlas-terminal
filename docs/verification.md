@@ -1,6 +1,6 @@
 # Validation scope
 
-Recorded on 2026-10-25 (UTC) for the source checkout following Atlas Terminal 0.7.0, with Python 3.12.14 and Node.js 24.19.0 on Linux. Local verification, GitHub Actions, public deployment, official-source access and model observations are distinct evidence.
+Recorded on 2026-10-26 (UTC) for the source checkout following Atlas Terminal 0.7.0, with Python 3.12.14 and Node.js 24.19.0 on Linux. Local verification, GitHub Actions, public deployment, official-source access and model observations are distinct evidence.
 
 Version 0.7.0 includes the experimental native factor risk extension and installed walkthroughs described below. The prior 0.6.0 release did not include risk estimation. Local wheel checks remain separate evidence from a published GitHub release.
 
@@ -10,8 +10,8 @@ Version 0.7.0 includes the experimental native factor risk extension and install
 | --------------------------------------------------------- | ----------------------------------------------------------- |
 | `uv run --offline ruff check .`                           | PASS                                                        |
 | `uv run --offline ruff format --check .`                  | PASS                                                        |
-| `uv run --offline mypy`                                   | PASS; 61 source files                                       |
-| `uv run --offline pytest`                                 | PASS; 1,053 tests, 2 live tests deselected                  |
+| `uv run --offline mypy`                                   | PASS; 64 source files                                       |
+| `uv run --offline pytest`                                 | PASS; 1,175 tests, 2 live tests deselected                  |
 | `uv run --offline python -m build --no-isolation`         | PASS; wheel and source distribution                         |
 | `uv run --offline python scripts/verify_distribution.py`  | PASS; metadata, required contents and forbidden paths       |
 | `uv run --offline python scripts/build_docs.py`           | PASS; 47 HTML pages and internal file/section links         |
@@ -23,6 +23,18 @@ Version 0.7.0 includes the experimental native factor risk extension and install
 Default tests prohibit IP sockets and use fictional sources or mocked transports. They do not retrieve live official data or transfer funds. Archive validation rejects private/runtime paths, dependency trees, unsafe paths and links; source archives contain project source and verification material rather than installed dependencies. The credential-pattern scan is a heuristic, not a guarantee against every secret format.
 
 Test cases use isolated private state directories so repeated verification does not consume an operator's persistent cache quota. The numerical and protocol assertions remain unchanged.
+
+## Additional activity and country statistics
+
+On 2026-10-26 (UTC), all 1,175 offline tests passed, with two live cases deselected. The catalog contains 32 datasets, 21 source families and 21 presets. The extension adds eighteen curated activity selections (US eight, Australia three, Canada three and China four) and seven Japanese machinery-order, external-account and corporate-statistics selectors. There are still six research-only MCP tools.
+
+The 113 activity cases cover complete source identity, exact JSON decimals including preserved source cells, monthly/weekly/quarterly/annual periods, annual rates, Census dimensions/error estimates/suppression, FRED Saturday-ending untransformed counts, StatCan vector/table/coordinate/unit/scale and documented status/security flags, World Bank WDI pagination/country/indicator/status, G.17 fixed-width cells and original text locators, ABS/OECD metadata drift and forecast/geography checks, canonical URL bounds, outbound-only private keys, credential-echo rejection, schema/catalog filters, source-correct preset preview/catalog/overview, weekly observed-date aggregation, CLI/SDK/HTTP and an actual official stdio MCP session. Existing per-series Japanese tests cover the seven additional selectors. No previously committed source fixtures or showcase recordings were changed.
+
+Ruff, formatting and mypy passed for 64 source files. Wheel/source archive validation passed with 254 wheel files and 445 source files. The rebuilt source-checkout wheel was installed offline with locked dependencies in a fresh environment; imports resolved inside that installation outside the repository. All 25 new selections and five presets executed from packaged fictional bytes, including the five presets and text-evidence resolution in an actual official stdio MCP session. Documentation/internal links passed for 47 pages, and both recorded showcase checksums passed. Plugin/Registry artifacts were prepared locally without publication. The changes remain an unreleased source extension rather than replacement `v0.7.0` release assets.
+
+Four existing stdio tests now pass their isolated state directory explicitly to the child process; repeated execution no longer consumes a shared operator evidence-cache quota. Production storage limits and numerical assertions are unchanged.
+
+Census key requirements, Federal Reserve direct-text format, FRED API conventions, StatCan WDS methods/flag definitions, ABS SDMX guidance, OECD CPI definitions and WDI indicator metadata were inspected. This is documentation/contract evidence, not a live end-to-end retrieval result. Direct financial-source requests remain blocked by the execution environment's outbound host policy. Exact new Japanese Dashboard labels and ABS labour selectors, actual API compatibility and current observations remain unverified. Missing or changed metadata fails explicitly. Census/FRED require separate free operator API keys; Australian/Canadian/Chinese selections require no key. China WDI GDP remains annual and Australian CPI quarterly. See [definitions and remaining gaps](economic-indicators.md).
 
 ## Expanded official economic indicators
 
