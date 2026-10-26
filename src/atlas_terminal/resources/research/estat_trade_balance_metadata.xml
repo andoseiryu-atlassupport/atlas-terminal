@@ -1,0 +1,2 @@
+<?xml version='1.0' encoding='utf-8'?>
+<GET_META_INDICATOR_INF><RESULT><STATUS>0</STATUS></RESULT><METADATA_INF><CLASS_INF><CLASS_OBJ name="貿易収支" code="9900000000000000043"><CLASS name="貿易収支" fromDate="20000100" toDate="99999999" statName="SYNTHETIC government survey" unit="SYNTHETIC million JPY"><Cycle code="1" /><RegionalRank code="2" /><IsSeasonal code="1" /></CLASS></CLASS_OBJ></CLASS_INF></METADATA_INF></GET_META_INDICATOR_INF>

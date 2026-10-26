@@ -14,7 +14,7 @@ uv run --offline atlas research get statements --identifier ATLASDEMO --period q
 uv run --offline atlas research get economics --series cpi --provider fixture --json
 ```
 
-For SEC retrieval, configure `SEC_USER_AGENT` privately with your identifying application name and actual contact email. Use a real issuer identifier and the `sec` provider for company/annual commands, or `public` for research commands. No wallet or model key is required. BEA national accounts need a free registered `BEA_API_KEY`; other data sources need no API key. `.env.example` lists variable names; Atlas does not load it automatically. Keep contact details out of chat and logs.
+For SEC retrieval, configure `SEC_USER_AGENT` privately with your identifying application name and actual contact email. Use a real issuer identifier and the `sec` provider for company/annual commands, or `public` for research commands. No wallet or model key is required. BEA, Census and FRED need separate free registered `BEA_API_KEY`, `CENSUS_API_KEY` and `FRED_API_KEY` settings; other data sources need no API key. `.env.example` lists variable names; Atlas does not load it automatically. Keep contact details out of chat and logs.
 
 ## Connect an MCP host
 
@@ -55,7 +55,7 @@ Configure `SEC_USER_AGENT` privately for SEC requests. The `hosted` provider use
 | atlas_purchase_status      | Recover status using a private capability without paying             |
 | atlas_budget_status        | Read local spending, reserved amounts and remaining delegated budget |
 | atlas_purchase_preflight   | Inspect order and local budget without signing or reserving funds    |
-| atlas_research_catalog     | List 21 free datasets, units, query schemas and coverage gaps        |
+| atlas_research_catalog     | List 32 free datasets, units, query schemas and coverage gaps        |
 | atlas_get_research         | Retrieve research using a `query` object without a quote or payment  |
 | atlas_get_research_batch   | Retrieve up to ten independent queries with per-item IDs and errors  |
 | atlas_get_research_preset  | Preview or retrieve a named company, US macro or FX-context set      |

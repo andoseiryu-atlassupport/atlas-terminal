@@ -1,0 +1,26 @@
+{
+  "synthetic": true,
+  "status": "SUCCESS",
+  "object": {
+    "frequency": [
+      {
+        "frequencyCode": 6,
+        "frequencyDescEn": "Monthly"
+      }
+    ],
+    "memberUom": [
+      {
+        "memberUomCode": 17,
+        "memberUomEn": "2002=100"
+      },
+      {
+        "memberUomCode": 239,
+        "memberUomEn": "Percent"
+      },
+      {
+        "memberUomCode": 47,
+        "memberUomEn": "Canadian dollars"
+      }
+    ]
+  }
+}

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Add eighteen curated activity selections across the US, Australia, Canada and China, plus seven Japanese machinery-order, external-account and corporate-statistics selectors.
+- Add bounded Census, DOL-through-FRED, Federal Reserve G.17, Statistics Canada and World Bank WDI adapters, and ABS SDMX access. Preserve source flags, original scales, weekly/quarterly/annual distinctions and fixed-width text evidence; free Census/FRED keys stay private.
+- Add five activity/country presets, weekly discovery and explicit weekly-to-calendar aggregation through the existing research interfaces. Catalog registration and offline tests do not establish live selector availability or release-time data.
+
 - Add 81 registered official macro selections: twelve Japanese GDP/activity/price/labour/housing series, eight BLS price/labour series, eight BEA demand/consumption/saving series, 48 Eurostat European selections and five UK ONS series.
 - Add strict Eurostat JSON-stat 2.0 and ONS time-series adapters, current ECOICOP-v2 HICP selection, quarterly Japanese Dashboard periods and explicit UK rolling unemployment windows, preserving exact values and original evidence.
 - Add Japanese/US activity, euro-area/UK and global macro presets through the existing six research tools, plus searchable definitions, calendar panels, diagnostics and source probes. New live-source compatibility remains unverified; consensus and release vintages are unavailable.

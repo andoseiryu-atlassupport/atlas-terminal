@@ -62,6 +62,8 @@ def query(dataset="statements", **extra):
         result.update(series="aaa_spot", year=2026)
     if dataset == "europe_economics":
         result["series"] = "ea_hicp_yoy"
+    if dataset == "activity_economics":
+        result["series"] = "us_industrial_production"
     if dataset == "fx_rates":
         result.update(base_currency="USD", quote_currency="JPY")
     if dataset in {"reference_rates", "macro_analytics"}:

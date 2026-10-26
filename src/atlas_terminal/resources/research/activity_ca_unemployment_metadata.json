@@ -1,0 +1,17 @@
+[
+  {
+    "status": "SUCCESS",
+    "object": {
+      "responseStatusCode": 0,
+      "productId": 14100287,
+      "coordinate": "1.1.0.0.0.0.0.0.0.0",
+      "vectorId": 2062815,
+      "frequencyCode": 6,
+      "scalarFactorCode": 0,
+      "decimals": 3,
+      "terminated": 0,
+      "SeriesTitleEn": "Canada;Total, 15 years and over;Unemployment rate;Seasonally adjusted;SYNTHETIC",
+      "memberUomCode": 239
+    }
+  }
+]

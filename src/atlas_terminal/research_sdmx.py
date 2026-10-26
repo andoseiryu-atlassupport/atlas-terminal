@@ -1,4 +1,4 @@
-"""Metadata-driven IMF/OECD discovery and single-series SDMX XML observations."""
+"""Metadata-driven IMF/OECD/ABS discovery and single-series SDMX XML observations."""
 
 import re
 from dataclasses import dataclass

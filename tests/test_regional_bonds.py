@@ -404,10 +404,11 @@ def test_regional_http_cli_and_csv_compact_evidence_keep_curve_basis(tmp_path):
     assert json.loads(run.stdout) == expected
 
 
-async def test_one_official_mcp_session_reads_europe_australia_and_evidence():
+async def test_one_official_mcp_session_reads_europe_australia_and_evidence(tmp_path):
     params = StdioServerParameters(
         command=sys.executable,
         args=["-m", "atlas_terminal", "mcp", "serve", "--provider", "fixture", "--research-only"],
+        env={"ATLAS_STATE_DIR": str(tmp_path / "mcp-state")},
     )
     async with stdio_client(params) as streams, ClientSession(*streams) as session:
         await session.initialize()

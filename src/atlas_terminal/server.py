@@ -225,7 +225,7 @@ def create_app(
         view: Literal["full", "compact"] = "full",
         search: str | None = None,
         country: str | None = None,
-        frequency: Literal["daily", "monthly", "quarterly", "annual"] | None = None,
+        frequency: Literal["daily", "weekly", "monthly", "quarterly", "annual"] | None = None,
         source_id: str | None = None,
         unit: str | None = None,
     ) -> dict[str, Any]:

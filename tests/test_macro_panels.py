@@ -322,10 +322,11 @@ def test_all_new_queries_work_through_http_and_cli_with_the_same_contract(tmp_pa
 
 
 @pytest.mark.asyncio
-async def test_one_actual_mcp_connection_discovers_queries_aligns_and_resolves_evidence():
+async def test_one_actual_mcp_connection_discovers_queries_aligns_and_resolves_evidence(tmp_path):
     params = StdioServerParameters(
         command=sys.executable,
         args=["-m", "atlas_terminal", "mcp", "serve", "--provider", "fixture", "--research-only"],
+        env={"ATLAS_STATE_DIR": str(tmp_path / "mcp-state")},
     )
     async with stdio_client(params) as streams, ClientSession(*streams) as session:
         await session.initialize()

@@ -8,6 +8,7 @@ from datetime import date, timedelta
 from pathlib import Path
 from typing import Any
 
+from atlas_terminal.activity_sources import G17_URLS
 from atlas_terminal.client import Atlas
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.fixed_income_sources import JGB_URLS, parse_jgb_csv
@@ -29,6 +30,24 @@ from atlas_terminal.research_quality import (
 from atlas_terminal.util import Database, canonical, digest, stamp, state_dir
 
 PROBES: dict[str, tuple[str, dict[str, Any]]] = {
+    "census_retail": (
+        "census",
+        {"dataset": "activity_economics", "series": "us_retail_sales", "limit": 1},
+    ),
+    "fred_initial_claims": (
+        "fred",
+        {"dataset": "activity_economics", "series": "us_initial_claims", "limit": 1},
+    ),
+    "fed_industrial_production": (
+        "federal_reserve",
+        {"dataset": "activity_economics", "series": "us_industrial_production", "limit": 1},
+    ),
+    "statcan_cpi": ("statcan", {"dataset": "activity_economics", "series": "ca_cpi", "limit": 1}),
+    "abs_gdp": ("abs", {"dataset": "activity_economics", "series": "au_gdp_real", "limit": 1}),
+    "world_bank_china_gdp": (
+        "world_bank",
+        {"dataset": "activity_economics", "series": "cn_gdp_growth_annual", "limit": 1},
+    ),
     "eurostat_hicp": (
         "eurostat",
         {"dataset": "europe_economics", "series": "ea_hicp_yoy", "limit": 1},
@@ -177,7 +196,18 @@ def source_shapes(snapshots: list[Snapshot]) -> list[dict[str, Any]]:
     for snapshot in snapshots:
         is_xml = snapshot.body.removeprefix(b"\xef\xbb\xbf").lstrip().startswith(b"<")
         is_csv = snapshot.url.endswith(".csv") or snapshot.url.startswith(ECB_CURVE_BASE)
-        if is_csv:
+        is_text = snapshot.url in G17_URLS or snapshot.url.endswith(
+            ("g17_ip_sa.txt", "g17_utl_sa.txt")
+        )
+        if is_text:
+            structure = {
+                "format": "G17_fixed_width",
+                "code_columns": [1, 16],
+                "year_columns": [17, 20],
+                "month_width": 10,
+                "month_count": 12,
+            }
+        elif is_csv:
             if snapshot.url in JGB_URLS or snapshot.url.endswith(
                 ("jgb_current.csv", "jgb_history.csv")
             ):
@@ -196,7 +226,7 @@ def source_shapes(snapshots: list[Snapshot]) -> list[dict[str, Any]]:
             "raw_source_url": snapshot.url,
             "raw_sha256": snapshot.sha256,
             "retrieved_at": snapshot.retrieved_at,
-            "format": "csv" if is_csv else "xml" if is_xml else "json",
+            "format": "text" if is_text else "csv" if is_csv else "xml" if is_xml else "json",
             "shape_sha256": digest(canonical(structure)),
         }
     return [rows[url] for url in sorted(rows)]

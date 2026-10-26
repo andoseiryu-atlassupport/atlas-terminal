@@ -149,4 +149,4 @@ Official ECB documentation/conditions, New York Fed reference-rate terms and Tre
 
 ## International series and aligned panels
 
-Use `sdmx_catalog` and `international_economics` for metadata-selected IMF/OECD series. Use `macro_panel` to align explicit macro/FX queries into monthly, quarterly or annual periods, retaining original inputs and missingness. Registered-series search is available through the existing catalog. [Discovery, aggregation rules and runnable examples](international-macro.md).
+Use `sdmx_catalog` and `international_economics` for metadata-selected IMF/OECD/ABS series. Use `macro_panel` to align explicit macro/FX queries into monthly, quarterly or annual periods, retaining original inputs and missingness. Registered-series search is available through the existing catalog. [Discovery, aggregation rules and runnable examples](international-macro.md).

@@ -279,6 +279,74 @@ for _key, _title, _survey, _label, _frequency, _adjusted in (
         "annualized": _key in {"gdp_nominal", "gdp_real"},
     }
 
+for _key, _title, _survey, _label, _frequency, _adjusted in (
+    (
+        "machinery_orders",
+        "Japan private machinery orders excluding ships and electric power",
+        "00100401",
+        "機械受注額（船舶・電力を除く民需）",
+        "MONTHLY",
+        True,
+    ),
+    (
+        "trade_exports",
+        "Japan customs-basis merchandise exports, nominal",
+        "00350300",
+        "輸出総額",
+        "MONTHLY",
+        False,
+    ),
+    (
+        "trade_imports",
+        "Japan customs-basis merchandise imports, nominal",
+        "00350300",
+        "輸入総額",
+        "MONTHLY",
+        False,
+    ),
+    (
+        "trade_balance",
+        "Japan customs-basis merchandise trade balance",
+        "00350300",
+        "貿易収支",
+        "MONTHLY",
+        False,
+    ),
+    (
+        "current_account",
+        "Japan balance-of-payments current account, unadjusted",
+        "00350503",
+        "経常収支",
+        "MONTHLY",
+        False,
+    ),
+    (
+        "corporate_profits",
+        "Japan corporate current profits, all nonfinancial industries",
+        "00350600",
+        "経常利益（全産業（金融業、保険業を除く））",
+        "QUARTERLY",
+        False,
+    ),
+    (
+        "corporate_capex",
+        "Japan corporate capital investment excluding software, all nonfinancial industries",
+        "00350600",
+        "設備投資（ソフトウェアを除く）（全産業（金融業、保険業を除く））",
+        "QUARTERLY",
+        False,
+    ),
+):
+    JAPAN_SERIES[_key] = {
+        "source_id": "estat",
+        "title": _title,
+        "database": _survey,
+        "code": _label,
+        "frequency": _frequency,
+        "seasonally_adjusted": _adjusted,
+        "annualized": False,
+    }
+
 for _key, _title, _table, _frequency, _description, _annualized in (
     (
         "gdp_consumption_real",

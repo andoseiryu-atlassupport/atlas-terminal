@@ -1,0 +1,14 @@
+{
+  "synthetic": true,
+  "seriess": [
+    {
+      "id": "ICSA",
+      "title": "SYNTHETIC Initial unemployment insurance claims, regular state programs",
+      "frequency": "Weekly, Ending Saturday",
+      "frequency_short": "W",
+      "units": "Number",
+      "seasonal_adjustment_short": "SA",
+      "last_updated": "2026-10-20 07:30:00-05"
+    }
+  ]
+}

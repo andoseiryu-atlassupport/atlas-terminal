@@ -1,0 +1,2 @@
+"B50001: Total index, SYNTHETIC fictional observations"
+"B50001"        2026       101.1234    0.0000        NA

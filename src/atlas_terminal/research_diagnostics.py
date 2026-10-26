@@ -6,6 +6,7 @@ from typing import Any, Literal
 
 from pydantic import Field, ValidationError, field_validator
 
+from atlas_terminal.activity_sources import activity_key
 from atlas_terminal.economic_sources import bea_key
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.models import Model
@@ -30,6 +31,11 @@ SourceId = Literal[
     "rba",
     "eurostat",
     "ons",
+    "census",
+    "fred",
+    "abs",
+    "statcan",
+    "world_bank",
 ]
 ConfigurationState = Literal["ready", "configuration_required", "synthetic"]
 ConnectivityState = Literal["not_checked", "pass", "fail", "not_run"]
@@ -37,7 +43,7 @@ DiagnosticStatus = Literal["configured", "action_required", "verified", "degrade
 
 
 class ResearchDiagnosticsQuery(Model):
-    sources: list[SourceId] | None = Field(default=None, min_length=1, max_length=16)
+    sources: list[SourceId] | None = Field(default=None, min_length=1, max_length=32)
     allow_network: bool = Field(default=False, strict=True)
 
     @field_validator("sources")
@@ -104,6 +110,14 @@ def research_diagnostics(
     synthetic = provider == "fixture"
     sec_ready = True
     bea_ready = True
+    key_ready = {"census": True, "fred": True}
+    if not synthetic:
+        for name in key_ready:
+            if name in selected:
+                try:
+                    activity_key(name)
+                except AtlasError:
+                    key_ready[name] = False
     if "bea" in selected and not synthetic:
         try:
             bea_key()
@@ -124,7 +138,11 @@ def research_diagnostics(
     connectivity: ConnectivityState
     for name in selected:
         spec = SOURCE_CATALOG[name]
-        ready = (name != "sec" or sec_ready) and (name != "bea" or bea_ready)
+        ready = (
+            (name != "sec" or sec_ready)
+            and (name != "bea" or bea_ready)
+            and key_ready.get(name, True)
+        )
         source_checks = [check for check in checks if check["source_id"] == name]
         if synthetic:
             configuration, connectivity = "synthetic", "not_run"
@@ -134,11 +152,22 @@ def research_diagnostics(
         elif not ready:
             configuration, connectivity = "configuration_required", "not_run"
             action = (
-                "Set SEC_USER_AGENT privately with your application name and actual contact email."
-                if name == "sec"
+                (
+                    "Set "
+                    + {"census": "CENSUS_API_KEY", "fred": "FRED_API_KEY"}[name]
+                    + " privately after free registration; use the source documentation for signup."
+                )
+                if name in key_ready
                 else (
-                    "Set BEA_API_KEY privately after free registration at "
-                    "https://apps.bea.gov/api/signup/."
+                    (
+                        "Set SEC_USER_AGENT privately with your application name and actual "
+                        "contact email."
+                    )
+                    if name == "sec"
+                    else (
+                        "Set BEA_API_KEY privately after free registration at "
+                        "https://apps.bea.gov/api/signup/."
+                    )
                 )
             )
         elif source_checks:
