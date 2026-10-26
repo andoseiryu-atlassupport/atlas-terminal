@@ -11,7 +11,7 @@ Version 0.7.0 includes the experimental native factor risk extension and install
 | `uv run --offline ruff check .`                           | PASS                                                        |
 | `uv run --offline ruff format --check .`                  | PASS                                                        |
 | `uv run --offline mypy`                                   | PASS; 64 source files                                       |
-| `uv run --offline pytest`                                 | PASS; 1,199 tests, 2 live tests deselected                  |
+| `uv run --offline pytest`                                 | PASS; 1,240 tests, 2 live tests deselected                  |
 | `uv run --offline python -m build --no-isolation`         | PASS; wheel and source distribution                         |
 | `uv run --offline python scripts/verify_distribution.py`  | PASS; metadata, required contents and forbidden paths       |
 | `uv run --offline python scripts/build_docs.py`           | PASS; 47 HTML pages and internal file/section links         |
@@ -23,6 +23,16 @@ Version 0.7.0 includes the experimental native factor risk extension and install
 Default tests prohibit IP sockets and use fictional sources or mocked transports. They do not retrieve live official data or transfer funds. Archive validation rejects private/runtime paths, dependency trees, unsafe paths and links; source archives contain project source and verification material rather than installed dependencies. The credential-pattern scan is a heuristic, not a guarantee against every secret format.
 
 Test cases use isolated private state directories so repeated verification does not consume an operator's persistent cache quota. The numerical and protocol assertions remain unchanged.
+
+## BLS employment costs, productivity and trade prices
+
+On 2026-10-26 (UTC), all 1,240 offline tests passed, with two live cases deselected. The source extension adds six registration-free BLS selections: civilian compensation/wage ECI, nonfarm productivity/unit labor cost growth, and import/export price indexes. The catalog now contains 22 BLS selections and 23 presets across 32 datasets and 21 source families. The eight-item `us_inflation_costs` preset uses the shared query, preview, quality and evidence contracts.
+
+The 35 new offline cases cover quarterly periods and frequency rejection, Q05 annual-summary exclusion, missing fourth quarters, source identity and duplicates, exact decimals/zeros/negative values, date bounds, monthly M13 separation, ten-year POST chunks and cache reuse, catalog/schema discovery, preview without network access, quarterly panels, common SDK/CLI/HTTP results and actual official stdio MCP execution. Six new fictional fixtures preserve original-byte hashes and locators. Existing source fixtures and both showcase recordings remain unchanged. The BLS source-check cache/quota test now covers four distinct probes and conditional revalidation.
+
+Ruff, formatting and mypy passed for 64 source files. Wheel/source archive validation passed with 265 wheel files and 459 source files. The rebuilt wheel was installed offline into an isolated runtime and imported outside the checkout. All six new selections and the eight-item preset passed there; an actual official MCP client discovered the six research tools, executed the preset and resolved original ECI, productivity and import-price evidence. The installed check retained published annualized growth, a negative Q4 value and explicit Q05 exclusion. Documentation/internal links passed for 47 pages, and plugin/Registry artifacts were prepared without publication. The credential-pattern scan found no suspect working-file or reachable-history locations.
+
+Official BLS ECI/productivity/international-price formats, series definitions and release tables were inspected. They establish quarter codes, reference-month conventions, index bases and the distinction between index levels and published changes at annual rates. This is definition evidence, not a live data retrieval result. Direct financial-source API access remains blocked by the execution environment, so current observations and live compatibility are unverified. Three new opt-in probes bring the total to 36; they were not run against live endpoints. These additions remain an unreleased source extension and do not replace the immutable 0.7.0 release. [Definitions and official references](economic-indicators.md#us-employment-costs-productivity-and-trade-prices).
 
 ## US trade and current Australian CPI
 

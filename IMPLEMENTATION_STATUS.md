@@ -14,7 +14,7 @@ Atlas Terminal retrieves US equity research, macro data and reference FX from fr
 | XBRL           | Concept and unit inventories, plus observations with their original accounting contexts                |
 | Disclosures    | All-form filing discovery and ownership, fund, proxy, offering and corporate-action filing groups      |
 | Ownership      | Form 3/4/5 records and a manager's 13F information table, retrieved one filing at a time               |
-| Economics      | Sixteen BLS series covering consumer prices, employment, unemployment, wages and job openings          |
+| Economics      | Twenty-two BLS series covering prices, employment, wages, employment costs and productivity            |
 | Treasury       | Daily nominal and TIPS-based real par yield curves; federal Debt to the Penny observations             |
 | Macro analysis | CPI/core CPI YoY, payroll monthly changes and the same-day 10Y–2Y nominal spread, with original inputs |
 | Rates / FX     | Overnight EFFR/SOFR; ECB daily reference FX for 31 currencies, with per-currency history limits        |
@@ -24,13 +24,15 @@ US national accounts add sixteen BEA series; Japanese macro adds twenty-nine BOJ
 
 Run `atlas research catalog --json` for identifiers, query fields, units and limits for all 32 datasets. The [research guide](docs/research.md) includes examples for each dataset.
 
-`activity_economics` supplies twenty-two curated US/Australian/Canadian/Chinese selections through Census, Federal Reserve G.17, DOL series distributed by FRED, ABS, StatCan, OECD and World Bank WDI. Six activity/country presets bring the total to twenty-two, including a three-item US goods/services trade overview. Seven Japanese Dashboard selectors cover machinery orders, trade, current account and corporate statistics. Weekly claims keep Saturday dates; Canadian flags distinguish true zeros from suppressed/missing values; China WDI GDP stays annual. Australian monthly CPI uses `ABS,CPI,2.0.0`; quarterly CPI uses the separate `CPI_Q` flow. Census preserves program and time-slot identity, including reported negative trade balances. Text-cell locators extend compact evidence for G.17. Live source compatibility, including exact new Dashboard and ABS labour selectors, remains unverified.
+`activity_economics` supplies twenty-two curated US/Australian/Canadian/Chinese selections through Census, Federal Reserve G.17, DOL series distributed by FRED, ABS, StatCan, OECD and World Bank WDI. Six activity/country presets, plus the BLS `us_inflation_costs` preset, bring the total to twenty-three, including a three-item US goods/services trade overview. Seven Japanese Dashboard selectors cover machinery orders, trade, current account and corporate statistics. Weekly claims keep Saturday dates; Canadian flags distinguish true zeros from suppressed/missing values; China WDI GDP stays annual. Australian monthly CPI uses `ABS,CPI,2.0.0`; quarterly CPI uses the separate `CPI_Q` flow. Census preserves program and time-slot identity, including reported negative trade balances. Text-cell locators extend compact evidence for G.17. Live source compatibility, including exact new Dashboard and ABS labour selectors, remains unverified.
 
 IMF/OECD/ABS SDMX dataflow/code discovery and metadata-validated single-series reads add international monthly, quarterly and annual coverage. `macro_panel` aligns up to ten explicit queries with last/mean aggregation, exact inputs and missing cells. Offline series search covers registered series and supported FX pairs, with country/frequency/unit/source filters. [Discovery, limits and examples](docs/international-macro.md).
 
 Japanese government bonds add Ministry of Finance 1–40-year constant-maturity yields. Three bond presets cover US, Japan or combined context through the existing six research tools. Same-date curve slopes, butterflies, US nominal/real par gaps and preceding-observation changes retain exact inputs and basis-point formulas. MOF original CSV cells resolve through compact evidence IDs, with current-month rows authoritative over overlapping history. Par inflation compensation is a proxy, not pure expected inflation. Live MOF/Treasury compatibility for this expansion remains unverified. [Government bond guide](docs/fixed-income.md).
 
 Euro area government research adds separate ECB AAA/all-rating, continuously compounded zero-coupon spot curves. Australian government research adds RBA interpolated nominal 2/3/5/10-year yields. Twenty-three additional source-local slopes, butterflies and preceding-observation changes bring the curve registry to 50 series. Regional and four-region presets retain source conventions and independent observation dates; no individual European sovereign, UK gilt or cross-country basis/FX conversion is inferred. [Regional bond coverage](docs/fixed-income.md#euro-area-and-australia).
+
+Six additional BLS selections add quarterly civilian employment-cost indexes and nonfarm productivity/unit-labor-cost growth, plus monthly import/export price indexes. Quarterly Q01–Q04 dates, source index bases, annualization and reference-month conventions remain explicit. Q05 annual summaries are excluded from quarterly selections and counted in coverage. Series search, the `us_inflation_costs` preset and calendar panels share these definitions without another source account.
 
 ## Interfaces
 
@@ -54,7 +56,7 @@ Five named presets (`company_overview`, `us_macro_overview`, `fx_context`, `japa
 
 Connection diagnostics validate selected source configuration without creating source clients or echoing contact settings. Explicit network opt-in reuses fixed source probes, caches/quotas and private baselines in the configured state directory. Configuration readiness, probe status and synthetic mode remain distinct. Fixture diagnostics never run network probes.
 
-Opt-in source checks cover twenty-one official source families with thirty-three fixed probes. IMF/OECD probes check dataflow metadata, without certifying observation retrieval. They capture raw-byte and structure hashes, observation dates, latency and changes against private last-success baselines. A manual workflow keeps live requests separate from offline CI. Fixture/mock checks do not establish live connectivity. See [operator source checks](docs/source-checks.md).
+Opt-in source checks cover twenty-one official source families with thirty-six fixed probes. IMF/OECD probes check dataflow metadata, without certifying observation retrieval. They capture raw-byte and structure hashes, observation dates, latency and changes against private last-success baselines. A manual workflow keeps live requests separate from offline CI. Fixture/mock checks do not establish live connectivity. See [operator source checks](docs/source-checks.md).
 
 ## Optional native factor risk models
 

@@ -117,6 +117,86 @@ BLS_SERIES = {
     ),
 }
 
+# Additional interpretation fields for the quarterly and trade-price selections.
+# The four-field registry remains compatible with existing series-ID consumers.
+BLS_DETAILS: dict[str, dict[str, Any]] = {}
+for _key, _code, _title, _unit, _frequency, _adjusted, _annualized, _base, _kind in (
+    (
+        "employment_cost_compensation",
+        "CIS1010000000000I",
+        "Employment Cost Index, total compensation, all civilian workers",
+        "index_2005_12_100",
+        "quarterly",
+        True,
+        False,
+        "2005-12",
+        "quarter_end_reference_month",
+    ),
+    (
+        "employment_cost_wages",
+        "CIS1020000000000I",
+        "Employment Cost Index, wages and salaries, all civilian workers",
+        "index_2005_12_100",
+        "quarterly",
+        True,
+        False,
+        "2005-12",
+        "quarter_end_reference_month",
+    ),
+    (
+        "nonfarm_productivity_growth",
+        "PRS85006092",
+        "Nonfarm business labor productivity, quarter-on-quarter percent change at annual rate",
+        "percent",
+        "quarterly",
+        True,
+        True,
+        None,
+        "quarter_over_quarter_change",
+    ),
+    (
+        "unit_labor_cost_growth",
+        "PRS85006112",
+        "Nonfarm business unit labor costs, quarter-on-quarter percent change at annual rate",
+        "percent",
+        "quarterly",
+        True,
+        True,
+        None,
+        "quarter_over_quarter_change",
+    ),
+    (
+        "import_prices",
+        "EIUIR",
+        "Import price index, all commodities, BEA end-use classification",
+        "index_2000_100",
+        "monthly",
+        False,
+        False,
+        "2000",
+        None,
+    ),
+    (
+        "export_prices",
+        "EIUIQ",
+        "Export price index, all commodities, BEA end-use classification",
+        "index_2000_100",
+        "monthly",
+        False,
+        False,
+        "2000",
+        None,
+    ),
+):
+    BLS_SERIES[_key] = (_code, _title, _unit, _adjusted)
+    BLS_DETAILS[_key] = {
+        "frequency": _frequency,
+        "annualized": _annualized,
+        "base_period": _base,
+    }
+    if _kind is not None:
+        BLS_DETAILS[_key]["reference_period_kind"] = _kind
+
 SOURCE_CATALOG = {
     "rba": {
         "name": "Reserve Bank of Australia government bond yields",

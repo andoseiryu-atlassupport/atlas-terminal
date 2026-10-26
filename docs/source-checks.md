@@ -13,7 +13,7 @@ uv run atlas research check-sources --sources ecb --max-observation-lag-days 7 -
 | Source ID         | Fixed probes                                                             |
 | ----------------- | ------------------------------------------------------------------------ |
 | `sec`             | AAPL current issuer directory resolution and submissions profile         |
-| `bls`             | Registration-free CPI observations                                       |
+| `bls`             | Registration-free CPI, ECI, productivity and import-price observations   |
 | `eurostat`        | Current ECOICOP-v2 euro-area HICP annual change                          |
 | `ons`             | UK all-items CPI index                                                   |
 | `ecb`             | ECB reference USD/JPY using same-date EUR inputs                         |

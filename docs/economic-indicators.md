@@ -8,7 +8,7 @@ These additions are available in the latest source checkout. They are not includ
 
 | Dataset              | Registered series | Coverage                                                                                                                                                                 |
 | -------------------- | ----------------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `economics`          |                16 | US BLS consumer/producer prices, payrolls, manufacturing employment, wages, weekly hours, participation, unemployment duration, job openings, hires, quits and layoffs   |
+| `economics`          |                22 | US BLS price/labour statistics, quarterly employment costs and nonfarm productivity/unit labor cost growth, plus monthly import/export prices                            |
 | `national_accounts`  |                16 | US BEA GDP, real expenditure components, PCE prices, nominal/real consumption, personal/disposable income and saving rate                                                |
 | `japan_economics`    |                29 | BOJ rates/FX/Tankan/money/credit plus government GDP, prices, employment, production, consumption, housing, machinery orders, external accounts and corporate statistics |
 | `europe_economics`   |                48 | Eight measures for each of the euro area, EU, Germany, France, Italy and Spain                                                                                           |
@@ -53,6 +53,36 @@ New BLS selectors are `ppi_final_demand`, `manufacturing_payrolls`, `average_wee
 New BEA selectors are `gdp_consumption_real`, `business_investment_real`, `residential_investment_real`, `government_consumption_investment_real`, `exports_real`, `imports_real`, `personal_saving_rate` and `pce_real`. Real GDP components use NIPA table `T10106`; real monthly PCE uses `T20806`; saving uses `T20600`. Annual-rate flows and the nonannualized saving percentage remain distinct. Reported `CL_UNIT`, `UNIT_MULT`, measurement and source line identities are preserved without changing scale or chaining bases.
 
 BEA requires a privately configured, free registered `BEA_API_KEY`. The additional US activity sources below use separate free keys for Census and FRED. Missing configuration fails only the affected items in a batch or preset.
+
+## US employment costs, productivity and trade prices
+
+These six selections use the existing registration-free BLS `economics` dataset. No FRED or Census key is needed for them.
+
+| Series                         | BLS ID              | Measurement                                                                                        |
+| ------------------------------ | ------------------- | -------------------------------------------------------------------------------------------------- |
+| `employment_cost_compensation` | `CIS1010000000000I` | Civilian-worker total compensation ECI, seasonally adjusted index, December 2005=100               |
+| `employment_cost_wages`        | `CIS1020000000000I` | Civilian-worker wages/salaries ECI, same adjustment and base                                       |
+| `nonfarm_productivity_growth`  | `PRS85006092`       | Nonfarm business labor productivity, published quarter-on-quarter percent change at an annual rate |
+| `unit_labor_cost_growth`       | `PRS85006112`       | Nonfarm business unit labor costs, same published change convention                                |
+| `import_prices`                | `EIUIR`             | Monthly all-commodities import price index, BEA end-use classification, unadjusted, 2000=100       |
+| `export_prices`                | `EIUIQ`             | Monthly all-commodities export price index, same classification, adjustment and base               |
+
+ECI and productivity/cost observations use `Q01`–`Q04`. Their normalized dates are March 31, June 30, September 30 and December 31. ECI describes the quarter-end reference month rather than a three-month average; its `reference_period_kind` records that distinction. The ECI selections return index levels, not the adjacent percentage-change columns in the release tables. The [ECI source format](https://download.bls.gov/pub/time.series/ci/ci.txt) and [compensation](https://www.bls.gov/news.release/eci.t01.htm)/[wages](https://www.bls.gov/news.release/eci.t02.htm) tables explain these definitions.
+
+Productivity and unit labor cost growth have `unit="percent"`, `annualized=true` and `reference_period_kind="quarter_over_quarter_change"`. A value of `1.4` means a reported 1.4% annualized change. Atlas neither divides it by 100 nor annualizes it again. These are reported observations, not Atlas-derived growth estimates. The [nonfarm business table](https://www.bls.gov/news.release/prod2.t02.htm) distinguishes quarterly changes at annual rates from annual summaries and year-over-year changes. The [BLS series page](https://data.bls.gov/timeseries/PRS85006092) and [productivity format](https://download.bls.gov/pub/time.series/pr/pr.txt) define the selection and periods.
+
+`Q05` is an annual summary, not a fifth quarter or a replacement for Q4. Quarterly selections exclude such rows and expose `coverage.excluded_annual_summary_rows`; the original rows remain accessible through source bytes/hashes. Missing quarters remain missing. Monthly price selections continue to distinguish `M13` annual averages from monthly observations. Unexpected frequencies fail explicitly. Calendar panels retain the measurement and annualization fields, exclude annual averages and reject upsampling quarterly observations into months.
+
+The [import-price](https://www.bls.gov/news.release/ximpim.t01.htm) and [export-price](https://www.bls.gov/news.release/ximpim.t02.htm) tables publish index bases and separate index levels from percentage changes. These selections cover commodity trade prices, not Census goods/services trade values. The [international price format](https://download.bls.gov/pub/time.series/ei/ei.txt) documents periods and historical frequency changes; older quarterly observations are not silently relabeled monthly.
+
+```sh
+uv run --offline atlas research preset us_inflation_costs --preview --provider fixture --json
+uv run --offline atlas research preset us_inflation_costs --provider fixture --json
+uv run --offline atlas research get economics --series employment_cost_compensation --provider fixture --json
+uv run --offline atlas research catalog --dataset economics --frequency quarterly --json
+```
+
+`us_inflation_costs` combines the six selections with CPI and PPI final demand in eight inspectable reads. It preserves independent dates and frequencies and accepts paired dates, item selection and quality requirements. Dated reads remain in ten-year chunks under the shared BLS V1 limit of 25 attempts per UTC day; a long multi-item request can consume most of that allowance. Preview is offline and cached reads avoid unnecessary requests. All examples use fictional data; documentation inspection is not live API verification.
 
 ## US activity and weekly claims
 
@@ -191,7 +221,7 @@ Submit this to `atlas_get_research_preset`. Python `Atlas.get_research_preset` a
 
 ## Remaining coverage gaps
 
-US international trade and fuller Census categories, China's domestic quarterly GDP/monthly industrial output/retail/trade, and broader Australian/Canadian demand and labour details remain gaps. The curated registries do not represent every government release. Japanese Dashboard indicators depend on exact active source metadata; registration in the catalog does not establish live availability. Existing Australian government yields are a separate dataset.
+Bilateral/detail trade and fuller Census categories, China's domestic quarterly GDP/monthly industrial output/retail/trade, and broader Australian/Canadian demand and labour details remain gaps. The curated registries do not represent every government release. Japanese Dashboard indicators depend on exact active source metadata; registration in the catalog does not establish live availability. Existing Australian government yields are a separate dataset.
 
 Consensus expectations, release surprises, private PMI/ISM/conference-board indexes, forecasts and historical release vintages are not inferred or substituted. A free article or chart does not establish redistribution rights to its underlying private series.
 

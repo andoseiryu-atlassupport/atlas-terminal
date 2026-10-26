@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add six registration-free BLS employment-cost, productivity, unit-labor-cost and import/export-price selections, plus the eight-item `us_inflation_costs` preset. Preserve quarterly periods, source index bases and published annualized changes; exclude Q05 annual summaries explicitly and retain original evidence.
+
 - Add US goods/services trade exports, imports and reported balance with a shared preset. Include Census program/time-slot fields in requests and validate their returned identities.
 - Add ABS monthly CPI 2.0.0 and move quarterly CPI to the separate `CPI_Q` flow, preserving frequencies, source bases and explicit metadata failures. Add opt-in probes for trade and both CPI frequencies.
 

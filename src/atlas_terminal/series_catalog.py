@@ -5,7 +5,7 @@ from typing import Any
 from atlas_terminal.activity_catalog import ACTIVITY_SERIES
 from atlas_terminal.economic_catalog import JAPAN_SERIES, NATIONAL_ACCOUNTS
 from atlas_terminal.macro_catalog import CURVE_SERIES, FX_CURRENCIES, MACRO_SERIES, REFERENCE_SERIES
-from atlas_terminal.public_sources import BLS_SERIES, SOURCE_CATALOG
+from atlas_terminal.public_sources import BLS_DETAILS, BLS_SERIES, SOURCE_CATALOG
 from atlas_terminal.regional_economic_catalog import EUROPE_SERIES, UK_SERIES
 from atlas_terminal.research_models import CatalogQuery
 
@@ -51,6 +51,11 @@ def series_catalog(filters: CatalogQuery) -> dict[str, Any]:
             "current_account": ["経常収支", "国際収支"],
             "trade": ["貿易", "輸出", "輸入"],
             "durable": ["耐久財", "受注"],
+            "employment_cost": ["雇用コスト", "賃金"],
+            "productivity": ["労働生産性"],
+            "unit_labor_cost": ["単位労働コスト"],
+            "import_prices": ["輸入物価"],
+            "export_prices": ["輸出物価"],
         }.items():
             if term in key:
                 aliases.extend(words)
@@ -82,11 +87,12 @@ def series_catalog(filters: CatalogQuery) -> dict[str, Any]:
             title,
             "bls",
             "US",
-            "monthly",
+            BLS_DETAILS.get(key, {}).get("frequency", "monthly"),
             unit,
             {"series": key},
             source_series=code,
             seasonally_adjusted=adjusted,
+            **{k: v for k, v in BLS_DETAILS.get(key, {}).items() if k != "frequency"},
         )
     for key, activity in ACTIVITY_SERIES.items():
         add(

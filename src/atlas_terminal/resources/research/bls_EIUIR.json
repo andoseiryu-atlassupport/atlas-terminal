@@ -1,0 +1,54 @@
+{
+  "status": "REQUEST_SUCCEEDED",
+  "message": [
+    "Fictional BLS-shaped fixture, not actual observations."
+  ],
+  "Results": {
+    "series": [
+      {
+        "seriesID": "EIUIR",
+        "data": [
+          {
+            "year": "2026",
+            "period": "M01",
+            "value": "101.12345678901234567890",
+            "footnotes": [
+              {
+                "code": "P",
+                "text": "Synthetic preliminary observation; not actual BLS data."
+              }
+            ]
+          },
+          {
+            "year": "2026",
+            "period": "M02",
+            "value": "0",
+            "footnotes": [
+              {
+                "code": "P",
+                "text": "Synthetic preliminary observation; not actual BLS data."
+              }
+            ]
+          },
+          {
+            "year": "2026",
+            "period": "M03",
+            "value": "-",
+            "footnotes": [
+              {
+                "code": "P",
+                "text": "Synthetic preliminary observation; not actual BLS data."
+              }
+            ]
+          },
+          {
+            "year": "2025",
+            "period": "M13",
+            "value": "777.000",
+            "footnotes": []
+          }
+        ]
+      }
+    ]
+  }
+}

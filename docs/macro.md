@@ -83,7 +83,7 @@ Every derived record retains `formula`, `inputs`, `unit`, `status` and a missing
 
 ## US national accounts
 
-The current source checkout expands BEA to sixteen series, Japanese macro to twenty-two, and BLS to sixteen. Eurostat and ONS add European/UK official statistical series and five activity/global presets. [Complete additions, exact definitions and examples](economic-indicators.md). Existing release assets are unchanged.
+The current source checkout expands BEA to sixteen series, Japanese macro to twenty-nine, and BLS to twenty-two. Eurostat and ONS add European/UK official statistical series and five activity/global presets. [Complete additions, exact definitions and examples](economic-indicators.md). Existing release assets are unchanged.
 
 Use `national_accounts` with one of these curated series:
 

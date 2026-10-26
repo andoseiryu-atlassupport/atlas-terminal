@@ -15,7 +15,14 @@ from atlas_terminal.economic_sources import (
 )
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.providers import Transport
-from atlas_terminal.public_sources import BLS_BASE, BLS_SERIES, SOURCE_CATALOG, bls_url, xml_root
+from atlas_terminal.public_sources import (
+    BLS_BASE,
+    BLS_DETAILS,
+    BLS_SERIES,
+    SOURCE_CATALOG,
+    bls_url,
+    xml_root,
+)
 from atlas_terminal.research_financials import reference
 from atlas_terminal.research_macro import numeric, observation_date, result_page, source_error
 from atlas_terminal.research_models import ResearchQuery
@@ -49,6 +56,9 @@ def bls_economics(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
     key, (series_id, title, unit, adjusted) = next(
         (key, meta) for key, meta in BLS_SERIES.items() if q.series in {key, meta[0]}
     )
+    details = BLS_DETAILS.get(key, {})
+    quarterly = details.get("frequency") == "quarterly"
+    period_pattern = r"Q0[1-5]" if quarterly else r"M(?:0[1-9]|1[0-3])"
     first, last = years(q.start_date, q.end_date)
     spans: list[tuple[int | None, int | None]] = (
         [(y, min(y + 9, last)) for y in range(first, last + 1, 10)]
@@ -56,6 +66,7 @@ def bls_economics(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
         else [(None, None)]
     )
     records, sources, seen = [], [], set()
+    excluded_summaries = 0
     for low, high in spans:
         url = (
             bls_url(series_id, low, high)
@@ -79,8 +90,8 @@ def bls_economics(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
         ):
             raise source_error("BLS response series does not match the request.")
         rows = series[0].get("data")
-        if not isinstance(rows, list) or len(rows) > 130:
-            raise source_error("BLS response exceeds a ten-year monthly window.")
+        if not isinstance(rows, list) or len(rows) > (50 if quarterly else 130):
+            raise source_error("BLS response exceeds its ten-year frequency-specific window.")
         request = (
             {
                 "request_method": "POST",
@@ -98,46 +109,61 @@ def bls_economics(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
         for i, row in enumerate(rows):
             if (
                 not isinstance(row, dict)
-                or not re.fullmatch(r"M(?:0[1-9]|1[0-3])", str(row.get("period", "")))
+                or not re.fullmatch(period_pattern, str(row.get("period", "")))
                 or not re.fullmatch(r"[0-9]{4}", str(row.get("year", "")))
                 or not 1900 <= int(row["year"]) <= 2100
             ):
                 raise source_error("Unsupported BLS observation period.")
-            year, month = int(row["year"]), int(row["period"][1:])
+            year, period = int(row["year"]), int(row["period"][1:])
             # Fictional fixtures intentionally contain only their documented sample years.
             if low is not None and high is not None and not low <= year <= high:
                 if transport.synthetic:
                     continue
                 raise source_error("BLS returned a year outside the requested chunk.")
-            identity = (year, month)
+            identity = (year, period)
             if identity in seen:
                 raise source_error("Duplicate BLS observation period.")
             seen.add(identity)
+            # A Q05 summary is not Q4 or an annualized quarterly change. Keep it
+            # in the original source, but exclude it from these quarterly series.
+            if quarterly and period == 5:
+                excluded_summaries += 1
+                continue
+            month = period * 3 if quarterly else period
             observed = month_end(year, min(month, 12))
             if not within(observed, q.start_date, q.end_date):
                 continue
             value = None if row.get("value") in ("-", "", None) else numeric(row["value"])
             records.append(
                 {
+                    **details,
                     "series": key,
                     "series_id": series_id,
                     "year": row["year"],
                     "period": row["period"],
-                    "period_kind": "annual_average" if month == 13 else "month",
+                    "period_kind": "quarter"
+                    if quarterly
+                    else "annual_average"
+                    if month == 13
+                    else "month",
                     "date": observed,
                     "date_basis": "observation_period_end",
                     "value": value,
                     "status": "unavailable" if value is None else "reported",
                     "unit": unit,
                     "seasonally_adjusted": adjusted,
-                    "frequency": "annual_average" if month == 13 else "monthly",
+                    "frequency": "quarterly"
+                    if quarterly
+                    else "annual_average"
+                    if month == 13
+                    else "monthly",
                     "published_at": None,
                     "footnotes": row.get("footnotes", []),
                     "latest": row.get("latest"),
                     "source": {**reference(snapshot, f"{prefix}/series/0/data/{i}"), **request},
                 }
             )
-    return economic_page(
+    result = economic_page(
         q,
         records,
         sources,
@@ -152,6 +178,12 @@ def bls_economics(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
                 "Dates are period ends, not release dates."
             ),
             (
+                "Q05 annual summary rows are excluded from quarterly selections. "
+                "Index levels and published annualized percent changes stay distinct; "
+                "Atlas does not calculate or annualize these reported values."
+            )
+            if quarterly
+            else (
                 "M13 annual averages are separate from monthly observations; no "
                 "implicit percent-change calculation."
             ),
@@ -161,6 +193,9 @@ def bls_economics(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
             ),
         ],
     )
+    if quarterly:
+        result["coverage"]["excluded_annual_summary_rows"] = excluded_summaries
+    return result
 
 
 def bea_period(raw: Any, frequency: str) -> tuple[str, str, str]:
