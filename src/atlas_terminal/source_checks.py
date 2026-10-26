@@ -73,6 +73,18 @@ PROBES: dict[str, tuple[str, dict[str, Any]]] = {
     "oecd_catalog": ("oecd", {"dataset": "sdmx_catalog", "source_id": "oecd", "limit": 1}),
     "sec_profile": ("sec", {"dataset": "profile", "identifier": "AAPL"}),
     "bls_cpi": ("bls", {"dataset": "economics", "series": "cpi", "limit": 5}),
+    "bls_employment_cost": (
+        "bls",
+        {"dataset": "economics", "series": "employment_cost_compensation", "limit": 1},
+    ),
+    "bls_productivity": (
+        "bls",
+        {"dataset": "economics", "series": "nonfarm_productivity_growth", "limit": 1},
+    ),
+    "bls_import_prices": (
+        "bls",
+        {"dataset": "economics", "series": "import_prices", "limit": 1},
+    ),
     "ecb_fx": (
         "ecb",
         {

@@ -1,0 +1,65 @@
+{
+  "status": "REQUEST_SUCCEEDED",
+  "message": [
+    "Fictional BLS-shaped fixture, not actual observations."
+  ],
+  "Results": {
+    "series": [
+      {
+        "seriesID": "PRS85006092",
+        "data": [
+          {
+            "year": "2026",
+            "period": "Q01",
+            "value": "1.12345678901234567890",
+            "footnotes": [
+              {
+                "code": "P",
+                "text": "Synthetic preliminary observation; not actual BLS data."
+              }
+            ]
+          },
+          {
+            "year": "2026",
+            "period": "Q02",
+            "value": "0",
+            "footnotes": [
+              {
+                "code": "P",
+                "text": "Synthetic preliminary observation; not actual BLS data."
+              }
+            ]
+          },
+          {
+            "year": "2026",
+            "period": "Q03",
+            "value": "-",
+            "footnotes": [
+              {
+                "code": "P",
+                "text": "Synthetic preliminary observation; not actual BLS data."
+              }
+            ]
+          },
+          {
+            "year": "2026",
+            "period": "Q04",
+            "value": "-1.250",
+            "footnotes": [
+              {
+                "code": "P",
+                "text": "Synthetic preliminary observation; not actual BLS data."
+              }
+            ]
+          },
+          {
+            "year": "2026",
+            "period": "Q05",
+            "value": "999.000",
+            "footnotes": []
+          }
+        ]
+      }
+    ]
+  }
+}

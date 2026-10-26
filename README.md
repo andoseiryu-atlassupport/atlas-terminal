@@ -39,7 +39,7 @@ Atlas provides 32 datasets from SEC EDGAR, BLS, US Treasury yields, Treasury Fis
 | XBRL         | Concept inventory and raw observations with their taxonomy, units and contexts                                                        |
 | Disclosures  | All-form filing discovery, including ownership, fund, proxy, offering and corporate-action filings                                    |
 | Ownership    | Form 3/4/5 transactions and positions; a selected manager's 13F information table                                                     |
-| Macro        | Sixteen BLS price/labor series, CPI/core CPI YoY, payroll changes, government curves and federal debt                                 |
+| Macro        | Twenty-two BLS price/labor/cost/productivity series, CPI/core CPI YoY, payroll changes, government curves and federal debt            |
 | Rates / FX   | EFFR and SOFR overnight rates; ECB daily reference FX for 31 currencies, with traceable inverse and cross calculations                |
 | US accounts  | Sixteen BEA GDP, demand-component, PCE/income and saving-rate series                                                                  |
 | US activity  | Retail, housing, durable goods, industrial production, weekly claims and goods/services trade                                         |

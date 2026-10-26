@@ -44,6 +44,7 @@ PresetName = Literal[
     "global_macro_overview",
     "us_activity_extended",
     "us_trade_overview",
+    "us_inflation_costs",
     "japan_external_corporate",
     "australia_macro_overview",
     "canada_macro_overview",
@@ -526,6 +527,24 @@ PRESETS.update(
     }
 )
 for _name, _description, _dataset, _series in (
+    (
+        "us_inflation_costs",
+        (
+            "BLS CPI/PPI, employment costs, nonfarm productivity/unit labor cost growth "
+            "and import/export prices; original monthly and quarterly definitions."
+        ),
+        "economics",
+        [
+            "cpi",
+            "ppi_final_demand",
+            "employment_cost_compensation",
+            "employment_cost_wages",
+            "nonfarm_productivity_growth",
+            "unit_labor_cost_growth",
+            "import_prices",
+            "export_prices",
+        ],
+    ),
     (
         "us_trade_overview",
         "US monthly goods and services exports, imports and reported balance, BOP basis.",

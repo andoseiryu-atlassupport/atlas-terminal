@@ -189,11 +189,16 @@ def test_checks_revalidate_unexpired_cache_and_share_the_normal_bls_daily_quota(
 
     def handler(request):
         requests.append(request)
-        if len(requests) > 1:
+        if "if-none-match" in request.headers:
             return httpx.Response(304, headers={"etag": "synthetic"})
+        body = RESOURCE.joinpath(
+            "bls_" + request.url.path.rsplit("/", 1)[-1] + ".json"
+        ).read_bytes()
+        # This case tests cache/quotas with available observations for every probe.
+        body = body.replace(b'"value": "-"', b'"value": "1.000"')
         return httpx.Response(
             200,
-            content=RESOURCE.joinpath("bls_" + BLS_SERIES["cpi"][0] + ".json").read_bytes(),
+            content=body,
             headers={"etag": "synthetic"},
         )
 
@@ -211,14 +216,14 @@ def test_checks_revalidate_unexpired_cache_and_share_the_normal_bls_daily_quota(
     ordinary.get(BLS_BASE + BLS_SERIES["cpi"][0], 21600)
     ordinary.close()
     result = check_sources(["bls"], allow_network=True, directory=tmp_path)
-    assert result["status"] == "PASS" and len(requests) == 2
+    assert result["status"] == "PASS" and len(requests) == 5, result["checks"]
     assert requests[1].headers["if-none-match"] == "synthetic"
     with ordinary.db.connect(write=True) as conn:
-        assert conn.execute("SELECT used FROM source_daily_usage").fetchone()[0] == 2
+        assert conn.execute("SELECT used FROM source_daily_usage").fetchone()[0] == 5
         conn.execute("UPDATE source_daily_usage SET used=25")
     blocked = check_sources(["bls"], allow_network=True, directory=tmp_path)
     assert blocked["checks"][0]["error"]["code"] == "SOURCE_RATE_LIMITED"
-    assert len(requests) == 2
+    assert len(requests) == 5
 
 
 def test_missing_sec_contact_is_not_run_and_optional_observation_lag_fails_explicitly(

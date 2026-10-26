@@ -30,6 +30,7 @@ from atlas_terminal.providers import (
     Transport,
 )
 from atlas_terminal.public_sources import (
+    BLS_DETAILS,
     BLS_SERIES,
     DEBT_URL,
     FED_NEWS,
@@ -203,7 +204,11 @@ DATASETS = {
         "sec",
         "filing_metadata",
     ),
-    "economics": ("Sixteen BLS employment, wage and inflation series", "bls", "observations"),
+    "economics": (
+        "Twenty-two BLS price, labor, employment-cost and productivity series",
+        "bls",
+        "observations",
+    ),
     "treasury_yields": ("Daily US Treasury nominal par yield curve", "treasury", "observations"),
     "federal_debt": ("Treasury Debt to the Penny", "fiscaldata", "observations"),
     "policy_news": (
@@ -381,7 +386,14 @@ def research_catalog(
         "analytics_metrics": analytics_catalog(),
         "periods": ["annual", "quarterly", "ytd"],
         "economic_series": {
-            k: {"series_id": v[0], "title": v[1], "unit": v[2], "seasonally_adjusted": v[3]}
+            k: {
+                "series_id": v[0],
+                "title": v[1],
+                "unit": v[2],
+                "seasonally_adjusted": v[3],
+                "frequency": "monthly",
+                **BLS_DETAILS.get(k, {}),
+            }
             for k, v in BLS_SERIES.items()
         },
         "national_accounts_series": NATIONAL_ACCOUNTS,

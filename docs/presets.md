@@ -8,6 +8,8 @@ Three additional government-bond presets, `us_bond_context`, `japan_bond_context
 
 ## Discover and preview
 
+`us_inflation_costs` combines eight registration-free BLS selections: CPI, PPI final demand, civilian compensation/wage ECI, nonfarm productivity/unit labor cost growth, and import/export price indexes. It retains monthly/quarterly frequencies and distinguishes index levels from published annualized changes. See [definitions and examples](economic-indicators.md#us-employment-costs-productivity-and-trade-prices). It accepts paired optional dates and expands into ordinary BLS reads under the shared API quota.
+
 Additional activity presets are `us_activity_extended` (8 items), `us_trade_overview` (3), `japan_external_corporate` (7), `australia_macro_overview` (4), `canada_macro_overview` (3) and `china_macro_overview` (4). They accept optional paired dates, selected item IDs and quality requirements. Their JSON templates live in `examples/research_presets/`. Preview lists sources and configuration diagnosis checks free Census/FRED key requirements before any read; the other new sources need no key. China's GDP remains annual WDI data; Australia's monthly and quarterly CPI remain distinct. [Definitions and coverage limits](economic-indicators.md).
 
 Five additional economic presets accept optional paired observation dates: `japan_activity_overview` (10 items), `us_activity_overview` (10), `euro_area_macro_overview` (9), `uk_macro_overview` (6) and `global_macro_overview` (10). They cover GDP, real activity, consumption and labour/price indicators through existing batches, with selection, preview and independent errors. BEA items require a free key; other included statistical sources do not. Definitions, annualization, euro-area composition and UK three-month rolling unemployment remain source-specific. [Exact series, source contracts and remaining gaps](economic-indicators.md).
@@ -84,7 +86,7 @@ Each `overview` row corresponds to one planned item and contains:
 - `availability`: `available`, `partial`, `unavailable` or `error`. A successful read can contain unavailable values. `available` is not a freshness or completeness certificate; also inspect quality and coverage.
 - `returned_records` and `usable_records`, measured over returned leaf records. Failed reads have null counts rather than invented zero observations.
 - `units`, source IDs and source-specific `cadence_and_limits`.
-- `observation_dates`: earliest/latest usable observation or period end. BLS monthly/yearly periods map to calendar period ends; filing discovery uses filing dates, and undated profiles remain unknown. Original periods remain in the batch records.
+- `observation_dates`: earliest/latest usable observation or period end. BLS monthly/quarterly/yearly periods map to calendar period ends; filing discovery uses filing dates, and undated profiles remain unknown. Original periods remain in the batch records.
 - `publication_times`: only explicit, timezone-aware `published_at` values, normalized to UTC, with known/unknown record counts. Filing acceptance dates, observation dates and retrieval times do not fill missing publication timestamps.
 - `source_retrieval_times`: oldest/newest source retrieval/check used by the selected result, including calculation inputs. Source retrieval is not publication freshness.
 - `quality`: complete-result missingness, partial/truncated coverage, derivation and requirement checks. Missingness counts can include unavailable calculation inputs as well as output records.

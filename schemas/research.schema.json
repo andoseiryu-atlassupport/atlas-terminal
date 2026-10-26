@@ -777,9 +777,13 @@
                 "CES0500000002",
                 "CES0500000003",
                 "CES3000000001",
+                "CIS1010000000000I",
+                "CIS1020000000000I",
                 "CUSR0000SA0",
                 "CUUR0000SA0",
                 "CUUR0000SA0L1E",
+                "EIUIQ",
+                "EIUIR",
                 "JTS000000000000000HIL",
                 "JTS000000000000000JOL",
                 "JTS000000000000000LDL",
@@ -788,23 +792,31 @@
                 "LNS12300000",
                 "LNS13008636",
                 "LNS14000000",
+                "PRS85006092",
+                "PRS85006112",
                 "WPSFD4",
                 "average_weekly_hours",
                 "core_cpi",
                 "cpi",
                 "cpi_sa",
+                "employment_cost_compensation",
+                "employment_cost_wages",
                 "employment_population_ratio",
+                "export_prices",
                 "hourly_earnings",
+                "import_prices",
                 "job_hires",
                 "job_layoffs",
                 "job_openings",
                 "job_quits",
                 "long_term_unemployment",
                 "manufacturing_payrolls",
+                "nonfarm_productivity_growth",
                 "participation",
                 "payrolls",
                 "ppi_final_demand",
-                "unemployment"
+                "unemployment",
+                "unit_labor_cost_growth"
               ],
               "maxLength": 100,
               "minLength": 1,
@@ -6027,6 +6039,116 @@
                 {
                   "items": {
                     "enum": [
+                      "cpi",
+                      "ppi_final_demand",
+                      "employment_cost_compensation",
+                      "employment_cost_wages",
+                      "nonfarm_productivity_growth",
+                      "unit_labor_cost_growth",
+                      "import_prices",
+                      "export_prices"
+                    ]
+                  },
+                  "maxItems": 10,
+                  "minItems": 1,
+                  "type": "array",
+                  "uniqueItems": true
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Include"
+            },
+            "preset": {
+              "const": "us_inflation_costs",
+              "type": "string"
+            },
+            "preview": {
+              "default": false,
+              "title": "Preview",
+              "type": "boolean"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "requirements_by_item": {
+              "additionalProperties": {
+                "$ref": "#/$defs/ResearchRequirements"
+              },
+              "maxProperties": 10,
+              "propertyNames": {
+                "enum": [
+                  "cpi",
+                  "ppi_final_demand",
+                  "employment_cost_compensation",
+                  "employment_cost_wages",
+                  "nonfarm_productivity_growth",
+                  "unit_labor_cost_growth",
+                  "import_prices",
+                  "export_prices"
+                ]
+              },
+              "title": "Requirements By Item",
+              "type": "object"
+            },
+            "start_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Start Date"
+            },
+            "view": {
+              "default": "compact",
+              "enum": ["full", "compact"],
+              "title": "View",
+              "type": "string"
+            }
+          },
+          "required": ["preset"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "dependentRequired": {
+            "end_date": ["start_date"],
+            "start_date": ["end_date"]
+          },
+          "properties": {
+            "end_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "End Date"
+            },
+            "include": {
+              "anyOf": [
+                {
+                  "items": {
+                    "enum": [
                       "us_trade_exports",
                       "us_trade_imports",
                       "us_trade_balance"
@@ -6638,6 +6760,7 @@
             "global_macro_overview",
             "us_activity_extended",
             "us_trade_overview",
+            "us_inflation_costs",
             "japan_external_corporate",
             "australia_macro_overview",
             "canada_macro_overview",
@@ -7028,6 +7151,7 @@
             "global_macro_overview",
             "us_activity_extended",
             "us_trade_overview",
+            "us_inflation_costs",
             "japan_external_corporate",
             "australia_macro_overview",
             "canada_macro_overview",
