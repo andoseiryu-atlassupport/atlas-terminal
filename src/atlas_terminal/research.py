@@ -120,7 +120,7 @@ FAMILIES = {
 }
 DATASETS = {
     "activity_economics": (
-        "Official US activity/claims, Australian/Canadian macro and Chinese CPI/annual GDP",
+        "Official US activity/trade/claims, Australian/Canadian macro and Chinese CPI/annual GDP",
         "census",
         "observations",
     ),

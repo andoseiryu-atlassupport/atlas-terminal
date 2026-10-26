@@ -73,6 +73,8 @@ def census_data(
         "category_code",
         "seasonally_adj",
         "error_data",
+        "program_code",
+        "time_slot_id",
         "time",
         "us",
     }
@@ -84,11 +86,25 @@ def census_data(
         raise source_error(
             "Census response lacks exact unique requested dimensions and national geography."
         )
-    records, seen = [], set()
+    records, seen, slots, programs = [], set(), set(), set()
     for i, cells in enumerate(raw[1:], 1):
         if not isinstance(cells, list) or len(cells) != len(headers):
             raise source_error("Census row width differs from its headers.")
         row = dict(zip(headers, cells, strict=True))
+        program, slot = row["program_code"], row["time_slot_id"]
+        if (
+            not isinstance(program, str)
+            or not re.fullmatch(r"[A-Z][A-Z0-9_]{0,31}", program)
+            or (spec["table"] == "ftd" and program != "FTD")
+            or not isinstance(slot, str)
+            or not re.fullmatch(r"[0-9]{1,10}", slot)
+            or slot in slots
+        ):
+            raise source_error("Census program or observation-slot identity is invalid.")
+        programs.add(program)
+        slots.add(slot)
+        if len(programs) != 1:
+            raise source_error("Census returned multiple programs for one selected table.")
         if any(
             row[k] != v
             for k, v in {
@@ -534,7 +550,7 @@ def sdmx_activity(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
             raise source_error("Curated SDMX frequency or explicit unit is absent.")
         expected_country = "CHN" if spec["country"] == "CN" else "AUS"
         area = row["dimensions"].get("REF_AREA") or row["dimensions"].get("REGION")
-        if area not in ({"50"} if q.series == "au_cpi_quarterly" else {expected_country}):
+        if area != (dimensions.get("REGION") or expected_country):
             raise source_error("Curated SDMX geographic definition changed.")
         row.update(
             series=q.series,

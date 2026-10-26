@@ -10,25 +10,25 @@ uv run atlas research check-sources --sources ecb --max-observation-lag-days 7 -
 
 `--sources all` includes every source family. SEC requires a privately configured, identifying `SEC_USER_AGENT`; missing/invalid configuration reports `NOT_RUN`, independently of other probes. BEA, Census and FRED require separate private free registered API keys and also report `NOT_RUN` without them. Keep contact values and keys outside model inputs, source control and logs.
 
-| Source ID         | Fixed probes                                                     |
-| ----------------- | ---------------------------------------------------------------- |
-| `sec`             | AAPL current issuer directory resolution and submissions profile |
-| `bls`             | Registration-free CPI observations                               |
-| `eurostat`        | Current ECOICOP-v2 euro-area HICP annual change                  |
-| `ons`             | UK all-items CPI index                                           |
-| `ecb`             | ECB reference USD/JPY using same-date EUR inputs                 |
-| `new_york_fed`    | Overnight EFFR and SOFR                                          |
-| `treasury`        | Current-year nominal curve, real curve and 10Y–2Y spread         |
-| `fiscaldata`      | Debt to the Penny                                                |
-| `federal_reserve` | Official release RSS metadata and G.17 industrial production     |
-| `bea`             | Real GDP and core PCE price index                                |
-| `boj`             | Overnight call rate and large-manufacturer Tankan                |
-| `estat`           | National CPI and seasonally adjusted unemployment                |
-| `census`          | US advance retail sales                                          |
-| `fred`            | US DOL initial claims                                            |
-| `abs`             | Australian quarterly chain-volume GDP                            |
-| `statcan`         | Canadian monthly national CPI                                    |
-| `world_bank`      | Chinese annual real GDP growth                                   |
+| Source ID         | Fixed probes                                                             |
+| ----------------- | ------------------------------------------------------------------------ |
+| `sec`             | AAPL current issuer directory resolution and submissions profile         |
+| `bls`             | Registration-free CPI observations                                       |
+| `eurostat`        | Current ECOICOP-v2 euro-area HICP annual change                          |
+| `ons`             | UK all-items CPI index                                                   |
+| `ecb`             | ECB reference USD/JPY using same-date EUR inputs                         |
+| `new_york_fed`    | Overnight EFFR and SOFR                                                  |
+| `treasury`        | Current-year nominal curve, real curve and 10Y–2Y spread                 |
+| `fiscaldata`      | Debt to the Penny                                                        |
+| `federal_reserve` | Official release RSS metadata and G.17 industrial production             |
+| `bea`             | Real GDP and core PCE price index                                        |
+| `boj`             | Overnight call rate and large-manufacturer Tankan                        |
+| `estat`           | National CPI and seasonally adjusted unemployment                        |
+| `census`          | US advance retail sales and goods/services trade balance                 |
+| `fred`            | US DOL initial claims                                                    |
+| `abs`             | Australian quarterly chain-volume GDP and separate monthly/quarterly CPI |
+| `statcan`         | Canadian monthly national CPI                                            |
+| `world_bank`      | Chinese annual real GDP growth                                           |
 
 Each run conditionally revalidates every used URL through the same private SEC/public cache stores, rate limits and BLS daily-attempt counter as ordinary research. A prior unexpired cache entry alone cannot satisfy the check; HTTP 304 is valid revalidation. Within a run, repeated URLs share the newly checked snapshot, including nominal Treasury data reused for the spread. Checked source bodies remain in the normal private cache with their original byte hashes and refreshed check times. Payment state is unaffected. Use the same `ATLAS_STATE_DIR` as ordinary research to share local quotas.
 

@@ -71,6 +71,25 @@ for _key, _table, _category, _type, _title, _unit, _annual in (
         "metadata_url": "https://www.census.gov/data/developers/data-sets/economic-indicators.html",
     }
 
+for _key, _type, _title in (
+    ("trade_exports", "EXP", "exports"),
+    ("trade_imports", "IMP", "imports"),
+    ("trade_balance", "BAL", "balance"),
+):
+    ACTIVITY_SERIES["us_" + _key] = {
+        "source_id": "census",
+        "country": "US",
+        "title": "US goods and services trade " + _title + ", balance of payments basis",
+        "frequency": "monthly",
+        "unit": "million_USD",
+        "seasonally_adjusted": True,
+        "annualized": False,
+        "code": "BOPGS",
+        "table": "ftd",
+        "data_type": _type,
+        "metadata_url": "https://api.census.gov/data/timeseries/eits/ftd.html",
+    }
+
 for _key, _file, _title, _unit in (
     ("industrial_production", "ip_sa.txt", "Total industrial production", "index_2017_100"),
     ("capacity_utilization", "utl_sa.txt", "Total industry capacity utilization", "percent"),
@@ -177,7 +196,7 @@ for _key, _flow, _dims, _title, _frequency, _adjusted in (
         "metadata_url": "https://www.abs.gov.au/statistics/application-programming-interfaces-apis/data-api-user-guide",
     }
 
-# This explicitly requests the quarterly CPI; it is not the newer monthly CPI.
+# ABS moved quarterly CPI to CPI_Q in April 2026; CPI 2.0.0 is monthly.
 ACTIVITY_SERIES["au_cpi_quarterly"] = {
     "source_id": "abs",
     "country": "AU",
@@ -186,8 +205,21 @@ ACTIVITY_SERIES["au_cpi_quarterly"] = {
     "unit": None,
     "seasonally_adjusted": False,
     "annualized": False,
-    "code": "ABS,CPI,latest",
+    "code": "ABS,CPI_Q,latest",
     "dimensions": {"MEASURE": "1", "INDEX": "10001", "TSEST": "10", "REGION": "50", "FREQ": "Q"},
+    "metadata_url": "https://www.abs.gov.au/statistics/application-programming-interfaces-apis/data-api-user-guide/updates",
+}
+
+ACTIVITY_SERIES["au_cpi_monthly"] = {
+    "source_id": "abs",
+    "country": "AU",
+    "title": "Australia all-groups CPI, monthly",
+    "frequency": "monthly",
+    "unit": None,
+    "seasonally_adjusted": False,
+    "annualized": False,
+    "code": "ABS,CPI,2.0.0",
+    "dimensions": {"MEASURE": "1", "INDEX": "10001", "TSEST": "10", "REGION": "50", "FREQ": "M"},
     "metadata_url": "https://www.abs.gov.au/statistics/application-programming-interfaces-apis/data-api-user-guide/tutorials-links",
 }
 

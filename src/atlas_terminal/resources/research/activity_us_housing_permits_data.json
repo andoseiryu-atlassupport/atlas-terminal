@@ -6,7 +6,9 @@
     "seasonally_adj",
     "error_data",
     "time",
-    "us"
+    "us",
+    "program_code",
+    "time_slot_id"
   ],
   [
     "100.125",
@@ -15,6 +17,8 @@
     "yes",
     "no",
     "2026-07",
+    "1",
+    "SYNTHETIC",
     "1"
   ],
   [
@@ -24,7 +28,9 @@
     "yes",
     "no",
     "2026-08",
-    "1"
+    "1",
+    "SYNTHETIC",
+    "2"
   ],
   [
     "D",
@@ -33,6 +39,8 @@
     "yes",
     "no",
     "2026-09",
-    "1"
+    "1",
+    "SYNTHETIC",
+    "3"
   ]
 ]

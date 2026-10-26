@@ -11,7 +11,7 @@ Version 0.7.0 includes the experimental native factor risk extension and install
 | `uv run --offline ruff check .`                           | PASS                                                        |
 | `uv run --offline ruff format --check .`                  | PASS                                                        |
 | `uv run --offline mypy`                                   | PASS; 64 source files                                       |
-| `uv run --offline pytest`                                 | PASS; 1,175 tests, 2 live tests deselected                  |
+| `uv run --offline pytest`                                 | PASS; 1,199 tests, 2 live tests deselected                  |
 | `uv run --offline python -m build --no-isolation`         | PASS; wheel and source distribution                         |
 | `uv run --offline python scripts/verify_distribution.py`  | PASS; metadata, required contents and forbidden paths       |
 | `uv run --offline python scripts/build_docs.py`           | PASS; 47 HTML pages and internal file/section links         |
@@ -24,9 +24,19 @@ Default tests prohibit IP sockets and use fictional sources or mocked transports
 
 Test cases use isolated private state directories so repeated verification does not consume an operator's persistent cache quota. The numerical and protocol assertions remain unchanged.
 
-## Additional activity and country statistics
+## US trade and current Australian CPI
 
-On 2026-10-26 (UTC), all 1,175 offline tests passed, with two live cases deselected. The catalog contains 32 datasets, 21 source families and 21 presets. The extension adds eighteen curated activity selections (US eight, Australia three, Canada three and China four) and seven Japanese machinery-order, external-account and corporate-statistics selectors. There are still six research-only MCP tools.
+On 2026-10-26 (UTC), all 1,199 offline tests passed, with two live cases deselected. There are 32 datasets, 21 source families, 22 presets and 22 curated activity selections. Four additions cover US goods/services exports, imports and reported balance, plus Australian monthly CPI. Quarterly CPI now selects the separate `CPI_Q` flow; monthly CPI selects `ABS,CPI,2.0.0`. The Australian preset includes both frequencies, and `us_trade_overview` groups the three reported trade measures.
+
+The 137 activity cases include Census required program/slot fields, conflicting/missing/duplicate identifiers, reordered-column evidence, reported negative balances without recomputation, distinct ABS monthly/quarterly requests, frequency drift rejection, common SDK/CLI/HTTP results and actual official stdio MCP preset execution. Four existing Census fixtures were deliberately extended with the requested metadata, and the quarterly CPI structure fixture was deliberately moved to `CPI_Q`. Original-byte hashes and evidence are checked against those revised bytes. Five new fictional source files cover trade and monthly CPI. Both existing showcase recordings and checksums remain unchanged.
+
+Ruff, formatting and mypy passed for 64 source files. Wheel/source archive checks passed with 259 wheel files and 451 source files. The rebuilt wheel was installed offline into an isolated runtime; nine new or affected selections and both affected presets passed outside the repository. An actual official MCP client executed both presets and resolved trade JSON and monthly CPI XML evidence from that installed package. Documentation/internal links passed for 47 pages, and plugin/Registry artifacts were prepared without publication. The credential-pattern scan found no suspect working-file or reachable-history locations.
+
+The Census EITS guide/current variable and example pages and the ABS current tutorial/update notes were inspected. They establish documented trade codes, required Census request fields, monthly CPI 2.0.0 and the separate quarterly flow. Live data responses and the current quarterly dimension availability remain unverified because the execution environment blocks direct financial-source access. Three new opt-in probes bring the total to 33; they were not executed against live endpoints. These changes are in the source checkout and do not replace the immutable 0.7.0 release. [Definitions and official references](economic-indicators.md).
+
+## Earlier activity and country statistics checks
+
+For the initial activity expansion on 2026-10-26 (UTC), all 1,175 offline tests passed, with two live cases deselected. The catalog contains 32 datasets, 21 source families and 21 presets. The extension adds eighteen curated activity selections (US eight, Australia three, Canada three and China four) and seven Japanese machinery-order, external-account and corporate-statistics selectors. There are still six research-only MCP tools.
 
 The 113 activity cases cover complete source identity, exact JSON decimals including preserved source cells, monthly/weekly/quarterly/annual periods, annual rates, Census dimensions/error estimates/suppression, FRED Saturday-ending untransformed counts, StatCan vector/table/coordinate/unit/scale and documented status/security flags, World Bank WDI pagination/country/indicator/status, G.17 fixed-width cells and original text locators, ABS/OECD metadata drift and forecast/geography checks, canonical URL bounds, outbound-only private keys, credential-echo rejection, schema/catalog filters, source-correct preset preview/catalog/overview, weekly observed-date aggregation, CLI/SDK/HTTP and an actual official stdio MCP session. Existing per-series Japanese tests cover the seven additional selectors. No previously committed source fixtures or showcase recordings were changed.
 
