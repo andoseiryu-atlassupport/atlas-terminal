@@ -251,6 +251,7 @@ SOURCE_CATALOG.update(REGIONAL_ECONOMIC_SOURCES)
 SOURCE_CATALOG.update(ACTIVITY_SOURCES)
 SOURCE_CATALOG["federal_reserve"].update(
     name="Federal Reserve press releases and G.17 industrial statistics",
+    cadence="RSS feed publication and monthly revised G.17 observations; six-hour data cache.",
     use=(
         "Official releases and G.17 industrial production/capacity utilization, "
         "with original definitions and revised snapshots."

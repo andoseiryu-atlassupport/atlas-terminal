@@ -13,7 +13,7 @@ These additions are available in the latest source checkout. They are not includ
 | `japan_economics`    |                29 | BOJ rates/FX/Tankan/money/credit plus government GDP, prices, employment, production, consumption, housing, machinery orders, external accounts and corporate statistics |
 | `europe_economics`   |                48 | Eight measures for each of the euro area, EU, Germany, France, Italy and Spain                                                                                           |
 | `uk_economics`       |                 5 | ONS CPI index, CPI annual inflation, real GDP level, nonannualized GDP growth and rolling unemployment                                                                   |
-| `activity_economics` |                18 | Eight US activity/claims selections, three Australian, three Canadian and four Chinese selections with original frequencies and definitions                              |
+| `activity_economics` |                22 | Eleven US activity/trade/claims selections, four Australian, three Canadian and four Chinese selections with original frequencies and definitions                        |
 
 Series counts include different national or regional selections. They do not count every available source code, or imply that all combinations have a current observation. IMF/OECD/ABS metadata discovery remains available for other international series; it is not presented as a fully curated feed for every country.
 
@@ -58,25 +58,31 @@ BEA requires a privately configured, free registered `BEA_API_KEY`. The addition
 
 Use `dataset="activity_economics"` with these curated `series` values:
 
-| Series                     | Source and exact selection                       | Frequency / interpretation                                                  |
-| -------------------------- | ------------------------------------------------ | --------------------------------------------------------------------------- |
-| `us_retail_sales`          | Census EITS `marts`, category `44X72`, type `SM` | Monthly advance retail/food-services sales, seasonally adjusted million USD |
-| `us_housing_starts`        | Census EITS `resconst`, `TOTAL`, `STARTS`        | Monthly housing starts, seasonally adjusted annual rate, thousand dwellings |
-| `us_housing_permits`       | Census EITS `resconst`, `TOTAL`, `PERMITS`       | Monthly permits, seasonally adjusted annual rate, thousand dwellings        |
-| `us_durable_goods_orders`  | Census EITS `advm3`, `MDM`, `NO`                 | Monthly durable-goods new orders, seasonally adjusted million USD           |
-| `us_industrial_production` | Federal Reserve G.17 `ip_sa.txt`, `B50001`       | Monthly total industrial production, seasonally adjusted, 2017=100          |
-| `us_capacity_utilization`  | Federal Reserve G.17 `utl_sa.txt`, `B50001`      | Monthly total-industry capacity utilization, seasonally adjusted percent    |
-| `us_initial_claims`        | US Department of Labor via FRED `ICSA`           | Seasonally adjusted count, week ending Saturday                             |
-| `us_continued_claims`      | US Department of Labor via FRED `CCSA`           | Seasonally adjusted insured-unemployment count, week ending Saturday        |
+| Series                     | Source and exact selection                       | Frequency / interpretation                                                                 |
+| -------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| `us_retail_sales`          | Census EITS `marts`, category `44X72`, type `SM` | Monthly advance retail/food-services sales, seasonally adjusted million USD                |
+| `us_housing_starts`        | Census EITS `resconst`, `TOTAL`, `STARTS`        | Monthly housing starts, seasonally adjusted annual rate, thousand dwellings                |
+| `us_housing_permits`       | Census EITS `resconst`, `TOTAL`, `PERMITS`       | Monthly permits, seasonally adjusted annual rate, thousand dwellings                       |
+| `us_durable_goods_orders`  | Census EITS `advm3`, `MDM`, `NO`                 | Monthly durable-goods new orders, seasonally adjusted million USD                          |
+| `us_industrial_production` | Federal Reserve G.17 `ip_sa.txt`, `B50001`       | Monthly total industrial production, seasonally adjusted, 2017=100                         |
+| `us_capacity_utilization`  | Federal Reserve G.17 `utl_sa.txt`, `B50001`      | Monthly total-industry capacity utilization, seasonally adjusted percent                   |
+| `us_initial_claims`        | US Department of Labor via FRED `ICSA`           | Seasonally adjusted count, week ending Saturday                                            |
+| `us_continued_claims`      | US Department of Labor via FRED `CCSA`           | Seasonally adjusted insured-unemployment count, week ending Saturday                       |
+| `us_trade_exports`         | Census EITS `ftd`, `BOPGS`, `EXP`                | Monthly goods/services exports, balance of payments basis, seasonally adjusted million USD |
+| `us_trade_imports`         | Census EITS `ftd`, `BOPGS`, `IMP`                | Monthly goods/services imports, same basis and scale                                       |
+| `us_trade_balance`         | Census EITS `ftd`, `BOPGS`, `BAL`                | Reported monthly trade balance, same basis; deficits retain their negative sign            |
 
 The Census API requires a free privately configured `CENSUS_API_KEY`. DOL claims are retrieved through FRED and require a free `FRED_API_KEY`; this is not an ALFRED vintage request. The keys are appended only to outbound requests, excluded from canonical cache/evidence URLs and never accepted as tool arguments. G.17 direct text downloads require no key. Configure process environment privately; Atlas does not automatically load `.env` files.
 
-Census dimensions distinguish national observations from error estimates and preserve suppressed cells. G.17 evidence identifies the exact original text line and inclusive, one-based character columns. Claims retain their original week-ending dates and producer/disseminator attribution. Observation-period ends, source update text and retrieval times remain distinct; unavailable publication timestamps stay null.
+US trade uses the combined goods-and-services BOP category, not goods-only customs trade or bilateral country totals. The balance is a reported `BAL` cell, never a subtraction across separately retrieved exports/imports. These monthly flows are not annualized. The [Census EITS guide](https://www2.census.gov/api-documentation/EITS_API_User_Guide_Dec2020.pdf) documents `BOPGS` with `EXP`, `IMP` and `BAL`; the [current variable list](https://api.census.gov/data/timeseries/eits/ftd/variables.html) defines the required fields. Use the current [API examples](https://api.census.gov/data/timeseries/eits/ftd/examples.html) for key requirements, which supersede the older guide's optional-key text.
+
+Census queries request `program_code` and `time_slot_id` alongside measure, category, adjustment and error status. Responses preserve those identifiers, reject mixed programs or duplicate observation slots, distinguish national observations from error estimates and keep suppressed cells unavailable. G.17 evidence identifies the exact original text line and inclusive, one-based character columns. Claims retain their original week-ending dates and producer/disseminator attribution. Observation-period ends, source update text and retrieval times remain distinct; unavailable publication timestamps stay null.
 
 ```sh
 uv run --offline atlas research get activity_economics --series us_industrial_production --provider fixture --json
 uv run --offline atlas research catalog --frequency weekly --json
 uv run --offline atlas research preset us_activity_extended --preview --provider fixture --json
+uv run --offline atlas research preset us_trade_overview --provider fixture --json
 ```
 
 ## Australia, Canada and China
@@ -87,7 +93,8 @@ These also use `activity_economics`:
 | ----------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | `au_gdp_real`           | ABS `ANA_AGG`                               | Quarterly seasonally adjusted chain-volume GDP; not annualized; source unit/base/multiplier retained          |
 | `au_unemployment`       | ABS `LF`                                    | Monthly seasonally adjusted unemployment rate, persons age 15+                                                |
-| `au_cpi_quarterly`      | ABS `CPI`                                   | Quarterly all-groups index, weighted average of eight capital cities, unadjusted                              |
+| `au_cpi_quarterly`      | ABS `CPI_Q`                                 | Quarterly all-groups index, weighted average of eight capital cities, unadjusted                              |
+| `au_cpi_monthly`        | ABS `CPI` version `2.0.0`                   | Monthly all-groups CPI index, Australia (`REGION=50`), unadjusted; source base retained                       |
 | `ca_cpi`                | StatCan vector `41690973`, table `18100004` | Monthly national all-items CPI, unadjusted, publisher index base                                              |
 | `ca_unemployment`       | StatCan vector `2062815`, table `14100287`  | Monthly national unemployment rate, age 15+, seasonally adjusted percent                                      |
 | `ca_gdp_real`           | StatCan vector `65201210`, table `36100434` | Monthly all-industry real GDP at basic prices, seasonally adjusted annual rate; source chained-CAD base/scale |
@@ -95,7 +102,7 @@ These also use `activity_economics`:
 | `cn_gdp_growth_annual`  | World Bank WDI `NY.GDP.MKTP.KD.ZG`          | Annual real GDP growth percent                                                                                |
 | `cn_gdp_nominal_annual` | World Bank WDI `NY.GDP.MKTP.CN`             | Annual nominal GDP in current CNY                                                                             |
 
-These endpoints need no API key. ABS reads resolve the current dataflow structure before validating the curated dimension codes. Australian quarterly CPI is distinct from the newer monthly CPI. China GDP is annual WDI data, which can include national statistics, OECD inputs and World Bank estimates; original producer notes are retained. It is not a domestic quarterly GDP or release-time feed.
+These endpoints need no API key. ABS reads resolve the source dataflow structure before validating every curated dimension code. Monthly CPI selects `ABS,CPI,2.0.0`, key `1.10001.10.50.M`; quarterly CPI selects `ABS,CPI_Q,latest`, with `FREQ=Q`. The [official ABS update notes](https://www.abs.gov.au/statistics/application-programming-interfaces-apis/data-api-user-guide/updates) describe monthly CPI 2.0.0 from November 2025, the September 2025=100 rebase and the separate quarterly `CPI_Q` flow restored in April 2026. The [current tutorial](https://www.abs.gov.au/statistics/application-programming-interfaces-apis/data-api-user-guide/tutorials-links) publishes the monthly key. Atlas retains source-reported base periods and never splices the two frequencies or substitutes a discontinued monthly indicator. If current metadata lacks the selected quarterly dimensions, the query fails with `INCOMPLETE_COVERAGE`. China GDP is annual WDI data, which can include national statistics, OECD inputs and World Bank estimates; original producer notes are retained. It is not a domestic quarterly GDP or release-time feed.
 
 StatCan metadata, vector/table/coordinate, monthly frequency and unit code must agree. Numeric values retain their reported power-of-ten scale rather than being multiplied twice. Confidential, unavailable, rounded-to-zero, unreliable, not-applicable and below-detection cells remain null; a usable numeric zero remains zero. Original flags and local release-time text stay available. Unknown flags fail explicitly. World Bank pagination and indicator/country identity are validated; nonempty observation-status flags make a cell unavailable while preserving the source value and flag.
 
@@ -165,7 +172,7 @@ uv run --offline atlas research preset uk_macro_overview --provider fixture --js
 
 Five additional presets expand into inspectable ordinary queries: `japan_activity_overview` (10 items), `us_activity_overview` (10), `euro_area_macro_overview` (9), `uk_macro_overview` (6) and `global_macro_overview` (10). They accept paired optional dates, item selection, preview, compact view and quality requirements. Dates and source definitions stay independent; a preset is not an atomic global snapshot or a release-surprise feed.
 
-The activity expansion adds `us_activity_extended` (8), `japan_external_corporate` (7), `australia_macro_overview` (3), `canada_macro_overview` (3) and `china_macro_overview` (4). Saved JSON examples are in `examples/research_presets/`. Weekly claims can enter monthly/quarterly/annual panels through explicit `last` or `mean` aggregation. Weekly coverage uses observed dates only: no missing-week or holiday calendar is inferred, and any returned null prevents a usable aggregate. Annual GDP cannot be upsampled into monthly observations.
+The activity expansion adds `us_activity_extended` (8), `us_trade_overview` (3), `japan_external_corporate` (7), `australia_macro_overview` (4), `canada_macro_overview` (3) and `china_macro_overview` (4). Saved JSON examples are in `examples/research_presets/`. Weekly claims can enter monthly/quarterly/annual panels through explicit `last` or `mean` aggregation. Weekly coverage uses observed dates only: no missing-week or holiday calendar is inferred, and any returned null prevents a usable aggregate. Annual GDP cannot be upsampled into monthly observations.
 
 MCP arguments wrap the query:
 

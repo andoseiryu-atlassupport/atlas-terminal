@@ -42,8 +42,8 @@ Atlas provides 32 datasets from SEC EDGAR, BLS, US Treasury yields, Treasury Fis
 | Macro        | Sixteen BLS price/labor series, CPI/core CPI YoY, payroll changes, government curves and federal debt                                 |
 | Rates / FX   | EFFR and SOFR overnight rates; ECB daily reference FX for 31 currencies, with traceable inverse and cross calculations                |
 | US accounts  | Sixteen BEA GDP, demand-component, PCE/income and saving-rate series                                                                  |
-| US activity  | Retail, housing, durable goods, industrial production, capacity utilization and weekly unemployment claims                            |
-| AU / CA / CN | Three Australian, three Canadian and four Chinese GDP/price/labour selections, with distinct source frequencies                       |
+| US activity  | Retail, housing, durable goods, industrial production, weekly claims and goods/services trade                                         |
+| AU / CA / CN | Four Australian, three Canadian and four Chinese GDP/price/labour selections, with distinct source frequencies                        |
 | Japan        | Twenty-nine selections including machinery orders, trade, current account, corporate statistics and BOJ financial series              |
 | Europe / UK  | Eurostat GDP, HICP, unemployment, production and retail for six regions; five ONS CPI/GDP/rolling-unemployment series                 |
 | Policy       | Federal Reserve release headlines, publication times and original links                                                               |
@@ -52,7 +52,7 @@ Values retain their units, periods, source hashes, retrieval times and JSON poin
 
 Use `japan_activity_overview`, `us_activity_overview`, `euro_area_macro_overview`, `uk_macro_overview` or `global_macro_overview` to retrieve selected economic context through one connection. [Series, definitions, source requirements and examples](docs/economic-indicators.md). These additions are in the latest source checkout; the existing `v0.7.0` release remains unchanged.
 
-Use `us_activity_extended`, `japan_external_corporate`, `australia_macro_overview`, `canada_macro_overview` or `china_macro_overview` for the additional activity selections. Census and FRED need separate free API keys; Australian/Canadian/Chinese endpoints need no key. China's WDI GDP is annual and Australia's selected CPI is quarterly. Live availability remains unverified; preview lists each source; the catalog and diagnostics describe key requirements.
+Use `us_activity_extended`, `us_trade_overview`, `japan_external_corporate`, `australia_macro_overview`, `canada_macro_overview` or `china_macro_overview` for the additional activity selections. Census and FRED need separate free API keys; Australian/Canadian/Chinese endpoints need no key. China's WDI GDP is annual; Australia's monthly and quarterly CPI remain separate series. Live availability remains unverified; preview lists each source; the catalog and diagnostics describe key requirements.
 
 Series search filters registered macro/FX templates by text, country, frequency, source and unit. IMF/OECD/ABS metadata discovery retrieves new series without indicator-specific adapters; macro panels align observations with explicit aggregation, gaps and source evidence. [Discovery and panel guide](docs/international-macro.md).
 

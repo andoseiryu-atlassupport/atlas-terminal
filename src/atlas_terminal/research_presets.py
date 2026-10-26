@@ -43,6 +43,7 @@ PresetName = Literal[
     "uk_macro_overview",
     "global_macro_overview",
     "us_activity_extended",
+    "us_trade_overview",
     "japan_external_corporate",
     "australia_macro_overview",
     "canada_macro_overview",
@@ -526,6 +527,12 @@ PRESETS.update(
 )
 for _name, _description, _dataset, _series in (
     (
+        "us_trade_overview",
+        "US monthly goods and services exports, imports and reported balance, BOP basis.",
+        "activity_economics",
+        ["us_trade_exports", "us_trade_imports", "us_trade_balance"],
+    ),
+    (
         "us_activity_extended",
         (
             "US retail, housing, durable goods, industrial activity and weekly "
@@ -563,11 +570,11 @@ for _name, _description, _dataset, _series in (
     (
         "australia_macro_overview",
         (
-            "ABS quarterly GDP/CPI and monthly unemployment; frequencies and "
+            "ABS quarterly GDP/CPI, monthly CPI and unemployment; frequencies and "
             "geographic scope remain distinct."
         ),
         "activity_economics",
-        ["au_gdp_real", "au_cpi_quarterly", "au_unemployment"],
+        ["au_gdp_real", "au_cpi_quarterly", "au_cpi_monthly", "au_unemployment"],
     ),
     (
         "canada_macro_overview",

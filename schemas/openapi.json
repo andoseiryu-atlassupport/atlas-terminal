@@ -3999,6 +3999,7 @@
               "uk_macro_overview",
               "global_macro_overview",
               "us_activity_extended",
+              "us_trade_overview",
               "japan_external_corporate",
               "australia_macro_overview",
               "canada_macro_overview",
@@ -7389,6 +7390,7 @@
               },
               "series": {
                 "enum": [
+                  "au_cpi_monthly",
                   "au_cpi_quarterly",
                   "au_gdp_real",
                   "au_unemployment",
@@ -7406,7 +7408,10 @@
                   "us_housing_starts",
                   "us_industrial_production",
                   "us_initial_claims",
-                  "us_retail_sales"
+                  "us_retail_sales",
+                  "us_trade_balance",
+                  "us_trade_exports",
+                  "us_trade_imports"
                 ],
                 "maxLength": 100,
                 "minLength": 1,
@@ -10123,6 +10128,106 @@
                   {
                     "items": {
                       "enum": [
+                        "us_trade_exports",
+                        "us_trade_imports",
+                        "us_trade_balance"
+                      ]
+                    },
+                    "maxItems": 10,
+                    "minItems": 1,
+                    "type": "array",
+                    "uniqueItems": true
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Include"
+              },
+              "preset": {
+                "const": "us_trade_overview",
+                "type": "string"
+              },
+              "preview": {
+                "default": false,
+                "title": "Preview",
+                "type": "boolean"
+              },
+              "requirements": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ResearchRequirements"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              },
+              "requirements_by_item": {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/ResearchRequirements"
+                },
+                "maxProperties": 10,
+                "propertyNames": {
+                  "enum": [
+                    "us_trade_exports",
+                    "us_trade_imports",
+                    "us_trade_balance"
+                  ]
+                },
+                "title": "Requirements By Item",
+                "type": "object"
+              },
+              "start_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Start Date"
+              },
+              "view": {
+                "default": "compact",
+                "enum": ["full", "compact"],
+                "title": "View",
+                "type": "string"
+              }
+            },
+            "required": ["preset"],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "dependentRequired": {
+              "end_date": ["start_date"],
+              "start_date": ["end_date"]
+            },
+            "properties": {
+              "end_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "End Date"
+              },
+              "include": {
+                "anyOf": [
+                  {
+                    "items": {
+                      "enum": [
                         "us_retail_sales",
                         "us_housing_starts",
                         "us_housing_permits",
@@ -10343,6 +10448,7 @@
                       "enum": [
                         "au_gdp_real",
                         "au_cpi_quarterly",
+                        "au_cpi_monthly",
                         "au_unemployment"
                       ]
                     },
@@ -10384,7 +10490,12 @@
                 },
                 "maxProperties": 10,
                 "propertyNames": {
-                  "enum": ["au_gdp_real", "au_cpi_quarterly", "au_unemployment"]
+                  "enum": [
+                    "au_gdp_real",
+                    "au_cpi_quarterly",
+                    "au_cpi_monthly",
+                    "au_unemployment"
+                  ]
                 },
                 "title": "Requirements By Item",
                 "type": "object"
@@ -10627,6 +10738,7 @@
               "uk_macro_overview",
               "global_macro_overview",
               "us_activity_extended",
+              "us_trade_overview",
               "japan_external_corporate",
               "australia_macro_overview",
               "canada_macro_overview",

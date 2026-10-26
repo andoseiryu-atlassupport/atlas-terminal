@@ -4,6 +4,7 @@ import json
 import subprocess
 import sys
 from importlib.resources import files
+from urllib.parse import parse_qs, urlsplit
 
 import httpx
 import pytest
@@ -35,6 +36,7 @@ RESOURCE = files("atlas_terminal").joinpath("resources", "research")
 DATES = {"start_date": "2023-01-01", "end_date": "2026-12-31"}
 PRESETS = (
     "us_activity_extended",
+    "us_trade_overview",
     "japan_external_corporate",
     "australia_macro_overview",
     "canada_macro_overview",
@@ -116,6 +118,8 @@ def test_monthly_sales_and_annual_rate_housing_are_not_interchanged():
         "data_type_code",
         "seasonally_adj",
         "error_data",
+        "program_code",
+        "time_slot_id",
         "us",
         "duplicate",
         "width",
@@ -142,6 +146,63 @@ def test_census_rejects_wrong_dimensions_error_estimates_and_malformed_cells(fau
     with pytest.raises(AtlasError) as error:
         changed("us_retail_sales", name, lambda _: json.dumps(body).encode())
     assert error.value.code == "SOURCE_UNAVAILABLE"
+
+
+def test_census_requests_and_preserves_documented_program_and_slot_fields():
+    url = census_url("us_trade_balance", "2023-01-01", "2026-12-31")
+    params = parse_qs(urlsplit(url).query)
+    assert {"program_code", "time_slot_id"} <= set(params["get"][0].split(","))
+    assert params["category_code"] == ["BOPGS"] and params["data_type_code"] == ["BAL"]
+    with Atlas("fixture") as atlas:
+        result = atlas.get_research(query("us_trade_balance"))
+    assert [row["value"] for row in result["records"]] == [None, "0", "-20.125"]
+    row = result["records"][-1]
+    assert row["unit"] == "million_USD" and not row["annualized"]
+    assert row["seasonally_adjusted"] and row["source_dimensions"]["program_code"] == "FTD"
+    assert row["source_dimensions"]["time_slot_id"] == "1"
+    assert row["source"]["json_pointer"] == "/1/0"
+
+
+@pytest.mark.parametrize(
+    "fault", ["missing_slot", "mixed_program", "duplicate_slot", "wrong_trade"]
+)
+def test_census_rejects_missing_or_conflicting_program_and_slot_metadata(fault):
+    series = "us_trade_balance" if fault == "wrong_trade" else "us_retail_sales"
+    name = f"activity_{series}_data.json"
+    body = raw(name)
+    if fault == "missing_slot":
+        index = body[0].index("time_slot_id")
+        for row in body:
+            row.pop(index)
+    elif fault == "duplicate_slot":
+        index = body[0].index("time_slot_id")
+        body[2][index] = body[1][index]
+    else:
+        body[1][body[0].index("program_code")] = "OTHER"
+    with pytest.raises(AtlasError) as error:
+        changed(series, name, lambda _: json.dumps(body).encode())
+    assert error.value.code == "SOURCE_UNAVAILABLE"
+
+
+def test_census_reordered_columns_keep_the_original_value_pointer():
+    name = "activity_us_trade_exports_data.json"
+    body = [list(reversed(row)) for row in raw(name)]
+    result = changed("us_trade_exports", name, lambda _: json.dumps(body).encode())
+    row = result["records"][-1]
+    assert row["value"] == "100.125"
+    pointer = row["source"]["json_pointer"]
+    record_index, column_index = [int(p) for p in pointer.split("/")[1:]]
+    assert body[record_index][column_index] == row["value"]
+
+
+def test_trade_balance_preserves_reported_value_without_recomputing_other_series():
+    result = changed(
+        "us_trade_balance",
+        "activity_us_trade_balance_data.json",
+        lambda b: b.replace(b'"-20.125"', b'"-99.999"'),
+    )
+    assert result["records"][-1]["value"] == "-99.999"
+    assert result["records"][-1]["source_value"] == "-99.999"
 
 
 @pytest.mark.parametrize(
@@ -410,7 +471,15 @@ def test_curated_sdmx_selector_drift_is_coverage_failure_and_forecasts_are_missi
 
 
 @pytest.mark.parametrize(
-    "series", ["au_gdp_real", "au_unemployment", "au_cpi_quarterly", "cn_cpi", "cn_cpi_yoy"]
+    "series",
+    [
+        "au_gdp_real",
+        "au_unemployment",
+        "au_cpi_quarterly",
+        "au_cpi_monthly",
+        "cn_cpi",
+        "cn_cpi_yoy",
+    ],
 )
 def test_curated_sdmx_rejects_other_geographies(series):
     spec = ACTIVITY_SERIES[series]
@@ -418,7 +487,7 @@ def test_curated_sdmx_rejects_other_geographies(series):
         b'"CHN"'
         if spec["country"] == "CN"
         else b'"50"'
-        if series == "au_cpi_quarterly"
+        if series in {"au_cpi_quarterly", "au_cpi_monthly"}
         else b'"AUS"'
     )
     with pytest.raises(AtlasError) as error:
@@ -426,10 +495,49 @@ def test_curated_sdmx_rejects_other_geographies(series):
     assert error.value.code == "SOURCE_UNAVAILABLE"
 
 
+def test_abs_monthly_and_quarterly_cpi_use_separate_current_flows():
+    class Recorded(PublicFixtures):
+        urls: list[str]
+
+        def __init__(self):
+            self.urls = []
+
+        def get(self, url, ttl):
+            self.urls.append(url)
+            return super().get(url, ttl)
+
+    source = Recorded()
+    with Atlas("fixture") as atlas:
+        atlas._research.public = source
+        monthly = atlas.get_research(query("au_cpi_monthly"))
+        quarterly = atlas.get_research(query("au_cpi_quarterly"))
+    assert any("/data/ABS,CPI,2.0.0/1.10001.10.50.M?" in u for u in source.urls)
+    assert any("/data/ABS,CPI_Q,1.0.0/1.10001.10.50.Q?" in u for u in source.urls)
+    assert not any("/data/ABS,CPI,2.0.0/1.10001.10.50.Q?" in u for u in source.urls)
+    assert monthly["records"][0]["base_period"] == "2025-09"
+    assert [r["date"] for r in monthly["records"]] == ["2026-09-30", "2026-08-31", "2026-07-31"]
+    assert [r["date"] for r in quarterly["records"]] == ["2026-09-30", "2026-06-30", "2026-03-31"]
+
+
+@pytest.mark.parametrize("series", ["au_cpi_monthly", "au_cpi_quarterly"])
+def test_abs_cpi_missing_requested_frequency_never_falls_back(series):
+    frequency = b'id="M"' if series.endswith("monthly") else b'id="Q"'
+    with pytest.raises(AtlasError) as error:
+        changed(
+            series,
+            f"activity_{series}_structure.xml",
+            lambda b: b.replace(frequency, b'id="OTHER"'),
+        )
+    assert error.value.code == "INCOMPLETE_COVERAGE"
+
+
 @pytest.mark.parametrize(
     "url",
     [
         census_url("us_retail_sales", "2023-01-01", "2026-12-31"),
+        census_url("us_trade_exports", "2023-01-01", "2026-12-31"),
+        census_url("us_trade_imports", "2023-01-01", "2026-12-31"),
+        census_url("us_trade_balance", "2023-01-01", "2026-12-31"),
         fred_url("us_continued_claims"),
         fred_url("us_initial_claims", "2023-01-01", "2026-12-31"),
         statcan_url("ca_gdp_real"),
@@ -622,8 +730,11 @@ def test_weekly_panel_is_observed_only_and_does_not_hide_missing_claims():
     assert row["coverage_basis"] == "observed_dates_only_no_business_calendar"
 
 
-def test_cli_http_and_sdk_share_the_activity_result(tmp_path):
-    q = query("ca_cpi")
+@pytest.mark.parametrize(
+    "series", ["ca_cpi", "us_trade_balance", "au_cpi_monthly", "au_cpi_quarterly"]
+)
+def test_cli_http_and_sdk_share_the_activity_result(tmp_path, series):
+    q = query(series)
     with Atlas("fixture") as atlas:
         expected = atlas.get_research(q)
     with TestClient(create_app(provider="fixture", directory=tmp_path / "http")) as http:
@@ -640,7 +751,7 @@ def test_cli_http_and_sdk_share_the_activity_result(tmp_path):
             "get",
             "activity_economics",
             "--series",
-            "ca_cpi",
+            series,
             "--start-date",
             DATES["start_date"],
             "--end-date",

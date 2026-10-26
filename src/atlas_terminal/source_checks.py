@@ -34,6 +34,10 @@ PROBES: dict[str, tuple[str, dict[str, Any]]] = {
         "census",
         {"dataset": "activity_economics", "series": "us_retail_sales", "limit": 1},
     ),
+    "census_trade": (
+        "census",
+        {"dataset": "activity_economics", "series": "us_trade_balance", "limit": 1},
+    ),
     "fred_initial_claims": (
         "fred",
         {"dataset": "activity_economics", "series": "us_initial_claims", "limit": 1},
@@ -44,6 +48,14 @@ PROBES: dict[str, tuple[str, dict[str, Any]]] = {
     ),
     "statcan_cpi": ("statcan", {"dataset": "activity_economics", "series": "ca_cpi", "limit": 1}),
     "abs_gdp": ("abs", {"dataset": "activity_economics", "series": "au_gdp_real", "limit": 1}),
+    "abs_cpi_monthly": (
+        "abs",
+        {"dataset": "activity_economics", "series": "au_cpi_monthly", "limit": 1},
+    ),
+    "abs_cpi_quarterly": (
+        "abs",
+        {"dataset": "activity_economics", "series": "au_cpi_quarterly", "limit": 1},
+    ),
     "world_bank_china_gdp": (
         "world_bank",
         {"dataset": "activity_economics", "series": "cn_gdp_growth_annual", "limit": 1},

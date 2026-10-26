@@ -46,7 +46,10 @@ def census_url(series: str, start: str, end: str) -> str:
         + "?"
         + urlencode(
             {
-                "get": "cell_value,data_type_code,category_code,seasonally_adj,error_data",
+                "get": (
+                    "cell_value,data_type_code,category_code,seasonally_adj,error_data,"
+                    "program_code,time_slot_id"
+                ),
                 "for": "us:*",
                 "time": "from " + start[:4] + "-01 to " + end[:4] + "-12",
                 "category_code": spec["code"],
