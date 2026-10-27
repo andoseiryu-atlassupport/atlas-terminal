@@ -1,26 +1,27 @@
 # Validation scope
 
-Recorded on 2026-10-26 (UTC) for the source checkout following Atlas Terminal 0.7.0, with Python 3.12.14 and Node.js 24.19.0 on Linux. Local verification, GitHub Actions, public deployment, official-source access and model observations are distinct evidence.
+Recorded on 2026-10-27 (UTC) for the source checkout following Atlas Terminal 0.7.0, with Python 3.12.14 and Node.js 24.19.0 on Linux. Local verification, GitHub Actions, public deployment, official-source access and model observations are distinct evidence.
 
 Version 0.7.0 includes the experimental native factor risk extension and installed walkthroughs described below. The prior 0.6.0 release did not include risk estimation. Local wheel checks remain separate evidence from a published GitHub release.
 
 ## Current local checks
 
-| Check                                                     | Observed result                                             |
-| --------------------------------------------------------- | ----------------------------------------------------------- |
-| `uv run --offline ruff check .`                           | PASS                                                        |
-| `uv run --offline ruff format --check .`                  | PASS                                                        |
-| `uv run --offline mypy`                                   | PASS; 64 source files                                       |
-| `uv run --offline pytest`                                 | PASS; 1,240 tests, 2 live tests deselected                  |
-| `uv run --offline python -m build --no-isolation`         | PASS; wheel and source distribution                         |
-| `uv run --offline python scripts/verify_distribution.py`  | PASS; metadata, required contents and forbidden paths       |
-| `uv run --offline python scripts/build_docs.py`           | PASS; 47 HTML pages and internal file/section links         |
-| `uv run --offline python scripts/verify_showcases.py`     | PASS; both recorded versions, data modes and checksums      |
-| `uv run --offline python scripts/prepare_distribution.py` | PREPARED; versioned plugin ZIP and Registry draft           |
-| `npm run check`                                           | PASS; Prettier and whitespace                               |
-| `python scripts/scan_public_files.py`                     | PASS; heuristic working-file and reachable-history patterns |
+| Check                                                     | Observed result                                                     |
+| --------------------------------------------------------- | ------------------------------------------------------------------- |
+| `uv run --offline ruff check .`                           | PASS                                                                |
+| `uv run --offline ruff format --check .`                  | PASS                                                                |
+| `uv run --offline mypy`                                   | PASS; 64 source files                                               |
+| `uv run --offline pytest`                                 | PASS; 1,241 tests, 2 live tests deselected                          |
+| `uv run --offline python -m build --no-isolation`         | PASS; wheel and source distribution                                 |
+| `uv run --offline python scripts/verify_distribution.py`  | PASS; metadata, required contents and forbidden paths               |
+| `uv run --offline python scripts/build_docs.py`           | PASS; 47 HTML pages and internal file/section links                 |
+| `uv run --offline python scripts/verify_showcases.py`     | PASS; both recorded versions, data modes and checksums              |
+| `uv run --offline python scripts/verify_bls_capture.py`   | PASS; offline audit/replay of 14 captured responses and 168 records |
+| `uv run --offline python scripts/prepare_distribution.py` | PREPARED; versioned plugin ZIP and Registry draft                   |
+| `npm run check`                                           | PASS; Prettier and whitespace                                       |
+| `python scripts/scan_public_files.py`                     | PASS; heuristic working-file and reachable-history patterns         |
 
-Default tests prohibit IP sockets and use fictional sources or mocked transports. They do not retrieve live official data or transfer funds. Archive validation rejects private/runtime paths, dependency trees, unsafe paths and links; source archives contain project source and verification material rather than installed dependencies. The credential-pattern scan is a heuristic, not a guarantee against every secret format.
+Default tests prohibit IP sockets and use fictional sources, mocked transports or explicitly identified recorded public responses. They do not retrieve live official data or transfer funds. Archive validation rejects private/runtime paths, dependency trees, unsafe paths and links; source archives contain project source and verification material rather than installed dependencies. The credential-pattern scan is a heuristic, not a guarantee against every secret format.
 
 Test cases use isolated private state directories so repeated verification does not consume an operator's persistent cache quota. The numerical and protocol assertions remain unchanged.
 
@@ -32,7 +33,21 @@ The 35 new offline cases cover quarterly periods and frequency rejection, Q05 an
 
 Ruff, formatting and mypy passed for 64 source files. Wheel/source archive validation passed with 265 wheel files and 459 source files. The rebuilt wheel was installed offline into an isolated runtime and imported outside the checkout. All six new selections and the eight-item preset passed there; an actual official MCP client discovered the six research tools, executed the preset and resolved original ECI, productivity and import-price evidence. The installed check retained published annualized growth, a negative Q4 value and explicit Q05 exclusion. Documentation/internal links passed for 47 pages, and plugin/Registry artifacts were prepared without publication. The credential-pattern scan found no suspect working-file or reachable-history locations.
 
-Official BLS ECI/productivity/international-price formats, series definitions and release tables were inspected. They establish quarter codes, reference-month conventions, index bases and the distinction between index levels and published changes at annual rates. This is definition evidence, not a live data retrieval result. Direct financial-source API access remains blocked by the execution environment, so current observations and live compatibility are unverified. Three new opt-in probes bring the total to 36; they were not run against live endpoints. These additions remain an unreleased source extension and do not replace the immutable 0.7.0 release. [Definitions and official references](economic-indicators.md#us-employment-costs-productivity-and-trade-prices).
+Official BLS ECI/productivity/international-price formats, series definitions and release tables were inspected. They establish quarter codes, reference-month conventions, index bases and the distinction between index levels and published changes at annual rates. At the 2026-10-26 verification, direct financial-source API access was blocked and live compatibility remained unverified. Three new opt-in probes brought the total to 36; those probes were not run against live endpoints. These additions remain an unreleased source extension and do not replace the immutable 0.7.0 release. [Definitions and official references](economic-indicators.md#us-employment-costs-productivity-and-trade-prices).
+
+### Recorded live verification on 2026-10-27
+
+All six additions passed normal GET and dated POST retrieval through the shared public service at commit `8e26aff35c04c409d831aafd526ba05342c11c7e`. Dated queries selected 2025-01-01 through 2026-10-27. The runtime's current policy was enforced for `api.bls.gov`; ordinary inherited proxy/TLS settings were preserved. All 12 requests returned HTTP 200 and BLS success without retries. The [capture record](evidence/bls-2026-10-27/README.md) retains the applied configuration version, original response bytes, safe requests, retrieval times, SHA-256 hashes, per-row JSON pointers, exact queries and interface results.
+
+All 168 normalized records matched source value strings, years, periods, dates and footnotes. Four Q05 rows in the productivity/cost GETs were correctly excluded; dated POSTs supplied no Q05 rows. Negative productivity (`-0.9`, 2025 Q01) and unit labor costs (`-2.9`, 2025 Q02) were retained. Import/export data omitted 2025 M10, and no month was filled. Zero values, explicit missing cells and M13 rows were absent from this sample; their handling remains separate fictional-test evidence. Units, seasonal adjustment, index bases and annualization were checked against official format/mapping/release documents, not independently provided by V1 metadata. No normalization defect was found.
+
+SDK compact evidence and an actual official stdio MCP session reconstructed all 168 original records. Both executed the complete eight-item `us_inflation_costs` preset and resolved its evidence. The six dated selections reused cache entries; CPI/PPI added two POSTs. The persistent BLS usage counter progressed 0 → 12 → 14 and stayed at 14 through MCP verification, below 25 attempts per UTC day. No cache/quota reset occurred. Preset five-row selections retain explicit truncation/quality coverage.
+
+`uv run --offline python scripts/verify_bls_capture.py` independently audits the retained bytes and replays the common service/preset without network access. Its new regression case and the existing 35 fictional BLS cost cases passed together. Offline replay does not establish a fresh live retrieval. This snapshot establishes the recorded compatibility of the six series and the dated preset, not continuous availability or release-time vintages. Existing `v0.7.0` assets remain unchanged.
+
+The full local suite passed 1,241 tests with two live cases deselected. Ruff, formatting, mypy, `npm run check`, wheel/source archive validation (265/492 files), 47-page documentation/internal links, both showcase checksums and the public-file credential-pattern scan passed. Plugin/Registry artifacts were prepared locally without publication. These are local checks; GitHub CI outcomes are separate run records attached to the pull request and resulting main commit.
+
+Documentation deployment supports a `[skip pages deploy]` marker on the resulting pushed commit, preserving CI/builds while suppressing the optional Pages deployment. The verification update uses that marker. The Pages enablement variable could not be read with the available integration permission (HTTP 403); the marker avoids relying on an assumed setting.
 
 ## US trade and current Australian CPI
 
@@ -132,6 +147,6 @@ Simulated User-Agent checks do not establish access from official crawler IPs, s
 
 ## Unverified behavior
 
-Live SEC, BLS, Treasury, Federal Reserve, ECB, New York Fed, BEA, BOJ, Statistical Dashboard, IMF and OECD responses and runtime availability remain unverified. The execution environment permits package/GitHub hosts but not the selected official-data endpoints. SEC and BEA also require private operator configuration. Source documentation inspection and mock PASS results do not establish live availability, completeness, delivery latency or final dataset-specific redistribution rights.
+Live SEC, Treasury, Federal Reserve, ECB, New York Fed, BEA, BOJ, Statistical Dashboard, IMF and OECD responses and runtime availability remain unverified. BLS validation is limited to the six GET/POST selections and dated CPI/PPI preset reads recorded above; other BLS selections and continuous availability remain unverified. The recorded environment allowed BLS and GitHub/package hosts; it did not establish access to other financial-source endpoints. SEC and BEA also require private operator configuration. Source documentation inspection and mock PASS results do not establish live availability, completeness, delivery latency or final dataset-specific redistribution rights.
 
 Windows execution, actual public remote uptime, live RPC/facilitator recovery, model-driven research success and comparative latency/token benchmarks are unverified. Local command outcomes do not establish a new GitHub Actions result. See [publication setup](publication-setup.md), [source checks](source-checks.md), [research captures](research-examples.md) and [source terms](../DATA_SOURCES.md).

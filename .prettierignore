@@ -13,3 +13,5 @@ tests/fixtures/
 schemas/examples/
 # Recorded execution bytes are covered by the showcase manifest checksums.
 docs/assets/showcase/
+# Captured public BLS response bodies retain their original bytes and SHA-256.
+docs/evidence/bls-2026-10-27/raw/

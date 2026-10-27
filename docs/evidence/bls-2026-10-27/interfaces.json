@@ -1,0 +1,1629 @@
+{
+  "completed_at": "2026-10-27T02:16:58.792423Z",
+  "status": "pass",
+  "is_synthetic": false,
+  "tools": [
+    "atlas_research_catalog",
+    "atlas_get_research",
+    "atlas_get_evidence",
+    "atlas_get_research_batch",
+    "atlas_get_research_preset",
+    "atlas_research_diagnostics"
+  ],
+  "sdk": [
+    {
+      "capture": "employment_cost_compensation-get.json",
+      "records_resolved": 10,
+      "status": "pass"
+    },
+    {
+      "capture": "employment_cost_wages-get.json",
+      "records_resolved": 10,
+      "status": "pass"
+    },
+    {
+      "capture": "export_prices-get.json",
+      "records_resolved": 32,
+      "status": "pass"
+    },
+    {
+      "capture": "import_prices-get.json",
+      "records_resolved": 32,
+      "status": "pass"
+    },
+    {
+      "capture": "nonfarm_productivity_growth-get.json",
+      "records_resolved": 10,
+      "status": "pass"
+    },
+    {
+      "capture": "unit_labor_cost_growth-get.json",
+      "records_resolved": 10,
+      "status": "pass"
+    },
+    {
+      "capture": "employment_cost_compensation-post.json",
+      "records_resolved": 6,
+      "status": "pass"
+    },
+    {
+      "capture": "employment_cost_wages-post.json",
+      "records_resolved": 6,
+      "status": "pass"
+    },
+    {
+      "capture": "export_prices-post.json",
+      "records_resolved": 20,
+      "status": "pass"
+    },
+    {
+      "capture": "import_prices-post.json",
+      "records_resolved": 20,
+      "status": "pass"
+    },
+    {
+      "capture": "nonfarm_productivity_growth-post.json",
+      "records_resolved": 6,
+      "status": "pass"
+    },
+    {
+      "capture": "unit_labor_cost_growth-post.json",
+      "records_resolved": 6,
+      "status": "pass"
+    }
+  ],
+  "mcp": [
+    {
+      "capture": "employment_cost_compensation-get.json",
+      "records_resolved": 10,
+      "status": "pass"
+    },
+    {
+      "capture": "employment_cost_wages-get.json",
+      "records_resolved": 10,
+      "status": "pass"
+    },
+    {
+      "capture": "export_prices-get.json",
+      "records_resolved": 32,
+      "status": "pass"
+    },
+    {
+      "capture": "import_prices-get.json",
+      "records_resolved": 32,
+      "status": "pass"
+    },
+    {
+      "capture": "nonfarm_productivity_growth-get.json",
+      "records_resolved": 10,
+      "status": "pass"
+    },
+    {
+      "capture": "unit_labor_cost_growth-get.json",
+      "records_resolved": 10,
+      "status": "pass"
+    },
+    {
+      "capture": "employment_cost_compensation-post.json",
+      "records_resolved": 6,
+      "status": "pass"
+    },
+    {
+      "capture": "employment_cost_wages-post.json",
+      "records_resolved": 6,
+      "status": "pass"
+    },
+    {
+      "capture": "export_prices-post.json",
+      "records_resolved": 20,
+      "status": "pass"
+    },
+    {
+      "capture": "import_prices-post.json",
+      "records_resolved": 20,
+      "status": "pass"
+    },
+    {
+      "capture": "nonfarm_productivity_growth-post.json",
+      "records_resolved": 6,
+      "status": "pass"
+    },
+    {
+      "capture": "unit_labor_cost_growth-post.json",
+      "records_resolved": 6,
+      "status": "pass"
+    }
+  ],
+  "sdk_preset": "pass",
+  "mcp_preset": "pass",
+  "resolved_evidence": {
+    "f17723a8f0f0bcfad4e6feda50774ed8b9cddaa272ba6432b79c95c7f3a121c8": {
+      "json_pointer": "/Results/series/0/data/0",
+      "raw_sha256": "a5bd68a304ca9a26ad71f5c6efd9220c8e96dc8de0127ea68710ee114c9b1e6e",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1010000000000I",
+      "retrieved_at": "2026-10-27T02:15:26.600265Z"
+    },
+    "1914a57fc4337a3878af3c869a0847af571d663f7fe28855c44e1cb672f62d7f": {
+      "json_pointer": "/Results/series/0/data/1",
+      "raw_sha256": "a5bd68a304ca9a26ad71f5c6efd9220c8e96dc8de0127ea68710ee114c9b1e6e",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1010000000000I",
+      "retrieved_at": "2026-10-27T02:15:26.600265Z"
+    },
+    "cd3f7db42f08b3afd10ecf04d8bb94faf821695674523a9df8eeede1a310bb49": {
+      "json_pointer": "/Results/series/0/data/2",
+      "raw_sha256": "a5bd68a304ca9a26ad71f5c6efd9220c8e96dc8de0127ea68710ee114c9b1e6e",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1010000000000I",
+      "retrieved_at": "2026-10-27T02:15:26.600265Z"
+    },
+    "b153d47f923bcd74a69d232c1575ae29c5e877e2534969db06e9587dd5884ca6": {
+      "json_pointer": "/Results/series/0/data/3",
+      "raw_sha256": "a5bd68a304ca9a26ad71f5c6efd9220c8e96dc8de0127ea68710ee114c9b1e6e",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1010000000000I",
+      "retrieved_at": "2026-10-27T02:15:26.600265Z"
+    },
+    "ee8f7e96752db1a3296c499132071435100a40d210170ea3c17a0433cec715ce": {
+      "json_pointer": "/Results/series/0/data/4",
+      "raw_sha256": "a5bd68a304ca9a26ad71f5c6efd9220c8e96dc8de0127ea68710ee114c9b1e6e",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1010000000000I",
+      "retrieved_at": "2026-10-27T02:15:26.600265Z"
+    },
+    "0f6ba0934d04aae68ade69601fa5c2c32f8ac81acf39f0c64e7b1160dae86f12": {
+      "json_pointer": "/Results/series/0/data/5",
+      "raw_sha256": "a5bd68a304ca9a26ad71f5c6efd9220c8e96dc8de0127ea68710ee114c9b1e6e",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1010000000000I",
+      "retrieved_at": "2026-10-27T02:15:26.600265Z"
+    },
+    "d07292304677da78cf5d5826194c8ecd872d9bcb0e2ce1e50ff4c569d958db9d": {
+      "json_pointer": "/Results/series/0/data/6",
+      "raw_sha256": "a5bd68a304ca9a26ad71f5c6efd9220c8e96dc8de0127ea68710ee114c9b1e6e",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1010000000000I",
+      "retrieved_at": "2026-10-27T02:15:26.600265Z"
+    },
+    "2076c5e4b668424ea3d404e81aa88b26c89d15186378787734167f12e846ffda": {
+      "json_pointer": "/Results/series/0/data/7",
+      "raw_sha256": "a5bd68a304ca9a26ad71f5c6efd9220c8e96dc8de0127ea68710ee114c9b1e6e",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1010000000000I",
+      "retrieved_at": "2026-10-27T02:15:26.600265Z"
+    },
+    "cbe04ae7944a4c464d9614f7d41c3fccdbef295a87112aa3745f9f77b05ff839": {
+      "json_pointer": "/Results/series/0/data/8",
+      "raw_sha256": "a5bd68a304ca9a26ad71f5c6efd9220c8e96dc8de0127ea68710ee114c9b1e6e",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1010000000000I",
+      "retrieved_at": "2026-10-27T02:15:26.600265Z"
+    },
+    "a428a960c056b7cc57c58313885736be90568ca2800ef9d6d225c215d818a58e": {
+      "json_pointer": "/Results/series/0/data/9",
+      "raw_sha256": "a5bd68a304ca9a26ad71f5c6efd9220c8e96dc8de0127ea68710ee114c9b1e6e",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1010000000000I",
+      "retrieved_at": "2026-10-27T02:15:26.600265Z"
+    },
+    "5a47d4d8e5704bf9bd9cad58b149ebab24de30a97e50c831723dd5f0043e679c": {
+      "json_pointer": "/Results/series/0/data/0",
+      "raw_sha256": "0e75e55e22936cb05fd09600454b80a95e70977383353d5f9844950e83fe2883",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1020000000000I",
+      "retrieved_at": "2026-10-27T02:15:34.842877Z"
+    },
+    "ab06c69af124c1a75a65b86694fdaeeab30cea6121dffe8e1d0322ca4136129e": {
+      "json_pointer": "/Results/series/0/data/1",
+      "raw_sha256": "0e75e55e22936cb05fd09600454b80a95e70977383353d5f9844950e83fe2883",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1020000000000I",
+      "retrieved_at": "2026-10-27T02:15:34.842877Z"
+    },
+    "a0b70bd6b946979cd2b2fc8764411c454486d510a68adf4ece3b079f5aa26ca4": {
+      "json_pointer": "/Results/series/0/data/2",
+      "raw_sha256": "0e75e55e22936cb05fd09600454b80a95e70977383353d5f9844950e83fe2883",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1020000000000I",
+      "retrieved_at": "2026-10-27T02:15:34.842877Z"
+    },
+    "ea6149bc0c0b8b77c1a54eee9bd1ddf391f71d5e6657a45ea87c0c66d0ba6783": {
+      "json_pointer": "/Results/series/0/data/3",
+      "raw_sha256": "0e75e55e22936cb05fd09600454b80a95e70977383353d5f9844950e83fe2883",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1020000000000I",
+      "retrieved_at": "2026-10-27T02:15:34.842877Z"
+    },
+    "827604c3f99d830bc4c933458346c0b0ce270805508d632858dbf0c0b450da18": {
+      "json_pointer": "/Results/series/0/data/4",
+      "raw_sha256": "0e75e55e22936cb05fd09600454b80a95e70977383353d5f9844950e83fe2883",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1020000000000I",
+      "retrieved_at": "2026-10-27T02:15:34.842877Z"
+    },
+    "5b77663b4d3b2b4c1ff7ee41a0586f569db700a8384e56a0f4cd39e37b05401a": {
+      "json_pointer": "/Results/series/0/data/5",
+      "raw_sha256": "0e75e55e22936cb05fd09600454b80a95e70977383353d5f9844950e83fe2883",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1020000000000I",
+      "retrieved_at": "2026-10-27T02:15:34.842877Z"
+    },
+    "3e0aa5f7377cefabd11e2db6d614a73a26fea29f60882fc0e2064af9e99cd0c7": {
+      "json_pointer": "/Results/series/0/data/6",
+      "raw_sha256": "0e75e55e22936cb05fd09600454b80a95e70977383353d5f9844950e83fe2883",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1020000000000I",
+      "retrieved_at": "2026-10-27T02:15:34.842877Z"
+    },
+    "d9bf5214bd39d379d08537aef97245c551e7a1b02d0101c3ee636f6a411f37dd": {
+      "json_pointer": "/Results/series/0/data/7",
+      "raw_sha256": "0e75e55e22936cb05fd09600454b80a95e70977383353d5f9844950e83fe2883",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1020000000000I",
+      "retrieved_at": "2026-10-27T02:15:34.842877Z"
+    },
+    "71d45fd5a35c41f63e652bd12998c4fdcd5cf14d363f81e1e7837c01ddeef4ae": {
+      "json_pointer": "/Results/series/0/data/8",
+      "raw_sha256": "0e75e55e22936cb05fd09600454b80a95e70977383353d5f9844950e83fe2883",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1020000000000I",
+      "retrieved_at": "2026-10-27T02:15:34.842877Z"
+    },
+    "6470bf09ea1124a178b9b4e06747a694cbd8194f3df6d5dce8d49d1c75cb7c93": {
+      "json_pointer": "/Results/series/0/data/9",
+      "raw_sha256": "0e75e55e22936cb05fd09600454b80a95e70977383353d5f9844950e83fe2883",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1020000000000I",
+      "retrieved_at": "2026-10-27T02:15:34.842877Z"
+    },
+    "494813a0e80b0033c0caa488e86b91ac07e09e9f35c69779b4f7251fc5def361": {
+      "json_pointer": "/Results/series/0/data/0",
+      "raw_sha256": "b0599ebb25602fdf64bed83957683a0ffd5c6fecbf8753c3fda8f8aad8b3053a",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ",
+      "retrieved_at": "2026-10-27T02:15:42.702251Z"
+    },
+    "fa6afab3a7eafa6782ade4b74779b06ad7ca7358b5ced40375d1572c4ecc487e": {
+      "json_pointer": "/Results/series/0/data/1",
+      "raw_sha256": "b0599ebb25602fdf64bed83957683a0ffd5c6fecbf8753c3fda8f8aad8b3053a",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ",
+      "retrieved_at": "2026-10-27T02:15:42.702251Z"
+    },
+    "647b38e008cb00dabc91ed8b0474b657231b318e99e8839f7c33958d703b52cc": {
+      "json_pointer": "/Results/series/0/data/2",
+      "raw_sha256": "b0599ebb25602fdf64bed83957683a0ffd5c6fecbf8753c3fda8f8aad8b3053a",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ",
+      "retrieved_at": "2026-10-27T02:15:42.702251Z"
+    },
+    "27fd71b2569c12c9268e5f664577976915a2038458eaad6c15490b2a38a4a9b3": {
+      "json_pointer": "/Results/series/0/data/3",
+      "raw_sha256": "b0599ebb25602fdf64bed83957683a0ffd5c6fecbf8753c3fda8f8aad8b3053a",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ",
+      "retrieved_at": "2026-10-27T02:15:42.702251Z"
+    },
+    "887961e6576a2e75d4953d505b2338b056c26bc02965f2ba5256499fa458cc45": {
+      "json_pointer": "/Results/series/0/data/4",
+      "raw_sha256": "b0599ebb25602fdf64bed83957683a0ffd5c6fecbf8753c3fda8f8aad8b3053a",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ",
+      "retrieved_at": "2026-10-27T02:15:42.702251Z"
+    },
+    "66e876a7a05e6104eee94986a807f20eb5325c07f850e599de11a5648ab404d3": {
+      "json_pointer": "/Results/series/0/data/5",
+      "raw_sha256": "b0599ebb25602fdf64bed83957683a0ffd5c6fecbf8753c3fda8f8aad8b3053a",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ",
+      "retrieved_at": "2026-10-27T02:15:42.702251Z"
+    },
+    "324c33d31d4735c2559f128570ea5f900183c10d3a9f7eb66aed02acf06121c1": {
+      "json_pointer": "/Results/series/0/data/6",
+      "raw_sha256": "b0599ebb25602fdf64bed83957683a0ffd5c6fecbf8753c3fda8f8aad8b3053a",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ",
+      "retrieved_at": "2026-10-27T02:15:42.702251Z"
+    },
+    "7d24c470aeae9b98ceb7a30d58dcbe7155c85eea262cd5530b70cc5a609c5ed0": {
+      "json_pointer": "/Results/series/0/data/7",
+      "raw_sha256": "b0599ebb25602fdf64bed83957683a0ffd5c6fecbf8753c3fda8f8aad8b3053a",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ",
+      "retrieved_at": "2026-10-27T02:15:42.702251Z"
+    },
+    "432c241fcb15bfea06f216d2a10ffaee96ce204d5e8efdf1cb758423834642a6": {
+      "json_pointer": "/Results/series/0/data/8",
+      "raw_sha256": "b0599ebb25602fdf64bed83957683a0ffd5c6fecbf8753c3fda8f8aad8b3053a",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ",
+      "retrieved_at": "2026-10-27T02:15:42.702251Z"
+    },
+    "e22664b4bae15afe0ddd1d07ba6fe75201a5780cfa094b25ed80f3e80793b65e": {
+      "json_pointer": "/Results/series/0/data/9",
+      "raw_sha256": "b0599ebb25602fdf64bed83957683a0ffd5c6fecbf8753c3fda8f8aad8b3053a",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ",
+      "retrieved_at": "2026-10-27T02:15:42.702251Z"
+    },
+    "9f49cd7dd9d55634be1e959b11ec76990ce9bfbb0197316c189cbd9bc505816f": {
+      "json_pointer": "/Results/series/0/data/10",
+      "raw_sha256": "b0599ebb25602fdf64bed83957683a0ffd5c6fecbf8753c3fda8f8aad8b3053a",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ",
+      "retrieved_at": "2026-10-27T02:15:42.702251Z"
+    },
+    "0e2b182cfd79e8c1438cbbf4281e15902c76819feae5da57be07d200da84b56f": {
+      "json_pointer": "/Results/series/0/data/11",
+      "raw_sha256": "b0599ebb25602fdf64bed83957683a0ffd5c6fecbf8753c3fda8f8aad8b3053a",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ",
+      "retrieved_at": "2026-10-27T02:15:42.702251Z"
+    },
+    "8d9e31172f28cd8f9be62c080c23d0d46ed8e12141ef78d5ade7e262a6bc6a32": {
+      "json_pointer": "/Results/series/0/data/12",
+      "raw_sha256": "b0599ebb25602fdf64bed83957683a0ffd5c6fecbf8753c3fda8f8aad8b3053a",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ",
+      "retrieved_at": "2026-10-27T02:15:42.702251Z"
+    },
+    "e6fc6f883d1a9cd39776e9fa1fb51b897df843f9fc0a03d71779072faccfefef": {
+      "json_pointer": "/Results/series/0/data/13",
+      "raw_sha256": "b0599ebb25602fdf64bed83957683a0ffd5c6fecbf8753c3fda8f8aad8b3053a",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ",
+      "retrieved_at": "2026-10-27T02:15:42.702251Z"
+    },
+    "34a48655262524ebb0023c6504ad226cd27fb33bfc77999fcdb6f00b8bc47442": {
+      "json_pointer": "/Results/series/0/data/14",
+      "raw_sha256": "b0599ebb25602fdf64bed83957683a0ffd5c6fecbf8753c3fda8f8aad8b3053a",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ",
+      "retrieved_at": "2026-10-27T02:15:42.702251Z"
+    },
+    "3bf12287758e00e20561c18a1210244ced8c0e171a4b05b675a866266b2090c8": {
+      "json_pointer": "/Results/series/0/data/15",
+      "raw_sha256": "b0599ebb25602fdf64bed83957683a0ffd5c6fecbf8753c3fda8f8aad8b3053a",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ",
+      "retrieved_at": "2026-10-27T02:15:42.702251Z"
+    },
+    "e58df10f2417da6b514b3ca6380d8ff5860ef5dd2b9c03f2a70f7b0c4654e92e": {
+      "json_pointer": "/Results/series/0/data/16",
+      "raw_sha256": "b0599ebb25602fdf64bed83957683a0ffd5c6fecbf8753c3fda8f8aad8b3053a",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ",
+      "retrieved_at": "2026-10-27T02:15:42.702251Z"
+    },
+    "68aaf3510e32e9fffe784babae2c880984ea50bd3ece6942e5900364169de5f1": {
+      "json_pointer": "/Results/series/0/data/17",
+      "raw_sha256": "b0599ebb25602fdf64bed83957683a0ffd5c6fecbf8753c3fda8f8aad8b3053a",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ",
+      "retrieved_at": "2026-10-27T02:15:42.702251Z"
+    },
+    "7b18bda0c8e020359ba0a22d6d755330f8717a787c17f82a2a559de85ccb06ad": {
+      "json_pointer": "/Results/series/0/data/18",
+      "raw_sha256": "b0599ebb25602fdf64bed83957683a0ffd5c6fecbf8753c3fda8f8aad8b3053a",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ",
+      "retrieved_at": "2026-10-27T02:15:42.702251Z"
+    },
+    "6ad56d555a806f776915664af3543d29dbb134b95cce6eb1ecfaee626780237f": {
+      "json_pointer": "/Results/series/0/data/19",
+      "raw_sha256": "b0599ebb25602fdf64bed83957683a0ffd5c6fecbf8753c3fda8f8aad8b3053a",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ",
+      "retrieved_at": "2026-10-27T02:15:42.702251Z"
+    },
+    "b20de36e2aeaa5656d9feb5822850803608bb79a885cffb5f3047c75d1b491a4": {
+      "json_pointer": "/Results/series/0/data/20",
+      "raw_sha256": "b0599ebb25602fdf64bed83957683a0ffd5c6fecbf8753c3fda8f8aad8b3053a",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ",
+      "retrieved_at": "2026-10-27T02:15:42.702251Z"
+    },
+    "757f057aa7c1043b66f94e466371ca9d05cb8d0a8361286cdc8e5771175ce509": {
+      "json_pointer": "/Results/series/0/data/21",
+      "raw_sha256": "b0599ebb25602fdf64bed83957683a0ffd5c6fecbf8753c3fda8f8aad8b3053a",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ",
+      "retrieved_at": "2026-10-27T02:15:42.702251Z"
+    },
+    "c4a31db044e09ddc13a2ab50ded146db2053750fc588b33b756deefea0e5f213": {
+      "json_pointer": "/Results/series/0/data/22",
+      "raw_sha256": "b0599ebb25602fdf64bed83957683a0ffd5c6fecbf8753c3fda8f8aad8b3053a",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ",
+      "retrieved_at": "2026-10-27T02:15:42.702251Z"
+    },
+    "6266be01938694e33773e7e27959d06711b91339ce559aea1944a0207dcaa33e": {
+      "json_pointer": "/Results/series/0/data/23",
+      "raw_sha256": "b0599ebb25602fdf64bed83957683a0ffd5c6fecbf8753c3fda8f8aad8b3053a",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ",
+      "retrieved_at": "2026-10-27T02:15:42.702251Z"
+    },
+    "9b4f756a8badd92e787606d7b42d016fa906e6dc3469719dd8010c0f3b7ccc05": {
+      "json_pointer": "/Results/series/0/data/24",
+      "raw_sha256": "b0599ebb25602fdf64bed83957683a0ffd5c6fecbf8753c3fda8f8aad8b3053a",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ",
+      "retrieved_at": "2026-10-27T02:15:42.702251Z"
+    },
+    "8d633d557a3566e5dab1fbc1d5c7f2789bfcc68a1fd9eb2061bde46eb6b7e756": {
+      "json_pointer": "/Results/series/0/data/25",
+      "raw_sha256": "b0599ebb25602fdf64bed83957683a0ffd5c6fecbf8753c3fda8f8aad8b3053a",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ",
+      "retrieved_at": "2026-10-27T02:15:42.702251Z"
+    },
+    "7182c6d2d0341a8ae97d2471ae62b692cfe73ed41cde32bd691a2fe1587f51de": {
+      "json_pointer": "/Results/series/0/data/26",
+      "raw_sha256": "b0599ebb25602fdf64bed83957683a0ffd5c6fecbf8753c3fda8f8aad8b3053a",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ",
+      "retrieved_at": "2026-10-27T02:15:42.702251Z"
+    },
+    "cc39197bc93bbeeaa346aa01bdaa2011065088d556dd4b14a485cd005b73db09": {
+      "json_pointer": "/Results/series/0/data/27",
+      "raw_sha256": "b0599ebb25602fdf64bed83957683a0ffd5c6fecbf8753c3fda8f8aad8b3053a",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ",
+      "retrieved_at": "2026-10-27T02:15:42.702251Z"
+    },
+    "cecac92d3f41f0bd3b9542dee7fd04194f8ca3751e9e94b904d6f18bd39388c7": {
+      "json_pointer": "/Results/series/0/data/28",
+      "raw_sha256": "b0599ebb25602fdf64bed83957683a0ffd5c6fecbf8753c3fda8f8aad8b3053a",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ",
+      "retrieved_at": "2026-10-27T02:15:42.702251Z"
+    },
+    "2dc2cda5befb46cbe01b3372f7716416481d40deae3424e7cb3a3d395c8d6c41": {
+      "json_pointer": "/Results/series/0/data/29",
+      "raw_sha256": "b0599ebb25602fdf64bed83957683a0ffd5c6fecbf8753c3fda8f8aad8b3053a",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ",
+      "retrieved_at": "2026-10-27T02:15:42.702251Z"
+    },
+    "f13c644a6df9793e0669191383037140fa895efb4ea080e9afd5c7ce58717244": {
+      "json_pointer": "/Results/series/0/data/30",
+      "raw_sha256": "b0599ebb25602fdf64bed83957683a0ffd5c6fecbf8753c3fda8f8aad8b3053a",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ",
+      "retrieved_at": "2026-10-27T02:15:42.702251Z"
+    },
+    "5f125f8868428691900e579054932e3a223e7c9aae3481642ba29fc1f8f80636": {
+      "json_pointer": "/Results/series/0/data/31",
+      "raw_sha256": "b0599ebb25602fdf64bed83957683a0ffd5c6fecbf8753c3fda8f8aad8b3053a",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ",
+      "retrieved_at": "2026-10-27T02:15:42.702251Z"
+    },
+    "92c28daa463d4ce77b14d543ab494f3b50f05f7e07f57fb970b53540fb0ab7c9": {
+      "json_pointer": "/Results/series/0/data/0",
+      "raw_sha256": "4940f6b42bd28811a3d51cd6ca86dfe34f30d9979272ed671d66de4767c7d784",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR",
+      "retrieved_at": "2026-10-27T02:15:40.749233Z"
+    },
+    "fd963f4b45d80133bf95fa5597b65c092f96633f767ee176db4c739353d7d113": {
+      "json_pointer": "/Results/series/0/data/1",
+      "raw_sha256": "4940f6b42bd28811a3d51cd6ca86dfe34f30d9979272ed671d66de4767c7d784",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR",
+      "retrieved_at": "2026-10-27T02:15:40.749233Z"
+    },
+    "2fca0b050e16172cb72215fad9aabe50bce082dc1ca0322ee4ce013256515c15": {
+      "json_pointer": "/Results/series/0/data/2",
+      "raw_sha256": "4940f6b42bd28811a3d51cd6ca86dfe34f30d9979272ed671d66de4767c7d784",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR",
+      "retrieved_at": "2026-10-27T02:15:40.749233Z"
+    },
+    "22b15ea58110cd3d497bb4a1f6de872826085159d0d369f7cc92818a48625f79": {
+      "json_pointer": "/Results/series/0/data/3",
+      "raw_sha256": "4940f6b42bd28811a3d51cd6ca86dfe34f30d9979272ed671d66de4767c7d784",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR",
+      "retrieved_at": "2026-10-27T02:15:40.749233Z"
+    },
+    "64c7e9ae326c1d53c6ad1f0211b2270e47b8d849210d6db34c07c9337f92fe76": {
+      "json_pointer": "/Results/series/0/data/4",
+      "raw_sha256": "4940f6b42bd28811a3d51cd6ca86dfe34f30d9979272ed671d66de4767c7d784",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR",
+      "retrieved_at": "2026-10-27T02:15:40.749233Z"
+    },
+    "b8145808e353f472fe5d15965a4ee728bb3b1e15b1f44070841fb2a7418db72e": {
+      "json_pointer": "/Results/series/0/data/5",
+      "raw_sha256": "4940f6b42bd28811a3d51cd6ca86dfe34f30d9979272ed671d66de4767c7d784",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR",
+      "retrieved_at": "2026-10-27T02:15:40.749233Z"
+    },
+    "d7e7a0d31d3ed6ed694f3f0773058a99b954730e959ac6fc8351377b915c731d": {
+      "json_pointer": "/Results/series/0/data/6",
+      "raw_sha256": "4940f6b42bd28811a3d51cd6ca86dfe34f30d9979272ed671d66de4767c7d784",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR",
+      "retrieved_at": "2026-10-27T02:15:40.749233Z"
+    },
+    "3b6c4fa6240ff9e1bbcd5a05a4f473c563fda3f804f683019baad6d85049c91f": {
+      "json_pointer": "/Results/series/0/data/7",
+      "raw_sha256": "4940f6b42bd28811a3d51cd6ca86dfe34f30d9979272ed671d66de4767c7d784",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR",
+      "retrieved_at": "2026-10-27T02:15:40.749233Z"
+    },
+    "4cb12344bb37faeeccf9b64bef029fedc5ec2064e92dcbc7804c1fb67fdbef73": {
+      "json_pointer": "/Results/series/0/data/8",
+      "raw_sha256": "4940f6b42bd28811a3d51cd6ca86dfe34f30d9979272ed671d66de4767c7d784",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR",
+      "retrieved_at": "2026-10-27T02:15:40.749233Z"
+    },
+    "051e7ede4dc3924d38eb0fcdd81ad19d4b3037c4cc1e5197479ac041a865113e": {
+      "json_pointer": "/Results/series/0/data/9",
+      "raw_sha256": "4940f6b42bd28811a3d51cd6ca86dfe34f30d9979272ed671d66de4767c7d784",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR",
+      "retrieved_at": "2026-10-27T02:15:40.749233Z"
+    },
+    "b84aaba9823e3cda26df5c9b3b8bc354f57f8d15c9c9396ce587d1190e976599": {
+      "json_pointer": "/Results/series/0/data/10",
+      "raw_sha256": "4940f6b42bd28811a3d51cd6ca86dfe34f30d9979272ed671d66de4767c7d784",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR",
+      "retrieved_at": "2026-10-27T02:15:40.749233Z"
+    },
+    "d45d9c5e26e4bf94689a22eaaa4298620731d1a182cbdeeb9d8f5f725eeefd66": {
+      "json_pointer": "/Results/series/0/data/11",
+      "raw_sha256": "4940f6b42bd28811a3d51cd6ca86dfe34f30d9979272ed671d66de4767c7d784",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR",
+      "retrieved_at": "2026-10-27T02:15:40.749233Z"
+    },
+    "988de6179d022b76689719fa4381418be83816c69bfd977743b4167140113a42": {
+      "json_pointer": "/Results/series/0/data/12",
+      "raw_sha256": "4940f6b42bd28811a3d51cd6ca86dfe34f30d9979272ed671d66de4767c7d784",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR",
+      "retrieved_at": "2026-10-27T02:15:40.749233Z"
+    },
+    "6ddd45a3276d9016ea0033090670a4be78d3e91ca5f6f8601f682db2be39f60c": {
+      "json_pointer": "/Results/series/0/data/13",
+      "raw_sha256": "4940f6b42bd28811a3d51cd6ca86dfe34f30d9979272ed671d66de4767c7d784",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR",
+      "retrieved_at": "2026-10-27T02:15:40.749233Z"
+    },
+    "61c7c5503bd12077c990785e78ec9a8c34e3d528c6b4b85e13bd8d6322c0fb03": {
+      "json_pointer": "/Results/series/0/data/14",
+      "raw_sha256": "4940f6b42bd28811a3d51cd6ca86dfe34f30d9979272ed671d66de4767c7d784",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR",
+      "retrieved_at": "2026-10-27T02:15:40.749233Z"
+    },
+    "5ca790daf262eba5b37a1b28a7b1cbebf21bce2ddc10c2fc9d7c618e0b6eb59a": {
+      "json_pointer": "/Results/series/0/data/15",
+      "raw_sha256": "4940f6b42bd28811a3d51cd6ca86dfe34f30d9979272ed671d66de4767c7d784",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR",
+      "retrieved_at": "2026-10-27T02:15:40.749233Z"
+    },
+    "346792ad781e2c248a763b55000b9f74abb61ba344d8b398a9f3d776500d6730": {
+      "json_pointer": "/Results/series/0/data/16",
+      "raw_sha256": "4940f6b42bd28811a3d51cd6ca86dfe34f30d9979272ed671d66de4767c7d784",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR",
+      "retrieved_at": "2026-10-27T02:15:40.749233Z"
+    },
+    "344798ee90412d63b3e04efa54fc0ed4721899aa77388916c406d730e9c5adae": {
+      "json_pointer": "/Results/series/0/data/17",
+      "raw_sha256": "4940f6b42bd28811a3d51cd6ca86dfe34f30d9979272ed671d66de4767c7d784",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR",
+      "retrieved_at": "2026-10-27T02:15:40.749233Z"
+    },
+    "da2272373fc4e3c9b9f97bc2dd9c06447792b935379f2b129ce28b0346fed60f": {
+      "json_pointer": "/Results/series/0/data/18",
+      "raw_sha256": "4940f6b42bd28811a3d51cd6ca86dfe34f30d9979272ed671d66de4767c7d784",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR",
+      "retrieved_at": "2026-10-27T02:15:40.749233Z"
+    },
+    "03cd5c0f8d714ada38c5a608fa491d4ecdba012daf012ae2e5f7b481645a2dc8": {
+      "json_pointer": "/Results/series/0/data/19",
+      "raw_sha256": "4940f6b42bd28811a3d51cd6ca86dfe34f30d9979272ed671d66de4767c7d784",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR",
+      "retrieved_at": "2026-10-27T02:15:40.749233Z"
+    },
+    "a656b1bdc50b241e1fa25715e0a303dfccd2f43a21ea0bad66f907982cba27ca": {
+      "json_pointer": "/Results/series/0/data/20",
+      "raw_sha256": "4940f6b42bd28811a3d51cd6ca86dfe34f30d9979272ed671d66de4767c7d784",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR",
+      "retrieved_at": "2026-10-27T02:15:40.749233Z"
+    },
+    "aa9127f3ea47c42fded1554baa0bbe460704844bba5aae045fd4e7e3529c4672": {
+      "json_pointer": "/Results/series/0/data/21",
+      "raw_sha256": "4940f6b42bd28811a3d51cd6ca86dfe34f30d9979272ed671d66de4767c7d784",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR",
+      "retrieved_at": "2026-10-27T02:15:40.749233Z"
+    },
+    "9199f767a97a5594b2c8d6f0ed85dc88870556f15a83b3ff5e13546d0a8dbf27": {
+      "json_pointer": "/Results/series/0/data/22",
+      "raw_sha256": "4940f6b42bd28811a3d51cd6ca86dfe34f30d9979272ed671d66de4767c7d784",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR",
+      "retrieved_at": "2026-10-27T02:15:40.749233Z"
+    },
+    "7ce5eb638f5011222a58cf1b3b0461b94f5ffd3a79492484ee8e07d733cee29a": {
+      "json_pointer": "/Results/series/0/data/23",
+      "raw_sha256": "4940f6b42bd28811a3d51cd6ca86dfe34f30d9979272ed671d66de4767c7d784",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR",
+      "retrieved_at": "2026-10-27T02:15:40.749233Z"
+    },
+    "07539e0acf7465bb3fa29f3964628db5bc06df9e6d31c687fc8f120ce4a1d0cf": {
+      "json_pointer": "/Results/series/0/data/24",
+      "raw_sha256": "4940f6b42bd28811a3d51cd6ca86dfe34f30d9979272ed671d66de4767c7d784",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR",
+      "retrieved_at": "2026-10-27T02:15:40.749233Z"
+    },
+    "9befd83ab89652739d8fc537e7dffc8dcfc4863e9e7ec1082ea87a8fc404a87d": {
+      "json_pointer": "/Results/series/0/data/25",
+      "raw_sha256": "4940f6b42bd28811a3d51cd6ca86dfe34f30d9979272ed671d66de4767c7d784",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR",
+      "retrieved_at": "2026-10-27T02:15:40.749233Z"
+    },
+    "f9593128b880aa76f0d446e18e3f54c57e2d60722f2f2214311b1b02d94e0e91": {
+      "json_pointer": "/Results/series/0/data/26",
+      "raw_sha256": "4940f6b42bd28811a3d51cd6ca86dfe34f30d9979272ed671d66de4767c7d784",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR",
+      "retrieved_at": "2026-10-27T02:15:40.749233Z"
+    },
+    "1dfebfd0e9f7dfc6a209d2e060b2156860af22f95fec73fdd109dc34b1070d91": {
+      "json_pointer": "/Results/series/0/data/27",
+      "raw_sha256": "4940f6b42bd28811a3d51cd6ca86dfe34f30d9979272ed671d66de4767c7d784",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR",
+      "retrieved_at": "2026-10-27T02:15:40.749233Z"
+    },
+    "b28c1dc505e78b643b7a1a7e7dfdf1354a20cc1e6615b7ed6194a05c29531e2d": {
+      "json_pointer": "/Results/series/0/data/28",
+      "raw_sha256": "4940f6b42bd28811a3d51cd6ca86dfe34f30d9979272ed671d66de4767c7d784",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR",
+      "retrieved_at": "2026-10-27T02:15:40.749233Z"
+    },
+    "3f35fa97ef530d618c09c674f5dcd9ef6477c42537aaa1db5ac2d77bb51d38cf": {
+      "json_pointer": "/Results/series/0/data/29",
+      "raw_sha256": "4940f6b42bd28811a3d51cd6ca86dfe34f30d9979272ed671d66de4767c7d784",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR",
+      "retrieved_at": "2026-10-27T02:15:40.749233Z"
+    },
+    "8540ea3b05c5db88ab28085cebfbaa961621c6cad701d68e78755d7412c7c226": {
+      "json_pointer": "/Results/series/0/data/30",
+      "raw_sha256": "4940f6b42bd28811a3d51cd6ca86dfe34f30d9979272ed671d66de4767c7d784",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR",
+      "retrieved_at": "2026-10-27T02:15:40.749233Z"
+    },
+    "d69a35783a7113f14ee44f057b6fb83a69f7ed4ce503c43e63fb2db275db43a1": {
+      "json_pointer": "/Results/series/0/data/31",
+      "raw_sha256": "4940f6b42bd28811a3d51cd6ca86dfe34f30d9979272ed671d66de4767c7d784",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR",
+      "retrieved_at": "2026-10-27T02:15:40.749233Z"
+    },
+    "0edc0aee42cacdf5fd66c4ce325ca415aa8473fe2b48bfe08c3ca937cb899e63": {
+      "json_pointer": "/Results/series/0/data/0",
+      "raw_sha256": "266a31c93af4b5a8a36ed72909be2e2691d1a39227c50dbdbc451f2001b758bf",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006092",
+      "retrieved_at": "2026-10-27T02:15:36.715863Z"
+    },
+    "5ee1c68aa7ffa985db0d3ebdd72a18c45b136887e4a9b01c7ce3838866ae2503": {
+      "json_pointer": "/Results/series/0/data/1",
+      "raw_sha256": "266a31c93af4b5a8a36ed72909be2e2691d1a39227c50dbdbc451f2001b758bf",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006092",
+      "retrieved_at": "2026-10-27T02:15:36.715863Z"
+    },
+    "214c9112c7ed3d672cae59b751bce536a1af96e84c6d6b6053699f765f242438": {
+      "json_pointer": "/Results/series/0/data/3",
+      "raw_sha256": "266a31c93af4b5a8a36ed72909be2e2691d1a39227c50dbdbc451f2001b758bf",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006092",
+      "retrieved_at": "2026-10-27T02:15:36.715863Z"
+    },
+    "75fdc28279a5e0a0ea499bb8e42ac86fd5e011b1f5a08fb8d38375c628072a31": {
+      "json_pointer": "/Results/series/0/data/4",
+      "raw_sha256": "266a31c93af4b5a8a36ed72909be2e2691d1a39227c50dbdbc451f2001b758bf",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006092",
+      "retrieved_at": "2026-10-27T02:15:36.715863Z"
+    },
+    "894ae047b222286aed561a8ffa1c95ed6d4336c7ede95a99b18e2ffab9d79b8c": {
+      "json_pointer": "/Results/series/0/data/5",
+      "raw_sha256": "266a31c93af4b5a8a36ed72909be2e2691d1a39227c50dbdbc451f2001b758bf",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006092",
+      "retrieved_at": "2026-10-27T02:15:36.715863Z"
+    },
+    "b850799adcd0219b60a96c08199fb90a325cfb67e007ab06de2a31b7c05161cd": {
+      "json_pointer": "/Results/series/0/data/6",
+      "raw_sha256": "266a31c93af4b5a8a36ed72909be2e2691d1a39227c50dbdbc451f2001b758bf",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006092",
+      "retrieved_at": "2026-10-27T02:15:36.715863Z"
+    },
+    "21213c3188cc53b3eaabc02e67e86d3bdf8451e081b2ce9aebefdd02d10dd216": {
+      "json_pointer": "/Results/series/0/data/8",
+      "raw_sha256": "266a31c93af4b5a8a36ed72909be2e2691d1a39227c50dbdbc451f2001b758bf",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006092",
+      "retrieved_at": "2026-10-27T02:15:36.715863Z"
+    },
+    "80556a5018119e0023e3dd748924a297862dd6114baf424aee13a31508b3ec8f": {
+      "json_pointer": "/Results/series/0/data/9",
+      "raw_sha256": "266a31c93af4b5a8a36ed72909be2e2691d1a39227c50dbdbc451f2001b758bf",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006092",
+      "retrieved_at": "2026-10-27T02:15:36.715863Z"
+    },
+    "d4572a940c2bad2f54ba070feb8d8ac984ee76925258fbc6a610cddf64e7ac26": {
+      "json_pointer": "/Results/series/0/data/10",
+      "raw_sha256": "266a31c93af4b5a8a36ed72909be2e2691d1a39227c50dbdbc451f2001b758bf",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006092",
+      "retrieved_at": "2026-10-27T02:15:36.715863Z"
+    },
+    "44655319865ff01269fdbb4a569e986460c126e90ab791dc7e3d7053aa213eb1": {
+      "json_pointer": "/Results/series/0/data/11",
+      "raw_sha256": "266a31c93af4b5a8a36ed72909be2e2691d1a39227c50dbdbc451f2001b758bf",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006092",
+      "retrieved_at": "2026-10-27T02:15:36.715863Z"
+    },
+    "b346286e8cdf4302e3d5b37b728a951ff1566ffbbc008ea06738f6c6f18ec9a1": {
+      "json_pointer": "/Results/series/0/data/0",
+      "raw_sha256": "c2c683589311bf48b71707c6731cc8d485493ce9138bb82e4ad2f432f465dac1",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006112",
+      "retrieved_at": "2026-10-27T02:15:38.821166Z"
+    },
+    "de3d3e4bfc21eb991aef62464110e54cd862a12eff52ef923f2b5fb6edeff3b2": {
+      "json_pointer": "/Results/series/0/data/1",
+      "raw_sha256": "c2c683589311bf48b71707c6731cc8d485493ce9138bb82e4ad2f432f465dac1",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006112",
+      "retrieved_at": "2026-10-27T02:15:38.821166Z"
+    },
+    "a470c06fdcaca5d46000a5911c933a51d30f4134680a9573910a82a0ed18f1e8": {
+      "json_pointer": "/Results/series/0/data/3",
+      "raw_sha256": "c2c683589311bf48b71707c6731cc8d485493ce9138bb82e4ad2f432f465dac1",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006112",
+      "retrieved_at": "2026-10-27T02:15:38.821166Z"
+    },
+    "acf3a5f26e1557eb741706aee7d51406ab77e30da0b04a2faeaaa008805b0f91": {
+      "json_pointer": "/Results/series/0/data/4",
+      "raw_sha256": "c2c683589311bf48b71707c6731cc8d485493ce9138bb82e4ad2f432f465dac1",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006112",
+      "retrieved_at": "2026-10-27T02:15:38.821166Z"
+    },
+    "8c982898ccf7d39c946076b5e30fb62a015a98e0fb40c20995f842761411dc5e": {
+      "json_pointer": "/Results/series/0/data/5",
+      "raw_sha256": "c2c683589311bf48b71707c6731cc8d485493ce9138bb82e4ad2f432f465dac1",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006112",
+      "retrieved_at": "2026-10-27T02:15:38.821166Z"
+    },
+    "c79be30a25a8218f46aa5e7d9d2d85c963a226e0a0aa1f446b6674492314efc2": {
+      "json_pointer": "/Results/series/0/data/6",
+      "raw_sha256": "c2c683589311bf48b71707c6731cc8d485493ce9138bb82e4ad2f432f465dac1",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006112",
+      "retrieved_at": "2026-10-27T02:15:38.821166Z"
+    },
+    "ac4308b22a35e59f88f05f55a472d2fdc6b42f87565e84c658bb2795c4f0b271": {
+      "json_pointer": "/Results/series/0/data/8",
+      "raw_sha256": "c2c683589311bf48b71707c6731cc8d485493ce9138bb82e4ad2f432f465dac1",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006112",
+      "retrieved_at": "2026-10-27T02:15:38.821166Z"
+    },
+    "070fe49be36370c5e77bf4b73d604d2642369253f791d342f4702f6c228e51e5": {
+      "json_pointer": "/Results/series/0/data/9",
+      "raw_sha256": "c2c683589311bf48b71707c6731cc8d485493ce9138bb82e4ad2f432f465dac1",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006112",
+      "retrieved_at": "2026-10-27T02:15:38.821166Z"
+    },
+    "4f7fce2b3ae776556e4dff64c6f35eab06d822fafaf6c996d2c5c6fca72b4e81": {
+      "json_pointer": "/Results/series/0/data/10",
+      "raw_sha256": "c2c683589311bf48b71707c6731cc8d485493ce9138bb82e4ad2f432f465dac1",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006112",
+      "retrieved_at": "2026-10-27T02:15:38.821166Z"
+    },
+    "bddd6ef5946a42db321c082d1f15d7ec0077222819ca056bc4db469968b69a4a": {
+      "json_pointer": "/Results/series/0/data/11",
+      "raw_sha256": "c2c683589311bf48b71707c6731cc8d485493ce9138bb82e4ad2f432f465dac1",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006112",
+      "retrieved_at": "2026-10-27T02:15:38.821166Z"
+    },
+    "3950a5ecd190671b6ddf01ba4bc67d1a540fac3e0e81770b016105e4fedc93e9": {
+      "json_pointer": "/Results/series/0/data/0",
+      "raw_sha256": "70339695faca8553bdf2808033a2bccc149bbab788632f0438fb88dc5920e068",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1010000000000I?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["CIS1010000000000I"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:27.282796Z"
+    },
+    "64f9f30b87dd08f9e5c64c7275eebb79fdfd499e6dff70bdc2623ec563ad08f6": {
+      "json_pointer": "/Results/series/0/data/1",
+      "raw_sha256": "70339695faca8553bdf2808033a2bccc149bbab788632f0438fb88dc5920e068",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1010000000000I?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["CIS1010000000000I"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:27.282796Z"
+    },
+    "0360df47ff9e8a50353dd93eeacc44084023b1bb5d874cdf8dfc7e5d4c409974": {
+      "json_pointer": "/Results/series/0/data/2",
+      "raw_sha256": "70339695faca8553bdf2808033a2bccc149bbab788632f0438fb88dc5920e068",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1010000000000I?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["CIS1010000000000I"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:27.282796Z"
+    },
+    "d99a58f60d34b3352476681012cc3d25958270866be8106f71648d023b8060f0": {
+      "json_pointer": "/Results/series/0/data/3",
+      "raw_sha256": "70339695faca8553bdf2808033a2bccc149bbab788632f0438fb88dc5920e068",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1010000000000I?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["CIS1010000000000I"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:27.282796Z"
+    },
+    "cb2888bda6097f42b16f2c22472e20988a364f9529cec0d1e66d85dd570d53a8": {
+      "json_pointer": "/Results/series/0/data/4",
+      "raw_sha256": "70339695faca8553bdf2808033a2bccc149bbab788632f0438fb88dc5920e068",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1010000000000I?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["CIS1010000000000I"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:27.282796Z"
+    },
+    "0c007ebda0b7a4c93345cf256e57586c7e6e2b6bcbada4e265c11ef89594c36e": {
+      "json_pointer": "/Results/series/0/data/5",
+      "raw_sha256": "70339695faca8553bdf2808033a2bccc149bbab788632f0438fb88dc5920e068",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1010000000000I?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["CIS1010000000000I"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:27.282796Z"
+    },
+    "162aba15eb89a8596ba2044cdde9cff34e4cf443ffabeb5a34af8c6e1f44bbc7": {
+      "json_pointer": "/Results/series/0/data/0",
+      "raw_sha256": "b2f3686e59c863898d2dfc17cbd93f8a0a00f6748ce5cb9c13eed488b05adc04",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1020000000000I?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["CIS1020000000000I"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:35.720227Z"
+    },
+    "b991f306b23e0cc0234809d884631e1bd95c821c97734a6152038806b1ffaab2": {
+      "json_pointer": "/Results/series/0/data/1",
+      "raw_sha256": "b2f3686e59c863898d2dfc17cbd93f8a0a00f6748ce5cb9c13eed488b05adc04",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1020000000000I?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["CIS1020000000000I"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:35.720227Z"
+    },
+    "2d431784aa66eb9648ff3cf63f70a8193931d4f2cfad711307f359437f71d8ed": {
+      "json_pointer": "/Results/series/0/data/2",
+      "raw_sha256": "b2f3686e59c863898d2dfc17cbd93f8a0a00f6748ce5cb9c13eed488b05adc04",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1020000000000I?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["CIS1020000000000I"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:35.720227Z"
+    },
+    "3ac6bcb909e9fe71f2293d7166fa3da7469f3773464a4a811054919e2bfb0354": {
+      "json_pointer": "/Results/series/0/data/3",
+      "raw_sha256": "b2f3686e59c863898d2dfc17cbd93f8a0a00f6748ce5cb9c13eed488b05adc04",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1020000000000I?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["CIS1020000000000I"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:35.720227Z"
+    },
+    "f392b9116f5b08be6439f58165d712347006f2f98c762c49b496cf0b6e456812": {
+      "json_pointer": "/Results/series/0/data/4",
+      "raw_sha256": "b2f3686e59c863898d2dfc17cbd93f8a0a00f6748ce5cb9c13eed488b05adc04",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1020000000000I?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["CIS1020000000000I"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:35.720227Z"
+    },
+    "319c32674478211b78e9300cb435849dc13b00e403591b536fb2cc1ec43433da": {
+      "json_pointer": "/Results/series/0/data/5",
+      "raw_sha256": "b2f3686e59c863898d2dfc17cbd93f8a0a00f6748ce5cb9c13eed488b05adc04",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1020000000000I?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["CIS1020000000000I"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:35.720227Z"
+    },
+    "14dfe2d69c56ed99ef5c5cdfbf33bd37909179a2b7dd17e5f4a48a5e58eb9d2d": {
+      "json_pointer": "/Results/series/0/data/0",
+      "raw_sha256": "4dee487fabba9b6392e957d00e4f4b9d8ddb945035e90a7c546c1bee49440b70",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIQ"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:43.703448Z"
+    },
+    "e0f8a62ef389bd256d90215533c9401b1a0bb1ffecd939cc65c7a458cb51cede": {
+      "json_pointer": "/Results/series/0/data/1",
+      "raw_sha256": "4dee487fabba9b6392e957d00e4f4b9d8ddb945035e90a7c546c1bee49440b70",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIQ"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:43.703448Z"
+    },
+    "816997fc8b5c90fcb7108f3ab0a3fe1f2469eb80533d64218dea1c73d86efed3": {
+      "json_pointer": "/Results/series/0/data/2",
+      "raw_sha256": "4dee487fabba9b6392e957d00e4f4b9d8ddb945035e90a7c546c1bee49440b70",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIQ"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:43.703448Z"
+    },
+    "fa1276027b19dd54ad8fd37f8309785e89d12fd7a1426210ffd7312b9e6a5cdb": {
+      "json_pointer": "/Results/series/0/data/3",
+      "raw_sha256": "4dee487fabba9b6392e957d00e4f4b9d8ddb945035e90a7c546c1bee49440b70",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIQ"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:43.703448Z"
+    },
+    "a1b541a5b531f3a80bd441fa86d54d104674f4c4b8b4483f241d5320bc969a4c": {
+      "json_pointer": "/Results/series/0/data/4",
+      "raw_sha256": "4dee487fabba9b6392e957d00e4f4b9d8ddb945035e90a7c546c1bee49440b70",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIQ"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:43.703448Z"
+    },
+    "dd7ce6a36e5a1aeb623bbbd086c5ac0148474f36a6b38aea7a3043fb925aeb74": {
+      "json_pointer": "/Results/series/0/data/5",
+      "raw_sha256": "4dee487fabba9b6392e957d00e4f4b9d8ddb945035e90a7c546c1bee49440b70",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIQ"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:43.703448Z"
+    },
+    "6ef2fabc4e6d640b0c0c07d8ce57dec023e001611c92eb9f74b63ee3a23dc4c2": {
+      "json_pointer": "/Results/series/0/data/6",
+      "raw_sha256": "4dee487fabba9b6392e957d00e4f4b9d8ddb945035e90a7c546c1bee49440b70",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIQ"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:43.703448Z"
+    },
+    "d4df3140c8af9c39083be278fe728994713afb2244afd0b3a51c71881763013a": {
+      "json_pointer": "/Results/series/0/data/7",
+      "raw_sha256": "4dee487fabba9b6392e957d00e4f4b9d8ddb945035e90a7c546c1bee49440b70",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIQ"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:43.703448Z"
+    },
+    "5ad6f86e4a6cc41c1f62495b240f2ea7e10de8461e47b67f7a6e00153169046b": {
+      "json_pointer": "/Results/series/0/data/8",
+      "raw_sha256": "4dee487fabba9b6392e957d00e4f4b9d8ddb945035e90a7c546c1bee49440b70",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIQ"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:43.703448Z"
+    },
+    "ebff5c6d0d80d4429816830be907e8891b722949615f516b1845331971a6462d": {
+      "json_pointer": "/Results/series/0/data/9",
+      "raw_sha256": "4dee487fabba9b6392e957d00e4f4b9d8ddb945035e90a7c546c1bee49440b70",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIQ"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:43.703448Z"
+    },
+    "c2de82642d20941b49fb5d1c88c47173286ad676e47afe38feb5e2e32665b87d": {
+      "json_pointer": "/Results/series/0/data/10",
+      "raw_sha256": "4dee487fabba9b6392e957d00e4f4b9d8ddb945035e90a7c546c1bee49440b70",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIQ"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:43.703448Z"
+    },
+    "dd4caf73b583cbe8f43998493b376675368277f25c886b382a9b768605e8ef98": {
+      "json_pointer": "/Results/series/0/data/11",
+      "raw_sha256": "4dee487fabba9b6392e957d00e4f4b9d8ddb945035e90a7c546c1bee49440b70",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIQ"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:43.703448Z"
+    },
+    "7ff984d825dd15b05db01e198cfd9b334a4b3f57fe89ca1abb54826e78e0e627": {
+      "json_pointer": "/Results/series/0/data/12",
+      "raw_sha256": "4dee487fabba9b6392e957d00e4f4b9d8ddb945035e90a7c546c1bee49440b70",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIQ"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:43.703448Z"
+    },
+    "bcce9862f69379d58e235e4f85a9a967653de3008174cf7cdc9899f892b272d9": {
+      "json_pointer": "/Results/series/0/data/13",
+      "raw_sha256": "4dee487fabba9b6392e957d00e4f4b9d8ddb945035e90a7c546c1bee49440b70",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIQ"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:43.703448Z"
+    },
+    "53562eee9188ed53d9868be46115b6b243cfa076e0dabec28a4c7e807b64ebe1": {
+      "json_pointer": "/Results/series/0/data/14",
+      "raw_sha256": "4dee487fabba9b6392e957d00e4f4b9d8ddb945035e90a7c546c1bee49440b70",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIQ"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:43.703448Z"
+    },
+    "a9b3c68e4ea9a09d157d4d25febb36e71f9ef98525f2cd0d4abe6c64cc175ea5": {
+      "json_pointer": "/Results/series/0/data/15",
+      "raw_sha256": "4dee487fabba9b6392e957d00e4f4b9d8ddb945035e90a7c546c1bee49440b70",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIQ"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:43.703448Z"
+    },
+    "a258c7cc7d0815429fda06b4fdc63182ffac210cd47a6c09ef5539b8f254e9f2": {
+      "json_pointer": "/Results/series/0/data/16",
+      "raw_sha256": "4dee487fabba9b6392e957d00e4f4b9d8ddb945035e90a7c546c1bee49440b70",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIQ"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:43.703448Z"
+    },
+    "d5f0aa6a52c413f48030eaf6bfe8d5412350dca5a2cceeda76a3d19f63466ad0": {
+      "json_pointer": "/Results/series/0/data/17",
+      "raw_sha256": "4dee487fabba9b6392e957d00e4f4b9d8ddb945035e90a7c546c1bee49440b70",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIQ"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:43.703448Z"
+    },
+    "d45a1aad4d880da3b7b350445e532d168f7d1e4a864d92760db05918b53d76e6": {
+      "json_pointer": "/Results/series/0/data/18",
+      "raw_sha256": "4dee487fabba9b6392e957d00e4f4b9d8ddb945035e90a7c546c1bee49440b70",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIQ"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:43.703448Z"
+    },
+    "4195f49951b15e5c9fc1a14cf93745998e448369354f667fa177b08e27a3c7b8": {
+      "json_pointer": "/Results/series/0/data/19",
+      "raw_sha256": "4dee487fabba9b6392e957d00e4f4b9d8ddb945035e90a7c546c1bee49440b70",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIQ"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:43.703448Z"
+    },
+    "79541ea46902dfc3a5b2a1aa1cfebdbaa0a08b0decdc072b448898b5b4e012b5": {
+      "json_pointer": "/Results/series/0/data/0",
+      "raw_sha256": "c07cfac34496b0fc64a33d24defaecbdcd21577818339e08dca19d84db6085f8",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIR"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:41.920058Z"
+    },
+    "d2cfe1f7256976587d38d592e3d71b2fa2e4457501d226526b9d655bf43eb1e4": {
+      "json_pointer": "/Results/series/0/data/1",
+      "raw_sha256": "c07cfac34496b0fc64a33d24defaecbdcd21577818339e08dca19d84db6085f8",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIR"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:41.920058Z"
+    },
+    "42ac6f9c6ac8c238eb92c92817eedd84f4c8eb9908ca0d26f943dbb83830214d": {
+      "json_pointer": "/Results/series/0/data/2",
+      "raw_sha256": "c07cfac34496b0fc64a33d24defaecbdcd21577818339e08dca19d84db6085f8",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIR"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:41.920058Z"
+    },
+    "a8e7b8c1c6bfae1028979391817b6984086b11dd4161250e94754d5605af9acc": {
+      "json_pointer": "/Results/series/0/data/3",
+      "raw_sha256": "c07cfac34496b0fc64a33d24defaecbdcd21577818339e08dca19d84db6085f8",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIR"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:41.920058Z"
+    },
+    "0128c1288f2720687764aefed6c8c76165bfce37393243f1f7269539242c9b2f": {
+      "json_pointer": "/Results/series/0/data/4",
+      "raw_sha256": "c07cfac34496b0fc64a33d24defaecbdcd21577818339e08dca19d84db6085f8",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIR"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:41.920058Z"
+    },
+    "16e54a4593ce0b55516c1f53be8fcae6d61e7a919b8b2805f9c83b9aaa656e78": {
+      "json_pointer": "/Results/series/0/data/5",
+      "raw_sha256": "c07cfac34496b0fc64a33d24defaecbdcd21577818339e08dca19d84db6085f8",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIR"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:41.920058Z"
+    },
+    "4263323b964abf929207b7a1aac31e10b412cd4fb405050cfaedfff7b1526976": {
+      "json_pointer": "/Results/series/0/data/6",
+      "raw_sha256": "c07cfac34496b0fc64a33d24defaecbdcd21577818339e08dca19d84db6085f8",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIR"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:41.920058Z"
+    },
+    "913fc379decc0eca2f7e2ad4b8b4328675513742da3c41b911cda45220af7c1d": {
+      "json_pointer": "/Results/series/0/data/7",
+      "raw_sha256": "c07cfac34496b0fc64a33d24defaecbdcd21577818339e08dca19d84db6085f8",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIR"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:41.920058Z"
+    },
+    "fa7b82448c002aea84c1ef653589df1119b4eba662fc232a35e84b21564caae5": {
+      "json_pointer": "/Results/series/0/data/8",
+      "raw_sha256": "c07cfac34496b0fc64a33d24defaecbdcd21577818339e08dca19d84db6085f8",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIR"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:41.920058Z"
+    },
+    "c7c09ddd7b33a1073ad388940dc729c11043dcb42f92584f8e294a162a5edd3c": {
+      "json_pointer": "/Results/series/0/data/9",
+      "raw_sha256": "c07cfac34496b0fc64a33d24defaecbdcd21577818339e08dca19d84db6085f8",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIR"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:41.920058Z"
+    },
+    "eac575675617f2dee320a16396cf99ce6834c7f200563161377f494b345c4e20": {
+      "json_pointer": "/Results/series/0/data/10",
+      "raw_sha256": "c07cfac34496b0fc64a33d24defaecbdcd21577818339e08dca19d84db6085f8",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIR"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:41.920058Z"
+    },
+    "8b7458c459c0f3b0a3350a127c940f9a678b89ddddafb13419d83497780cdb13": {
+      "json_pointer": "/Results/series/0/data/11",
+      "raw_sha256": "c07cfac34496b0fc64a33d24defaecbdcd21577818339e08dca19d84db6085f8",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIR"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:41.920058Z"
+    },
+    "29dce14b1d2c9f2b8c7d4b40bb03b0a28a1925deb2175ec6141848a8df7b35ca": {
+      "json_pointer": "/Results/series/0/data/12",
+      "raw_sha256": "c07cfac34496b0fc64a33d24defaecbdcd21577818339e08dca19d84db6085f8",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIR"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:41.920058Z"
+    },
+    "cf9b99caa4ed9e88b864e6e5fa6bffd0997dcd6fd7f9d78fa068863ec6ef2108": {
+      "json_pointer": "/Results/series/0/data/13",
+      "raw_sha256": "c07cfac34496b0fc64a33d24defaecbdcd21577818339e08dca19d84db6085f8",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIR"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:41.920058Z"
+    },
+    "fa423d9c5c16b0b9167a63ca13da75fe1c313eaefc00a93f88d5510ae514c191": {
+      "json_pointer": "/Results/series/0/data/14",
+      "raw_sha256": "c07cfac34496b0fc64a33d24defaecbdcd21577818339e08dca19d84db6085f8",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIR"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:41.920058Z"
+    },
+    "a926e437ab213843818a8f4715837b50dd40ee5c7ad31a72e8e6fff2b841b631": {
+      "json_pointer": "/Results/series/0/data/15",
+      "raw_sha256": "c07cfac34496b0fc64a33d24defaecbdcd21577818339e08dca19d84db6085f8",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIR"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:41.920058Z"
+    },
+    "938590807b8c47081ba77e08ea5fb2366799c0aca17ee7afa13e54ced74d3075": {
+      "json_pointer": "/Results/series/0/data/16",
+      "raw_sha256": "c07cfac34496b0fc64a33d24defaecbdcd21577818339e08dca19d84db6085f8",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIR"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:41.920058Z"
+    },
+    "e2610017246f49bb3c8a92106547789c6a16a9eeca52664f5b150b2087721846": {
+      "json_pointer": "/Results/series/0/data/17",
+      "raw_sha256": "c07cfac34496b0fc64a33d24defaecbdcd21577818339e08dca19d84db6085f8",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIR"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:41.920058Z"
+    },
+    "0793d5c64cebfa94f9d2809d68d8de03f37fdae01d51fcf2d003631fd0ed574d": {
+      "json_pointer": "/Results/series/0/data/18",
+      "raw_sha256": "c07cfac34496b0fc64a33d24defaecbdcd21577818339e08dca19d84db6085f8",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIR"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:41.920058Z"
+    },
+    "c85cc146e4bfe3ea9cf4b3e0505f5da4208e01a32639fa6aae52782ac2a3d8d1": {
+      "json_pointer": "/Results/series/0/data/19",
+      "raw_sha256": "c07cfac34496b0fc64a33d24defaecbdcd21577818339e08dca19d84db6085f8",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["EIUIR"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:41.920058Z"
+    },
+    "d25b56433e0aa8f6af4a27db3ec6da9cfcf708e32c47983f00327d06f3fa6173": {
+      "json_pointer": "/Results/series/0/data/0",
+      "raw_sha256": "b8795487d65906b297f0e3fb493d229080bee63ca957ee03c3c4ecc2b71b7a29",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006092?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["PRS85006092"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:38.016783Z"
+    },
+    "70de92413d76977e9eb6fe6c8e00f7fb88b64fac92072b952d25d3321e0922cf": {
+      "json_pointer": "/Results/series/0/data/1",
+      "raw_sha256": "b8795487d65906b297f0e3fb493d229080bee63ca957ee03c3c4ecc2b71b7a29",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006092?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["PRS85006092"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:38.016783Z"
+    },
+    "48fa92f799955b66671b4ed1fd600164acabdadfff95cea1160d8b3303fac110": {
+      "json_pointer": "/Results/series/0/data/2",
+      "raw_sha256": "b8795487d65906b297f0e3fb493d229080bee63ca957ee03c3c4ecc2b71b7a29",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006092?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["PRS85006092"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:38.016783Z"
+    },
+    "e7f69f4b6479fa1004af8de9444910012f2a1b7fac568da1f9148269c4202b94": {
+      "json_pointer": "/Results/series/0/data/3",
+      "raw_sha256": "b8795487d65906b297f0e3fb493d229080bee63ca957ee03c3c4ecc2b71b7a29",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006092?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["PRS85006092"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:38.016783Z"
+    },
+    "96c555c335e68f4fbf130629c6d58731ac4db039bb2d6348b0643e1800437740": {
+      "json_pointer": "/Results/series/0/data/4",
+      "raw_sha256": "b8795487d65906b297f0e3fb493d229080bee63ca957ee03c3c4ecc2b71b7a29",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006092?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["PRS85006092"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:38.016783Z"
+    },
+    "a12ce0b6ead5e2840d1b8a051a6249824d8218a7562c4adbbb406b0fb140361d": {
+      "json_pointer": "/Results/series/0/data/5",
+      "raw_sha256": "b8795487d65906b297f0e3fb493d229080bee63ca957ee03c3c4ecc2b71b7a29",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006092?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["PRS85006092"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:38.016783Z"
+    },
+    "331917e4bd0eb59e60720c15b3429209bd1e51752a867157a381b30e94ad30f6": {
+      "json_pointer": "/Results/series/0/data/0",
+      "raw_sha256": "751ef8c66e66af6c10026cfe0f1459fb2c36cfeeb5dac5f5220ee857afd107ed",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006112?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["PRS85006112"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:39.710424Z"
+    },
+    "53ddc58b07d8ce38d9a5fac6d2867eb92dd6e1e55aeea7f5a52111f3225d92ed": {
+      "json_pointer": "/Results/series/0/data/1",
+      "raw_sha256": "751ef8c66e66af6c10026cfe0f1459fb2c36cfeeb5dac5f5220ee857afd107ed",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006112?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["PRS85006112"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:39.710424Z"
+    },
+    "ef916c6db649046aede44d6e830a9bd9021f314683140ff39ec47071b355ea94": {
+      "json_pointer": "/Results/series/0/data/2",
+      "raw_sha256": "751ef8c66e66af6c10026cfe0f1459fb2c36cfeeb5dac5f5220ee857afd107ed",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006112?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["PRS85006112"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:39.710424Z"
+    },
+    "88b2097682ac500af081c248994c567a088e9f77602c5c8b7979ee58babd9c47": {
+      "json_pointer": "/Results/series/0/data/3",
+      "raw_sha256": "751ef8c66e66af6c10026cfe0f1459fb2c36cfeeb5dac5f5220ee857afd107ed",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006112?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["PRS85006112"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:39.710424Z"
+    },
+    "dfcf931e9a4221b558f0f97c777e5781123938b35eb54196819af89e72c11318": {
+      "json_pointer": "/Results/series/0/data/4",
+      "raw_sha256": "751ef8c66e66af6c10026cfe0f1459fb2c36cfeeb5dac5f5220ee857afd107ed",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006112?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["PRS85006112"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:39.710424Z"
+    },
+    "72e087d16b1f838079ec59a2e48742d2e71712589f08fa53133ecb10f5c8b04e": {
+      "json_pointer": "/Results/series/0/data/5",
+      "raw_sha256": "751ef8c66e66af6c10026cfe0f1459fb2c36cfeeb5dac5f5220ee857afd107ed",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006112?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["PRS85006112"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:15:39.710424Z"
+    },
+    "e0aec6572027f8a775ec1aa2b469b88a10828ef1e463530168be24e4961a51d4": {
+      "json_pointer": "/Results/series/0/data/0",
+      "raw_sha256": "3eea1258f1c90f4a8ae6322667878371bec74718f601bbcc520c2cafaf4795c1",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CUUR0000SA0?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["CUUR0000SA0"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:16:56.133373Z"
+    },
+    "1abc89f4893cc1a2c5d82515173b7ba2041d901168b79539279ce6fdce506cdb": {
+      "json_pointer": "/Results/series/0/data/0",
+      "raw_sha256": "b14e2bdaeed102ef0b7d8c5dc36f281b16ee2b4ba1fc7a2fc9052c762ba268c5",
+      "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/WPSFD4?startyear=2025&endyear=2026",
+      "request_body": {
+        "endyear": "2026",
+        "seriesid": ["WPSFD4"],
+        "startyear": "2025"
+      },
+      "request_method": "POST",
+      "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "retrieved_at": "2026-10-27T02:16:57.179403Z"
+    }
+  },
+  "attempt_counts": {
+    "before": 12,
+    "after_sdk_reads": 12,
+    "after_sdk_preset": 14,
+    "after_mcp": 14
+  }
+}

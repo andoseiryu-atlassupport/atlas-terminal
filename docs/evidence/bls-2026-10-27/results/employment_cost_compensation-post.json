@@ -1,0 +1,292 @@
+{
+  "query": {
+    "dataset": "economics",
+    "series": "employment_cost_compensation",
+    "limit": 500,
+    "start_date": "2025-01-01",
+    "end_date": "2026-10-27"
+  },
+  "started_at": "2026-10-27T02:15:26.606597Z",
+  "result": {
+    "schema_version": "0.2.0",
+    "dataset": "economics",
+    "query": {
+      "dataset": "economics",
+      "limit": 500,
+      "series": "employment_cost_compensation",
+      "start_date": "2025-01-01",
+      "end_date": "2026-10-27"
+    },
+    "source_id": "bls",
+    "source_terms_url": "https://www.bls.gov/bls/linksite.htm",
+    "documentation": {
+      "guide": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/macro.md",
+      "methodology": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/macro.md",
+      "sources_and_terms": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/DATA_SOURCES.md",
+      "citation_guidance": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/citations.md"
+    },
+    "upstream_data_cost": "0",
+    "is_synthetic": false,
+    "source_text_is_untrusted": true,
+    "retrieved_at": "2026-10-27T02:15:27.282796Z",
+    "series_title": "Employment Cost Index, total compensation, all civilian workers",
+    "records": [
+      {
+        "frequency": "quarterly",
+        "annualized": false,
+        "base_period": "2005-12",
+        "reference_period_kind": "quarter_end_reference_month",
+        "series": "employment_cost_compensation",
+        "series_id": "CIS1010000000000I",
+        "year": "2026",
+        "period": "Q02",
+        "period_kind": "quarter",
+        "date": "2026-06-30",
+        "date_basis": "observation_period_end",
+        "value": "177.178",
+        "status": "reported",
+        "unit": "index_2005_12_100",
+        "seasonally_adjusted": true,
+        "published_at": null,
+        "footnotes": [{}],
+        "latest": "true",
+        "source": {
+          "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1010000000000I?startyear=2025&endyear=2026",
+          "raw_sha256": "70339695faca8553bdf2808033a2bccc149bbab788632f0438fb88dc5920e068",
+          "retrieved_at": "2026-10-27T02:15:27.282796Z",
+          "json_pointer": "/Results/series/0/data/0",
+          "request_method": "POST",
+          "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+          "request_body": {
+            "seriesid": ["CIS1010000000000I"],
+            "startyear": "2025",
+            "endyear": "2026"
+          }
+        }
+      },
+      {
+        "frequency": "quarterly",
+        "annualized": false,
+        "base_period": "2005-12",
+        "reference_period_kind": "quarter_end_reference_month",
+        "series": "employment_cost_compensation",
+        "series_id": "CIS1010000000000I",
+        "year": "2026",
+        "period": "Q01",
+        "period_kind": "quarter",
+        "date": "2026-03-31",
+        "date_basis": "observation_period_end",
+        "value": "175.618",
+        "status": "reported",
+        "unit": "index_2005_12_100",
+        "seasonally_adjusted": true,
+        "published_at": null,
+        "footnotes": [{}],
+        "latest": null,
+        "source": {
+          "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1010000000000I?startyear=2025&endyear=2026",
+          "raw_sha256": "70339695faca8553bdf2808033a2bccc149bbab788632f0438fb88dc5920e068",
+          "retrieved_at": "2026-10-27T02:15:27.282796Z",
+          "json_pointer": "/Results/series/0/data/1",
+          "request_method": "POST",
+          "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+          "request_body": {
+            "seriesid": ["CIS1010000000000I"],
+            "startyear": "2025",
+            "endyear": "2026"
+          }
+        }
+      },
+      {
+        "frequency": "quarterly",
+        "annualized": false,
+        "base_period": "2005-12",
+        "reference_period_kind": "quarter_end_reference_month",
+        "series": "employment_cost_compensation",
+        "series_id": "CIS1010000000000I",
+        "year": "2025",
+        "period": "Q04",
+        "period_kind": "quarter",
+        "date": "2025-12-31",
+        "date_basis": "observation_period_end",
+        "value": "174.047",
+        "status": "reported",
+        "unit": "index_2005_12_100",
+        "seasonally_adjusted": true,
+        "published_at": null,
+        "footnotes": [{}],
+        "latest": null,
+        "source": {
+          "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1010000000000I?startyear=2025&endyear=2026",
+          "raw_sha256": "70339695faca8553bdf2808033a2bccc149bbab788632f0438fb88dc5920e068",
+          "retrieved_at": "2026-10-27T02:15:27.282796Z",
+          "json_pointer": "/Results/series/0/data/2",
+          "request_method": "POST",
+          "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+          "request_body": {
+            "seriesid": ["CIS1010000000000I"],
+            "startyear": "2025",
+            "endyear": "2026"
+          }
+        }
+      },
+      {
+        "frequency": "quarterly",
+        "annualized": false,
+        "base_period": "2005-12",
+        "reference_period_kind": "quarter_end_reference_month",
+        "series": "employment_cost_compensation",
+        "series_id": "CIS1010000000000I",
+        "year": "2025",
+        "period": "Q03",
+        "period_kind": "quarter",
+        "date": "2025-09-30",
+        "date_basis": "observation_period_end",
+        "value": "172.752",
+        "status": "reported",
+        "unit": "index_2005_12_100",
+        "seasonally_adjusted": true,
+        "published_at": null,
+        "footnotes": [{}],
+        "latest": null,
+        "source": {
+          "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1010000000000I?startyear=2025&endyear=2026",
+          "raw_sha256": "70339695faca8553bdf2808033a2bccc149bbab788632f0438fb88dc5920e068",
+          "retrieved_at": "2026-10-27T02:15:27.282796Z",
+          "json_pointer": "/Results/series/0/data/3",
+          "request_method": "POST",
+          "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+          "request_body": {
+            "seriesid": ["CIS1010000000000I"],
+            "startyear": "2025",
+            "endyear": "2026"
+          }
+        }
+      },
+      {
+        "frequency": "quarterly",
+        "annualized": false,
+        "base_period": "2005-12",
+        "reference_period_kind": "quarter_end_reference_month",
+        "series": "employment_cost_compensation",
+        "series_id": "CIS1010000000000I",
+        "year": "2025",
+        "period": "Q02",
+        "period_kind": "quarter",
+        "date": "2025-06-30",
+        "date_basis": "observation_period_end",
+        "value": "171.380",
+        "status": "reported",
+        "unit": "index_2005_12_100",
+        "seasonally_adjusted": true,
+        "published_at": null,
+        "footnotes": [{}],
+        "latest": null,
+        "source": {
+          "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1010000000000I?startyear=2025&endyear=2026",
+          "raw_sha256": "70339695faca8553bdf2808033a2bccc149bbab788632f0438fb88dc5920e068",
+          "retrieved_at": "2026-10-27T02:15:27.282796Z",
+          "json_pointer": "/Results/series/0/data/4",
+          "request_method": "POST",
+          "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+          "request_body": {
+            "seriesid": ["CIS1010000000000I"],
+            "startyear": "2025",
+            "endyear": "2026"
+          }
+        }
+      },
+      {
+        "frequency": "quarterly",
+        "annualized": false,
+        "base_period": "2005-12",
+        "reference_period_kind": "quarter_end_reference_month",
+        "series": "employment_cost_compensation",
+        "series_id": "CIS1010000000000I",
+        "year": "2025",
+        "period": "Q01",
+        "period_kind": "quarter",
+        "date": "2025-03-31",
+        "date_basis": "observation_period_end",
+        "value": "169.8",
+        "status": "reported",
+        "unit": "index_2005_12_100",
+        "seasonally_adjusted": true,
+        "published_at": null,
+        "footnotes": [{}],
+        "latest": null,
+        "source": {
+          "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1010000000000I?startyear=2025&endyear=2026",
+          "raw_sha256": "70339695faca8553bdf2808033a2bccc149bbab788632f0438fb88dc5920e068",
+          "retrieved_at": "2026-10-27T02:15:27.282796Z",
+          "json_pointer": "/Results/series/0/data/5",
+          "request_method": "POST",
+          "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+          "request_body": {
+            "seriesid": ["CIS1010000000000I"],
+            "startyear": "2025",
+            "endyear": "2026"
+          }
+        }
+      }
+    ],
+    "sources": [
+      {
+        "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1010000000000I?startyear=2025&endyear=2026",
+        "raw_sha256": "70339695faca8553bdf2808033a2bccc149bbab788632f0438fb88dc5920e068",
+        "retrieved_at": "2026-10-27T02:15:27.282796Z",
+        "json_pointer": "",
+        "request_method": "POST",
+        "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+        "request_body": {
+          "seriesid": ["CIS1010000000000I"],
+          "startyear": "2025",
+          "endyear": "2026"
+        }
+      }
+    ],
+    "coverage": {
+      "observed_records": 6,
+      "returned_records": 6,
+      "truncated": false,
+      "upstream_window_limited": true,
+      "upstream_window": "BLS V1 selected years 2025\u20132026 in ten-year chunks",
+      "unavailable_records": 0,
+      "requested_start_date": "2025-01-01",
+      "requested_end_date": "2026-10-27",
+      "first_observation_date": "2025-03-31",
+      "last_observation_date": "2026-06-30",
+      "date_selection": "inclusive_observation_period_end",
+      "point_in_time": false,
+      "excluded_annual_summary_rows": 0
+    },
+    "limitations": [
+      "Current revised BLS observations, not release-time vintages. Dates are period ends, not release dates.",
+      "Q05 annual summary rows are excluded from quarterly selections. Index levels and published annualized percent changes stay distinct; Atlas does not calculate or annualize these reported values.",
+      "Dated requests use read-only POSTs of at most ten calendar years; shared local and upstream per-IP quotas apply.",
+      "Current/revised source snapshots do not establish point-in-time historical availability.",
+      "Free public sources have upstream limits and no completeness or latency guarantee."
+    ]
+  },
+  "status": "ok",
+  "attempts": [
+    {
+      "retrieved_at": "2026-10-27T02:15:27.282586Z",
+      "method": "POST",
+      "url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "request_body": {
+        "seriesid": ["CIS1010000000000I"],
+        "startyear": "2025",
+        "endyear": "2026"
+      },
+      "http_status": 200,
+      "raw_sha256": "70339695faca8553bdf2808033a2bccc149bbab788632f0438fb88dc5920e068",
+      "raw_file": "raw/70339695faca8553bdf2808033a2bccc149bbab788632f0438fb88dc5920e068.json",
+      "response_headers": {
+        "content-type": "text/plain;charset=ISO-8859-1",
+        "date": "Tue, 27 Oct 2026 02:15:27 GMT",
+        "server": "envoy"
+      }
+    }
+  ]
+}

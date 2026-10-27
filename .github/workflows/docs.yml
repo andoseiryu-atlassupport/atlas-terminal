@@ -37,7 +37,10 @@ jobs:
           path: build/site
 
   deploy:
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.PAGES_ENABLED == 'true'
+    if: >-
+      github.ref == 'refs/heads/main' && github.event_name != 'pull_request' &&
+      vars.PAGES_ENABLED == 'true' &&
+      !contains(github.event.head_commit.message, '[skip pages deploy]')
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 10

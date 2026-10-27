@@ -82,7 +82,7 @@ uv run --offline atlas research get economics --series employment_cost_compensat
 uv run --offline atlas research catalog --dataset economics --frequency quarterly --json
 ```
 
-`us_inflation_costs` combines the six selections with CPI and PPI final demand in eight inspectable reads. It preserves independent dates and frequencies and accepts paired dates, item selection and quality requirements. Dated reads remain in ten-year chunks under the shared BLS V1 limit of 25 attempts per UTC day; a long multi-item request can consume most of that allowance. Preview is offline and cached reads avoid unnecessary requests. All examples use fictional data; documentation inspection is not live API verification.
+`us_inflation_costs` combines the six selections with CPI and PPI final demand in eight inspectable reads. It preserves independent dates and frequencies and accepts paired dates, item selection and quality requirements. Dated reads remain in ten-year chunks under the shared BLS V1 limit of 25 attempts per UTC day; a long multi-item request can consume most of that allowance. Preview is offline and cached reads avoid unnecessary requests. The commands above use fictional data. Separate [recorded live verification](evidence/bls-2026-10-27/README.md) covers GET/dated POST for all six selections and the SDK/MCP preset. V1 does not include their unit/base/annualization metadata; those definitions were checked against official documentation separately.
 
 ## US activity and weekly claims
 
