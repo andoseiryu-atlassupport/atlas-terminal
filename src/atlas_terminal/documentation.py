@@ -27,9 +27,12 @@ def research_documentation(dataset: str) -> dict[str, str]:
         "international_economics",
         "macro_panel",
     }
-    methodology = "macro" if dataset in macro else "methodology"
+    equity = dataset in {"equity_prices", "equity_actions"}
+    methodology = "yahoo-finance" if equity else "macro" if dataset in macro else "methodology"
     guide = (
-        "fixed-income"
+        "yahoo-finance"
+        if equity
+        else "fixed-income"
         if dataset in {"jgb_yields", "euro_area_yields", "australia_yields"}
         else "economic-indicators"
         if dataset == "activity_economics"

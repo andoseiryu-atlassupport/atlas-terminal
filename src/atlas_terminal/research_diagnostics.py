@@ -8,6 +8,7 @@ from pydantic import Field, ValidationError, field_validator
 
 from atlas_terminal.activity_sources import activity_key
 from atlas_terminal.economic_sources import bea_key
+from atlas_terminal.equity_sources import yahoo_enabled
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.models import Model
 from atlas_terminal.providers import validate_sec_user_agent
@@ -15,6 +16,7 @@ from atlas_terminal.public_sources import SOURCE_CATALOG
 from atlas_terminal.util import stamp
 
 SourceId = Literal[
+    "yahoo_finance",
     "sec",
     "bls",
     "treasury",
@@ -105,7 +107,9 @@ def research_diagnostics(
     if provider not in {"public", "sec", "fixture"}:
         raise AtlasError("CONFIG_REQUIRED", "Research diagnostics use public or fixture providers.")
     selected = (
-        [str(name) for name in query.sources] if query.sources is not None else list(SOURCE_CATALOG)
+        [str(name) for name in query.sources]
+        if query.sources is not None
+        else [name for name, spec in SOURCE_CATALOG.items() if not spec.get("optional")]
     )
     synthetic = provider == "fixture"
     sec_ready = True
@@ -142,6 +146,7 @@ def research_diagnostics(
             (name != "sec" or sec_ready)
             and (name != "bea" or bea_ready)
             and key_ready.get(name, True)
+            and (name != "yahoo_finance" or yahoo_enabled())
         )
         source_checks = [check for check in checks if check["source_id"] == name]
         if synthetic:
@@ -152,7 +157,10 @@ def research_diagnostics(
         elif not ready:
             configuration, connectivity = "configuration_required", "not_run"
             action = (
-                (
+                "Set ATLAS_ENABLE_YAHOO_FINANCE=1 in the operator environment only for "
+                "personal use under international Yahoo source terms."
+                if name == "yahoo_finance"
+                else (
                     "Set "
                     + {"census": "CENSUS_API_KEY", "fred": "FRED_API_KEY"}[name]
                     + " privately after free registration; use the source documentation for signup."

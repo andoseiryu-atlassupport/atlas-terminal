@@ -8,6 +8,12 @@ from pydantic import ConfigDict, Field, ValidationError, field_validator, model_
 
 from atlas_terminal.activity_catalog import ACTIVITY_SERIES
 from atlas_terminal.economic_catalog import JAPAN_SERIES, NATIONAL_ACCOUNTS
+from atlas_terminal.equity_sources import (
+    EQUITY_DATASETS,
+    YAHOO_SYMBOL_PATTERN,
+    yahoo_symbol,
+    yahoo_url,
+)
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.macro_catalog import (
     CURVE_SERIES,
@@ -55,9 +61,13 @@ Dataset = Literal[
     "sdmx_catalog",
     "international_economics",
     "macro_panel",
+    "equity_prices",
+    "equity_actions",
 ]
 
 FIELDS = {
+    "equity_prices": {"identifier", "limit", "start_date", "end_date"},
+    "equity_actions": {"identifier", "limit", "start_date", "end_date"},
     "companies": {"identifier", "limit"},
     "profile": {"identifier"},
     "statements": {"identifier", "metrics", "period", "count", "allow_partial"},
@@ -207,6 +217,12 @@ def dataset_schema(schema: dict[str, Any]) -> None:
                     part for part in properties[required]["anyOf"] if part.get("type") != "null"
                 ]
                 properties[required] = choices[0] if len(choices) == 1 else {"anyOf": choices}
+        if name in EQUITY_DATASETS:
+            properties["identifier"] = {
+                "type": "string",
+                "pattern": "^" + YAHOO_SYMBOL_PATTERN + "$",
+                "description": "Explicit Tokyo Yahoo symbol, for example 7203.T or 130A.T.",
+            }
         if name in {"statements", "financial_analytics", "compare"}:
             metrics: set[str] = set()
             if name != "financial_analytics":
@@ -367,6 +383,9 @@ class ResearchQuery(Model):
 
     @model_validator(mode="after")
     def check_dataset(self) -> "ResearchQuery":
+        if self.dataset in EQUITY_DATASETS:
+            yahoo_symbol(self.identifier or "")
+            yahoo_url(self.identifier or "", self.start_date, self.end_date)
         if self.dataset in {"sdmx_catalog", "international_economics"}:
             if self.source_id is None:
                 raise AtlasError("INVALID_INPUT", "Choose imf, oecd or abs.", fields=["source_id"])

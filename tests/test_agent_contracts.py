@@ -32,6 +32,8 @@ def private_state(tmp_path, monkeypatch):
 
 
 def query(dataset="statements", **extra):
+    if dataset in {"equity_prices", "equity_actions"}:
+        return {"dataset": dataset, "identifier": "7203.T", **extra}
     if dataset == "sdmx_catalog":
         return {"dataset": dataset, "source_id": "imf", **extra}
     if dataset == "international_economics":

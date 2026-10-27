@@ -10,11 +10,11 @@ Version 0.7.0 includes the experimental native factor risk extension and install
 | --------------------------------------------------------- | ------------------------------------------------------------------- |
 | `uv run --offline ruff check .`                           | PASS                                                                |
 | `uv run --offline ruff format --check .`                  | PASS                                                                |
-| `uv run --offline mypy`                                   | PASS; 64 source files                                               |
-| `uv run --offline pytest`                                 | PASS; 1,241 tests, 2 live tests deselected                          |
+| `uv run --offline mypy`                                   | PASS; 66 source files                                               |
+| `uv run --offline pytest`                                 | PASS; 1,302 tests, 2 live tests deselected                          |
 | `uv run --offline python -m build --no-isolation`         | PASS; wheel and source distribution                                 |
 | `uv run --offline python scripts/verify_distribution.py`  | PASS; metadata, required contents and forbidden paths               |
-| `uv run --offline python scripts/build_docs.py`           | PASS; 47 HTML pages and internal file/section links                 |
+| `uv run --offline python scripts/build_docs.py`           | PASS; 48 HTML pages and internal file/section links                 |
 | `uv run --offline python scripts/verify_showcases.py`     | PASS; both recorded versions, data modes and checksums              |
 | `uv run --offline python scripts/verify_bls_capture.py`   | PASS; offline audit/replay of 14 captured responses and 168 records |
 | `uv run --offline python scripts/prepare_distribution.py` | PREPARED; versioned plugin ZIP and Registry draft                   |
@@ -24,6 +24,20 @@ Version 0.7.0 includes the experimental native factor risk extension and install
 Default tests prohibit IP sockets and use fictional sources, mocked transports or explicitly identified recorded public responses. They do not retrieve live official data or transfer funds. Archive validation rejects private/runtime paths, dependency trees, unsafe paths and links; source archives contain project source and verification material rather than installed dependencies. The credential-pattern scan is a heuristic, not a guarantee against every secret format.
 
 Test cases use isolated private state directories so repeated verification does not consume an operator's persistent cache quota. The numerical and protocol assertions remain unchanged.
+
+## Optional international Yahoo Tokyo equities
+
+On 2026-10-27 (UTC), the source checkout passed 1,302 offline tests with two live cases deselected. The 57 new Yahoo-specific cases and four additional generic dataset cases cover `equity_prices`, `equity_actions` and the two-item `japan_equity_history` preset. The catalog now contains 34 datasets (32 primary-source plus two optional Yahoo datasets), 22 source families and 24 presets. Yahoo is explicitly described as a personal-use secondary source, disabled unless `ATLAS_ENABLE_YAHOO_FINANCE=1` is set in the operator environment. Default diagnostics and probes exclude it; one explicitly selected Yahoo probe brings the registry to 37 probes, including 36 primary-source probes.
+
+The fictional cases cover exact source decimals and per-scalar JSON pointers; JPY, Tokyo symbol/exchange/timezone and daily frequency; inclusive observation dates and exclusive upstream timestamp bounds; current-session exclusion based on the source regular-session end; zero volume, null/absent adjusted close and empty action windows; reported dividends, reverse/fractional split coefficients and consistent ratio labels; malformed arrays/values/source identities; operator-only enablement before client creation; rejection of extra hosts/parameters, authentication errors and rate limits without cookie/crumb harvesting or fallback; one-response cache sharing across datasets/preset; compact evidence, paging and requirements; SDK/CLI/HTTP and an actual official stdio MCP session. The two source fixtures are clearly fictional and do not establish current prices or live compatibility. Existing source fixtures and showcase recordings were not modified.
+
+Ruff, formatting, mypy (66 source files), `npm run check`, source/wheel archive validation (500/269 files), 48-page documentation/internal links, both showcase checksums and the public-file credential-pattern scan passed. A rebuilt wheel was installed with locked dependencies into an isolated runtime outside source imports; its SDK, CLI, HTTP and actual stdio MCP checks passed for both Japanese symbols, both datasets, the preset, original evidence and default-disabled public access. The installed checks used fictional data. The first offline dependency installation lacked cached package metadata; installation then used the same locked requirements through the normal permitted package route. Plugin/Registry artifacts were prepared locally without publication.
+
+The normal inherited proxy/TLS route was tested for `query1.finance.yahoo.com`. The direct HTTPX attempt returned `ProxyError: 403 Forbidden`, without an upstream Yahoo response body. The applied, current environment policy was `enforced` with `api.bls.gov` and `api.github.com` as explicit user hosts, using configuration version `cecfgver_6adf7916015081a29f3ed15529146065`; Yahoo was absent. This describes the running environment, not a newer editable settings draft. It does not establish a Yahoo service outage.
+
+The shared-service command `ATLAS_ENABLE_YAHOO_FINANCE=1 uv run --offline python scripts/verify_yahoo_live.py --allow-network --output build/yahoo-live-blocked` stopped on the first normal `7203.T` read with `SOURCE_UNAVAILABLE`. Its private report contains the exact query/error; no source bytes, normalized real observations or live MCP success were obtained. Normal/dates/action/preset live compatibility therefore remains unverified. The reusable script can retain actual raw bytes, retrieval times, hashes, scalar pointers and SDK/MCP results after the required host is permitted; its output is ignored and not published. No proxy bypass, alternate-host retry, quota reset, new release, data publication or service deployment occurred.
+
+The [yfinance adjustment guide](https://ranaroussi.github.io/yfinance/advanced/price_adjustment.html) and source implementation were inspected: Yahoo OHLC is already split-adjusted; adjusted close also includes dividends. Price bases remain separate and are not used to infer historical capitalization. Dividend currency follows chart quote metadata, without independently establishing a payment currency. The international Yahoo terms pages could not be read through the connected web reader (reported HTTP 999); the library's data-use notice is not an independent redistribution grant. [Usage and source limits](yahoo-finance.md).
 
 ## BLS employment costs, productivity and trade prices
 

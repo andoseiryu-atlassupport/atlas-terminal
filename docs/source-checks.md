@@ -8,27 +8,28 @@ uv run atlas research check-sources --sources bls,treasury --allow-network --jso
 uv run atlas research check-sources --sources ecb --max-observation-lag-days 7 --allow-network --json
 ```
 
-`--sources all` includes every source family. SEC requires a privately configured, identifying `SEC_USER_AGENT`; missing/invalid configuration reports `NOT_RUN`, independently of other probes. BEA, Census and FRED require separate private free registered API keys and also report `NOT_RUN` without them. Keep contact values and keys outside model inputs, source control and logs.
+`--sources all` includes the default primary-source families. The optional international Yahoo source is excluded; select `--sources yahoo_finance` explicitly and set `ATLAS_ENABLE_YAHOO_FINANCE=1` for its personal-use Tokyo daily-price probe. Its unofficial endpoint and separate data rights are described in the [Yahoo guide](yahoo-finance.md). SEC requires a privately configured, identifying `SEC_USER_AGENT`; missing/invalid configuration reports `NOT_RUN`, independently of other probes. BEA, Census and FRED require separate private free registered API keys and also report `NOT_RUN` without them. Keep contact values and keys outside model inputs, source control and logs.
 
-| Source ID         | Fixed probes                                                             |
-| ----------------- | ------------------------------------------------------------------------ |
-| `sec`             | AAPL current issuer directory resolution and submissions profile         |
-| `bls`             | Registration-free CPI, ECI, productivity and import-price observations   |
-| `eurostat`        | Current ECOICOP-v2 euro-area HICP annual change                          |
-| `ons`             | UK all-items CPI index                                                   |
-| `ecb`             | ECB reference USD/JPY using same-date EUR inputs                         |
-| `new_york_fed`    | Overnight EFFR and SOFR                                                  |
-| `treasury`        | Current-year nominal curve, real curve and 10Y–2Y spread                 |
-| `fiscaldata`      | Debt to the Penny                                                        |
-| `federal_reserve` | Official release RSS metadata and G.17 industrial production             |
-| `bea`             | Real GDP and core PCE price index                                        |
-| `boj`             | Overnight call rate and large-manufacturer Tankan                        |
-| `estat`           | National CPI and seasonally adjusted unemployment                        |
-| `census`          | US advance retail sales and goods/services trade balance                 |
-| `fred`            | US DOL initial claims                                                    |
-| `abs`             | Australian quarterly chain-volume GDP and separate monthly/quarterly CPI |
-| `statcan`         | Canadian monthly national CPI                                            |
-| `world_bank`      | Chinese annual real GDP growth                                           |
+| Source ID         | Fixed probes                                                                                |
+| ----------------- | ------------------------------------------------------------------------------------------- |
+| `sec`             | AAPL current issuer directory resolution and submissions profile                            |
+| `bls`             | Registration-free CPI, ECI, productivity and import-price observations                      |
+| `eurostat`        | Current ECOICOP-v2 euro-area HICP annual change                                             |
+| `ons`             | UK all-items CPI index                                                                      |
+| `ecb`             | ECB reference USD/JPY using same-date EUR inputs                                            |
+| `new_york_fed`    | Overnight EFFR and SOFR                                                                     |
+| `treasury`        | Current-year nominal curve, real curve and 10Y–2Y spread                                    |
+| `fiscaldata`      | Debt to the Penny                                                                           |
+| `federal_reserve` | Official release RSS metadata and G.17 industrial production                                |
+| `bea`             | Real GDP and core PCE price index                                                           |
+| `boj`             | Overnight call rate and large-manufacturer Tankan                                           |
+| `estat`           | National CPI and seasonally adjusted unemployment                                           |
+| `census`          | US advance retail sales and goods/services trade balance                                    |
+| `fred`            | US DOL initial claims                                                                       |
+| `abs`             | Australian quarterly chain-volume GDP and separate monthly/quarterly CPI                    |
+| `statcan`         | Canadian monthly national CPI                                                               |
+| `world_bank`      | Chinese annual real GDP growth                                                              |
+| `yahoo_finance`   | Optional international Yahoo `7203.T` daily prices; explicit source and enablement required |
 
 Each run conditionally revalidates every used URL through the same private SEC/public cache stores, rate limits and BLS daily-attempt counter as ordinary research. A prior unexpired cache entry alone cannot satisfy the check; HTTP 304 is valid revalidation. Within a run, repeated URLs share the newly checked snapshot, including nominal Treasury data reused for the spread. Checked source bodies remain in the normal private cache with their original byte hashes and refreshed check times. Payment state is unaffected. Use the same `ATLAS_STATE_DIR` as ordinary research to share local quotas.
 
@@ -54,7 +55,7 @@ Runner-local baselines are temporary in this workflow. Persistent cross-run comp
 
 ## Recorded verification limits
 
-Parser, fingerprint, failure-isolation, source-contact separation, baseline persistence and integrity tests use fictional inputs and HTTP MockTransport. They do not establish actual source connectivity. In the recorded implementation environment, the enforced outbound allowlist excludes official data hosts, so live probes remain unverified. An operator must allow the intended endpoints before running them; SEC additionally needs its private contact setting, and BEA/Census/FRED need their separate free registered keys.
+Parser, fingerprint, failure-isolation, source-contact separation, baseline persistence and integrity tests use fictional inputs and HTTP MockTransport. They do not establish actual source connectivity. Separate recorded BLS retrievals are described in the [verification record](verification.md); other official-source probes and optional Yahoo live compatibility remain unverified. An operator must allow the intended endpoints before running them; SEC additionally needs its private contact setting, and BEA/Census/FRED need their separate free registered keys.
 
 The required direct-request hosts include `www.ecb.europa.eu`, `markets.newyorkfed.org`, `api.bls.gov`, `home.treasury.gov`, `api.fiscaldata.treasury.gov`, `www.federalreserve.gov`, `www.sec.gov`, `data.sec.gov`, `apps.bea.gov`, `www.stat-search.boj.or.jp`, `dashboard.e-stat.go.jp`, `api.imf.org`, `sdmx.oecd.org`, `www.mof.go.jp`, `data-api.ecb.europa.eu`, `www.rba.gov.au`, `ec.europa.eu`, `www.ons.gov.uk`, `api.census.gov`, `api.stlouisfed.org`, `data.api.abs.gov.au`, `www150.statcan.gc.ca` and `api.worldbank.org`. Atlas still enforces its narrower fixed URL catalog and refuses redirects. Keep TLS verification and the execution environment's proxy path enabled.
 
