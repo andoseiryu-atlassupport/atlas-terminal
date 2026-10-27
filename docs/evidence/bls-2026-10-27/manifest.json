@@ -1,0 +1,263 @@
+{
+  "schema_version": 1,
+  "source_commit": "8e26aff35c04c409d831aafd526ba05342c11c7e",
+  "captured_date_utc": "2026-10-27",
+  "data_kind": "recorded_public_api",
+  "observation_window": {
+    "start_date": "2025-01-01",
+    "end_date": "2026-10-27"
+  },
+  "network": {
+    "route": "inherited HTTP/HTTPS proxy",
+    "tls_verification": true,
+    "policy_state": "enforced",
+    "allowed_host": "api.bls.gov",
+    "configuration_version": "cecfgver_6adf7916015081a29f3ed15529146065"
+  },
+  "primary_requests": 12,
+  "additional_preset_requests": 2,
+  "quota": {
+    "utc_day": "2026-10-27",
+    "before": 0,
+    "after_primary": 12,
+    "after_interfaces": 14,
+    "limit": 25,
+    "state_reset": false
+  },
+  "captures": [
+    "results/employment_cost_compensation-get.json",
+    "results/employment_cost_wages-get.json",
+    "results/export_prices-get.json",
+    "results/import_prices-get.json",
+    "results/nonfarm_productivity_growth-get.json",
+    "results/unit_labor_cost_growth-get.json",
+    "results/employment_cost_compensation-post.json",
+    "results/employment_cost_wages-post.json",
+    "results/export_prices-post.json",
+    "results/import_prices-post.json",
+    "results/nonfarm_productivity_growth-post.json",
+    "results/unit_labor_cost_growth-post.json"
+  ],
+  "requests": [
+    {
+      "retrieved_at": "2026-10-27T02:15:26.600033Z",
+      "method": "GET",
+      "url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1010000000000I",
+      "request_body": null,
+      "http_status": 200,
+      "raw_sha256": "a5bd68a304ca9a26ad71f5c6efd9220c8e96dc8de0127ea68710ee114c9b1e6e",
+      "raw_file": "raw/a5bd68a304ca9a26ad71f5c6efd9220c8e96dc8de0127ea68710ee114c9b1e6e.json",
+      "response_headers": {
+        "content-type": "application/json",
+        "date": "Tue, 27 Oct 2026 02:15:26 GMT",
+        "server": "envoy"
+      }
+    },
+    {
+      "retrieved_at": "2026-10-27T02:15:27.282586Z",
+      "method": "POST",
+      "url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "request_body": {
+        "seriesid": ["CIS1010000000000I"],
+        "startyear": "2025",
+        "endyear": "2026"
+      },
+      "http_status": 200,
+      "raw_sha256": "70339695faca8553bdf2808033a2bccc149bbab788632f0438fb88dc5920e068",
+      "raw_file": "raw/70339695faca8553bdf2808033a2bccc149bbab788632f0438fb88dc5920e068.json",
+      "response_headers": {
+        "content-type": "text/plain;charset=ISO-8859-1",
+        "date": "Tue, 27 Oct 2026 02:15:27 GMT",
+        "server": "envoy"
+      }
+    },
+    {
+      "retrieved_at": "2026-10-27T02:15:34.842680Z",
+      "method": "GET",
+      "url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CIS1020000000000I",
+      "request_body": null,
+      "http_status": 200,
+      "raw_sha256": "0e75e55e22936cb05fd09600454b80a95e70977383353d5f9844950e83fe2883",
+      "raw_file": "raw/0e75e55e22936cb05fd09600454b80a95e70977383353d5f9844950e83fe2883.json",
+      "response_headers": {
+        "content-type": "application/json",
+        "date": "Tue, 27 Oct 2026 02:15:34 GMT",
+        "server": "envoy"
+      }
+    },
+    {
+      "retrieved_at": "2026-10-27T02:15:35.720043Z",
+      "method": "POST",
+      "url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "request_body": {
+        "seriesid": ["CIS1020000000000I"],
+        "startyear": "2025",
+        "endyear": "2026"
+      },
+      "http_status": 200,
+      "raw_sha256": "b2f3686e59c863898d2dfc17cbd93f8a0a00f6748ce5cb9c13eed488b05adc04",
+      "raw_file": "raw/b2f3686e59c863898d2dfc17cbd93f8a0a00f6748ce5cb9c13eed488b05adc04.json",
+      "response_headers": {
+        "content-type": "text/plain;charset=ISO-8859-1",
+        "date": "Tue, 27 Oct 2026 02:15:35 GMT",
+        "server": "envoy"
+      }
+    },
+    {
+      "retrieved_at": "2026-10-27T02:15:36.715627Z",
+      "method": "GET",
+      "url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006092",
+      "request_body": null,
+      "http_status": 200,
+      "raw_sha256": "266a31c93af4b5a8a36ed72909be2e2691d1a39227c50dbdbc451f2001b758bf",
+      "raw_file": "raw/266a31c93af4b5a8a36ed72909be2e2691d1a39227c50dbdbc451f2001b758bf.json",
+      "response_headers": {
+        "content-type": "application/json",
+        "date": "Tue, 27 Oct 2026 02:15:36 GMT",
+        "server": "envoy"
+      }
+    },
+    {
+      "retrieved_at": "2026-10-27T02:15:38.016591Z",
+      "method": "POST",
+      "url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "request_body": {
+        "seriesid": ["PRS85006092"],
+        "startyear": "2025",
+        "endyear": "2026"
+      },
+      "http_status": 200,
+      "raw_sha256": "b8795487d65906b297f0e3fb493d229080bee63ca957ee03c3c4ecc2b71b7a29",
+      "raw_file": "raw/b8795487d65906b297f0e3fb493d229080bee63ca957ee03c3c4ecc2b71b7a29.json",
+      "response_headers": {
+        "content-type": "text/plain;charset=ISO-8859-1",
+        "date": "Tue, 27 Oct 2026 02:15:38 GMT",
+        "server": "envoy"
+      }
+    },
+    {
+      "retrieved_at": "2026-10-27T02:15:38.820993Z",
+      "method": "GET",
+      "url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006112",
+      "request_body": null,
+      "http_status": 200,
+      "raw_sha256": "c2c683589311bf48b71707c6731cc8d485493ce9138bb82e4ad2f432f465dac1",
+      "raw_file": "raw/c2c683589311bf48b71707c6731cc8d485493ce9138bb82e4ad2f432f465dac1.json",
+      "response_headers": {
+        "content-type": "application/json",
+        "date": "Tue, 27 Oct 2026 02:15:38 GMT",
+        "server": "envoy"
+      }
+    },
+    {
+      "retrieved_at": "2026-10-27T02:15:39.710185Z",
+      "method": "POST",
+      "url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "request_body": {
+        "seriesid": ["PRS85006112"],
+        "startyear": "2025",
+        "endyear": "2026"
+      },
+      "http_status": 200,
+      "raw_sha256": "751ef8c66e66af6c10026cfe0f1459fb2c36cfeeb5dac5f5220ee857afd107ed",
+      "raw_file": "raw/751ef8c66e66af6c10026cfe0f1459fb2c36cfeeb5dac5f5220ee857afd107ed.json",
+      "response_headers": {
+        "content-type": "text/plain;charset=ISO-8859-1",
+        "date": "Tue, 27 Oct 2026 02:15:39 GMT",
+        "server": "envoy"
+      }
+    },
+    {
+      "retrieved_at": "2026-10-27T02:15:40.748994Z",
+      "method": "GET",
+      "url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIR",
+      "request_body": null,
+      "http_status": 200,
+      "raw_sha256": "4940f6b42bd28811a3d51cd6ca86dfe34f30d9979272ed671d66de4767c7d784",
+      "raw_file": "raw/4940f6b42bd28811a3d51cd6ca86dfe34f30d9979272ed671d66de4767c7d784.json",
+      "response_headers": {
+        "content-type": "application/json",
+        "date": "Tue, 27 Oct 2026 02:15:40 GMT",
+        "server": "envoy"
+      }
+    },
+    {
+      "retrieved_at": "2026-10-27T02:15:41.919875Z",
+      "method": "POST",
+      "url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "request_body": {
+        "seriesid": ["EIUIR"],
+        "startyear": "2025",
+        "endyear": "2026"
+      },
+      "http_status": 200,
+      "raw_sha256": "c07cfac34496b0fc64a33d24defaecbdcd21577818339e08dca19d84db6085f8",
+      "raw_file": "raw/c07cfac34496b0fc64a33d24defaecbdcd21577818339e08dca19d84db6085f8.json",
+      "response_headers": {
+        "content-type": "text/plain;charset=ISO-8859-1",
+        "date": "Tue, 27 Oct 2026 02:15:41 GMT",
+        "server": "envoy"
+      }
+    },
+    {
+      "retrieved_at": "2026-10-27T02:15:42.702057Z",
+      "method": "GET",
+      "url": "https://api.bls.gov/publicAPI/v1/timeseries/data/EIUIQ",
+      "request_body": null,
+      "http_status": 200,
+      "raw_sha256": "b0599ebb25602fdf64bed83957683a0ffd5c6fecbf8753c3fda8f8aad8b3053a",
+      "raw_file": "raw/b0599ebb25602fdf64bed83957683a0ffd5c6fecbf8753c3fda8f8aad8b3053a.json",
+      "response_headers": {
+        "content-type": "application/json",
+        "date": "Tue, 27 Oct 2026 02:15:42 GMT",
+        "server": "envoy"
+      }
+    },
+    {
+      "retrieved_at": "2026-10-27T02:15:43.703235Z",
+      "method": "POST",
+      "url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "request_body": {
+        "seriesid": ["EIUIQ"],
+        "startyear": "2025",
+        "endyear": "2026"
+      },
+      "http_status": 200,
+      "raw_sha256": "4dee487fabba9b6392e957d00e4f4b9d8ddb945035e90a7c546c1bee49440b70",
+      "raw_file": "raw/4dee487fabba9b6392e957d00e4f4b9d8ddb945035e90a7c546c1bee49440b70.json",
+      "response_headers": {
+        "content-type": "text/plain;charset=ISO-8859-1",
+        "date": "Tue, 27 Oct 2026 02:15:43 GMT",
+        "server": "envoy"
+      }
+    },
+    {
+      "retrieved_at": "2026-10-27T02:16:56.133147Z",
+      "method": "POST",
+      "url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "request_body": {
+        "seriesid": ["CUUR0000SA0"],
+        "startyear": "2025",
+        "endyear": "2026"
+      },
+      "http_status": 200,
+      "raw_sha256": "3eea1258f1c90f4a8ae6322667878371bec74718f601bbcc520c2cafaf4795c1",
+      "raw_file": "raw/3eea1258f1c90f4a8ae6322667878371bec74718f601bbcc520c2cafaf4795c1.json"
+    },
+    {
+      "retrieved_at": "2026-10-27T02:16:57.179155Z",
+      "method": "POST",
+      "url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "request_body": {
+        "seriesid": ["WPSFD4"],
+        "startyear": "2025",
+        "endyear": "2026"
+      },
+      "http_status": 200,
+      "raw_sha256": "b14e2bdaeed102ef0b7d8c5dc36f281b16ee2b4ba1fc7a2fc9052c762ba268c5",
+      "raw_file": "raw/b14e2bdaeed102ef0b7d8c5dc36f281b16ee2b4ba1fc7a2fc9052c762ba268c5.json"
+    }
+  ],
+  "interfaces": "interfaces.json",
+  "presets": ["sdk-preset.json", "mcp-preset.json"]
+}

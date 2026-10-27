@@ -34,6 +34,8 @@ Euro area government research adds separate ECB AAA/all-rating, continuously com
 
 Six additional BLS selections add quarterly civilian employment-cost indexes and nonfarm productivity/unit-labor-cost growth, plus monthly import/export price indexes. Quarterly Q01–Q04 dates, source index bases, annualization and reference-month conventions remain explicit. Q05 annual summaries are excluded from quarterly selections and counted in coverage. Series search, the `us_inflation_costs` preset and calendar panels share these definitions without another source account.
 
+Recorded live GET and dated POST responses for all six selections are verified, including 168 exact source-cell matches, Q05 exclusions and negative growth. SDK and actual stdio MCP evidence resolution and the complete eight-item preset share the persistent source cache. The [retained BLS verification](docs/evidence/bls-2026-10-27/README.md) separates observed API behavior, official-document metadata checks and fictional zero/missing/M13 cases. An offline replay regression preserves the captured behavior without claiming continuous source availability.
+
 ## Interfaces
 
 | Interface        | Entry points                                                                                                                 |

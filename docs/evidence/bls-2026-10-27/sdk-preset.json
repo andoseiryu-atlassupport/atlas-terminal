@@ -1,0 +1,1371 @@
+{
+  "query": {
+    "preset": "us_inflation_costs",
+    "start_date": "2025-01-01",
+    "end_date": "2026-10-27",
+    "view": "compact"
+  },
+  "result": {
+    "schema_version": "0.2.0",
+    "mode": "executed",
+    "status": "ok",
+    "generated_at": "2026-10-27T02:16:57.210230Z",
+    "is_synthetic": false,
+    "upstream_data_cost": "0",
+    "requires_wallet": false,
+    "point_in_time": false,
+    "atomic_snapshot": false,
+    "source_text_is_untrusted": true,
+    "plan": {
+      "preset": "us_inflation_costs",
+      "items": [
+        {
+          "id": "cpi",
+          "source_ids": ["bls"],
+          "query": {
+            "dataset": "economics",
+            "series": "cpi",
+            "limit": 1,
+            "start_date": "2025-01-01",
+            "end_date": "2026-10-27",
+            "requirements": {},
+            "response": {
+              "view": "compact"
+            }
+          }
+        },
+        {
+          "id": "ppi_final_demand",
+          "source_ids": ["bls"],
+          "query": {
+            "dataset": "economics",
+            "series": "ppi_final_demand",
+            "limit": 1,
+            "start_date": "2025-01-01",
+            "end_date": "2026-10-27",
+            "requirements": {},
+            "response": {
+              "view": "compact"
+            }
+          }
+        },
+        {
+          "id": "employment_cost_compensation",
+          "source_ids": ["bls"],
+          "query": {
+            "dataset": "economics",
+            "series": "employment_cost_compensation",
+            "limit": 1,
+            "start_date": "2025-01-01",
+            "end_date": "2026-10-27",
+            "requirements": {},
+            "response": {
+              "view": "compact"
+            }
+          }
+        },
+        {
+          "id": "employment_cost_wages",
+          "source_ids": ["bls"],
+          "query": {
+            "dataset": "economics",
+            "series": "employment_cost_wages",
+            "limit": 1,
+            "start_date": "2025-01-01",
+            "end_date": "2026-10-27",
+            "requirements": {},
+            "response": {
+              "view": "compact"
+            }
+          }
+        },
+        {
+          "id": "nonfarm_productivity_growth",
+          "source_ids": ["bls"],
+          "query": {
+            "dataset": "economics",
+            "series": "nonfarm_productivity_growth",
+            "limit": 1,
+            "start_date": "2025-01-01",
+            "end_date": "2026-10-27",
+            "requirements": {},
+            "response": {
+              "view": "compact"
+            }
+          }
+        },
+        {
+          "id": "unit_labor_cost_growth",
+          "source_ids": ["bls"],
+          "query": {
+            "dataset": "economics",
+            "series": "unit_labor_cost_growth",
+            "limit": 1,
+            "start_date": "2025-01-01",
+            "end_date": "2026-10-27",
+            "requirements": {},
+            "response": {
+              "view": "compact"
+            }
+          }
+        },
+        {
+          "id": "import_prices",
+          "source_ids": ["bls"],
+          "query": {
+            "dataset": "economics",
+            "series": "import_prices",
+            "limit": 1,
+            "start_date": "2025-01-01",
+            "end_date": "2026-10-27",
+            "requirements": {},
+            "response": {
+              "view": "compact"
+            }
+          }
+        },
+        {
+          "id": "export_prices",
+          "source_ids": ["bls"],
+          "query": {
+            "dataset": "economics",
+            "series": "export_prices",
+            "limit": 1,
+            "start_date": "2025-01-01",
+            "end_date": "2026-10-27",
+            "requirements": {},
+            "response": {
+              "view": "compact"
+            }
+          }
+        }
+      ],
+      "excluded_items": [],
+      "year_basis": null,
+      "execution": "sequential_independent_reads"
+    },
+    "overview": [
+      {
+        "id": "cpi",
+        "dataset": "economics",
+        "source_ids": ["bls"],
+        "cadence_and_limits": {
+          "bls": "Release schedule; unregistered V1 defaults to three years; dated requests use ten-year chunks, 25 queries/day per upstream policy."
+        },
+        "availability": "available",
+        "is_synthetic": false,
+        "returned_records": 1,
+        "usable_records": 1,
+        "units": ["index_1982_84_100"],
+        "observation_dates": {
+          "earliest": "2026-09-30",
+          "latest": "2026-09-30"
+        },
+        "publication_times": {
+          "earliest": null,
+          "latest": null
+        },
+        "publication_time_known_records": 0,
+        "publication_time_unknown_records": 1,
+        "source_retrieval_times": {
+          "earliest": "2026-10-27T02:16:56.133373Z",
+          "latest": "2026-10-27T02:16:56.133373Z"
+        },
+        "quality": {
+          "evaluated_at": "2026-10-27T02:16:56.136061Z",
+          "scope": "complete_selected_result",
+          "oldest_source_retrieved_at": "2026-10-27T02:16:56.133373Z",
+          "newest_source_retrieved_at": "2026-10-27T02:16:56.133373Z",
+          "max_source_age_seconds": 1,
+          "latest_observation_date": "2026-09-30",
+          "missing_value_count": 0,
+          "derived_record_count": 0,
+          "partial_coverage": false,
+          "truncated": true,
+          "meets_requirements": true,
+          "checks": []
+        },
+        "error_code": null
+      },
+      {
+        "id": "ppi_final_demand",
+        "dataset": "economics",
+        "source_ids": ["bls"],
+        "cadence_and_limits": {
+          "bls": "Release schedule; unregistered V1 defaults to three years; dated requests use ten-year chunks, 25 queries/day per upstream policy."
+        },
+        "availability": "available",
+        "is_synthetic": false,
+        "returned_records": 1,
+        "usable_records": 1,
+        "units": ["index_2009_11_100"],
+        "observation_dates": {
+          "earliest": "2026-09-30",
+          "latest": "2026-09-30"
+        },
+        "publication_times": {
+          "earliest": null,
+          "latest": null
+        },
+        "publication_time_known_records": 0,
+        "publication_time_unknown_records": 1,
+        "source_retrieval_times": {
+          "earliest": "2026-10-27T02:16:57.179403Z",
+          "latest": "2026-10-27T02:16:57.179403Z"
+        },
+        "quality": {
+          "evaluated_at": "2026-10-27T02:16:57.184931Z",
+          "scope": "complete_selected_result",
+          "oldest_source_retrieved_at": "2026-10-27T02:16:57.179403Z",
+          "newest_source_retrieved_at": "2026-10-27T02:16:57.179403Z",
+          "max_source_age_seconds": 1,
+          "latest_observation_date": "2026-09-30",
+          "missing_value_count": 0,
+          "derived_record_count": 0,
+          "partial_coverage": false,
+          "truncated": true,
+          "meets_requirements": true,
+          "checks": []
+        },
+        "error_code": null
+      },
+      {
+        "id": "employment_cost_compensation",
+        "dataset": "economics",
+        "source_ids": ["bls"],
+        "cadence_and_limits": {
+          "bls": "Release schedule; unregistered V1 defaults to three years; dated requests use ten-year chunks, 25 queries/day per upstream policy."
+        },
+        "availability": "available",
+        "is_synthetic": false,
+        "returned_records": 1,
+        "usable_records": 1,
+        "units": ["index_2005_12_100"],
+        "observation_dates": {
+          "earliest": "2026-06-30",
+          "latest": "2026-06-30"
+        },
+        "publication_times": {
+          "earliest": null,
+          "latest": null
+        },
+        "publication_time_known_records": 0,
+        "publication_time_unknown_records": 1,
+        "source_retrieval_times": {
+          "earliest": "2026-10-27T02:15:27.282796Z",
+          "latest": "2026-10-27T02:15:27.282796Z"
+        },
+        "quality": {
+          "evaluated_at": "2026-10-27T02:16:57.189244Z",
+          "scope": "complete_selected_result",
+          "oldest_source_retrieved_at": "2026-10-27T02:15:27.282796Z",
+          "newest_source_retrieved_at": "2026-10-27T02:15:27.282796Z",
+          "max_source_age_seconds": 90,
+          "latest_observation_date": "2026-06-30",
+          "missing_value_count": 0,
+          "derived_record_count": 0,
+          "partial_coverage": false,
+          "truncated": true,
+          "meets_requirements": true,
+          "checks": []
+        },
+        "error_code": null
+      },
+      {
+        "id": "employment_cost_wages",
+        "dataset": "economics",
+        "source_ids": ["bls"],
+        "cadence_and_limits": {
+          "bls": "Release schedule; unregistered V1 defaults to three years; dated requests use ten-year chunks, 25 queries/day per upstream policy."
+        },
+        "availability": "available",
+        "is_synthetic": false,
+        "returned_records": 1,
+        "usable_records": 1,
+        "units": ["index_2005_12_100"],
+        "observation_dates": {
+          "earliest": "2026-06-30",
+          "latest": "2026-06-30"
+        },
+        "publication_times": {
+          "earliest": null,
+          "latest": null
+        },
+        "publication_time_known_records": 0,
+        "publication_time_unknown_records": 1,
+        "source_retrieval_times": {
+          "earliest": "2026-10-27T02:15:35.720227Z",
+          "latest": "2026-10-27T02:15:35.720227Z"
+        },
+        "quality": {
+          "evaluated_at": "2026-10-27T02:16:57.192839Z",
+          "scope": "complete_selected_result",
+          "oldest_source_retrieved_at": "2026-10-27T02:15:35.720227Z",
+          "newest_source_retrieved_at": "2026-10-27T02:15:35.720227Z",
+          "max_source_age_seconds": 82,
+          "latest_observation_date": "2026-06-30",
+          "missing_value_count": 0,
+          "derived_record_count": 0,
+          "partial_coverage": false,
+          "truncated": true,
+          "meets_requirements": true,
+          "checks": []
+        },
+        "error_code": null
+      },
+      {
+        "id": "nonfarm_productivity_growth",
+        "dataset": "economics",
+        "source_ids": ["bls"],
+        "cadence_and_limits": {
+          "bls": "Release schedule; unregistered V1 defaults to three years; dated requests use ten-year chunks, 25 queries/day per upstream policy."
+        },
+        "availability": "available",
+        "is_synthetic": false,
+        "returned_records": 1,
+        "usable_records": 1,
+        "units": ["percent"],
+        "observation_dates": {
+          "earliest": "2026-06-30",
+          "latest": "2026-06-30"
+        },
+        "publication_times": {
+          "earliest": null,
+          "latest": null
+        },
+        "publication_time_known_records": 0,
+        "publication_time_unknown_records": 1,
+        "source_retrieval_times": {
+          "earliest": "2026-10-27T02:15:38.016783Z",
+          "latest": "2026-10-27T02:15:38.016783Z"
+        },
+        "quality": {
+          "evaluated_at": "2026-10-27T02:16:57.196336Z",
+          "scope": "complete_selected_result",
+          "oldest_source_retrieved_at": "2026-10-27T02:15:38.016783Z",
+          "newest_source_retrieved_at": "2026-10-27T02:15:38.016783Z",
+          "max_source_age_seconds": 80,
+          "latest_observation_date": "2026-06-30",
+          "missing_value_count": 0,
+          "derived_record_count": 0,
+          "partial_coverage": false,
+          "truncated": true,
+          "meets_requirements": true,
+          "checks": []
+        },
+        "error_code": null
+      },
+      {
+        "id": "unit_labor_cost_growth",
+        "dataset": "economics",
+        "source_ids": ["bls"],
+        "cadence_and_limits": {
+          "bls": "Release schedule; unregistered V1 defaults to three years; dated requests use ten-year chunks, 25 queries/day per upstream policy."
+        },
+        "availability": "available",
+        "is_synthetic": false,
+        "returned_records": 1,
+        "usable_records": 1,
+        "units": ["percent"],
+        "observation_dates": {
+          "earliest": "2026-06-30",
+          "latest": "2026-06-30"
+        },
+        "publication_times": {
+          "earliest": null,
+          "latest": null
+        },
+        "publication_time_known_records": 0,
+        "publication_time_unknown_records": 1,
+        "source_retrieval_times": {
+          "earliest": "2026-10-27T02:15:39.710424Z",
+          "latest": "2026-10-27T02:15:39.710424Z"
+        },
+        "quality": {
+          "evaluated_at": "2026-10-27T02:16:57.199907Z",
+          "scope": "complete_selected_result",
+          "oldest_source_retrieved_at": "2026-10-27T02:15:39.710424Z",
+          "newest_source_retrieved_at": "2026-10-27T02:15:39.710424Z",
+          "max_source_age_seconds": 78,
+          "latest_observation_date": "2026-06-30",
+          "missing_value_count": 0,
+          "derived_record_count": 0,
+          "partial_coverage": false,
+          "truncated": true,
+          "meets_requirements": true,
+          "checks": []
+        },
+        "error_code": null
+      },
+      {
+        "id": "import_prices",
+        "dataset": "economics",
+        "source_ids": ["bls"],
+        "cadence_and_limits": {
+          "bls": "Release schedule; unregistered V1 defaults to three years; dated requests use ten-year chunks, 25 queries/day per upstream policy."
+        },
+        "availability": "available",
+        "is_synthetic": false,
+        "returned_records": 1,
+        "usable_records": 1,
+        "units": ["index_2000_100"],
+        "observation_dates": {
+          "earliest": "2026-09-30",
+          "latest": "2026-09-30"
+        },
+        "publication_times": {
+          "earliest": null,
+          "latest": null
+        },
+        "publication_time_known_records": 0,
+        "publication_time_unknown_records": 1,
+        "source_retrieval_times": {
+          "earliest": "2026-10-27T02:15:41.920058Z",
+          "latest": "2026-10-27T02:15:41.920058Z"
+        },
+        "quality": {
+          "evaluated_at": "2026-10-27T02:16:57.203248Z",
+          "scope": "complete_selected_result",
+          "oldest_source_retrieved_at": "2026-10-27T02:15:41.920058Z",
+          "newest_source_retrieved_at": "2026-10-27T02:15:41.920058Z",
+          "max_source_age_seconds": 76,
+          "latest_observation_date": "2026-09-30",
+          "missing_value_count": 0,
+          "derived_record_count": 0,
+          "partial_coverage": false,
+          "truncated": true,
+          "meets_requirements": true,
+          "checks": []
+        },
+        "error_code": null
+      },
+      {
+        "id": "export_prices",
+        "dataset": "economics",
+        "source_ids": ["bls"],
+        "cadence_and_limits": {
+          "bls": "Release schedule; unregistered V1 defaults to three years; dated requests use ten-year chunks, 25 queries/day per upstream policy."
+        },
+        "availability": "available",
+        "is_synthetic": false,
+        "returned_records": 1,
+        "usable_records": 1,
+        "units": ["index_2000_100"],
+        "observation_dates": {
+          "earliest": "2026-09-30",
+          "latest": "2026-09-30"
+        },
+        "publication_times": {
+          "earliest": null,
+          "latest": null
+        },
+        "publication_time_known_records": 0,
+        "publication_time_unknown_records": 1,
+        "source_retrieval_times": {
+          "earliest": "2026-10-27T02:15:43.703448Z",
+          "latest": "2026-10-27T02:15:43.703448Z"
+        },
+        "quality": {
+          "evaluated_at": "2026-10-27T02:16:57.206748Z",
+          "scope": "complete_selected_result",
+          "oldest_source_retrieved_at": "2026-10-27T02:15:43.703448Z",
+          "newest_source_retrieved_at": "2026-10-27T02:15:43.703448Z",
+          "max_source_age_seconds": 74,
+          "latest_observation_date": "2026-09-30",
+          "missing_value_count": 0,
+          "derived_record_count": 0,
+          "partial_coverage": false,
+          "truncated": true,
+          "meets_requirements": true,
+          "checks": []
+        },
+        "error_code": null
+      }
+    ],
+    "batch": {
+      "schema_version": "0.2.0",
+      "status": "ok",
+      "execution": "sequential_independent_reads",
+      "upstream_data_cost": "0",
+      "requires_wallet": false,
+      "items": [
+        {
+          "id": "cpi",
+          "status": "ok",
+          "result": {
+            "schema_version": "0.2.0",
+            "dataset": "economics",
+            "query": {
+              "dataset": "economics",
+              "limit": 1,
+              "series": "cpi",
+              "start_date": "2025-01-01",
+              "end_date": "2026-10-27",
+              "requirements": {}
+            },
+            "source_id": "bls",
+            "source_terms_url": "https://www.bls.gov/bls/linksite.htm",
+            "documentation": {
+              "guide": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/macro.md",
+              "methodology": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/macro.md",
+              "sources_and_terms": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/DATA_SOURCES.md",
+              "citation_guidance": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/citations.md"
+            },
+            "upstream_data_cost": "0",
+            "is_synthetic": false,
+            "source_text_is_untrusted": true,
+            "retrieved_at": "2026-10-27T02:16:56.133373Z",
+            "series_title": "Consumer price index, all urban consumers",
+            "records": [
+              {
+                "series": "cpi",
+                "series_id": "CUUR0000SA0",
+                "year": "2026",
+                "period": "M09",
+                "period_kind": "month",
+                "date": "2026-09-30",
+                "date_basis": "observation_period_end",
+                "value": "336.940",
+                "status": "reported",
+                "unit": "index_1982_84_100",
+                "seasonally_adjusted": false,
+                "frequency": "monthly",
+                "published_at": null,
+                "footnotes": [{}],
+                "latest": "true",
+                "source": {
+                  "evidence_id": "e0aec6572027f8a775ec1aa2b469b88a10828ef1e463530168be24e4961a51d4"
+                }
+              }
+            ],
+            "sources": [
+              {
+                "evidence_id": "eb7ab2bdc12e79a9d021c52d45cf56bc88560f86b4229351dfa7e29a2a263638"
+              }
+            ],
+            "coverage": {
+              "observed_records": 21,
+              "returned_records": 1,
+              "truncated": true,
+              "upstream_window_limited": true,
+              "upstream_window": "BLS V1 selected years 2025\u20132026 in ten-year chunks",
+              "unavailable_records": 0,
+              "requested_start_date": "2025-01-01",
+              "requested_end_date": "2026-10-27",
+              "first_observation_date": "2025-01-31",
+              "last_observation_date": "2026-09-30",
+              "date_selection": "inclusive_observation_period_end",
+              "point_in_time": false
+            },
+            "limitations": [
+              "Current revised BLS observations, not release-time vintages. Dates are period ends, not release dates.",
+              "M13 annual averages are separate from monthly observations; no implicit percent-change calculation.",
+              "Dated requests use read-only POSTs of at most ten calendar years; shared local and upstream per-IP quotas apply.",
+              "Current/revised source snapshots do not establish point-in-time historical availability.",
+              "Free public sources have upstream limits and no completeness or latency guarantee."
+            ],
+            "quality": {
+              "evaluated_at": "2026-10-27T02:16:56.136061Z",
+              "scope": "complete_selected_result",
+              "oldest_source_retrieved_at": "2026-10-27T02:16:56.133373Z",
+              "newest_source_retrieved_at": "2026-10-27T02:16:56.133373Z",
+              "max_source_age_seconds": 1,
+              "latest_observation_date": "2026-09-30",
+              "missing_value_count": 0,
+              "derived_record_count": 0,
+              "partial_coverage": false,
+              "truncated": true,
+              "meets_requirements": true,
+              "checks": []
+            },
+            "response": {
+              "view": "compact",
+              "fields": [],
+              "snapshot_id": "fae3a49d68fac29f357ec1cf189f619fa37cab2337099aa36d8c32e585c99661",
+              "result_sha256": "ac24029feffde252ef7a599b03ad802a9eb13a2bbdb9f0c578a862360bd4098f",
+              "expires_at": "2026-10-28T02:16:56.136144Z",
+              "total_records": 1,
+              "returned_records": 1,
+              "offset": 0,
+              "page_size": null,
+              "next_cursor": null,
+              "evidence_count": 2
+            }
+          }
+        },
+        {
+          "id": "ppi_final_demand",
+          "status": "ok",
+          "result": {
+            "schema_version": "0.2.0",
+            "dataset": "economics",
+            "query": {
+              "dataset": "economics",
+              "limit": 1,
+              "series": "ppi_final_demand",
+              "start_date": "2025-01-01",
+              "end_date": "2026-10-27",
+              "requirements": {}
+            },
+            "source_id": "bls",
+            "source_terms_url": "https://www.bls.gov/bls/linksite.htm",
+            "documentation": {
+              "guide": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/macro.md",
+              "methodology": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/macro.md",
+              "sources_and_terms": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/DATA_SOURCES.md",
+              "citation_guidance": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/citations.md"
+            },
+            "upstream_data_cost": "0",
+            "is_synthetic": false,
+            "source_text_is_untrusted": true,
+            "retrieved_at": "2026-10-27T02:16:57.179403Z",
+            "series_title": "PPI final demand",
+            "records": [
+              {
+                "series": "ppi_final_demand",
+                "series_id": "WPSFD4",
+                "year": "2026",
+                "period": "M09",
+                "period_kind": "month",
+                "date": "2026-09-30",
+                "date_basis": "observation_period_end",
+                "value": "159.780",
+                "status": "reported",
+                "unit": "index_2009_11_100",
+                "seasonally_adjusted": true,
+                "frequency": "monthly",
+                "published_at": null,
+                "footnotes": [
+                  {
+                    "code": "P",
+                    "text": "Preliminary. All indexes are subject to monthly revisions up to four months after original publication."
+                  }
+                ],
+                "latest": "true",
+                "source": {
+                  "evidence_id": "1abc89f4893cc1a2c5d82515173b7ba2041d901168b79539279ce6fdce506cdb"
+                }
+              }
+            ],
+            "sources": [
+              {
+                "evidence_id": "b215cddc5f5b58d336b2dd3ca966ba427c57a94518dcdbcb8ed3d24d268ac901"
+              }
+            ],
+            "coverage": {
+              "observed_records": 21,
+              "returned_records": 1,
+              "truncated": true,
+              "upstream_window_limited": true,
+              "upstream_window": "BLS V1 selected years 2025\u20132026 in ten-year chunks",
+              "unavailable_records": 0,
+              "requested_start_date": "2025-01-01",
+              "requested_end_date": "2026-10-27",
+              "first_observation_date": "2025-01-31",
+              "last_observation_date": "2026-09-30",
+              "date_selection": "inclusive_observation_period_end",
+              "point_in_time": false
+            },
+            "limitations": [
+              "Current revised BLS observations, not release-time vintages. Dates are period ends, not release dates.",
+              "M13 annual averages are separate from monthly observations; no implicit percent-change calculation.",
+              "Dated requests use read-only POSTs of at most ten calendar years; shared local and upstream per-IP quotas apply.",
+              "Current/revised source snapshots do not establish point-in-time historical availability.",
+              "Free public sources have upstream limits and no completeness or latency guarantee."
+            ],
+            "quality": {
+              "evaluated_at": "2026-10-27T02:16:57.184931Z",
+              "scope": "complete_selected_result",
+              "oldest_source_retrieved_at": "2026-10-27T02:16:57.179403Z",
+              "newest_source_retrieved_at": "2026-10-27T02:16:57.179403Z",
+              "max_source_age_seconds": 1,
+              "latest_observation_date": "2026-09-30",
+              "missing_value_count": 0,
+              "derived_record_count": 0,
+              "partial_coverage": false,
+              "truncated": true,
+              "meets_requirements": true,
+              "checks": []
+            },
+            "response": {
+              "view": "compact",
+              "fields": [],
+              "snapshot_id": "38035db98bddae82c5df7b0ae7a05ec1b0f181030282161e105de1a59f364dd3",
+              "result_sha256": "73f1f3e396958535aee8721aaaa1aec5f64b459e8fe2d724a86548d41e8cf940",
+              "expires_at": "2026-10-28T02:16:57.185012Z",
+              "total_records": 1,
+              "returned_records": 1,
+              "offset": 0,
+              "page_size": null,
+              "next_cursor": null,
+              "evidence_count": 2
+            }
+          }
+        },
+        {
+          "id": "employment_cost_compensation",
+          "status": "ok",
+          "result": {
+            "schema_version": "0.2.0",
+            "dataset": "economics",
+            "query": {
+              "dataset": "economics",
+              "limit": 1,
+              "series": "employment_cost_compensation",
+              "start_date": "2025-01-01",
+              "end_date": "2026-10-27",
+              "requirements": {}
+            },
+            "source_id": "bls",
+            "source_terms_url": "https://www.bls.gov/bls/linksite.htm",
+            "documentation": {
+              "guide": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/macro.md",
+              "methodology": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/macro.md",
+              "sources_and_terms": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/DATA_SOURCES.md",
+              "citation_guidance": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/citations.md"
+            },
+            "upstream_data_cost": "0",
+            "is_synthetic": false,
+            "source_text_is_untrusted": true,
+            "retrieved_at": "2026-10-27T02:15:27.282796Z",
+            "series_title": "Employment Cost Index, total compensation, all civilian workers",
+            "records": [
+              {
+                "frequency": "quarterly",
+                "annualized": false,
+                "base_period": "2005-12",
+                "reference_period_kind": "quarter_end_reference_month",
+                "series": "employment_cost_compensation",
+                "series_id": "CIS1010000000000I",
+                "year": "2026",
+                "period": "Q02",
+                "period_kind": "quarter",
+                "date": "2026-06-30",
+                "date_basis": "observation_period_end",
+                "value": "177.178",
+                "status": "reported",
+                "unit": "index_2005_12_100",
+                "seasonally_adjusted": true,
+                "published_at": null,
+                "footnotes": [{}],
+                "latest": "true",
+                "source": {
+                  "evidence_id": "3950a5ecd190671b6ddf01ba4bc67d1a540fac3e0e81770b016105e4fedc93e9"
+                }
+              }
+            ],
+            "sources": [
+              {
+                "evidence_id": "c2c8f0a842278700469b231ee8dbe8e03458cdea95bd7ca32700fe399f8decfc"
+              }
+            ],
+            "coverage": {
+              "observed_records": 6,
+              "returned_records": 1,
+              "truncated": true,
+              "upstream_window_limited": true,
+              "upstream_window": "BLS V1 selected years 2025\u20132026 in ten-year chunks",
+              "unavailable_records": 0,
+              "requested_start_date": "2025-01-01",
+              "requested_end_date": "2026-10-27",
+              "first_observation_date": "2025-03-31",
+              "last_observation_date": "2026-06-30",
+              "date_selection": "inclusive_observation_period_end",
+              "point_in_time": false,
+              "excluded_annual_summary_rows": 0
+            },
+            "limitations": [
+              "Current revised BLS observations, not release-time vintages. Dates are period ends, not release dates.",
+              "Q05 annual summary rows are excluded from quarterly selections. Index levels and published annualized percent changes stay distinct; Atlas does not calculate or annualize these reported values.",
+              "Dated requests use read-only POSTs of at most ten calendar years; shared local and upstream per-IP quotas apply.",
+              "Current/revised source snapshots do not establish point-in-time historical availability.",
+              "Free public sources have upstream limits and no completeness or latency guarantee."
+            ],
+            "quality": {
+              "evaluated_at": "2026-10-27T02:16:57.189244Z",
+              "scope": "complete_selected_result",
+              "oldest_source_retrieved_at": "2026-10-27T02:15:27.282796Z",
+              "newest_source_retrieved_at": "2026-10-27T02:15:27.282796Z",
+              "max_source_age_seconds": 90,
+              "latest_observation_date": "2026-06-30",
+              "missing_value_count": 0,
+              "derived_record_count": 0,
+              "partial_coverage": false,
+              "truncated": true,
+              "meets_requirements": true,
+              "checks": []
+            },
+            "response": {
+              "view": "compact",
+              "fields": [],
+              "snapshot_id": "03270bb3ed8d09fb4680eead8f59de70016ca3b3b53c159c2e5034de4c9a0383",
+              "result_sha256": "23774c8d6d1a32505ba12dd116537f304c9714e343a584415aac8cffdf80b3bd",
+              "expires_at": "2026-10-28T02:16:57.189358Z",
+              "total_records": 1,
+              "returned_records": 1,
+              "offset": 0,
+              "page_size": null,
+              "next_cursor": null,
+              "evidence_count": 2
+            }
+          }
+        },
+        {
+          "id": "employment_cost_wages",
+          "status": "ok",
+          "result": {
+            "schema_version": "0.2.0",
+            "dataset": "economics",
+            "query": {
+              "dataset": "economics",
+              "limit": 1,
+              "series": "employment_cost_wages",
+              "start_date": "2025-01-01",
+              "end_date": "2026-10-27",
+              "requirements": {}
+            },
+            "source_id": "bls",
+            "source_terms_url": "https://www.bls.gov/bls/linksite.htm",
+            "documentation": {
+              "guide": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/macro.md",
+              "methodology": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/macro.md",
+              "sources_and_terms": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/DATA_SOURCES.md",
+              "citation_guidance": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/citations.md"
+            },
+            "upstream_data_cost": "0",
+            "is_synthetic": false,
+            "source_text_is_untrusted": true,
+            "retrieved_at": "2026-10-27T02:15:35.720227Z",
+            "series_title": "Employment Cost Index, wages and salaries, all civilian workers",
+            "records": [
+              {
+                "frequency": "quarterly",
+                "annualized": false,
+                "base_period": "2005-12",
+                "reference_period_kind": "quarter_end_reference_month",
+                "series": "employment_cost_wages",
+                "series_id": "CIS1020000000000I",
+                "year": "2026",
+                "period": "Q02",
+                "period_kind": "quarter",
+                "date": "2026-06-30",
+                "date_basis": "observation_period_end",
+                "value": "176.754",
+                "status": "reported",
+                "unit": "index_2005_12_100",
+                "seasonally_adjusted": true,
+                "published_at": null,
+                "footnotes": [{}],
+                "latest": "true",
+                "source": {
+                  "evidence_id": "162aba15eb89a8596ba2044cdde9cff34e4cf443ffabeb5a34af8c6e1f44bbc7"
+                }
+              }
+            ],
+            "sources": [
+              {
+                "evidence_id": "efeaa6e28108e9e432f31aba1f8e6c94a0420126a9047128bc3dc402a727b18d"
+              }
+            ],
+            "coverage": {
+              "observed_records": 6,
+              "returned_records": 1,
+              "truncated": true,
+              "upstream_window_limited": true,
+              "upstream_window": "BLS V1 selected years 2025\u20132026 in ten-year chunks",
+              "unavailable_records": 0,
+              "requested_start_date": "2025-01-01",
+              "requested_end_date": "2026-10-27",
+              "first_observation_date": "2025-03-31",
+              "last_observation_date": "2026-06-30",
+              "date_selection": "inclusive_observation_period_end",
+              "point_in_time": false,
+              "excluded_annual_summary_rows": 0
+            },
+            "limitations": [
+              "Current revised BLS observations, not release-time vintages. Dates are period ends, not release dates.",
+              "Q05 annual summary rows are excluded from quarterly selections. Index levels and published annualized percent changes stay distinct; Atlas does not calculate or annualize these reported values.",
+              "Dated requests use read-only POSTs of at most ten calendar years; shared local and upstream per-IP quotas apply.",
+              "Current/revised source snapshots do not establish point-in-time historical availability.",
+              "Free public sources have upstream limits and no completeness or latency guarantee."
+            ],
+            "quality": {
+              "evaluated_at": "2026-10-27T02:16:57.192839Z",
+              "scope": "complete_selected_result",
+              "oldest_source_retrieved_at": "2026-10-27T02:15:35.720227Z",
+              "newest_source_retrieved_at": "2026-10-27T02:15:35.720227Z",
+              "max_source_age_seconds": 82,
+              "latest_observation_date": "2026-06-30",
+              "missing_value_count": 0,
+              "derived_record_count": 0,
+              "partial_coverage": false,
+              "truncated": true,
+              "meets_requirements": true,
+              "checks": []
+            },
+            "response": {
+              "view": "compact",
+              "fields": [],
+              "snapshot_id": "dc622d08f7f05d0db085aeb3991f0832d2581dac672f570c2f7e4c356058d00a",
+              "result_sha256": "b63427d9d4e2fcc8260caa7055ad3c2d38df845c718609c0dfeb002988efb22c",
+              "expires_at": "2026-10-28T02:16:57.192891Z",
+              "total_records": 1,
+              "returned_records": 1,
+              "offset": 0,
+              "page_size": null,
+              "next_cursor": null,
+              "evidence_count": 2
+            }
+          }
+        },
+        {
+          "id": "nonfarm_productivity_growth",
+          "status": "ok",
+          "result": {
+            "schema_version": "0.2.0",
+            "dataset": "economics",
+            "query": {
+              "dataset": "economics",
+              "limit": 1,
+              "series": "nonfarm_productivity_growth",
+              "start_date": "2025-01-01",
+              "end_date": "2026-10-27",
+              "requirements": {}
+            },
+            "source_id": "bls",
+            "source_terms_url": "https://www.bls.gov/bls/linksite.htm",
+            "documentation": {
+              "guide": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/macro.md",
+              "methodology": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/macro.md",
+              "sources_and_terms": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/DATA_SOURCES.md",
+              "citation_guidance": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/citations.md"
+            },
+            "upstream_data_cost": "0",
+            "is_synthetic": false,
+            "source_text_is_untrusted": true,
+            "retrieved_at": "2026-10-27T02:15:38.016783Z",
+            "series_title": "Nonfarm business labor productivity, quarter-on-quarter percent change at annual rate",
+            "records": [
+              {
+                "frequency": "quarterly",
+                "annualized": true,
+                "base_period": null,
+                "reference_period_kind": "quarter_over_quarter_change",
+                "series": "nonfarm_productivity_growth",
+                "series_id": "PRS85006092",
+                "year": "2026",
+                "period": "Q02",
+                "period_kind": "quarter",
+                "date": "2026-06-30",
+                "date_basis": "observation_period_end",
+                "value": "1.4",
+                "status": "reported",
+                "unit": "percent",
+                "seasonally_adjusted": true,
+                "published_at": null,
+                "footnotes": [{}],
+                "latest": "true",
+                "source": {
+                  "evidence_id": "d25b56433e0aa8f6af4a27db3ec6da9cfcf708e32c47983f00327d06f3fa6173"
+                }
+              }
+            ],
+            "sources": [
+              {
+                "evidence_id": "b3682d0bc713855e37625cbbc1d170cb1a994bbf7a4ef417d40131fc05482211"
+              }
+            ],
+            "coverage": {
+              "observed_records": 6,
+              "returned_records": 1,
+              "truncated": true,
+              "upstream_window_limited": true,
+              "upstream_window": "BLS V1 selected years 2025\u20132026 in ten-year chunks",
+              "unavailable_records": 0,
+              "requested_start_date": "2025-01-01",
+              "requested_end_date": "2026-10-27",
+              "first_observation_date": "2025-03-31",
+              "last_observation_date": "2026-06-30",
+              "date_selection": "inclusive_observation_period_end",
+              "point_in_time": false,
+              "excluded_annual_summary_rows": 0
+            },
+            "limitations": [
+              "Current revised BLS observations, not release-time vintages. Dates are period ends, not release dates.",
+              "Q05 annual summary rows are excluded from quarterly selections. Index levels and published annualized percent changes stay distinct; Atlas does not calculate or annualize these reported values.",
+              "Dated requests use read-only POSTs of at most ten calendar years; shared local and upstream per-IP quotas apply.",
+              "Current/revised source snapshots do not establish point-in-time historical availability.",
+              "Free public sources have upstream limits and no completeness or latency guarantee."
+            ],
+            "quality": {
+              "evaluated_at": "2026-10-27T02:16:57.196336Z",
+              "scope": "complete_selected_result",
+              "oldest_source_retrieved_at": "2026-10-27T02:15:38.016783Z",
+              "newest_source_retrieved_at": "2026-10-27T02:15:38.016783Z",
+              "max_source_age_seconds": 80,
+              "latest_observation_date": "2026-06-30",
+              "missing_value_count": 0,
+              "derived_record_count": 0,
+              "partial_coverage": false,
+              "truncated": true,
+              "meets_requirements": true,
+              "checks": []
+            },
+            "response": {
+              "view": "compact",
+              "fields": [],
+              "snapshot_id": "03a32290b914069d27e9d616b67b8aceaa7b97a519e1002ea09ff6497a754d8b",
+              "result_sha256": "820dad8f0ca667d5ad460d571201378a82bebb021eadc3c0bc1e76a161c31df9",
+              "expires_at": "2026-10-28T02:16:57.196392Z",
+              "total_records": 1,
+              "returned_records": 1,
+              "offset": 0,
+              "page_size": null,
+              "next_cursor": null,
+              "evidence_count": 2
+            }
+          }
+        },
+        {
+          "id": "unit_labor_cost_growth",
+          "status": "ok",
+          "result": {
+            "schema_version": "0.2.0",
+            "dataset": "economics",
+            "query": {
+              "dataset": "economics",
+              "limit": 1,
+              "series": "unit_labor_cost_growth",
+              "start_date": "2025-01-01",
+              "end_date": "2026-10-27",
+              "requirements": {}
+            },
+            "source_id": "bls",
+            "source_terms_url": "https://www.bls.gov/bls/linksite.htm",
+            "documentation": {
+              "guide": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/macro.md",
+              "methodology": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/macro.md",
+              "sources_and_terms": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/DATA_SOURCES.md",
+              "citation_guidance": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/citations.md"
+            },
+            "upstream_data_cost": "0",
+            "is_synthetic": false,
+            "source_text_is_untrusted": true,
+            "retrieved_at": "2026-10-27T02:15:39.710424Z",
+            "series_title": "Nonfarm business unit labor costs, quarter-on-quarter percent change at annual rate",
+            "records": [
+              {
+                "frequency": "quarterly",
+                "annualized": true,
+                "base_period": null,
+                "reference_period_kind": "quarter_over_quarter_change",
+                "series": "unit_labor_cost_growth",
+                "series_id": "PRS85006112",
+                "year": "2026",
+                "period": "Q02",
+                "period_kind": "quarter",
+                "date": "2026-06-30",
+                "date_basis": "observation_period_end",
+                "value": "1.2",
+                "status": "reported",
+                "unit": "percent",
+                "seasonally_adjusted": true,
+                "published_at": null,
+                "footnotes": [
+                  {
+                    "code": "R",
+                    "text": "revised"
+                  }
+                ],
+                "latest": "true",
+                "source": {
+                  "evidence_id": "331917e4bd0eb59e60720c15b3429209bd1e51752a867157a381b30e94ad30f6"
+                }
+              }
+            ],
+            "sources": [
+              {
+                "evidence_id": "f766963ee3f97943f80e61356f60e564d44120e2a9986c9d99391540aae861b8"
+              }
+            ],
+            "coverage": {
+              "observed_records": 6,
+              "returned_records": 1,
+              "truncated": true,
+              "upstream_window_limited": true,
+              "upstream_window": "BLS V1 selected years 2025\u20132026 in ten-year chunks",
+              "unavailable_records": 0,
+              "requested_start_date": "2025-01-01",
+              "requested_end_date": "2026-10-27",
+              "first_observation_date": "2025-03-31",
+              "last_observation_date": "2026-06-30",
+              "date_selection": "inclusive_observation_period_end",
+              "point_in_time": false,
+              "excluded_annual_summary_rows": 0
+            },
+            "limitations": [
+              "Current revised BLS observations, not release-time vintages. Dates are period ends, not release dates.",
+              "Q05 annual summary rows are excluded from quarterly selections. Index levels and published annualized percent changes stay distinct; Atlas does not calculate or annualize these reported values.",
+              "Dated requests use read-only POSTs of at most ten calendar years; shared local and upstream per-IP quotas apply.",
+              "Current/revised source snapshots do not establish point-in-time historical availability.",
+              "Free public sources have upstream limits and no completeness or latency guarantee."
+            ],
+            "quality": {
+              "evaluated_at": "2026-10-27T02:16:57.199907Z",
+              "scope": "complete_selected_result",
+              "oldest_source_retrieved_at": "2026-10-27T02:15:39.710424Z",
+              "newest_source_retrieved_at": "2026-10-27T02:15:39.710424Z",
+              "max_source_age_seconds": 78,
+              "latest_observation_date": "2026-06-30",
+              "missing_value_count": 0,
+              "derived_record_count": 0,
+              "partial_coverage": false,
+              "truncated": true,
+              "meets_requirements": true,
+              "checks": []
+            },
+            "response": {
+              "view": "compact",
+              "fields": [],
+              "snapshot_id": "e5a2fbc09c913cffec58bbe1fbf0b14e67db1c62a2d322a076edfeabbe11a48f",
+              "result_sha256": "fd1d92e5b1c6bf086a5798f5f015b9c11c43147d95464e357e4ab89e9fc19b95",
+              "expires_at": "2026-10-28T02:16:57.199958Z",
+              "total_records": 1,
+              "returned_records": 1,
+              "offset": 0,
+              "page_size": null,
+              "next_cursor": null,
+              "evidence_count": 2
+            }
+          }
+        },
+        {
+          "id": "import_prices",
+          "status": "ok",
+          "result": {
+            "schema_version": "0.2.0",
+            "dataset": "economics",
+            "query": {
+              "dataset": "economics",
+              "limit": 1,
+              "series": "import_prices",
+              "start_date": "2025-01-01",
+              "end_date": "2026-10-27",
+              "requirements": {}
+            },
+            "source_id": "bls",
+            "source_terms_url": "https://www.bls.gov/bls/linksite.htm",
+            "documentation": {
+              "guide": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/macro.md",
+              "methodology": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/macro.md",
+              "sources_and_terms": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/DATA_SOURCES.md",
+              "citation_guidance": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/citations.md"
+            },
+            "upstream_data_cost": "0",
+            "is_synthetic": false,
+            "source_text_is_untrusted": true,
+            "retrieved_at": "2026-10-27T02:15:41.920058Z",
+            "series_title": "Import price index, all commodities, BEA end-use classification",
+            "records": [
+              {
+                "frequency": "monthly",
+                "annualized": false,
+                "base_period": "2000",
+                "series": "import_prices",
+                "series_id": "EIUIR",
+                "year": "2026",
+                "period": "M09",
+                "period_kind": "month",
+                "date": "2026-09-30",
+                "date_basis": "observation_period_end",
+                "value": "152.2",
+                "status": "reported",
+                "unit": "index_2000_100",
+                "seasonally_adjusted": false,
+                "published_at": null,
+                "footnotes": [{}],
+                "latest": "true",
+                "source": {
+                  "evidence_id": "79541ea46902dfc3a5b2a1aa1cfebdbaa0a08b0decdc072b448898b5b4e012b5"
+                }
+              }
+            ],
+            "sources": [
+              {
+                "evidence_id": "5bfbff64a42b837597b637536774077a9c72ed1c10c2764c9de4d0e33b6f4d4f"
+              }
+            ],
+            "coverage": {
+              "observed_records": 20,
+              "returned_records": 1,
+              "truncated": true,
+              "upstream_window_limited": true,
+              "upstream_window": "BLS V1 selected years 2025\u20132026 in ten-year chunks",
+              "unavailable_records": 0,
+              "requested_start_date": "2025-01-01",
+              "requested_end_date": "2026-10-27",
+              "first_observation_date": "2025-01-31",
+              "last_observation_date": "2026-09-30",
+              "date_selection": "inclusive_observation_period_end",
+              "point_in_time": false
+            },
+            "limitations": [
+              "Current revised BLS observations, not release-time vintages. Dates are period ends, not release dates.",
+              "M13 annual averages are separate from monthly observations; no implicit percent-change calculation.",
+              "Dated requests use read-only POSTs of at most ten calendar years; shared local and upstream per-IP quotas apply.",
+              "Current/revised source snapshots do not establish point-in-time historical availability.",
+              "Free public sources have upstream limits and no completeness or latency guarantee."
+            ],
+            "quality": {
+              "evaluated_at": "2026-10-27T02:16:57.203248Z",
+              "scope": "complete_selected_result",
+              "oldest_source_retrieved_at": "2026-10-27T02:15:41.920058Z",
+              "newest_source_retrieved_at": "2026-10-27T02:15:41.920058Z",
+              "max_source_age_seconds": 76,
+              "latest_observation_date": "2026-09-30",
+              "missing_value_count": 0,
+              "derived_record_count": 0,
+              "partial_coverage": false,
+              "truncated": true,
+              "meets_requirements": true,
+              "checks": []
+            },
+            "response": {
+              "view": "compact",
+              "fields": [],
+              "snapshot_id": "d249d8e7fa9b85598b7fa2bf630461d511a38d9d00592b7dadef4fae9ce95484",
+              "result_sha256": "7393d5ff40364ef81681d2ba5fccb1134fa3508095650878b4708531994b6be2",
+              "expires_at": "2026-10-28T02:16:57.203329Z",
+              "total_records": 1,
+              "returned_records": 1,
+              "offset": 0,
+              "page_size": null,
+              "next_cursor": null,
+              "evidence_count": 2
+            }
+          }
+        },
+        {
+          "id": "export_prices",
+          "status": "ok",
+          "result": {
+            "schema_version": "0.2.0",
+            "dataset": "economics",
+            "query": {
+              "dataset": "economics",
+              "limit": 1,
+              "series": "export_prices",
+              "start_date": "2025-01-01",
+              "end_date": "2026-10-27",
+              "requirements": {}
+            },
+            "source_id": "bls",
+            "source_terms_url": "https://www.bls.gov/bls/linksite.htm",
+            "documentation": {
+              "guide": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/macro.md",
+              "methodology": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/macro.md",
+              "sources_and_terms": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/DATA_SOURCES.md",
+              "citation_guidance": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/citations.md"
+            },
+            "upstream_data_cost": "0",
+            "is_synthetic": false,
+            "source_text_is_untrusted": true,
+            "retrieved_at": "2026-10-27T02:15:43.703448Z",
+            "series_title": "Export price index, all commodities, BEA end-use classification",
+            "records": [
+              {
+                "frequency": "monthly",
+                "annualized": false,
+                "base_period": "2000",
+                "series": "export_prices",
+                "series_id": "EIUIQ",
+                "year": "2026",
+                "period": "M09",
+                "period_kind": "month",
+                "date": "2026-09-30",
+                "date_basis": "observation_period_end",
+                "value": "170.8",
+                "status": "reported",
+                "unit": "index_2000_100",
+                "seasonally_adjusted": false,
+                "published_at": null,
+                "footnotes": [{}],
+                "latest": "true",
+                "source": {
+                  "evidence_id": "14dfe2d69c56ed99ef5c5cdfbf33bd37909179a2b7dd17e5f4a48a5e58eb9d2d"
+                }
+              }
+            ],
+            "sources": [
+              {
+                "evidence_id": "7b900ae5fe2e82865993f549b77b9cae41b17363e2891ca4ae6d9f6255a2d52b"
+              }
+            ],
+            "coverage": {
+              "observed_records": 20,
+              "returned_records": 1,
+              "truncated": true,
+              "upstream_window_limited": true,
+              "upstream_window": "BLS V1 selected years 2025\u20132026 in ten-year chunks",
+              "unavailable_records": 0,
+              "requested_start_date": "2025-01-01",
+              "requested_end_date": "2026-10-27",
+              "first_observation_date": "2025-01-31",
+              "last_observation_date": "2026-09-30",
+              "date_selection": "inclusive_observation_period_end",
+              "point_in_time": false
+            },
+            "limitations": [
+              "Current revised BLS observations, not release-time vintages. Dates are period ends, not release dates.",
+              "M13 annual averages are separate from monthly observations; no implicit percent-change calculation.",
+              "Dated requests use read-only POSTs of at most ten calendar years; shared local and upstream per-IP quotas apply.",
+              "Current/revised source snapshots do not establish point-in-time historical availability.",
+              "Free public sources have upstream limits and no completeness or latency guarantee."
+            ],
+            "quality": {
+              "evaluated_at": "2026-10-27T02:16:57.206748Z",
+              "scope": "complete_selected_result",
+              "oldest_source_retrieved_at": "2026-10-27T02:15:43.703448Z",
+              "newest_source_retrieved_at": "2026-10-27T02:15:43.703448Z",
+              "max_source_age_seconds": 74,
+              "latest_observation_date": "2026-09-30",
+              "missing_value_count": 0,
+              "derived_record_count": 0,
+              "partial_coverage": false,
+              "truncated": true,
+              "meets_requirements": true,
+              "checks": []
+            },
+            "response": {
+              "view": "compact",
+              "fields": [],
+              "snapshot_id": "7425aa0b1267c41102d64a1786a40bc15be9d6d96c978d38da8493a18eda2889",
+              "result_sha256": "22c5e31b9132982b30ea44295a71d8463336d20d1fbb0fe50b59e383ac7137ae",
+              "expires_at": "2026-10-28T02:16:57.206796Z",
+              "total_records": 1,
+              "returned_records": 1,
+              "offset": 0,
+              "page_size": null,
+              "next_cursor": null,
+              "evidence_count": 2
+            }
+          }
+        }
+      ],
+      "summary": {
+        "requested": 8,
+        "successful": 8,
+        "failed": 0,
+        "retryable_read_ids": []
+      }
+    },
+    "limitations": [
+      "Independent reads do not establish an atomic snapshot or historical availability.",
+      "Observation periods, publication times and source retrieval times are distinct.",
+      "Overview dates cover usable rows; BLS month/year dates are calendar period ends.",
+      "Absent publication times stay unknown; no release/holiday calendar is inferred.",
+      "Inspect overview and each item's coverage even when every read succeeds.",
+      "FX context is US context, not a complete macro profile for either currency."
+    ]
+  }
+}

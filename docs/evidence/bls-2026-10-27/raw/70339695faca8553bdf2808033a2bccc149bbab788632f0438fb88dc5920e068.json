@@ -1,0 +1,4 @@
+{"status":"REQUEST_SUCCEEDED","responseTime":82,"message":[],"Results":{
+"series":
+[{"seriesID":"CIS1010000000000I","data":[{"year":"2026","period":"Q02","periodName":"2nd Quarter","latest":"true","value":"177.178","footnotes":[{}]},{"year":"2026","period":"Q01","periodName":"1st Quarter","value":"175.618","footnotes":[{}]},{"year":"2025","period":"Q04","periodName":"4th Quarter","value":"174.047","footnotes":[{}]},{"year":"2025","period":"Q03","periodName":"3rd Quarter","value":"172.752","footnotes":[{}]},{"year":"2025","period":"Q02","periodName":"2nd Quarter","value":"171.380","footnotes":[{}]},{"year":"2025","period":"Q01","periodName":"1st Quarter","value":"169.8","footnotes":[{}]}]}]
+}}

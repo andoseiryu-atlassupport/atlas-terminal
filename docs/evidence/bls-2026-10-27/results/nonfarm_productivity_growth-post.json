@@ -1,0 +1,292 @@
+{
+  "query": {
+    "dataset": "economics",
+    "series": "nonfarm_productivity_growth",
+    "limit": 500,
+    "start_date": "2025-01-01",
+    "end_date": "2026-10-27"
+  },
+  "started_at": "2026-10-27T02:15:36.721654Z",
+  "result": {
+    "schema_version": "0.2.0",
+    "dataset": "economics",
+    "query": {
+      "dataset": "economics",
+      "limit": 500,
+      "series": "nonfarm_productivity_growth",
+      "start_date": "2025-01-01",
+      "end_date": "2026-10-27"
+    },
+    "source_id": "bls",
+    "source_terms_url": "https://www.bls.gov/bls/linksite.htm",
+    "documentation": {
+      "guide": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/macro.md",
+      "methodology": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/macro.md",
+      "sources_and_terms": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/DATA_SOURCES.md",
+      "citation_guidance": "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/docs/citations.md"
+    },
+    "upstream_data_cost": "0",
+    "is_synthetic": false,
+    "source_text_is_untrusted": true,
+    "retrieved_at": "2026-10-27T02:15:38.016783Z",
+    "series_title": "Nonfarm business labor productivity, quarter-on-quarter percent change at annual rate",
+    "records": [
+      {
+        "frequency": "quarterly",
+        "annualized": true,
+        "base_period": null,
+        "reference_period_kind": "quarter_over_quarter_change",
+        "series": "nonfarm_productivity_growth",
+        "series_id": "PRS85006092",
+        "year": "2026",
+        "period": "Q02",
+        "period_kind": "quarter",
+        "date": "2026-06-30",
+        "date_basis": "observation_period_end",
+        "value": "1.4",
+        "status": "reported",
+        "unit": "percent",
+        "seasonally_adjusted": true,
+        "published_at": null,
+        "footnotes": [{}],
+        "latest": "true",
+        "source": {
+          "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006092?startyear=2025&endyear=2026",
+          "raw_sha256": "b8795487d65906b297f0e3fb493d229080bee63ca957ee03c3c4ecc2b71b7a29",
+          "retrieved_at": "2026-10-27T02:15:38.016783Z",
+          "json_pointer": "/Results/series/0/data/0",
+          "request_method": "POST",
+          "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+          "request_body": {
+            "seriesid": ["PRS85006092"],
+            "startyear": "2025",
+            "endyear": "2026"
+          }
+        }
+      },
+      {
+        "frequency": "quarterly",
+        "annualized": true,
+        "base_period": null,
+        "reference_period_kind": "quarter_over_quarter_change",
+        "series": "nonfarm_productivity_growth",
+        "series_id": "PRS85006092",
+        "year": "2026",
+        "period": "Q01",
+        "period_kind": "quarter",
+        "date": "2026-03-31",
+        "date_basis": "observation_period_end",
+        "value": "0.8",
+        "status": "reported",
+        "unit": "percent",
+        "seasonally_adjusted": true,
+        "published_at": null,
+        "footnotes": [{}],
+        "latest": null,
+        "source": {
+          "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006092?startyear=2025&endyear=2026",
+          "raw_sha256": "b8795487d65906b297f0e3fb493d229080bee63ca957ee03c3c4ecc2b71b7a29",
+          "retrieved_at": "2026-10-27T02:15:38.016783Z",
+          "json_pointer": "/Results/series/0/data/1",
+          "request_method": "POST",
+          "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+          "request_body": {
+            "seriesid": ["PRS85006092"],
+            "startyear": "2025",
+            "endyear": "2026"
+          }
+        }
+      },
+      {
+        "frequency": "quarterly",
+        "annualized": true,
+        "base_period": null,
+        "reference_period_kind": "quarter_over_quarter_change",
+        "series": "nonfarm_productivity_growth",
+        "series_id": "PRS85006092",
+        "year": "2025",
+        "period": "Q04",
+        "period_kind": "quarter",
+        "date": "2025-12-31",
+        "date_basis": "observation_period_end",
+        "value": "1.6",
+        "status": "reported",
+        "unit": "percent",
+        "seasonally_adjusted": true,
+        "published_at": null,
+        "footnotes": [{}],
+        "latest": null,
+        "source": {
+          "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006092?startyear=2025&endyear=2026",
+          "raw_sha256": "b8795487d65906b297f0e3fb493d229080bee63ca957ee03c3c4ecc2b71b7a29",
+          "retrieved_at": "2026-10-27T02:15:38.016783Z",
+          "json_pointer": "/Results/series/0/data/2",
+          "request_method": "POST",
+          "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+          "request_body": {
+            "seriesid": ["PRS85006092"],
+            "startyear": "2025",
+            "endyear": "2026"
+          }
+        }
+      },
+      {
+        "frequency": "quarterly",
+        "annualized": true,
+        "base_period": null,
+        "reference_period_kind": "quarter_over_quarter_change",
+        "series": "nonfarm_productivity_growth",
+        "series_id": "PRS85006092",
+        "year": "2025",
+        "period": "Q03",
+        "period_kind": "quarter",
+        "date": "2025-09-30",
+        "date_basis": "observation_period_end",
+        "value": "5.2",
+        "status": "reported",
+        "unit": "percent",
+        "seasonally_adjusted": true,
+        "published_at": null,
+        "footnotes": [{}],
+        "latest": null,
+        "source": {
+          "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006092?startyear=2025&endyear=2026",
+          "raw_sha256": "b8795487d65906b297f0e3fb493d229080bee63ca957ee03c3c4ecc2b71b7a29",
+          "retrieved_at": "2026-10-27T02:15:38.016783Z",
+          "json_pointer": "/Results/series/0/data/3",
+          "request_method": "POST",
+          "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+          "request_body": {
+            "seriesid": ["PRS85006092"],
+            "startyear": "2025",
+            "endyear": "2026"
+          }
+        }
+      },
+      {
+        "frequency": "quarterly",
+        "annualized": true,
+        "base_period": null,
+        "reference_period_kind": "quarter_over_quarter_change",
+        "series": "nonfarm_productivity_growth",
+        "series_id": "PRS85006092",
+        "year": "2025",
+        "period": "Q02",
+        "period_kind": "quarter",
+        "date": "2025-06-30",
+        "date_basis": "observation_period_end",
+        "value": "4.2",
+        "status": "reported",
+        "unit": "percent",
+        "seasonally_adjusted": true,
+        "published_at": null,
+        "footnotes": [{}],
+        "latest": null,
+        "source": {
+          "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006092?startyear=2025&endyear=2026",
+          "raw_sha256": "b8795487d65906b297f0e3fb493d229080bee63ca957ee03c3c4ecc2b71b7a29",
+          "retrieved_at": "2026-10-27T02:15:38.016783Z",
+          "json_pointer": "/Results/series/0/data/4",
+          "request_method": "POST",
+          "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+          "request_body": {
+            "seriesid": ["PRS85006092"],
+            "startyear": "2025",
+            "endyear": "2026"
+          }
+        }
+      },
+      {
+        "frequency": "quarterly",
+        "annualized": true,
+        "base_period": null,
+        "reference_period_kind": "quarter_over_quarter_change",
+        "series": "nonfarm_productivity_growth",
+        "series_id": "PRS85006092",
+        "year": "2025",
+        "period": "Q01",
+        "period_kind": "quarter",
+        "date": "2025-03-31",
+        "date_basis": "observation_period_end",
+        "value": "-0.9",
+        "status": "reported",
+        "unit": "percent",
+        "seasonally_adjusted": true,
+        "published_at": null,
+        "footnotes": [{}],
+        "latest": null,
+        "source": {
+          "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006092?startyear=2025&endyear=2026",
+          "raw_sha256": "b8795487d65906b297f0e3fb493d229080bee63ca957ee03c3c4ecc2b71b7a29",
+          "retrieved_at": "2026-10-27T02:15:38.016783Z",
+          "json_pointer": "/Results/series/0/data/5",
+          "request_method": "POST",
+          "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+          "request_body": {
+            "seriesid": ["PRS85006092"],
+            "startyear": "2025",
+            "endyear": "2026"
+          }
+        }
+      }
+    ],
+    "sources": [
+      {
+        "raw_source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/PRS85006092?startyear=2025&endyear=2026",
+        "raw_sha256": "b8795487d65906b297f0e3fb493d229080bee63ca957ee03c3c4ecc2b71b7a29",
+        "retrieved_at": "2026-10-27T02:15:38.016783Z",
+        "json_pointer": "",
+        "request_method": "POST",
+        "request_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+        "request_body": {
+          "seriesid": ["PRS85006092"],
+          "startyear": "2025",
+          "endyear": "2026"
+        }
+      }
+    ],
+    "coverage": {
+      "observed_records": 6,
+      "returned_records": 6,
+      "truncated": false,
+      "upstream_window_limited": true,
+      "upstream_window": "BLS V1 selected years 2025\u20132026 in ten-year chunks",
+      "unavailable_records": 0,
+      "requested_start_date": "2025-01-01",
+      "requested_end_date": "2026-10-27",
+      "first_observation_date": "2025-03-31",
+      "last_observation_date": "2026-06-30",
+      "date_selection": "inclusive_observation_period_end",
+      "point_in_time": false,
+      "excluded_annual_summary_rows": 0
+    },
+    "limitations": [
+      "Current revised BLS observations, not release-time vintages. Dates are period ends, not release dates.",
+      "Q05 annual summary rows are excluded from quarterly selections. Index levels and published annualized percent changes stay distinct; Atlas does not calculate or annualize these reported values.",
+      "Dated requests use read-only POSTs of at most ten calendar years; shared local and upstream per-IP quotas apply.",
+      "Current/revised source snapshots do not establish point-in-time historical availability.",
+      "Free public sources have upstream limits and no completeness or latency guarantee."
+    ]
+  },
+  "status": "ok",
+  "attempts": [
+    {
+      "retrieved_at": "2026-10-27T02:15:38.016591Z",
+      "method": "POST",
+      "url": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
+      "request_body": {
+        "seriesid": ["PRS85006092"],
+        "startyear": "2025",
+        "endyear": "2026"
+      },
+      "http_status": 200,
+      "raw_sha256": "b8795487d65906b297f0e3fb493d229080bee63ca957ee03c3c4ecc2b71b7a29",
+      "raw_file": "raw/b8795487d65906b297f0e3fb493d229080bee63ca957ee03c3c4ecc2b71b7a29.json",
+      "response_headers": {
+        "content-type": "text/plain;charset=ISO-8859-1",
+        "date": "Tue, 27 Oct 2026 02:15:38 GMT",
+        "server": "envoy"
+      }
+    }
+  ]
+}
