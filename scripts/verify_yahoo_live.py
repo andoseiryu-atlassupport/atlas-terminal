@@ -5,14 +5,16 @@ import asyncio
 import json
 import os
 import sys
-from datetime import UTC, datetime
+from datetime import datetime
+from decimal import Decimal
+from hashlib import sha256
 from pathlib import Path
 
 from mcp.client.session import ClientSession
 from mcp.client.stdio import StdioServerParameters, stdio_client
 
 from atlas_terminal.client import Atlas
-from atlas_terminal.equity_sources import require_yahoo_enabled, yahoo_url
+from atlas_terminal.equity_sources import TOKYO, require_yahoo_enabled, yahoo_url
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.providers import decode_json
 from atlas_terminal.research_equities import PRICE_FIELDS
@@ -32,6 +34,34 @@ def locate(document, pointer):
 def verify_prices(result, body):
     original = decode_json(body)
     assert not result["is_synthetic"] and result["instrument"]["currency"] == "JPY"
+    assert sha256(body).hexdigest() == result["sources"][0]["raw_sha256"]
+    assert len(result["records"]) == result["coverage"]["returned_records"]
+    chart = original["chart"]["result"][0]
+    retrieved = datetime.fromisoformat(result["sources"][0]["retrieved_at"])
+    today = retrieved.astimezone(TOKYO).date()
+    regular_end = chart["meta"].get("currentTradingPeriod", {}).get("regular", {}).get("end")
+    end = datetime.fromtimestamp(regular_end, TOKYO) if regular_end is not None else None
+    coverage = result["coverage"]
+    expected_dates = set()
+    excluded = 0
+    for timestamp in chart.get("timestamp", []):
+        day = datetime.fromtimestamp(timestamp, TOKYO).date()
+        date = day.isoformat()
+        if not (
+            (coverage["requested_start_date"] or date)
+            <= date
+            <= (coverage["requested_end_date"] or date)
+        ):
+            continue
+        if day >= today and not (
+            day == today and end is not None and end.date() == day and retrieved >= end
+        ):
+            excluded += 1
+            continue
+        expected_dates.add(date)
+    assert not coverage["truncated"]
+    assert {row["date"] for row in result["records"]} == expected_dates
+    assert coverage["excluded_unconfirmed_session_rows"] == excluded
     for row in result["records"]:
         assert row["price_basis"] == "yahoo_split_adjusted"
         for field in PRICE_FIELDS:
@@ -42,19 +72,47 @@ def verify_prices(result, body):
             if cell is None:
                 assert row[field] is None
             else:
-                from decimal import Decimal
-
                 assert Decimal(row[field]) == cell
         timestamp = locate(original, row["field_sources"]["date"]["json_pointer"])
-        from atlas_terminal.equity_sources import TOKYO
-
         assert datetime.fromtimestamp(timestamp, TOKYO).date().isoformat() == row["date"]
+
+
+def verify_actions(result, body, bounds):
+    original = decode_json(body)
+    expected = set()
+    today = (
+        datetime.fromisoformat(result["sources"][0]["retrieved_at"])
+        .astimezone(TOKYO)
+        .date()
+        .isoformat()
+    )
+    for kind, cells in original["chart"]["result"][0].get("events", {}).items():
+        if kind not in {"dividends", "splits"}:
+            continue
+        for key, cell in cells.items():
+            day = datetime.fromtimestamp(cell["date"], TOKYO).date().isoformat()
+            if day <= today and bounds.get("start_date", day) <= day <= bounds.get("end_date", day):
+                expected.add(f"/chart/result/0/events/{kind}/{key}")
+    actual = set()
+    for row in result["records"]:
+        pointer = row["source"]["json_pointer"]
+        actual.add(pointer)
+        cell = locate(original, pointer)
+        assert row["date"] == datetime.fromtimestamp(cell["date"], TOKYO).date().isoformat()
+        assert row["published_at"] is None
+        if row["action_type"] == "dividend":
+            assert Decimal(row["value"]) == cell["amount"]
+        else:
+            assert Decimal(row["numerator"]) == cell["numerator"]
+            assert Decimal(row["denominator"]) == cell["denominator"]
+            assert row["split_ratio"] == cell.get("splitRatio")
+    assert actual == expected
 
 
 async def capture(output):
     require_yahoo_enabled()
     output.mkdir(parents=True, exist_ok=True)
-    today = datetime.now(UTC).date()
+    today = datetime.now(TOKYO).date()
     dates = {"start_date": f"{today.year - 1}-01-01", "end_date": today.isoformat()}
     report = {"started_at": stamp(), "status": "in_progress", "reads": []}
     evidence = {}
@@ -86,12 +144,19 @@ async def capture(output):
                         evidence[eid] = atlas.get_evidence(eid)["evidence"]
                     assert evidence[row["source"]["evidence_id"]] == full["source"]
                 actions = atlas.get_research(query | {"dataset": "equity_actions"})
-                for row in actions["records"]:
-                    assert locate(decode_json(snapshot.body), row["source"]["json_pointer"])
+                verify_actions(actions, snapshot.body, bounds)
+                assert all(
+                    bounds.get("start_date", row["date"])
+                    <= row["date"]
+                    <= bounds.get("end_date", row["date"])
+                    for row in result["records"]
+                )
                 assert actions["sources"] == result["sources"]
                 entry.update(
                     status="ok",
                     records=len(result["records"]),
+                    actions=len(actions["records"]),
+                    coverage=result["coverage"],
                     latest_date=result["records"][0]["date"],
                     source=source,
                 )
@@ -103,6 +168,10 @@ async def capture(output):
         preset_query = {"preset": "japan_equity_history", "identifier": "7203.T", **dates}
         preset = atlas.get_research_preset(preset_query)
         assert preset["status"] == "ok" and not preset["is_synthetic"]
+        for item in preset["batch"]["items"]:
+            for row in item["result"]["records"]:
+                eid = row["source"]["evidence_id"]
+                evidence[eid] = atlas.get_evidence(eid)["evidence"]
         save(output / "sdk-preset.json", preset)
     params = StdioServerParameters(
         command=sys.executable,
@@ -120,7 +189,9 @@ async def capture(output):
                 eid = row["source"]["evidence_id"]
                 source = await session.call_tool("atlas_get_evidence", {"evidence_id": eid})
                 assert not source.is_error
-                evidence[eid] = source.structured_content["evidence"]
+                resolved = source.structured_content["evidence"]
+                assert resolved == evidence[eid]
+                evidence[eid] = resolved
         save(output / "mcp-preset.json", actual)
     report.update(
         status="pass", completed_at=stamp(), mcp="pass", sdk="pass", resolved_evidence=evidence
