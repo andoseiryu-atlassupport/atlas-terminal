@@ -1,6 +1,6 @@
 # Financial data for AI agents through one MCP connection
 
-Atlas Terminal connects AI agents to company financials, US/Japan and international macro indicators and reference foreign exchange data from free public primary sources. One MCP connection exposes 34 datasets, twenty-four research presets and traceable evidence, including two optional [international Yahoo Tokyo price/action selections](yahoo-finance.md) for operator-enabled personal use. A Python SDK, CLI and HTTP API use the same services. Research needs no data subscription, wallet or built-in LLM. BEA national accounts require a free registered API key. Yahoo is a secondary-source exception and grants no public-service data redistribution rights.
+Atlas Terminal connects AI agents to company financials, US/Japan and international macro indicators and reference foreign exchange data from free public primary sources. One MCP connection exposes 38 datasets, twenty-four research presets and traceable evidence, including two optional [international Yahoo Tokyo price/action selections](yahoo-finance.md) for operator-enabled personal use. A Python SDK, CLI and HTTP API use the same services. Research needs no data subscription, wallet or built-in LLM. BEA, Census, FRED and EDINET require separate free registered API keys. Yahoo is a secondary-source exception and grants no public-service data redistribution rights.
 
 US/Japan/euro area/Australia [government-bond research](fixed-income.md) adds Japanese 1–40-year curves, local slopes, butterflies, rate changes and US nominal/real par inflation-compensation proxies with original inputs.
 
@@ -53,3 +53,5 @@ Use [source and citation guidance](citations.md) to attribute numerical facts to
 Current or revised source snapshots are not point-in-time history. Atlas does not provide real-time prices, consolidated market quotes, analyst consensus, trading or complete news coverage. ECB reference FX is daily reference data. Source availability and redistribution terms remain source-specific. See [sources and terms](../DATA_SOURCES.md), [FAQ](faq.md) and [verification scope](verification.md).
 
 [GitHub repository](https://github.com/andoseiryu-atlassupport/atlas-terminal) · [Atlas and OpenBB](atlas-and-openbb.md) · [Release notes](../CHANGELOG.md) · [Support](support.md) · [Privacy](privacy.md) · [Terms](terms.md)
+
+[Japanese company disclosures/reference data](japan-companies.md), [local source history](source-history.md) and the [personal-use Yahoo time-series connection](data-connections.md#optional-yahoo-time-series-connection) are available in the latest source checkout, with explicit source rights and availability limits.

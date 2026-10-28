@@ -136,7 +136,7 @@ uv run --offline atlas research doctor --sources ecb,new_york_fed --json
 uv run --offline atlas research doctor --json
 ```
 
-The public provider reports SEC as `configuration_required` until its private `SEC_USER_AGENT` passes the same validator as SEC retrieval. BEA, Census and FRED are `configuration_required` until their private free registered `BEA_API_KEY`, `CENSUS_API_KEY` and `FRED_API_KEY` settings are present. Other sources need no API key. `configured` only means the selected source configuration is ready; connectivity is `not_checked`. The default all-source diagnostic exits 4 if SEC, BEA, Census or FRED configuration is missing, even when non-SEC sources are configured.
+The public provider reports SEC as `configuration_required` until its private `SEC_USER_AGENT` passes the same validator as SEC retrieval. BEA, Census, FRED and EDINET are `configuration_required` until their private free registered `BEA_API_KEY`, `CENSUS_API_KEY`, `FRED_API_KEY` and `EDINET_API_KEY` settings are present. Other sources need no API key. `configured` only means the selected source configuration is ready; connectivity is `not_checked`. The default all-source diagnostic exits 4 if SEC, BEA, Census, FRED or EDINET configuration is missing, even when non-SEC sources are configured.
 
 Explicitly opt in to fixed read-only connectivity probes:
 

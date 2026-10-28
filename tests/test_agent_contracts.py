@@ -32,6 +32,19 @@ def private_state(tmp_path, monkeypatch):
 
 
 def query(dataset="statements", **extra):
+    if dataset == "source_history":
+        return {
+            "dataset": dataset,
+            "source_url": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist.xml",
+            **extra,
+        }
+    if dataset == "japan_disclosures":
+        return {"dataset": dataset, "filing_date": "2026-06-25", **extra}
+    if dataset == "japan_filing_facts":
+        return {"dataset": dataset, "filing_date": "2026-06-25", "document_id": "S100DEMO", **extra}
+    if dataset == "japan_securities":
+        return {"dataset": dataset, **extra}
+
     if dataset in {"equity_prices", "equity_actions"}:
         return {"dataset": dataset, "identifier": "7203.T", **extra}
     if dataset == "sdmx_catalog":
@@ -99,6 +112,10 @@ def test_compact_provenance_reconstructs_every_dataset_without_losing_values(dat
         )
         Draft202012Validator({**schema, "$ref": "#/$defs/ResearchResult"}).validate(compact)
         metadata = compact.pop("response")
+        if dataset == "source_history":
+            assert full["records"] == compact["records"] == []
+            assert metadata["evidence_count"] == 0
+            return
         assert metadata["result_sha256"] == digest(canonical(full))
         assert metadata["evidence_count"] > 0
         assert metadata["total_records"] == len(full["records"])

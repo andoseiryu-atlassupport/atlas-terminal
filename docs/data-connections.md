@@ -2,7 +2,7 @@
 
 Atlas reads operator-supplied JSON, CSV bundles or SQLite tables/views into its own risk schemas. A single `run` request selects a connection ID, estimation method, as-of cutoff and portfolio weights, then reads, normalizes, validates, imports, fits and analyzes. The estimation universe comes from the connection and can be much larger than the portfolio. No external financial framework is required.
 
-This experimental extension is included in 0.7.0. It bundles no equity-price feed or verified historical database. Current research snapshots cannot be substituted for historical vintages. See the [risk methodology](risk-model.md) for model assumptions and limits.
+This experimental extension is included in 0.7.0. The source checkout additionally offers an optional personal-use Yahoo connector, with no verified historical-availability database. Current research snapshots cannot be substituted for historical vintages. See the [risk methodology](risk-model.md) for model assumptions and limits.
 
 ## Configure a local input
 
@@ -95,4 +95,16 @@ Inputs are bounded to 32 MiB per read, 640 return sessions, 200 assets, 10,000 f
 
 Python callers may register `Atlas.register_risk_connection(connection_id, connector)`. A trusted connector implements `RiskConnector` from `atlas_terminal.risk_connections`: `method`, a bounded `kind`, a boolean `uses_network`, and `read()` returning `RiskConnectionRead(panel, documents, snapshot_atomic, normalization)`. The panel must pass the same schemas and timing/coverage checks as local files. Configure credentials privately in the extension, never in a query or returned provenance.
 
-No network provider that automatically constructs a risk panel is bundled. The optional [Yahoo research reader](yahoo-finance.md) is a separate dataset service; chart timestamps and split-adjusted OHLC cannot substitute for verified session-close/availability times or unadjusted capitalization inputs. Custom risk network providers must declare `uses_network=True`; execution fails before reading unless the request includes `allow_network=true`. Preview remains offline. The request cannot change provider URLs, credentials, SQL or local paths. Registration runs trusted Python in the operator process and is not a sandbox. A normal remote service configured only from the connection file exposes the three built-in local formats.
+Custom risk network providers must declare `uses_network=True`; execution fails before reading unless the request includes `allow_network=true`. Preview remains offline. Queries cannot change URLs, credentials, SQL or paths. Registration runs trusted Python in the operator process and is not a sandbox.
+
+## Optional Yahoo time-series connection
+
+Copy [the Yahoo configuration template](../examples/risk/connections-yahoo.template.json) to a private connection file. Set `ATLAS_ENABLE_YAHOO_FINANCE=1` in the process environment and acknowledge personal use in the operator configuration. `kind="yahoo_finance"` supports only `method="time_series"`, 1–9 unique asset symbols and one separate source-identified ETF `factor_symbol`. Choose explicit inclusive start/end dates. The template dates are illustrative; use completed observations available to the current source.
+
+Returns are `adjusted_close[t] / adjusted_close[t-1] - 1`, rounded half-even to 18 decimal places. Every instrument must supply 61–500 exact common price dates, positive adjusted closes and completed sessions. Nulls, duplicate/misaligned dates, wrong units/types and truncation fail; no gap is filled or price re-adjusted. The ETF is an observed total-return proxy, not an official market factor.
+
+The source receipts retain all selected instruments, raw response hashes, canonical research-result hashes and every adjusted-close source cell. Calendar-day boundaries end at midnight after each Tokyo observation date; they are not verified exchange-close timestamps. Availability is at least the latest source retrieval across all inputs. Choose the risk `as_of` after capturing the necessary source responses; cached reads preserve their retrieval times. A cutoff before capture cannot include those returns. This is not verified historical publication availability.
+
+A direct Python capture can use `YahooRiskConnector(spec, directory).read()` after explicit operator enablement; named `run` execution also needs `allow_network=true`. Preview never fetches prices. Then run the existing portfolio workflow with that connection ID and `fit.method="time_series"`. A strictly historical `as_of` predating these captures will fail even when its price dates are historical.
+
+No market capitalization, JPX industry assignment or EDINET share count is needed. Current classifications/shares must not be backdated, and split-adjusted prices must not be multiplied by unadjusted shares. [Source terms, live checks and limitations](yahoo-finance.md).

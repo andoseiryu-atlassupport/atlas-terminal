@@ -6,7 +6,7 @@
 
 Atlas Terminal gives AI agents company financials, US/Japan macro indicators and reference FX through one MCP connection, using free public primary sources. The same retrieval, calculation and evidence services are available through a CLI, Python SDK and HTTP API.
 
-Optional [native factor risk models](docs/risk-model.md) analyze supplied [US, Japanese, Korean and British stock histories](docs/equity-markets.md). One request reads a named JSON, CSV or SQLite connection, validates inputs, fits a cross-sectional or time-series model and analyzes a portfolio. The models are experimental; a historical equity database and verified vintages are not included. A separate optional [international Yahoo Finance reader](docs/yahoo-finance.md) supplies Tokyo daily prices, dividends and splits for personal use, with explicit operator enablement.
+Optional [native factor risk models](docs/risk-model.md) analyze supplied [US, Japanese, Korean and British stock histories](docs/equity-markets.md). One request reads a named JSON, CSV or SQLite connection, validates inputs, fits a cross-sectional or time-series model and analyzes a portfolio. The models are experimental; a historical equity database and verified vintages are not included. A separate optional [international Yahoo Finance reader](docs/yahoo-finance.md) supplies Tokyo daily prices, dividends and splits for personal use, with explicit operator enablement. A [named Yahoo time-series connection](docs/data-connections.md#optional-yahoo-time-series-connection) can fit real adjusted-price returns against a separately chosen ETF proxy.
 
 [Documentation website](https://atlas-terminal-docs.citrus-genet-7815.chatgpt.site) · [Connect Codex](docs/codex.md) · [Reproducible examples](docs/research-examples.md) · [Capabilities](IMPLEMENTATION_STATUS.md) · [Data sources](DATA_SOURCES.md)
 
@@ -29,11 +29,11 @@ Run `atlas showcase research --provider public --allow-network` for actual ECB/N
 
 ## Available data
 
-Atlas provides 32 primary-source datasets from SEC EDGAR, BLS, US Treasury yields, Treasury Fiscal Data, the Federal Reserve, the ECB, the New York Fed, BEA, the Bank of Japan, Japan's Statistical Dashboard, Japan's Ministry of Finance, IMF, OECD, the Reserve Bank of Australia, Eurostat, the UK Office for National Statistics, US Census, FRED-distributed DOL claims, the Australian Bureau of Statistics, Statistics Canada and World Bank WDI. Two optional international Yahoo Finance datasets bring the catalog to 34; this secondary source is disabled by default and restricted to personal-use access under its separate terms.
+Atlas provides 35 primary-source datasets from SEC EDGAR, BLS, US Treasury yields, Treasury Fiscal Data, the Federal Reserve, the ECB, the New York Fed, BEA, the Bank of Japan, Japan's Statistical Dashboard, Japan's Ministry of Finance, IMF, OECD, the Reserve Bank of Australia, Eurostat, the UK Office for National Statistics, US Census, FRED-distributed DOL claims, the Australian Bureau of Statistics, Statistics Canada and World Bank WDI. Two optional international Yahoo Finance datasets and one local source-history dataset bring the catalog to 38; this secondary source is disabled by default and restricted to personal-use access under its separate terms.
 
 | Area         | Information                                                                                                                           |
 | ------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
-| Companies    | Current ticker / CIK directory, issuer profiles, SIC industry, exchanges and fiscal year end                                          |
+| Companies    | Current US ticker / CIK directory and issuer profiles; Japanese EDINET disclosures/XBRL and current JPX securities/industry reference |
 | Financials   | 37 US-GAAP concepts covering income, balance sheets, cash flow, EPS, shares and dividends; annual, reported discrete quarters and YTD |
 | Analysis     | Six ratios, five year-over-year growth rates, free cash flow and FCF margin; comparison of up to ten issuers at a common period       |
 | XBRL         | Concept inventory and raw observations with their taxonomy, units and contexts                                                        |
@@ -53,7 +53,9 @@ Values retain their units, periods, source hashes, retrieval times and JSON poin
 
 Use `japan_activity_overview`, `us_activity_overview`, `euro_area_macro_overview`, `uk_macro_overview` or `global_macro_overview` to retrieve selected economic context through one connection. [Series, definitions, source requirements and examples](docs/economic-indicators.md). These additions are in the latest source checkout; the existing `v0.7.0` release remains unchanged.
 
-Use `us_activity_extended`, `us_trade_overview`, `japan_external_corporate`, `australia_macro_overview`, `canada_macro_overview` or `china_macro_overview` for the additional activity selections. Census and FRED need separate free API keys; Australian/Canadian/Chinese endpoints need no key. China's WDI GDP is annual; Australia's monthly and quarterly CPI remain separate series. Live availability remains unverified; preview lists each source; the catalog and diagnostics describe key requirements.
+Use `us_activity_extended`, `us_trade_overview`, `japan_external_corporate`, `australia_macro_overview`, `canada_macro_overview` or `china_macro_overview` for the additional activity selections. Census and FRED need separate free API keys; Australian/Canadian/Chinese endpoints need no key. China's WDI GDP is annual; Australia's monthly and quarterly CPI remain separate series. Dated private live checks cover many key-free selections. Five Japanese trade/corporate selectors remain unresolved, and the ABS quarterly CPI key returns HTTP 404 `NoRecordsFound`; preview, the catalog and diagnostics retain source requirements. [Observed results](docs/verification.md#data-integrity-and-japanese-company-extensions).
+
+[Japanese company readers](docs/japan-companies.md) retain dated EDINET document metadata, original numeric XBRL contexts/units and current JPX reference cells. EDINET needs a free private API key and remains unverified live; JPX reuse requires the applicable permission. [Local source history](docs/source-history.md) retains raw versions, observation events and exact JSON differences. Its `as_of` selects locally captured bytes and does not establish publisher PIT data.
 
 Series search filters registered macro/FX templates by text, country, frequency, source and unit. IMF/OECD/ABS metadata discovery retrieves new series without indicator-specific adapters; macro panels align observations with explicit aggregation, gaps and source evidence. [Discovery and panel guide](docs/international-macro.md).
 
@@ -93,7 +95,7 @@ uv run atlas research get treasury_real_yields --year 2026 --json
 uv run atlas research get macro_analytics --series cpi_yoy --json
 ```
 
-Research needs no data subscription, wallet or LLM. BEA, Census and FRED require separate free API keys configured privately in the process environment. Japanese, Australian, Canadian and Chinese statistical selections need no registration. Commands return JSON, and errors use nonzero exit codes. Dataset names, metrics, series identifiers and query limits are listed in `research catalog` and the [research guide](docs/research.md).
+Research needs no data subscription, wallet or LLM. BEA, Census, FRED and EDINET require separate free API keys configured privately in the process environment. Japanese, Australian, Canadian and Chinese statistical selections need no registration. Commands return JSON, and errors use nonzero exit codes. Dataset names, metrics, series identifiers and query limits are listed in `research catalog` and the [research guide](docs/research.md).
 
 Growth matches actual prior-year periods; `0.25` means 25%. Free cash flow is reported operating cash flow minus PP&E acquisition payments. Comparisons select the latest shared reported period end and suppress values with different actual input dates. Missing quarters and nonpositive growth baselines remain unavailable. [Calculation rules](docs/research.md#growth-and-cash-flow-analytics).
 

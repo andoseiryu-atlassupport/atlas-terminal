@@ -70,7 +70,7 @@ from atlas_terminal.research_models import (
 )
 from atlas_terminal.research_quality import ResearchRequirements, enforce_requirements
 from atlas_terminal.research_views import ResearchResult, ResearchViews
-from atlas_terminal.util import stamp, state_dir
+from atlas_terminal.util import canonical, stamp, state_dir
 
 FAMILIES = {
     "ownership_filings": {
@@ -121,6 +121,26 @@ FAMILIES = {
     "institutional_holdings": {"13F-HR", "13F-HR/A"},
 }
 DATASETS = {
+    "japan_disclosures": (
+        "EDINET documents submitted on one explicit date",
+        "edinet",
+        "filing_metadata",
+    ),
+    "japan_filing_facts": (
+        "Original numeric XBRL facts from one EDINET filing",
+        "edinet",
+        "reported_facts",
+    ),
+    "japan_securities": (
+        "Current JPX listed-company and industry reference table",
+        "jpx",
+        "reference_metadata",
+    ),
+    "source_history": (
+        "Private retained source versions and exact changes",
+        "multiple",
+        "local_source_versions",
+    ),
     "equity_prices": (
         "Optional international Yahoo daily Tokyo OHLC, volume and adjusted close",
         "yahoo_finance",
@@ -611,13 +631,49 @@ class ResearchService:
         q = query if isinstance(query, ResearchQuery) else parse_research(query)
         if q.dataset in EQUITY_DATASETS and not self.synthetic:
             require_yahoo_enabled()
+        if q.dataset in {"japan_disclosures", "japan_filing_facts"} and not self.synthetic:
+            from atlas_terminal.japan_company_sources import edinet_key
+
+            edinet_key()
         if q.response.cursor:
             return self.views.render(q)
-        if q.dataset == "macro_panel":
+        if q.dataset == "source_history":
+            from atlas_terminal.source_history import source_history
+
+            history = source_history(
+                {
+                    "action": q.history_action,
+                    "url": q.source_url,
+                    "sha256": q.sha256,
+                    "before_sha256": q.before_sha256,
+                    "as_of": q.as_of,
+                    "limit": q.limit,
+                },
+                self.view_path.parent,
+            )
+            if q.history_action == "list":
+                records = history.pop("versions", [])
+            elif q.history_action == "diff":
+                records = history.pop("json_changes", None) or []
+            else:
+                records = [
+                    {"version": history.get("version"), "body_utf8": history.pop("body_utf8")}
+                ]
+            result = {
+                "records": records,
+                "sources": [],
+                "coverage": {"truncated": history.pop("truncated", False), "point_in_time": False},
+                "history": history,
+                "limitations": history.pop("limitations"),
+            }
+        elif q.dataset == "macro_panel":
             from atlas_terminal.research_panel import macro_panel
 
             result = macro_panel(q, self.get)
         elif q.dataset in {
+            "japan_disclosures",
+            "japan_filing_facts",
+            "japan_securities",
             "equity_prices",
             "equity_actions",
             "economics",
@@ -702,6 +758,8 @@ class ResearchService:
             ),
             **result,
         }
+        if q.dataset == "source_history" and len(canonical(result)) > 4 * 1024 * 1024:
+            raise AtlasError("INVALID_INPUT", "Source history exceeds the 4 MiB response limit.")
         ResearchResult.model_validate(result)
         if q.requirements is not None:
             result["quality"] = enforce_requirements(result, q.requirements)
@@ -1152,6 +1210,10 @@ class ResearchService:
 
     def public_data(self, q: ResearchQuery) -> dict[str, Any]:
         assert self.public is not None
+        if q.dataset in {"japan_disclosures", "japan_filing_facts", "japan_securities"}:
+            from atlas_terminal.research_japan_companies import japan_companies
+
+            return japan_companies(self.public, q)
         if q.dataset in EQUITY_DATASETS:
             from atlas_terminal.research_equities import yahoo_equities
 

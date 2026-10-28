@@ -9,6 +9,8 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qs, urlencode
 
+import httpx
+
 from atlas_terminal.activity_sources import (
     ACTIVITY_SOURCES,
     G17_URLS,
@@ -28,6 +30,11 @@ from atlas_terminal.economic_sources import (
 from atlas_terminal.equity_sources import YAHOO_SOURCE, require_yahoo_enabled, yahoo_identity
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.fixed_income_sources import JGB_BASE, JGB_URLS, parse_jgb_csv
+from atlas_terminal.japan_company_sources import (
+    COMPANY_SOURCES,
+    company_identity,
+    edinet_key,
+)
 from atlas_terminal.macro_catalog import REFERENCE_SERIES
 from atlas_terminal.providers import CachedHTTPTransport, Snapshot, decode_json
 from atlas_terminal.regional_bond_sources import (
@@ -42,7 +49,7 @@ from atlas_terminal.regional_economic_sources import (
     regional_economic_identity,
 )
 from atlas_terminal.sdmx_sources import BASES, SDMX_SOURCES, sdmx_source, valid_sdmx_url
-from atlas_terminal.util import state_dir
+from atlas_terminal.util import stamp, state_dir
 
 BLS_BASE = "https://api.bls.gov/publicAPI/v1/timeseries/data/"
 TREASURY_BASE = (
@@ -199,6 +206,7 @@ for _key, _code, _title, _unit, _frequency, _adjusted, _annualized, _base, _kind
         BLS_DETAILS[_key]["reference_period_kind"] = _kind
 
 SOURCE_CATALOG = {
+    **COMPANY_SOURCES,
     "yahoo_finance": YAHOO_SOURCE,
     "rba": {
         "name": "Reserve Bank of Australia government bond yields",
@@ -405,6 +413,7 @@ class PublicTransport(CachedHTTPTransport):
             or valid_sdmx_url(url)
             or regional_economic_identity(url) is not None
             or activity_identity(url) is not None
+            or company_identity(url) is not None
             or yahoo_identity(url) is not None
             or re.fullmatch(re.escape(TREASURY_BASE) + r"(?:199[0-9]|20[0-9]{2}|2100)", url)
             or re.fullmatch(re.escape(TREASURY_REAL_BASE) + r"(?:200[3-9]|20[1-9][0-9]|2100)", url)
@@ -414,6 +423,20 @@ class PublicTransport(CachedHTTPTransport):
 
     @staticmethod
     def validate_body(url: str, body: bytes) -> None:
+        if company := company_identity(url):
+            if company[1] == "xbrl":
+                from atlas_terminal.research_japan_companies import xbrl_member
+
+                xbrl_member(body, forbidden_token=edinet_key().encode())
+            elif company[0] == "jpx":
+                from atlas_terminal.research_japan_companies import jpx_rows
+
+                jpx_rows(Snapshot(body, url, stamp()))
+            else:
+                value = decode_json(body)
+                if not isinstance(value, dict) or edinet_key().encode() in body:
+                    raise ValueError("Malformed EDINET JSON or echoed secret")
+            return
         if yahoo_identity(url) is not None:
             value = decode_json(body)
             if not isinstance(value, dict) or not isinstance(value.get("chart"), dict):
@@ -457,6 +480,8 @@ class PublicTransport(CachedHTTPTransport):
         self.validate_url(url)
         if yahoo_identity(url) is not None:
             require_yahoo_enabled()
+        if (company := company_identity(url)) and company[0] == "edinet":
+            edinet_key()
         if url.startswith(BEA_BASE + "?"):
             bea_key()
         if (activity := activity_identity(url)) and activity[0] in {"census", "fred"}:
@@ -465,6 +490,13 @@ class PublicTransport(CachedHTTPTransport):
 
     def request(self, url: str, headers: dict[str, str]) -> Any:
         self.validate_url(url)
+        if (company := company_identity(url)) and company[0] == "edinet":
+            return self.client.stream(
+                "GET",
+                httpx.URL(url).copy_add_param("Subscription-Key", edinet_key()),
+                headers=headers,
+                follow_redirects=False,
+            )
         if activity := activity_identity(url):
             source, _, kind = activity
             if source in {"census", "fred"}:
@@ -515,6 +547,17 @@ class PublicTransport(CachedHTTPTransport):
             )
         return super().request(url, headers)
 
+    def save(self, url: str, body: bytes, ttl: int, headers: Any, old: Any = None) -> str:
+        if (company := company_identity(url)) and company[0] == "edinet":
+            key = edinet_key()
+            headers = {field: value for field, value in headers.items() if key not in str(value)}
+            if old is not None:
+                old = dict(old)
+                for field in ("etag", "modified"):
+                    if key in str(old[field]):
+                        old[field] = None
+        return super().save(url, body, ttl, headers, old)
+
     def before_request(self, url: str) -> None:
         if yahoo_identity(url) is not None:
             require_yahoo_enabled()
@@ -561,6 +604,17 @@ class PublicFixtures:
     synthetic = True
 
     def get(self, url: str, ttl: int) -> Snapshot:
+        if company := company_identity(url):
+            name = {
+                "securities": "jpx_companies.xls",
+                "list": "edinet_documents.json",
+                "xbrl": "edinet_filing.zip",
+            }[company[1]]
+            return Snapshot(
+                files("atlas_terminal").joinpath("resources", "research", name).read_bytes(),
+                "https://fixtures.atlas.invalid/research/" + name,
+                "2026-10-27T02:00:00Z",
+            )
         PublicTransport.validate_url(url)
         if yahoo := yahoo_identity(url):
             name = "yahoo_chart_" + yahoo[0] + ".json"

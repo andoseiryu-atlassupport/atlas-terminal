@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
 from email.utils import parsedate_to_datetime
+from functools import cached_property
 from importlib.resources import files
 from math import ceil
 from pathlib import Path
@@ -20,6 +21,8 @@ import httpx
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.models import Company, identifier
 from atlas_terminal.security import private_library_logs
+from atlas_terminal.source_history import SCHEMA as HISTORY_SCHEMA
+from atlas_terminal.source_history import retain_version
 from atlas_terminal.util import Database, digest, stamp, state_dir
 
 TICKERS = "https://www.sec.gov/files/company_tickers.json"
@@ -46,7 +49,7 @@ class Snapshot:
     def data(self) -> Any:
         return decode_json(self.body)
 
-    @property
+    @cached_property
     def sha256(self) -> str:
         return digest(self.body)
 
@@ -129,7 +132,8 @@ class CachedHTTPTransport:
             raise AtlasError("CONFIG_REQUIRED", "A valid identifying User-Agent is required.")
         self.headers = {"User-Agent": user_agent, "Accept-Encoding": "gzip, deflate"}
         self.db = Database(
-            (cache_path or state_dir() / "sec-cache.sqlite3").resolve(), CACHE_SCHEMA
+            (cache_path or state_dir() / "sec-cache.sqlite3").resolve(),
+            CACHE_SCHEMA + HISTORY_SCHEMA,
         )
         self.client = client or httpx.Client(timeout=20, follow_redirects=False)
         self.clock, self.sleep = clock, sleep
@@ -221,8 +225,8 @@ class CachedHTTPTransport:
                         body = cached["body"]
                         if digest(body) != cached["sha256"]:
                             raise AtlasError("SOURCE_UNAVAILABLE", "Cache integrity check failed.")
-                        self.save(url, body, ttl, response.headers, cached)
-                        return Snapshot(body, url, stamp())
+                        retrieved = self.save(url, body, ttl, response.headers, cached)
+                        return Snapshot(body, url, retrieved)
                     elif response.status_code == 200:
                         chunks: list[bytes] = []
                         size = 0
@@ -257,6 +261,7 @@ class CachedHTTPTransport:
     def save(self, url: str, body: bytes, ttl: int, headers: Any, old: Any = None) -> str:
         retrieved = stamp()
         with self.db.connect(write=True) as conn:
+            retain_version(conn, url, body, retrieved)
             conn.execute(
                 "INSERT OR REPLACE INTO source_cache VALUES (?,?,?,?,?,?,?)",
                 (

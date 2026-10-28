@@ -23,6 +23,7 @@ class SourceEvidence(BaseModel):
         extra="allow",
         json_schema_extra={
             "anyOf": [
+                {"required": ["worksheet", "cell_row", "cell_column"]},
                 {"required": ["json_pointer"], "properties": {"json_pointer": {"type": "string"}}},
                 {
                     "required": ["xml_local_path"],
@@ -42,6 +43,9 @@ class SourceEvidence(BaseModel):
             ]
         },
     )
+    worksheet: str | None = None
+    cell_row: int | None = Field(default=None, ge=1, strict=True)
+    cell_column: int | None = Field(default=None, ge=1, strict=True)
     raw_source_url: str = Field(json_schema_extra={"format": "uri"})
     raw_sha256: Hash
     retrieved_at: str = Field(json_schema_extra={"format": "date-time"})
@@ -62,12 +66,15 @@ class SourceEvidence(BaseModel):
             or not parsed.hostname
             or retrieved.tzinfo is None
             or (
-                self.json_pointer is None
+                self.cell_row is None
+                and self.json_pointer is None
                 and self.xml_local_path is None
                 and (self.csv_row is None or self.csv_column is None)
                 and self.text_line is None
             )
             or (self.csv_row is None) != (self.csv_column is None)
+            or (self.cell_row is None) != (self.cell_column is None)
+            or (self.cell_row is None) != (self.worksheet is None)
             or (self.text_column_start is None) != (self.text_column_end is None)
             or (
                 self.text_column_start is not None
@@ -144,6 +151,25 @@ CREATE TABLE IF NOT EXISTS research_evidence (
 # Field selection never strips context needed to interpret a selected value.
 # Reported inputs/formulas and per-issuer coverage remain intact too.
 CONTEXT_FIELDS = {
+    "document_id",
+    "edinet_code",
+    "security_code",
+    "taxonomy_namespace",
+    "context_id",
+    "context",
+    "unit_id",
+    "unit_measures",
+    "unit_definition",
+    "decimals",
+    "filed_at",
+    "filing_source",
+    "reference_date",
+    "classification_historical",
+    "industry_classification",
+    "industry_code",
+    "market_product",
+    "source_unit_label",
+    "source_unit_code",
     "field_sources",
     "price_basis",
     "adjusted_close_basis",

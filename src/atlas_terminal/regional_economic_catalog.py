@@ -107,6 +107,14 @@ for _prefix, _country, _geo, _name in (
         }
 
 
+# These tables do not expose a changing-composition EA aggregate.
+for _key in ("unemployment", "industrial_production", "retail_sales"):
+    EUROPE_SERIES["ea_" + _key]["filters"]["geo"] = "EA21"
+    EUROPE_SERIES["ea_" + _key]["title"] = EUROPE_SERIES["ea_" + _key]["title"].replace(
+        "Euro area, changing composition", "Euro area, 21 countries from 2026"
+    )
+
+
 class UKSpec(TypedDict):
     path: str
     cdid: str

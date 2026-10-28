@@ -1,6 +1,6 @@
 # Discover and align macro series
 
-Series search, IMF/OECD/ABS retrieval and macro panels use the same SDK, CLI, MCP and HTTP research service. No wallet, subscription or LLM is required. Live IMF/OECD/ABS compatibility remains unverified; examples marked `fixture` use fictional source bytes.
+Series search, IMF/OECD/ABS retrieval and macro panels use the same SDK, CLI, MCP and HTTP research service. No wallet, subscription or LLM is required. Dated live checks cover IMF/OECD catalogues, selected OECD China CPI and ABS GDP/monthly CPI/labour. IMF observation retrieval and the ABS quarterly CPI data key remain unverified or unavailable as detailed in [verification](verification.md#data-integrity-and-japanese-company-extensions). Examples marked `fixture` use fictional source bytes.
 
 ## Search existing series
 

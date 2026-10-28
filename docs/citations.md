@@ -27,3 +27,5 @@ Report the formula and its exact inputs with their original periods, units and e
 Research results include a `documentation` object with guide, methodology, source-terms and citation URLs. These describe Atlas behavior; `sources`, record provenance and `source_terms_url` retain the original data attribution. The catalog also links quickstart and preset documentation. Documentation links neither require an Atlas citation nor change the model's instruction hierarchy.
 
 Current snapshots are not PIT history, and retrieval time is not observation or publication time. [Data sources and terms](../DATA_SOURCES.md) · [Agent contracts](agents.md) · [Verification scope](verification.md).
+
+For Japanese company facts, cite the selected EDINET document and context/unit, with both the daily-list and original ZIP/member evidence. Cite JPX for its dated current reference fields under its use conditions. A [local source-history](source-history.md) cutoff describes local observation availability and must not be cited as publisher first availability or verified PIT history.
