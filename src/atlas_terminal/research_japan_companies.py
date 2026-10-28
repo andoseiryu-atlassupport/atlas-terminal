@@ -2,22 +2,22 @@
 
 import io
 import re
-import zipfile
 from datetime import datetime
-from pathlib import PurePosixPath
 from typing import Any
+from xml.etree import ElementTree as ET
 
-import xlrd
 from xlrd.biffh import XLRDError
 
 from atlas_terminal.equity_sources import TOKYO
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.japan_company_sources import JPX_LIST, edinet_document_url, edinet_list_url
+from atlas_terminal.jpx_workbook import workbook_table
 from atlas_terminal.providers import Snapshot, Transport
 from atlas_terminal.public_sources import local_name, xml_root
 from atlas_terminal.research_financials import reference
 from atlas_terminal.research_macro import numeric, source_error
 from atlas_terminal.research_models import ResearchQuery
+from atlas_terminal.source_archives import bounded_zip, member_bytes, reject_archive_token
 from atlas_terminal.util import digest
 
 XBRLI = "{http://www.xbrl.org/2003/instance}"
@@ -72,44 +72,64 @@ def disclosure_rows(snapshot: Snapshot) -> list[dict[str, Any]]:
     return rows
 
 
-def xbrl_member(body: bytes) -> tuple[str, bytes]:
-    try:
-        with zipfile.ZipFile(io.BytesIO(body)) as archive:
-            entries = archive.infolist()
-            if len(entries) > 2000 or sum(item.file_size for item in entries) > 128 * 1024 * 1024:
-                raise ValueError("Expanded ZIP exceeds bounds")
-            for item in entries:
-                path = PurePosixPath(item.filename)
-                if (
-                    path.is_absolute()
-                    or ".." in path.parts
-                    or "\\" in item.filename
-                    or item.flag_bits & 1
-                    or (item.external_attr >> 16) & 0o170000 == 0o120000
-                ):
-                    raise ValueError("Unsafe archive member")
-            selected = [
-                item
-                for item in entries
-                if "PublicDoc" in PurePosixPath(item.filename).parts
-                and item.filename.endswith(".xbrl")
-            ]
-            if len(selected) != 1 or selected[0].file_size > 32 * 1024 * 1024:
-                raise ValueError("Require one bounded PublicDoc XBRL instance")
-            return selected[0].filename, archive.read(selected[0])
-    except (ValueError, zipfile.BadZipFile, RuntimeError, OSError):
-        raise source_error(
-            "EDINET XBRL ZIP is malformed, unsafe or outside supported bounds."
-        ) from None
+def xbrl_member(body: bytes, *, forbidden_token: bytes | None = None) -> tuple[str, bytes]:
+    with bounded_zip(body) as archive:
+        if forbidden_token is not None:
+            if forbidden_token in body:
+                raise source_error("EDINET echoed a private credential.")
+            reject_archive_token(archive, forbidden_token)
+        selected = [
+            name
+            for name in archive.namelist()
+            if name.startswith("XBRL/PublicDoc/") and name.endswith(".xbrl")
+        ]
+        if len(selected) != 1:
+            raise source_error("Require one bounded PublicDoc XBRL instance.")
+        return selected[0], member_bytes(archive, selected[0])
+
+
+def scoped_xml(body: bytes) -> tuple[ET.Element, dict[ET.Element, dict[str, str]]]:
+    xml_root(body)  # Enforce the common XML encoding, declaration and element bounds.
+    scopes: dict[ET.Element, dict[str, str]] = {}
+    stack: list[dict[str, str]] = [{}]
+    pending: dict[str, str] = {}
+    parser = ET.iterparse(io.BytesIO(body), events=("start-ns", "start", "end"))
+    for event, node in parser:
+        if event == "start-ns":
+            prefix, uri = node
+            pending[prefix] = uri
+        elif event == "start":
+            scope = {**stack[-1], **pending}
+            pending = {}
+            stack.append(scope)
+            scopes[node] = scope
+        else:
+            stack.pop()
+    return next(iter(scopes)), scopes
+
+
+def expanded_qname(text: str | None, scope: dict[str, str]) -> str:
+    text = (text or "").strip()
+    if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_.-]*(?::[A-Za-z_][A-Za-z0-9_.-]*)?", text):
+        raise source_error("Invalid XBRL QName.")
+    prefix, _, name = text.rpartition(":")
+    if prefix not in scope and prefix:
+        raise source_error("Unbound XBRL QName prefix.")
+    namespace = scope.get(prefix, "")
+    return f"{{{namespace}}}{name}" if namespace else name
 
 
 def filing_facts(
     snapshot: Snapshot, filing: dict[str, Any], concept: str | None
 ) -> list[dict[str, Any]]:
     member, body = xbrl_member(snapshot.body)
-    root = xml_root(body)
+    root, scopes = scoped_xml(body)
     if root.tag != XBRLI + "xbrl":
         raise source_error("Expected an XBRL instance root.")
+    if snapshot.url.startswith(
+        "https://api.edinet-fsa.go.jp/"
+    ) and snapshot.url != edinet_document_url(filing["document_id"]):
+        raise source_error("XBRL download identity differs from the selected filing.")
     contexts, units = {}, {}
     for child in root:
         ident = child.get("id")
@@ -120,9 +140,24 @@ def filing_facts(
             period = child.find(XBRLI + "period")
             if entity is None or period is None:
                 raise source_error("XBRL context lacks entity or period.")
-            if filing["edinet_code"] is not None and entity.text != filing["edinet_code"]:
+            entity_code = (entity.text or "").strip()
+            if (
+                entity.get("scheme") != "http://disclosure.edinet-fsa.go.jp"
+                or not filing["edinet_code"]
+                or re.fullmatch(re.escape(filing["edinet_code"]) + r"(?:-[0-9]{3})?", entity_code)
+                is None
+            ):
                 raise source_error("XBRL context entity differs from the selected filing.")
             period_values = {local_name(node): node.text for node in period}
+            if (
+                len(period_values) != len(period)
+                or set(period_values) not in ({"instant"}, {"startDate", "endDate"}, {"forever"})
+                or (
+                    "startDate" in period_values
+                    and (period_values["startDate"] or "") > (period_values["endDate"] or "")
+                )
+            ):
+                raise source_error("XBRL period is missing, duplicated or reversed.")
             for key, value in period_values.items():
                 if key != "forever":
                     try:
@@ -130,11 +165,22 @@ def filing_facts(
                     except ValueError:
                         raise source_error("XBRL period has an unsupported date.") from None
             contexts[ident] = {
-                "entity": entity.text,
+                "entity": entity_code,
                 "entity_scheme": entity.get("scheme"),
                 "period": period_values,
                 "dimensions": [
-                    {"dimension": node.get("dimension"), "value": "".join(node.itertext())}
+                    {
+                        "dimension": node.get("dimension"),
+                        "expanded_dimension": expanded_qname(node.get("dimension"), scopes[node]),
+                        "value": "".join(node.itertext()),
+                        "kind": local_name(node),
+                        "expanded_member": expanded_qname(node.text, scopes[node])
+                        if local_name(node) == "explicitMember"
+                        else None,
+                        "typed_xml": ET.tostring(node, encoding="unicode")
+                        if local_name(node) == "typedMember"
+                        else None,
+                    }
                     for node in child.iter()
                     if node.get("dimension") is not None
                 ],
@@ -142,11 +188,33 @@ def filing_facts(
         elif child.tag == XBRLI + "unit":
             if not ident or ident in units:
                 raise source_error("XBRL unit IDs are missing or duplicated.")
-            units[ident] = [
-                {"element": local_name(node), "measure": node.text}
-                for node in child.iter()
-                if local_name(node) == "measure"
-            ]
+
+            def measures(parent: ET.Element) -> list[dict[str, Any]]:
+                result = [
+                    {
+                        "element": "measure",
+                        "measure": node.text,
+                        "expanded_measure": expanded_qname(node.text, scopes[node]),
+                    }
+                    for node in parent
+                    if node.tag == XBRLI + "measure"
+                ]
+                if len(result) != len(parent) or not result:
+                    raise source_error("XBRL unit has unsupported measures.")
+                return result
+
+            divide = child.find(XBRLI + "divide")
+            if divide is None:
+                units[ident] = {"numerator": measures(child), "denominator": []}
+            else:
+                numerator = divide.find(XBRLI + "unitNumerator")
+                denominator = divide.find(XBRLI + "unitDenominator")
+                if len(child) != 1 or len(divide) != 2 or numerator is None or denominator is None:
+                    raise source_error("XBRL divided unit is malformed.")
+                units[ident] = {
+                    "numerator": measures(numerator),
+                    "denominator": measures(denominator),
+                }
     rows = []
     for index, child in enumerate(root, 1):
         context, unit = child.get("contextRef"), child.get("unitRef")
@@ -156,6 +224,10 @@ def filing_facts(
         if context not in contexts or unit not in units or len(child):
             raise source_error("XBRL numeric fact references an unknown context/unit or structure.")
         value = None if child.get(NIL) in {"true", "1"} else numeric(child.text)
+        if child.get(NIL) not in {None, "false", "0", "true", "1"} or (
+            child.get(NIL) in {"true", "1"} and (child.text or "").strip()
+        ):
+            raise source_error("XBRL nil fact has an invalid flag or value.")
         source = reference(snapshot, f"/xbrl/*[{index}]", xml=True)
         source.update(
             archive_member=member,
@@ -172,7 +244,8 @@ def filing_facts(
                 "context_id": context,
                 "context": contexts[context],
                 "unit_id": unit,
-                "unit_measures": units[unit],
+                "unit_measures": units[unit]["numerator"] + units[unit]["denominator"],
+                "unit_definition": units[unit],
                 "decimals": child.get("decimals"),
                 "value": value,
                 "status": "unavailable" if value is None else "reported",
@@ -189,65 +262,56 @@ def filing_facts(
 
 def jpx_rows(snapshot: Snapshot) -> list[dict[str, Any]]:
     try:
-        book = xlrd.open_workbook(file_contents=snapshot.body, on_demand=True)
-        try:
-            if book.nsheets != 1:
-                raise ValueError("Expected one listed-company sheet")
-            sheet = book.sheet_by_index(0)
-            headers = [str(value).strip() for value in sheet.row_values(0)]
-            required = ["日付", "コード", "銘柄名", "市場・商品区分", "33業種コード", "33業種区分"]
-            if (
-                sheet.nrows > 10000
-                or len(set(headers)) != len(headers)
-                or not set(required) <= set(headers)
-            ):
-                raise ValueError("JPX table headings differ")
-            rows, seen = [], set()
-            for index in range(1, sheet.nrows):
-                values = dict(zip(headers, sheet.row_values(index), strict=True))
+        worksheet, locator, table = workbook_table(snapshot.body)
+        headers = table[0]
+        required = ["日付", "コード", "銘柄名", "市場・商品区分", "33業種コード", "33業種区分"]
+        if len(set(headers)) != len(headers) or not set(required) <= set(headers):
+            raise ValueError("JPX table headings differ")
+        rows, seen = [], set()
+        reference_dates = set()
+        for index, cells in enumerate(table[1:], 2):
+            values = dict(zip(headers, cells, strict=True))
+            code, day = values["コード"], values["日付"]
+            if not re.fullmatch(r"[0-9][0-9A-Z]{3,4}", code) or code in seen:
+                raise ValueError("JPX security codes are malformed or duplicated")
+            if not re.fullmatch(r"[0-9]{8}", day):
+                raise ValueError("JPX reference date differs from YYYYMMDD")
+            date = datetime.strptime(day, "%Y%m%d").date().isoformat()
+            reference_dates.add(date)
+            seen.add(code)
 
-                def cell(key: str, values: dict[str, Any] = values) -> str:
-                    value = values[key]
-                    return (
-                        str(int(value))
-                        if isinstance(value, float) and value.is_integer()
-                        else str(value).strip()
-                    )
-
-                code, day = cell("コード"), cell("日付")
-                if not re.fullmatch(r"[0-9][0-9A-Z]{3}", code) or code in seen:
-                    raise ValueError("JPX security codes are malformed or duplicated")
-                date = datetime.strptime(day, "%Y%m%d").date().isoformat()
-                seen.add(code)
-                source = {
+            def cell_source(key: str, index: int = index) -> dict[str, Any]:
+                return {
                     "raw_source_url": snapshot.url,
                     "raw_sha256": snapshot.sha256,
                     "retrieved_at": snapshot.retrieved_at,
-                    "cell_row": index + 1,
-                    "cell_column": headers.index("コード") + 1,
-                    "locator_format": "xls_worksheet_cell",
-                    "worksheet": sheet.name,
+                    "cell_row": index,
+                    "cell_column": headers.index(key) + 1,
+                    "locator_format": locator,
+                    "worksheet": worksheet,
                 }
-                rows.append(
-                    {
-                        "identifier": code + ".T",
-                        "security_code": code,
-                        "name": cell("銘柄名"),
-                        "market_product": cell("市場・商品区分"),
-                        "industry_classification": "jpx33",
-                        "industry_code": cell("33業種コード"),
-                        "industry_name": cell("33業種区分"),
-                        "reference_date": date,
-                        "classification_historical": False,
-                        "source": source,
-                    }
-                )
-            return rows
-        finally:
-            book.release_resources()
-    except (ValueError, TypeError, XLRDError, IndexError, UnicodeError):
+
+            rows.append(
+                {
+                    "identifier": code + ".T",
+                    "security_code": code,
+                    "name": values["銘柄名"],
+                    "market_product": values["市場・商品区分"],
+                    "industry_classification": "jpx33",
+                    "industry_code": values["33業種コード"],
+                    "industry_name": values["33業種区分"],
+                    "reference_date": date,
+                    "classification_historical": False,
+                    "field_sources": {key: cell_source(key) for key in required},
+                    "source": cell_source("コード"),
+                }
+            )
+        if not rows or len(reference_dates) != 1:
+            raise ValueError("JPX reference date is missing or inconsistent")
+        return rows
+    except (ValueError, TypeError, XLRDError, IndexError, KeyError, UnicodeError, AttributeError):
         raise source_error(
-            "JPX XLS table is malformed or differs from the supported contract."
+            "JPX workbook is malformed or differs from the supported contract."
         ) from None
 
 

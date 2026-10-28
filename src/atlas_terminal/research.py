@@ -70,7 +70,7 @@ from atlas_terminal.research_models import (
 )
 from atlas_terminal.research_quality import ResearchRequirements, enforce_requirements
 from atlas_terminal.research_views import ResearchResult, ResearchViews
-from atlas_terminal.util import stamp, state_dir
+from atlas_terminal.util import canonical, stamp, state_dir
 
 FAMILIES = {
     "ownership_filings": {
@@ -651,15 +651,16 @@ class ResearchService:
                 },
                 self.view_path.parent,
             )
+            if q.history_action == "list":
+                records = history.pop("versions", [])
+            elif q.history_action == "diff":
+                records = history.pop("json_changes", None) or []
+            else:
+                records = [
+                    {"version": history.get("version"), "body_utf8": history.pop("body_utf8")}
+                ]
             result = {
-                "records": history.pop("versions", [])
-                if q.history_action == "list"
-                else history.get("json_changes")
-                or (
-                    [{"version": history.get("version"), "body_utf8": history.get("body_utf8")}]
-                    if q.history_action in {"get", "as_of"}
-                    else []
-                ),
+                "records": records,
                 "sources": [],
                 "coverage": {"truncated": history.pop("truncated", False), "point_in_time": False},
                 "history": history,
@@ -757,6 +758,8 @@ class ResearchService:
             ),
             **result,
         }
+        if q.dataset == "source_history" and len(canonical(result)) > 4 * 1024 * 1024:
+            raise AtlasError("INVALID_INPUT", "Source history exceeds the 4 MiB response limit.")
         ResearchResult.model_validate(result)
         if q.requirements is not None:
             result["quality"] = enforce_requirements(result, q.requirements)

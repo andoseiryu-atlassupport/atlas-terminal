@@ -15,7 +15,7 @@ uv run --offline atlas research get jgb_yields --year 2026 --limit 15 --provider
 
 Every fixture observation is fictional. The 2025 US fixture has multiple dated nominal and real curves. Japanese fixtures include negative/zero yields, missing tenors and a revised overlapping date. Offline success establishes parser/calculation behavior, not live source compatibility.
 
-For actual data, omit `--provider fixture` and `--offline`. The host must permit HTTPS to `home.treasury.gov` and `www.mof.go.jp`; funding, CPI and FX use their separately listed sources. Live Treasury/MOF retrieval for this expansion remains unverified in the development environment.
+For actual data, omit `--provider fixture` and `--offline`. The host must permit HTTPS to `home.treasury.gov` and `www.mof.go.jp`; funding, CPI and FX use their separately listed sources. Dated live Treasury/MOF reads and selected original-cell comparisons passed; [verification scope](verification.md#data-integrity-and-japanese-company-extensions) records their limits.
 
 ## Curves and original evidence
 
@@ -91,7 +91,7 @@ uv run --offline atlas research preset global_bond_context --year 2026 --provide
 
 The regional presets add curves, local shapes/changes and reference EUR/USD or AUD/USD. The global preset retrieves US nominal/real, Japanese, both euro area and Australian curves, three reference FX pairs and SOFR in ten independent items. It uses the same six research MCP tools, with preview, per-item quality controls and resolved evidence. It does not imply synchronized observations, a currency-hedged return or a global bond risk model.
 
-Public execution requires HTTPS access to `data-api.ecb.europa.eu` and `www.rba.gov.au`. ECB/RBA wire contracts were inspected through public code references; direct live retrieval and the current source-terms pages remain unverified under development-host restrictions. Preserve [ECB conditions](https://www.ecb.europa.eu/services/using-our-site/disclaimer/html/index.en.html), [RBA copyright/third-party exceptions](https://www.rba.gov.au/copyright/) and original provider notices. Fixture values are fictional.
+Public execution requires HTTPS access to `data-api.ecb.europa.eu` and `www.rba.gov.au`. Dated live ECB/RBA reads and original-cell comparisons passed, including RBA source-probe revalidation. This does not establish continuous availability or a new redistribution permission grant. Preserve [ECB conditions](https://www.ecb.europa.eu/services/using-our-site/disclaimer/html/index.en.html), [RBA copyright/third-party exceptions](https://www.rba.gov.au/copyright/) and original provider notices. Fixture values are fictional.
 
 ## Bond presets through one connection
 

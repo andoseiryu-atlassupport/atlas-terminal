@@ -413,7 +413,9 @@ class ResearchQuery(Model):
             if self.dataset == "japan_filing_facts" and self.document_id is None:
                 raise AtlasError("INVALID_INPUT", "Provide the selected EDINET document ID.")
         if self.dataset == "japan_securities" and self.identifier is not None:
-            yahoo_symbol(self.identifier)
+            from atlas_terminal.japan_company_sources import jpx_identifier
+
+            jpx_identifier(self.identifier)
         if self.dataset == "source_history":
             from atlas_terminal.source_history import SourceHistoryQuery
 
@@ -590,7 +592,10 @@ class ResearchQuery(Model):
 
 
 def parse_research(data: dict[str, Any]) -> ResearchQuery:
-    if {"as_of", "published_before", "pit", "point_in_time"} & data.keys():
+    unsupported = {"published_before", "pit", "point_in_time"}
+    if data.get("dataset") != "source_history":
+        unsupported.add("as_of")
+    if unsupported & data.keys():
         raise AtlasError(
             "UNSUPPORTED_HISTORICAL_QUERY",
             "A historical observation date does not establish point-in-time availability.",

@@ -4,14 +4,16 @@ import json
 import os
 import time
 from collections.abc import Callable
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
 from atlas_terminal.activity_sources import G17_URLS
 from atlas_terminal.client import Atlas
+from atlas_terminal.equity_sources import TOKYO
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.fixed_income_sources import JGB_URLS, parse_jgb_csv
+from atlas_terminal.jpx_workbook import workbook_table
 from atlas_terminal.providers import (
     CachedHTTPTransport,
     SECProvider,
@@ -20,7 +22,7 @@ from atlas_terminal.providers import (
     Transport,
 )
 from atlas_terminal.public_sources import SOURCE_CATALOG, PublicTransport, xml_root
-from atlas_terminal.regional_bond_sources import ECB_CURVE_BASE, source_csv
+from atlas_terminal.regional_bond_sources import ECB_CURVE_BASE, RBA_URL, source_csv
 from atlas_terminal.research_quality import (
     ResearchRequirements,
     assess_quality,
@@ -232,7 +234,12 @@ def source_shapes(snapshots: list[Snapshot]) -> list[dict[str, Any]]:
         is_text = snapshot.url in G17_URLS or snapshot.url.endswith(
             ("g17_ip_sa.txt", "g17_utl_sa.txt")
         )
-        if is_text:
+        is_workbook = snapshot.body.startswith((b"PK", bytes.fromhex("d0cf11e0a1b11ae1")))
+        structure: dict[str, Any]
+        if is_workbook:
+            worksheet, locator, table = workbook_table(snapshot.body)
+            structure = {"worksheet": worksheet, "columns": table[0], "locator": locator}
+        elif is_text:
             structure = {
                 "format": "G17_fixed_width",
                 "code_columns": [1, 16],
@@ -249,7 +256,16 @@ def source_shapes(snapshots: list[Snapshot]) -> list[dict[str, Any]]:
                 header = list(first.headers) if first else []
             else:
                 header = next(
-                    (row for row in source_csv(snapshot) if row and row[0] in {"KEY", "Series ID"}),
+                    (
+                        row
+                        for row in source_csv(
+                            snapshot,
+                            max_rows=100000
+                            if snapshot.url == RBA_URL or snapshot.url.endswith("rba_yields.csv")
+                            else 30000,
+                        )
+                        if row and row[0] in {"KEY", "Series ID"}
+                    ),
                     [],
                 )
             structure = {"columns": header, "units": "percent"}
@@ -259,7 +275,15 @@ def source_shapes(snapshots: list[Snapshot]) -> list[dict[str, Any]]:
             "raw_source_url": snapshot.url,
             "raw_sha256": snapshot.sha256,
             "retrieved_at": snapshot.retrieved_at,
-            "format": "text" if is_text else "csv" if is_csv else "xml" if is_xml else "json",
+            "format": "workbook"
+            if is_workbook
+            else "text"
+            if is_text
+            else "csv"
+            if is_csv
+            else "xml"
+            if is_xml
+            else "json",
             "shape_sha256": digest(canonical(structure)),
         }
     return [rows[url] for url in sorted(rows)]
@@ -324,6 +348,8 @@ def check_sources(
         snapshots: list[Snapshot] = []
         with client_factory(root, snapshots) as atlas:
             for key, (source, query) in probes.items():
+                if source == "edinet":
+                    query = query | {"filing_date": datetime.now(TOKYO).date().isoformat()}
                 snapshots.clear()
                 started = time.monotonic()
                 record: dict[str, Any] = {

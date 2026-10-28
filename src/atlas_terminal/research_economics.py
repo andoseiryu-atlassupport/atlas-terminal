@@ -2,6 +2,7 @@
 
 import re
 import unicodedata
+from datetime import datetime
 from typing import Any
 
 from atlas_terminal.economic_catalog import JAPAN_SERIES, NATIONAL_ACCOUNTS
@@ -359,7 +360,10 @@ def boj_economics(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
         or raw["PARAMETER"].get("DB") != spec["database"]
     ):
         raise source_error("BOJ returned an error, incomplete page or different database.")
-    data = raw.get("DATA")
+    if "DATA" in raw and "RESULTSET" in raw:
+        raise source_error("BOJ returned ambiguous series containers.")
+    container = "RESULTSET" if "RESULTSET" in raw else "DATA"
+    data = raw.get(container)
     if not isinstance(data, list) or len(data) != 1:
         raise source_error("Expected one requested BOJ series.")
     item = data[0]
@@ -389,7 +393,11 @@ def boj_economics(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
         else None
     )
     records, seen = [], set()
+    excluded_future = 0
+    observed_on = datetime.fromisoformat(snapshot.retrieved_at).date().isoformat()
     for i, (period, amount) in enumerate(zip(dates, amounts, strict=True)):
+        if isinstance(period, int) and not isinstance(period, bool):
+            period = str(period)
         if not isinstance(period, str) or not re.fullmatch(r"[0-9]{6}(?:[0-9]{2})?", period):
             raise source_error("Invalid BOJ period.")
         try:
@@ -410,6 +418,9 @@ def boj_economics(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
         if not within(observed, start, end):
             continue
         value = numeric(amount)
+        if value is None and observed > observed_on:
+            excluded_future += 1
+            continue
         records.append(
             {
                 "series": q.series,
@@ -429,14 +440,14 @@ def boj_economics(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
                 "source_updated_on": updated,
                 "published_at": None,
                 "status": "reported" if value is not None else "unavailable",
-                "source": reference(snapshot, f"/DATA/0/VALUES/VALUES/{i}"),
-                "period_source": reference(snapshot, f"/DATA/0/VALUES/SURVEY_DATES/{i}"),
+                "source": reference(snapshot, f"/{container}/0/VALUES/VALUES/{i}"),
+                "period_source": reference(snapshot, f"/{container}/0/VALUES/SURVEY_DATES/{i}"),
             }
         )
     result = economic_page(
         q,
         records,
-        [reference(snapshot, "/DATA/0")],
+        [reference(snapshot, f"/{container}/0")],
         source_id="boj",
         title=spec["title"],
         window=f"BOJ {start} through {end}",
@@ -455,6 +466,7 @@ def boj_economics(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
             ),
         ],
     )
+    result["coverage"]["excluded_future_placeholder_rows"] = excluded_future
     result["attributions"] = [
         {
             "source_id": "boj",
@@ -479,6 +491,11 @@ def estat_economics(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
     cycle = estat_cycle(q.series)
     meta = transport.get(estat_metadata_url(q.series), 86400)
     root = xml_root(meta.body)
+    if root.tag == "GET_META_INDICATOR_INF" and root.findtext("RESULT/STATUS") == "1":
+        raise AtlasError(
+            "INCOMPLETE_COVERAGE",
+            "The Dashboard has no matching indicator for this curated survey and definition.",
+        )
     if root.tag != "GET_META_INDICATOR_INF" or root.findtext("RESULT/STATUS") != "0":
         raise source_error("Statistical Dashboard indicator discovery failed.")
     candidates = []
@@ -497,7 +514,15 @@ def estat_economics(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
             child
             for child in node.findall("CLASS")
             if all(
-                (n := child.find(tag)) is not None and n.get("code") == expected_code
+                (
+                    n := (
+                        child.find("cycle")
+                        if tag == "Cycle" and child.find("cycle") is not None
+                        else child.find(tag)
+                    )
+                )
+                is not None
+                and n.get("code") == expected_code
                 for tag, expected_code in (
                     ("Cycle", cycle),
                     ("RegionalRank", "2"),
@@ -508,6 +533,17 @@ def estat_economics(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
         ]
         if len(elements) == 1:
             candidates.append((node, i))
+    if len(candidates) > 1:
+        # Publishers can retain two active base-year versions during rebasing.
+        # Choose a complete series at the newest explicitly named base, never splice.
+        bases = [re.search(r"([0-9]{4})年基準$", node.get("name", "")) for node, _ in candidates]
+        if all(base is not None for base in bases):
+            newest = max(base[1] for base in bases if base is not None)
+            candidates = [
+                pair
+                for pair, base in zip(candidates, bases, strict=True)
+                if base is not None and base[1] == newest
+            ]
     if len(candidates) != 1:
         raise AtlasError(
             "INCOMPLETE_COVERAGE",
@@ -535,14 +571,14 @@ def estat_economics(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
         labels: dict[str, str] = {}
         for child in group.findall("CLASS"):
             key = child.get("id", child.get("code", ""))
-            if not key or key in labels or not child.get("name"):
+            if not key or key in labels or (not child.get("name") and name != "unit"):
                 raise source_error("Ambiguous Statistical Dashboard dimension labels.")
             labels[key] = child.get("name", "")
         classes[name] = labels
     nodes = root.findall("STATISTICAL_DATA/DATA_INF/DATA_OBJ")
     try:
         count = int(root.findtext("STATISTICAL_DATA/RESULT_INF/TOTAL_NUMBER", ""))
-        returned = int(root.findtext("STATISTICAL_DATA/RESULT_INF/TO_NUMBER", ""))
+        returned = int(root.findtext("STATISTICAL_DATA/RESULT_INF/TO_NUMBER", str(count)))
     except ValueError:
         raise source_error("Missing Statistical Dashboard result counts.") from None
     if count != len(nodes) or returned != count or count > 1000:
@@ -584,7 +620,7 @@ def estat_economics(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
         unit = classes.get("unit", {}).get(p.get("unit", ""))
         survey = classes.get("stat", {}).get(spec["database"])
         title = classes.get("indicator", {}).get(code)
-        if not unit or not survey or not title or p.get("isProvisional") not in {"0", "1"}:
+        if unit is None or not survey or not title or p.get("isProvisional") not in {"0", "1"}:
             raise source_error(
                 "Statistical Dashboard observation lacks unit, survey or provisional metadata."
             )
@@ -609,7 +645,9 @@ def estat_economics(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
                 "source_period": period,
                 "frequency": spec["frequency"].lower(),
                 "value": value,
-                "unit": unit,
+                "unit": unit or "source_unspecified",
+                "source_unit_label": unit,
+                "source_unit_code": p.get("unit"),
                 "seasonally_adjusted": spec["seasonally_adjusted"],
                 "annualized": spec.get("annualized", False),
                 "base_period": (

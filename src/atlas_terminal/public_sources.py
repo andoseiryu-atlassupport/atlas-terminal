@@ -49,7 +49,7 @@ from atlas_terminal.regional_economic_sources import (
     regional_economic_identity,
 )
 from atlas_terminal.sdmx_sources import BASES, SDMX_SOURCES, sdmx_source, valid_sdmx_url
-from atlas_terminal.util import state_dir
+from atlas_terminal.util import stamp, state_dir
 
 BLS_BASE = "https://api.bls.gov/publicAPI/v1/timeseries/data/"
 TREASURY_BASE = (
@@ -427,10 +427,11 @@ class PublicTransport(CachedHTTPTransport):
             if company[1] == "xbrl":
                 from atlas_terminal.research_japan_companies import xbrl_member
 
-                xbrl_member(body)
+                xbrl_member(body, forbidden_token=edinet_key().encode())
             elif company[0] == "jpx":
-                if not body.startswith(bytes.fromhex("d0cf11e0a1b11ae1")):
-                    raise ValueError("Expected the official BIFF XLS table")
+                from atlas_terminal.research_japan_companies import jpx_rows
+
+                jpx_rows(Snapshot(body, url, stamp()))
             else:
                 value = decode_json(body)
                 if not isinstance(value, dict) or edinet_key().encode() in body:
@@ -479,6 +480,8 @@ class PublicTransport(CachedHTTPTransport):
         self.validate_url(url)
         if yahoo_identity(url) is not None:
             require_yahoo_enabled()
+        if (company := company_identity(url)) and company[0] == "edinet":
+            edinet_key()
         if url.startswith(BEA_BASE + "?"):
             bea_key()
         if (activity := activity_identity(url)) and activity[0] in {"census", "fred"}:
@@ -486,13 +489,14 @@ class PublicTransport(CachedHTTPTransport):
         return super().get(url, ttl, force_refresh=force_refresh)
 
     def request(self, url: str, headers: dict[str, str]) -> Any:
+        self.validate_url(url)
         if (company := company_identity(url)) and company[0] == "edinet":
             return self.client.stream(
                 "GET",
                 httpx.URL(url).copy_add_param("Subscription-Key", edinet_key()),
                 headers=headers,
+                follow_redirects=False,
             )
-        self.validate_url(url)
         if activity := activity_identity(url):
             source, _, kind = activity
             if source in {"census", "fred"}:
@@ -542,6 +546,17 @@ class PublicTransport(CachedHTTPTransport):
                 },
             )
         return super().request(url, headers)
+
+    def save(self, url: str, body: bytes, ttl: int, headers: Any, old: Any = None) -> str:
+        if (company := company_identity(url)) and company[0] == "edinet":
+            key = edinet_key()
+            headers = {field: value for field, value in headers.items() if key not in str(value)}
+            if old is not None:
+                old = dict(old)
+                for field in ("etag", "modified"):
+                    if key in str(old[field]):
+                        old[field] = None
+        return super().save(url, body, ttl, headers, old)
 
     def before_request(self, url: str) -> None:
         if yahoo_identity(url) is not None:

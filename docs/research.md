@@ -36,6 +36,8 @@ Results include missing-data status, periods, coverage and source terms. Discove
 | `uk_economics`             | ONS CPI, GDP and rolling unemployment                               | `series`, `limit`, optional paired dates                     | UK economic observations              |
 | `compare`                  | Common reported period for up to ten specified issuers              | `identifiers`, `metrics`, `period`, `allow_partial`          | Aligned reported/derived financials   |
 
+The catalog contains 38 datasets: 35 primary-source selections, two optional Yahoo datasets and one local-history dataset. [Japanese company queries](japan-companies.md) add `japan_disclosures` (`filing_date`), `japan_filing_facts` (`filing_date`, `document_id`, optional `concept`) and `japan_securities` (optional JPX `.T` identifier). [Source history](source-history.md) accepts an approved `source_url`, `history_action` and action-specific hashes or a timezone-aware local-observation `as_of`. These query fields work through `research get` flags or `research run --input`.
+
 `identifier` accepts a ticker, CIK or company name. For 13F, use the **reporting manager's CIK**. An issuer CIK does not reverse-search every manager holding that issuer. Insider reports are likewise limited to the resolved filing history. Omitting `accession` selects the latest matching filing. Original filings and amendments are not merged automatically.
 
 `limit` ranges from 1–500; financial `count` ranges from 1–20; comparisons accept at most ten identifiers. Unknown fields, fields unrelated to the selected dataset and booleans used as counts are rejected. The filing `form` filter is an exact match. Original form names, including `SCHEDULE 13D` and legacy `SC 13D`, are preserved.

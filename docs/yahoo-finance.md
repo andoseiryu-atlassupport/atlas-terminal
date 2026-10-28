@@ -77,3 +77,7 @@ ATLAS_ENABLE_YAHOO_FINANCE=1 uv run --offline python scripts/verify_yahoo_live.p
 ```
 
 The script checks normal and dated price reads for `7203.T` and `6758.T`, reuses each response for actions and compact evidence, and executes the dated preset through SDK and actual stdio MCP. It retains source bytes, hashes, queries, results and resolved evidence under the ignored output directory. It stops after the first source failure. No real Yahoo data is bundled in the repository or published by this workflow. See [the verification record](verification.md) for the actual execution outcome and limitations.
+
+## Connection to time-series risk
+
+The source checkout includes a named personal-use Yahoo connector with a separate ETF factor. See [configuration, timing, exact returns and evidence](data-connections.md#optional-yahoo-time-series-connection). Real split windows, ETF reads, one observed null adjusted close and a 120-session two-stock risk execution were checked privately on 2026-10-29 JST; zero volume was not observed. [Verification scope](verification.md#data-integrity-and-japanese-company-extensions).

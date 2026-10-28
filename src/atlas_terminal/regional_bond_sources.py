@@ -216,7 +216,7 @@ def parse_ecb_curve(
 def parse_rba_curve(
     snapshot: Snapshot,
 ) -> tuple[dict[str, dict[str, dict[str, Any]]], dict[str, Any]]:
-    rows = source_csv(snapshot)
+    rows = source_csv(snapshot, max_rows=100000)
     metadata: dict[str, list[str]] = {}
     headers = None
     results: dict[str, dict[str, dict[str, Any]]] = {}
@@ -266,7 +266,10 @@ def parse_rba_curve(
                 raise csv_error("Malformed RBA observation date or trailer.")
             footer = True
             continue
-        if footer or len(cells) != len(headers):
+        # Older F2 rows omit the trailing indexed-bond cell. All selected nominal
+        # columns must still be physically present; no selected cell is invented.
+        required_width = max(headers.index(code) for code in RBA_SERIES) + 1
+        if footer or not (required_width <= len(cells) <= len(headers) or len(cells) == 1):
             raise csv_error("RBA CSV observations follow a trailer or have inconsistent columns.")
         try:
             observed = date(
@@ -276,8 +279,10 @@ def parse_rba_curve(
             raise csv_error("RBA CSV contains an invalid calendar date.") from None
         if observed in results or not "2013-01-01" <= observed <= "2100-12-31":
             raise csv_error("RBA CSV contains a duplicate or out-of-range observation date.")
-        results[observed] = {
-            maturity: reported_record(
+        results[observed] = {}
+        for code, maturity in RBA_SERIES.items():
+            position = headers.index(code)
+            row = reported_record(
                 snapshot,
                 index,
                 headers.index(code) + 1,
@@ -285,7 +290,7 @@ def parse_rba_curve(
                 "rba",
                 observed,
                 maturity,
-                cells[headers.index(code)],
+                cells[position] if position < len(cells) else "",
                 source_series=code,
                 source_provider=(
                     metadata["source"][headers.index(code)]
@@ -293,8 +298,14 @@ def parse_rba_curve(
                     else None
                 ),
             )
-            for code, maturity in RBA_SERIES.items()
-        }
+            if position >= len(cells):
+                row.update(
+                    source=csv_reference(snapshot, index, 1, "Series ID"),
+                    source_value=None,
+                    value_cell_present=False,
+                    reason="Source date row has no yield cells.",
+                )
+            results[observed][maturity] = row
     if headers is None:
         raise csv_error("RBA CSV has no recognized series-ID row.")
     return results, document

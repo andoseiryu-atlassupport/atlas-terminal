@@ -126,6 +126,13 @@ def missing(row: dict[str, Any], dataset: str = "") -> bool:
 def record_date(row: dict[str, Any], dataset: str) -> str | None:
     """Observation/period ends, never source retrieval or filing times for XBRL facts."""
     candidates = [row.get("date"), row.get("period_end")]
+    if dataset == "japan_securities":
+        candidates.append(row.get("reference_date"))
+    if dataset == "japan_filing_facts":
+        period = row.get("context", {}).get("period", {})
+        candidates.extend([period.get("instant"), period.get("endDate")])
+    if dataset == "japan_disclosures" and row.get("filed_at"):
+        candidates.append(datetime.fromisoformat(row["filed_at"]).date().isoformat())
     if isinstance(row.get("period"), dict):
         candidates.append(row["period"].get("end"))
     if isinstance(row.get("reported_context"), dict):

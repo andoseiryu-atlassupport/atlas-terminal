@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
 from email.utils import parsedate_to_datetime
+from functools import cached_property
 from importlib.resources import files
 from math import ceil
 from pathlib import Path
@@ -48,7 +49,7 @@ class Snapshot:
     def data(self) -> Any:
         return decode_json(self.body)
 
-    @property
+    @cached_property
     def sha256(self) -> str:
         return digest(self.body)
 
@@ -224,8 +225,8 @@ class CachedHTTPTransport:
                         body = cached["body"]
                         if digest(body) != cached["sha256"]:
                             raise AtlasError("SOURCE_UNAVAILABLE", "Cache integrity check failed.")
-                        self.save(url, body, ttl, response.headers, cached)
-                        return Snapshot(body, url, stamp())
+                        retrieved = self.save(url, body, ttl, response.headers, cached)
+                        return Snapshot(body, url, retrieved)
                     elif response.status_code == 200:
                         chunks: list[bytes] = []
                         size = 0

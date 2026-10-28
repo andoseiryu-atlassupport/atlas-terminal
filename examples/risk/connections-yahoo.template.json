@@ -1,0 +1,15 @@
+{
+  "schema_version": "0.1.0",
+  "connections": [
+    {
+      "connection_id": "yahoo_jp",
+      "kind": "yahoo_finance",
+      "method": "time_series",
+      "symbols": ["7203.T", "6758.T"],
+      "factor_symbol": "1306.T",
+      "start_date": "2026-01-01",
+      "end_date": "2026-10-27",
+      "personal_use_acknowledged": true
+    }
+  ]
+}

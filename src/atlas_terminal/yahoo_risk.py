@@ -1,6 +1,6 @@
 """Operator-configured Yahoo prices to the existing observed-factor risk model."""
 
-from datetime import datetime, time, timedelta
+from datetime import date, datetime, time, timedelta
 from decimal import ROUND_HALF_EVEN, Context, Decimal, localcontext
 from typing import TYPE_CHECKING, Any, Literal
 
@@ -20,8 +20,8 @@ class YahooRiskSpec(RiskBase):
     method: Literal["time_series"] = "time_series"
     symbols: list[str] = Field(min_length=1, max_length=9)
     factor_symbol: str
-    start_date: str
-    end_date: str
+    start_date: str = Field(pattern=r"^[0-9]{4}-[0-9]{2}-[0-9]{2}$")
+    end_date: str = Field(pattern=r"^[0-9]{4}-[0-9]{2}-[0-9]{2}$")
     personal_use_acknowledged: Literal[True]
 
     @model_validator(mode="after")
@@ -47,6 +47,7 @@ def panel_from_prices(spec: YahooRiskSpec, results: list[dict[str, Any]]) -> "Ri
         if (
             result["instrument"]["symbol"] != symbol
             or result["instrument"]["currency"] != "JPY"
+            or result["instrument"]["source_instrument_type"] not in {"EQUITY", "ETF"}
             or result["coverage"]["truncated"]
         ):
             raise AtlasError(
@@ -58,8 +59,15 @@ def panel_from_prices(spec: YahooRiskSpec, results: list[dict[str, Any]]) -> "Ri
             )
         prices_by_date: dict[str, Any] = {}
         for row in result["records"]:
+            try:
+                observed = date.fromisoformat(row["date"])
+            except (ValueError, TypeError):
+                raise AtlasError(
+                    "RISK_INPUT_INCOMPLETE", "Require valid observation dates."
+                ) from None
             if (
                 row["date"] in prices_by_date
+                or not spec.start_date <= observed.isoformat() <= spec.end_date
                 or row["adjusted_close"] is None
                 or row["price_basis"] != "yahoo_split_adjusted"
                 or row["adjusted_close_basis"] != "yahoo_split_and_dividend_adjusted"
@@ -98,7 +106,13 @@ def panel_from_prices(spec: YahooRiskSpec, results: list[dict[str, Any]]) -> "Ri
         raise AtlasError(
             "RISK_INPUT_INCOMPLETE", "Require 61–500 exact common dates; no gap filling."
         )
-    available = max(datetime.fromisoformat(s["retrieved_at"]) for s in sources)
+    try:
+        captures = [datetime.fromisoformat(s["retrieved_at"]) for s in sources]
+        if any(t.tzinfo is None for t in captures):
+            raise ValueError("Timezone required")
+        available = max(captures)
+    except (ValueError, TypeError):
+        raise AtlasError("RISK_INPUT_INCOMPLETE", "Require timezone-aware capture times.") from None
     sessions = []
     with localcontext(Context(prec=80)):
         for before, after in zip(dates, dates[1:], strict=False):

@@ -9,7 +9,7 @@ from urllib.parse import parse_qs, urlencode, urlsplit
 from atlas_terminal.errors import AtlasError
 
 EDINET_BASE = "https://api.edinet-fsa.go.jp/api/v2/documents"
-JPX_LIST = "https://www.jpx.co.jp/markets/statistics-equities/misc/tvdivq0000001vg2-att/data_j.xls"
+JPX_LIST = "https://www.jpx.co.jp/markets/statistics-equities/misc/tvdivq0000001vg2-att/data_j.xlsx"
 COMPANY_DATASETS = {"japan_disclosures", "japan_filing_facts", "japan_securities"}
 COMPANY_SOURCES: dict[str, Any] = {
     "edinet": {
@@ -18,8 +18,8 @@ COMPANY_SOURCES: dict[str, Any] = {
         "upstream_price": "0",
         "api_key_required": True,
         "contact_user_agent_required": False,
-        "documentation": "https://disclosure2.edinet-fsa.go.jp/guide/static/disclosure/WZEK0110.html",
-        "terms": "https://disclosure2.edinet-fsa.go.jp/guide/static/disclosure/WZEK0110.html",
+        "documentation": "https://disclosure2dl.edinet-fsa.go.jp/guide/static/disclosure/WZEK0110.html",
+        "terms": "https://disclosure2dl.edinet-fsa.go.jp/guide/static/disclosure/WZEK0030.html",
         "use": "Official disclosures under EDINET conditions; third-party rights remain separate.",
         "cadence": (
             "Dated document lists and one original XBRL ZIP; private free EDINET_API_KEY required."
@@ -34,10 +34,10 @@ COMPANY_SOURCES: dict[str, Any] = {
         "documentation": "https://www.jpx.co.jp/markets/statistics-equities/misc/01.html",
         "terms": "https://www.jpx.co.jp/term-of-use/index.html",
         "use": (
-            "Public reference table under JPX site conditions; "
-            "no historical security master inferred."
+            "JPX consent is required for commercial collection, secondary use and retransmission. "
+            "Public access is not a redistribution license; no historical security master inferred."
         ),
-        "cadence": "Current listed-company XLS reference table; cached for six hours.",
+        "cadence": "Current listed-company XLSX reference table; cached for six hours.",
     },
 }
 
@@ -49,6 +49,12 @@ def edinet_key() -> str:
             "CONFIG_REQUIRED", "Set a free EDINET_API_KEY privately in the environment."
         )
     return key
+
+
+def jpx_identifier(value: str) -> str:
+    if not re.fullmatch(r"[0-9][0-9A-Z]{3,4}\.T", value):
+        raise AtlasError("INVALID_INPUT", "Use a four- or five-character JPX code with .T.")
+    return value
 
 
 def edinet_list_url(filing_date: str) -> str:

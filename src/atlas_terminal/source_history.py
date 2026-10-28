@@ -1,7 +1,6 @@
 """Bounded private source versions, using local observation times rather than PIT claims."""
 
-import json
-from datetime import datetime
+from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
 from typing import Any, Literal
@@ -22,9 +21,28 @@ CREATE TABLE IF NOT EXISTS source_observations (
  url TEXT NOT NULL, sha256 TEXT NOT NULL, observed_at TEXT NOT NULL,
  PRIMARY KEY(url,observed_at)
 );
+CREATE TABLE IF NOT EXISTS source_capture_events (
+ id INTEGER PRIMARY KEY, url TEXT NOT NULL, sha256 TEXT NOT NULL, observed_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS capture_url_time ON source_capture_events(url,observed_at,id);
+CREATE TABLE IF NOT EXISTS source_history_migrations (name TEXT PRIMARY KEY);
+BEGIN IMMEDIATE;
+INSERT INTO source_capture_events(url,sha256,observed_at)
+ SELECT url,sha256,observed_at FROM source_observations
+ WHERE NOT EXISTS (SELECT 1 FROM source_history_migrations WHERE name='capture_events');
+INSERT OR IGNORE INTO source_history_migrations VALUES ('capture_events');
+COMMIT;
 """
 MAX_ARCHIVE_BYTES = 256 * 1024 * 1024
 MAX_VERSIONS = 1024
+MAX_OBSERVATIONS = 100000
+
+
+def history_time(value: str) -> str:
+    when = datetime.fromisoformat(value)
+    if when.tzinfo is None:
+        raise ValueError("Use a timezone-aware observation time")
+    return when.astimezone(UTC).isoformat(timespec="microseconds").replace("+00:00", "Z")
 
 
 class SourceHistoryQuery(Model):
@@ -49,14 +67,7 @@ class SourceHistoryQuery(Model):
         if supplied != expected:
             raise ValueError("Supply only the arguments required by the history action")
         if self.as_of:
-            when = datetime.fromisoformat(self.as_of)
-            if when.tzinfo is None:
-                raise ValueError("Use a timezone-aware as_of")
-            from datetime import UTC
-
-            self.as_of = (
-                when.astimezone(UTC).isoformat(timespec="microseconds").replace("+00:00", "Z")
-            )
+            self.as_of = history_time(self.as_of)
         return self
 
 
@@ -66,25 +77,28 @@ def retain_version(conn: Any, url: str, body: bytes, retrieved_at: str) -> None:
     existing = conn.execute(
         "SELECT body FROM source_versions WHERE url=? AND sha256=?", (url, sha)
     ).fetchone()
-    now = stamp()
-    count = conn.execute("SELECT count(*) FROM source_observations").fetchone()[0]
-    if count >= 100000:
+    now = history_time(stamp())
+    count = conn.execute("SELECT count(*) FROM source_capture_events").fetchone()[0]
+    if count >= MAX_OBSERVATIONS:
         raise AtlasError("CACHE_FULL", "Source observation archive quota reached.")
-    conn.execute("INSERT INTO source_observations VALUES (?,?,?)", (url, sha, now))
     if existing is not None:
         if digest(existing["body"]) != sha:
             raise AtlasError("SOURCE_UNAVAILABLE", "Archived source failed integrity verification.")
         conn.execute(
             "UPDATE source_versions SET last_seen=? WHERE url=? AND sha256=?", (now, url, sha)
         )
-        return
-    usage = conn.execute(
-        "SELECT count(*), coalesce(sum(length(body)),0) FROM source_versions"
-    ).fetchone()
-    if usage[0] >= MAX_VERSIONS or usage[1] + len(body) > MAX_ARCHIVE_BYTES:
-        raise AtlasError("CACHE_FULL", "Private source version archive quota reached.")
+    else:
+        usage = conn.execute(
+            "SELECT count(*), coalesce(sum(length(body)),0) FROM source_versions"
+        ).fetchone()
+        if usage[0] >= MAX_VERSIONS or usage[1] + len(body) > MAX_ARCHIVE_BYTES:
+            raise AtlasError("CACHE_FULL", "Private source version archive quota reached.")
+        conn.execute(
+            "INSERT INTO source_versions VALUES (?,?,?,?,?,?)",
+            (url, sha, body, now, now, history_time(retrieved_at)),
+        )
     conn.execute(
-        "INSERT INTO source_versions VALUES (?,?,?,?,?,?)", (url, sha, body, now, now, retrieved_at)
+        "INSERT INTO source_capture_events(url,sha256,observed_at) VALUES (?,?,?)", (url, sha, now)
     )
 
 
@@ -144,8 +158,12 @@ def source_history(query: SourceHistoryQuery | dict[str, Any], directory: Path) 
             "SELECT * FROM source_versions WHERE url=? ORDER BY first_seen,sha256", (q.url,)
         ).fetchall()
         observations = conn.execute(
-            "SELECT * FROM source_observations WHERE url=? ORDER BY observed_at", (q.url,)
+            "SELECT * FROM source_capture_events WHERE url=? ORDER BY observed_at,id", (q.url,)
         ).fetchall()
+    observations = sorted(
+        [dict(row) | {"observed_at": history_time(row["observed_at"])} for row in observations],
+        key=lambda row: (row["observed_at"], row["id"]),
+    )
     by_hash = {row["sha256"]: row for row in rows}
     for row in rows:
         if digest(row["body"]) != row["sha256"]:
@@ -170,11 +188,19 @@ def source_history(query: SourceHistoryQuery | dict[str, Any], directory: Path) 
         return by_hash[sha]
 
     def metadata(row: Any) -> dict[str, Any]:
-        return {key: row[key] for key in ("sha256", "first_seen", "last_seen", "retrieved_at")}
+        return {"sha256": row["sha256"]} | {
+            key: history_time(row[key]) for key in ("first_seen", "last_seen", "retrieved_at")
+        }
 
     if q.action == "list":
         result.update(
             versions=[metadata(row) for row in rows[-q.limit :]], truncated=len(rows) > q.limit
+        )
+        result.update(
+            observations=[
+                {k: row[k] for k in ("sha256", "observed_at")} for row in observations[-q.limit :]
+            ],
+            observations_truncated=len(observations) > q.limit,
         )
     elif q.action == "diff":
         before, after = selected(q.before_sha256), selected(q.sha256)
@@ -185,8 +211,10 @@ def source_history(query: SourceHistoryQuery | dict[str, Any], directory: Path) 
         )
         try:
             # Source numeric tokens remain strings, avoiding binary float conversion.
-            left = json.loads(before["body"], parse_float=Decimal)
-            right = json.loads(after["body"], parse_float=Decimal)
+            from atlas_terminal.providers import decode_json
+
+            left = decode_json(before["body"])
+            right = decode_json(after["body"])
             changes = json_changes(left, right)
 
             def decimal_strings(value: Any) -> Any:
@@ -200,7 +228,7 @@ def source_history(query: SourceHistoryQuery | dict[str, Any], directory: Path) 
 
             changes = decimal_strings(changes)
             result.update(json_changes=changes[:500], truncated=len(changes) > 500)
-        except (ValueError, UnicodeError):
+        except (ValueError, UnicodeError, RecursionError):
             result.update(json_changes=None, diff_basis="raw_byte_hash_only")
     else:
         if q.action == "as_of":
@@ -214,6 +242,8 @@ def source_history(query: SourceHistoryQuery | dict[str, Any], directory: Path) 
         else:
             row = selected(q.sha256)
         result.update(version=metadata(row), body_utf8=None)
+        if q.action == "as_of":
+            result["version"]["last_seen"] = result["observed_at"]
         try:
             result["body_utf8"] = row["body"].decode("utf-8")
         except UnicodeError:

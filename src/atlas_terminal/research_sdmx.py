@@ -102,7 +102,15 @@ def structure(transport: Transport, source: str, flow: str) -> Structure:
         raise source_error("SDMX dataflow needs one explicit data structure reference.")
     dsd = resolve(root, refs[0], "DataStructure")
     dimensions, attributes = [], []
-    for node in dsd.iter():
+    # AttributeRelationship also contains Dimension references without IDs.
+    # Only declarations directly inside the component lists define the schema.
+    components = [
+        node
+        for container in dsd.iter()
+        if local_name(container) in {"DimensionList", "AttributeList"}
+        for node in container
+    ]
+    for node in components:
         kind = local_name(node)
         if kind not in {"Dimension", "Attribute"}:
             continue

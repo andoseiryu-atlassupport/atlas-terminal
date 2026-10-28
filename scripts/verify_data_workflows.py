@@ -7,6 +7,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 import httpx
+from verify_source_cells import verify_source_cells
 from verify_yahoo_live import verify_actions, verify_prices
 
 from atlas_terminal.activity_catalog import ACTIVITY_SERIES
@@ -24,6 +25,7 @@ class CaptureTransport(PublicTransport):
     def __init__(self, output):
         super().__init__(cache_path=state_dir() / "public-cache.sqlite3")
         self.output, self.snapshots, self.failures, self.blocked_hosts = output, {}, [], set()
+        self.requests = []
 
     def get(self, url, ttl):
         host = urlsplit(url).hostname
@@ -47,6 +49,9 @@ class CaptureTransport(PublicTransport):
         def observed():
             try:
                 with super(CaptureTransport, self).request(url, headers) as response:
+                    self.requests.append(
+                        {"url": url, "status": response.status_code, "at": stamp()}
+                    )
                     yield response
             except httpx.ProxyError as error:
                 host = urlsplit(url).hostname
@@ -136,16 +141,23 @@ def run(output, selection):
                         null_prices=sum(r["adjusted_close"] is None for r in result["records"]),
                     )
                     (output / f"{name}-actions.json").write_bytes(canonical(actions))
+                elif query["dataset"] not in {"japan_securities", "japan_disclosures"}:
+                    entry.update(verify_source_cells(result, transport.snapshots))
                 entry.update(
                     status="PASS", records=len(result["records"]), sources=result["sources"]
                 )
                 (output / f"{name}.json").write_bytes(canonical(result))
             except AtlasError as error:
                 entry.update(
-                    status="CONFIG_REQUIRED" if error.code == "CONFIG_REQUIRED" else "FAIL",
+                    status=error.code
+                    if error.code in {"CONFIG_REQUIRED", "INCOMPLETE_COVERAGE"}
+                    else "FAIL",
                     error=error.envelope()["error"],
                 )
+            except (AssertionError, KeyError, IndexError, ValueError) as error:
+                entry.update(status="FAIL", verification_error=type(error).__name__)
             report["checks"].append(entry)
+            print(name, entry["status"], flush=True)
             (output / "report.json").write_bytes(canonical(report))
         if selection in {"all", "yahoo"}:
             from atlas_terminal.yahoo_risk import YahooRiskConnector, YahooRiskSpec
@@ -185,6 +197,7 @@ def run(output, selection):
     report.update(
         completed_at=stamp(),
         transport_failures=transport.failures,
+        requests=transport.requests,
         blocked_hosts=sorted(transport.blocked_hosts),
         status="PASS" if all(e["status"] == "PASS" for e in report["checks"]) else "INCOMPLETE",
     )
