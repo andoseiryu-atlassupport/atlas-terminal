@@ -6,6 +6,7 @@ from typing import Any, Literal
 
 from pydantic import ConfigDict, Field, ValidationError, field_validator, model_validator
 
+from atlas_terminal.equity_sources import YAHOO_SYMBOL_PATTERN
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.macro_catalog import CURVE_SERIES, MACRO_SERIES, Currency
 from atlas_terminal.models import Model, identifier
@@ -26,6 +27,7 @@ from atlas_terminal.research_quality import (
 from atlas_terminal.util import canonical, stamp, utcnow
 
 PresetName = Literal[
+    "japan_equity_history",
     "company_overview",
     "us_macro_overview",
     "fx_context",
@@ -51,6 +53,17 @@ PresetName = Literal[
     "china_macro_overview",
 ]
 PRESETS: dict[str, dict[str, Any]] = {
+    "japan_equity_history": {
+        "description": (
+            "Optional personal-use Yahoo Tokyo daily prices and reported dividends/splits."
+        ),
+        "fields": ["identifier", "start_date", "end_date"],
+        "required": ["identifier"],
+        "items": {
+            "prices": {"dataset": "equity_prices", "limit": 100},
+            "actions": {"dataset": "equity_actions", "limit": 100},
+        },
+    },
     "us_bond_context": {
         "description": (
             "US nominal/real curves, slopes, butterfly, inflation-compensation proxy and changes."
@@ -631,6 +644,8 @@ def preset_schema(schema: dict[str, Any]) -> None:
         properties["preset"] = {"const": name, "type": "string"}
         for key in spec["required"]:
             properties[key] = properties[key]["anyOf"][0]
+        if name == "japan_equity_history":
+            properties["identifier"]["pattern"] = "^" + YAHOO_SYMBOL_PATTERN + "$"
         properties["include"]["anyOf"][0]["items"] = {"enum": list(spec["items"])}
         properties["include"]["anyOf"][0]["uniqueItems"] = True
         properties["requirements_by_item"]["propertyNames"] = {"enum": list(spec["items"])}
@@ -826,6 +841,8 @@ def preset_plan(query: ResearchPresetQuery) -> ResearchPresetPlan:
             data["identifier"] = query.identifier
             if data["dataset"] in {"statements", "financial_analytics"}:
                 data.update(period=query.period, count=query.count)
+        if query.preset == "japan_equity_history":
+            data["identifier"] = query.identifier
         if data["dataset"] == "fx_rates" and query.preset == "fx_context":
             data.update(base_currency=query.base_currency, quote_currency=query.quote_currency)
         if data["dataset"] in {

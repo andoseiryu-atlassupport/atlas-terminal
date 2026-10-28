@@ -1,4 +1,4 @@
-"""Free primary-source registry and allowlisted public HTTP transport."""
+"""Primary and optional secondary source registry with allowlisted HTTP transport."""
 
 import math
 import re
@@ -25,6 +25,7 @@ from atlas_terminal.economic_sources import (
     bea_key,
     validate_economic_url,
 )
+from atlas_terminal.equity_sources import YAHOO_SOURCE, require_yahoo_enabled, yahoo_identity
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.fixed_income_sources import JGB_BASE, JGB_URLS, parse_jgb_csv
 from atlas_terminal.macro_catalog import REFERENCE_SERIES
@@ -198,6 +199,7 @@ for _key, _code, _title, _unit, _frequency, _adjusted, _annualized, _base, _kind
         BLS_DETAILS[_key]["reference_period_kind"] = _kind
 
 SOURCE_CATALOG = {
+    "yahoo_finance": YAHOO_SOURCE,
     "rba": {
         "name": "Reserve Bank of Australia government bond yields",
         "upstream_price": "0",
@@ -403,6 +405,7 @@ class PublicTransport(CachedHTTPTransport):
             or valid_sdmx_url(url)
             or regional_economic_identity(url) is not None
             or activity_identity(url) is not None
+            or yahoo_identity(url) is not None
             or re.fullmatch(re.escape(TREASURY_BASE) + r"(?:199[0-9]|20[0-9]{2}|2100)", url)
             or re.fullmatch(re.escape(TREASURY_REAL_BASE) + r"(?:200[3-9]|20[1-9][0-9]|2100)", url)
         ):
@@ -411,6 +414,11 @@ class PublicTransport(CachedHTTPTransport):
 
     @staticmethod
     def validate_body(url: str, body: bytes) -> None:
+        if yahoo_identity(url) is not None:
+            value = decode_json(body)
+            if not isinstance(value, dict) or not isinstance(value.get("chart"), dict):
+                raise ValueError("Expected international Yahoo chart JSON")
+            return
         if activity_selection := activity_identity(url):
             if url in G17_URLS:
                 if b'"B50001:' not in body or b"\x00" in body:
@@ -447,6 +455,8 @@ class PublicTransport(CachedHTTPTransport):
 
     def get(self, url: str, ttl: int, *, force_refresh: bool = False) -> Snapshot:
         self.validate_url(url)
+        if yahoo_identity(url) is not None:
+            require_yahoo_enabled()
         if url.startswith(BEA_BASE + "?"):
             bea_key()
         if (activity := activity_identity(url)) and activity[0] in {"census", "fred"}:
@@ -506,6 +516,8 @@ class PublicTransport(CachedHTTPTransport):
         return super().request(url, headers)
 
     def before_request(self, url: str) -> None:
+        if yahoo_identity(url) is not None:
+            require_yahoo_enabled()
         if url.startswith(BASES["oecd"] + "/"):
             now = self.clock()
             with self.db.connect(write=True) as conn:
@@ -550,7 +562,16 @@ class PublicFixtures:
 
     def get(self, url: str, ttl: int) -> Snapshot:
         PublicTransport.validate_url(url)
-        if activity := activity_identity(url):
+        if yahoo := yahoo_identity(url):
+            name = "yahoo_chart_" + yahoo[0] + ".json"
+            if not files("atlas_terminal").joinpath("resources", "research", name).is_file():
+                raise AtlasError("SOURCE_UNAVAILABLE", "No fictional Yahoo data for this symbol.")
+            return Snapshot(
+                files("atlas_terminal").joinpath("resources", "research", name).read_bytes(),
+                "https://fixtures.atlas.invalid/research/" + name,
+                "2026-10-27T02:00:00Z",
+            )
+        elif activity := activity_identity(url):
             source, series, kind = activity
             name = (
                 ("g17_" + ("ip_sa.txt" if series == "us_industrial_production" else "utl_sa.txt"))

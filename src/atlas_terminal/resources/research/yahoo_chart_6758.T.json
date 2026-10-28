@@ -1,0 +1,116 @@
+{
+  "fixture_note": "Fictional Yahoo-shaped observations; not actual stock prices or corporate actions.",
+  "chart": {
+    "error": null,
+    "result": [
+      {
+        "meta": {
+          "symbol": "6758.T",
+          "currency": "JPY",
+          "exchangeName": "JPX",
+          "fullExchangeName": "Tokyo",
+          "instrumentType": "EQUITY",
+          "exchangeTimezoneName": "Asia/Tokyo",
+          "gmtoffset": 32400,
+          "dataGranularity": "1d",
+          "shortName": "Fictional Tokyo issuer",
+          "currentTradingPeriod": {
+            "regular": {
+              "start": 1793059200,
+              "end": 1793082600
+            }
+          }
+        },
+        "timestamp": [
+          1792368000,
+          1792454400,
+          1792540800,
+          1792627200,
+          1792713600,
+          1792972800,
+          1793059200
+        ],
+        "indicators": {
+          "quote": [
+            {
+              "open": [
+                100,
+                101,
+                102,
+                null,
+                107,
+                110,
+                110
+              ],
+              "high": [
+                102,
+                104,
+                106,
+                null,
+                109,
+                112,
+                113
+              ],
+              "low": [
+                99,
+                100,
+                101,
+                null,
+                106,
+                109,
+                109
+              ],
+              "close": [
+                101,
+                102,
+                104,
+                null,
+                108,
+                110.250000000000000001,
+                111
+              ],
+              "volume": [
+                1000,
+                0,
+                2000,
+                null,
+                1500,
+                1200,
+                1100
+              ]
+            }
+          ],
+          "adjclose": [
+            {
+              "adjclose": [
+                90,
+                91,
+                null,
+                null,
+                97,
+                99.12345678901234567890,
+                100
+              ]
+            }
+          ]
+        },
+        "events": {
+          "dividends": {
+            "1792454400": {
+              "date": 1792454400,
+              "amount": 12.340000000000000001
+            }
+          },
+          "splits": {
+            "1792713600": {
+              "date": 1792713600,
+              "numerator": 1,
+              "denominator": 5,
+              "splitRatio": "1:5"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

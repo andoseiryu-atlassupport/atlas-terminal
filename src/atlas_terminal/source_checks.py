@@ -1,4 +1,4 @@
-"""Opt-in official-source probes with bounded, private last-success baselines."""
+"""Opt-in source probes with bounded, private last-success baselines."""
 
 import json
 import os
@@ -30,6 +30,10 @@ from atlas_terminal.research_quality import (
 from atlas_terminal.util import Database, canonical, digest, stamp, state_dir
 
 PROBES: dict[str, tuple[str, dict[str, Any]]] = {
+    "yahoo_tokyo_daily": (
+        "yahoo_finance",
+        {"dataset": "equity_prices", "identifier": "7203.T", "limit": 5},
+    ),
     "census_retail": (
         "census",
         {"dataset": "activity_economics", "series": "us_retail_sales", "limit": 1},
@@ -284,7 +288,11 @@ def check_sources(
 ) -> dict[str, Any]:
     if not isinstance(allow_network, bool):
         raise AtlasError("INVALID_INPUT", "Network opt-in must be a boolean.")
-    selected = list(SOURCE_CATALOG) if sources is None else sources
+    selected = (
+        [name for name, spec in SOURCE_CATALOG.items() if not spec.get("optional")]
+        if sources is None
+        else sources
+    )
     if not selected or len(set(selected)) != len(selected) or set(selected) - SOURCE_CATALOG.keys():
         raise AtlasError("INVALID_INPUT", "Choose unique source IDs from the research catalog.")
     if max_observation_lag_days is not None and (
@@ -327,8 +335,15 @@ def check_sources(
                         values = [
                             row["value"] for row in leaf_records(data["records"]) if "value" in row
                         ]
-                        if not data["records"] or (
-                            values and all(value is None for value in values)
+                        if (
+                            not data["records"]
+                            or (values and all(value is None for value in values))
+                            or (
+                                source == "yahoo_finance"
+                                and all(
+                                    row.get("status") == "unavailable" for row in data["records"]
+                                )
+                            )
                         ):
                             raise AtlasError(
                                 "INCOMPLETE_COVERAGE",

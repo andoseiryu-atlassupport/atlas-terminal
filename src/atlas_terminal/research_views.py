@@ -144,6 +144,20 @@ CREATE TABLE IF NOT EXISTS research_evidence (
 # Field selection never strips context needed to interpret a selected value.
 # Reported inputs/formulas and per-issuer coverage remain intact too.
 CONTEXT_FIELDS = {
+    "field_sources",
+    "price_basis",
+    "adjusted_close_basis",
+    "adjusted_close_available",
+    "volume_unit",
+    "source_kind",
+    "session_status",
+    "observation_at",
+    "action_type",
+    "amount_basis",
+    "currency_basis",
+    "numerator",
+    "denominator",
+    "split_ratio",
     "source_value",
     "source_dimensions",
     "source_status",

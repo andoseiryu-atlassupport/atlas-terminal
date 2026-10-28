@@ -1,6 +1,6 @@
 # Atlas Terminal capabilities
 
-Atlas Terminal retrieves US equity research, macro data and reference FX from free public primary sources. Its CLI, Python SDK, stdio MCP server and HTTP API share the same datasets and selection rules.
+Atlas Terminal retrieves US equity research, macro data and reference FX from free public primary sources. Optional international Yahoo Finance Tokyo prices/actions are a secondary-source exception, disabled by default for operator-enabled personal use. Its CLI, Python SDK, stdio MCP server and HTTP API share the same datasets and selection rules.
 
 ## Datasets
 
@@ -22,7 +22,11 @@ Atlas Terminal retrieves US equity research, macro data and reference FX from fr
 
 US national accounts add sixteen BEA series; Japanese macro adds twenty-nine BOJ/Statistical Dashboard series. Eurostat adds 48 exact European selections and ONS adds five UK series. Five activity/global presets join the existing macro presets through shared batches with dates, source IDs and per-item failures. [Series and statistical definitions](docs/economic-indicators.md).
 
-Run `atlas research catalog --json` for identifiers, query fields, units and limits for all 32 datasets. The [research guide](docs/research.md) includes examples for each dataset.
+Run `atlas research catalog --json` for identifiers, query fields, units and limits for all 34 datasets: 32 primary-source datasets plus two optional Yahoo selections. The [research guide](docs/research.md) includes examples for each dataset.
+
+`equity_prices` and `equity_actions` add international Yahoo Tokyo daily OHLC/volume/adjusted-close and reported dividend/split events. JPY, Tokyo exchange/timezone, symbol and daily frequency are validated. OHLC remains split-adjusted and adjusted close includes dividends; no re-adjustment, price repair or historical-capitalization inference occurs. Source decimals, nulls, zero volume, per-scalar JSON pointers and instrument metadata remain explicit. Current-session bars require the source regular-session end to have elapsed; unknown current sessions are excluded. Empty action histories succeed without fabricating an event.
+
+The two-item `japan_equity_history` preset brings the total to 24 presets; its reads share one 15-minute source cache. Explicit `ATLAS_ENABLE_YAHOO_FINANCE=1` is required for public Yahoo reads, including cached reads; tool arguments cannot enable it. Catalogs describe its secondary/personal-use status, default diagnostics/probes exclude it, and explicit diagnostics report enablement. No Yahoo! JAPAN scraping, cookie/crumb harvesting or public redistribution license is supplied. [Usage, evidence, adjustment conventions and verification limits](docs/yahoo-finance.md).
 
 `activity_economics` supplies twenty-two curated US/Australian/Canadian/Chinese selections through Census, Federal Reserve G.17, DOL series distributed by FRED, ABS, StatCan, OECD and World Bank WDI. Six activity/country presets, plus the BLS `us_inflation_costs` preset, bring the total to twenty-three, including a three-item US goods/services trade overview. Seven Japanese Dashboard selectors cover machinery orders, trade, current account and corporate statistics. Weekly claims keep Saturday dates; Canadian flags distinguish true zeros from suppressed/missing values; China WDI GDP stays annual. Australian monthly CPI uses `ABS,CPI,2.0.0`; quarterly CPI uses the separate `CPI_Q` flow. Census preserves program and time-slot identity, including reported negative trade balances. Text-cell locators extend compact evidence for G.17. Live source compatibility, including exact new Dashboard and ABS labour selectors, remains unverified.
 
@@ -97,7 +101,7 @@ Optional task `intent_id` values bind an exact validated annual query to one quo
 
 ## Coverage limits
 
-Consolidated equity prices, daily prices and adjustment factors, order books, options, analyst consensus, newswire articles, earnings-call transcripts, a complete security master or corporate-action history, PIT and trading are unavailable.
+Consolidated real-time equity prices, order books, options, analyst consensus, newswire articles, earnings-call transcripts, a complete security master or corporate-action history, PIT and trading are unavailable. The optional Yahoo reader supplies only the documented Tokyo daily observations/actions for personal use; it does not grant public-service data redistribution rights.
 
 FX uses the full published ECB history for 31 currencies with per-currency gaps. BLS observation-date queries span up to 30 calendar years in ten-year requests; the default remains the latest three years. Sixteen BEA national-account series and twenty-nine Japanese macro series use explicit units and periods. EFFR/SOFR still covers the latest 90 effective observations. Real Treasury yields cover one selected year from 2003 onward. No holiday filling, real-time FX, term SOFR or historical release vintages are provided. See [macro coverage](docs/macro.md).
 

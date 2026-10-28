@@ -1,6 +1,6 @@
 # Data sources and terms
 
-Research uses free public primary sources without data subscriptions. BEA, Census and FRED require separate free registered `BEA_API_KEY`, `CENSUS_API_KEY` and `FRED_API_KEY` settings; other data sources need no API key. SEC requests require an identifying User-Agent with actual contact details and compliance with SEC access rules. SEC contact settings are never sent to other sources.
+Research uses free public primary sources by default, without data subscriptions. Optional international Yahoo Finance Tokyo prices/actions are a secondary-source exception for operator-enabled personal use, with separate data rights and no redistribution grant. BEA, Census and FRED require separate free registered `BEA_API_KEY`, `CENSUS_API_KEY` and `FRED_API_KEY` settings; other data sources need no API key. SEC requests require an identifying User-Agent with actual contact details and compliance with SEC access rules. SEC contact settings are never sent to other sources.
 
 ## Supplied risk-model observations
 
@@ -42,6 +42,14 @@ Official documentation and conditions:
 The BOJ notice requests a notification when an API-backed service is published; service operators must handle that step. Atlas makes no notification or account-registration request. BOJ and Dashboard non-guarantee notices are returned in `attributions`. Preserve them and the original survey attribution when republishing results.
 
 **Validation scope:** Response shapes, conditional caching, limits, missing values, units and provenance are tested with fictional fixtures and mock HTTP. Separate [recorded BLS checks](docs/evidence/bls-2026-10-27/README.md) verify six selections through GET/dated POST, plus dated CPI/PPI preset reads and SDK/MCP evidence resolution. V1 omits unit/base/annualization metadata; those definitions were checked against official documents separately. Other live source responses and continuous availability remain unverified. ECB reference-rate documentation and conditions, New York Fed reference-rate terms, and Treasury XML documentation were inspected; BEA, BOJ, BLS and Statistical Dashboard API specifications were also inspected. The NY Fed API documentation page could not be read fully. Other current terms pages and final dataset-specific redistribution checks remain unverified. Follow current source terms and limits before operation. See [validation scope](docs/verification.md) for test evidence.
+
+## Optional international Yahoo Finance
+
+The `equity_prices` / `equity_actions` datasets use only `https://query1.finance.yahoo.com/v8/finance/chart/` with validated Tokyo `.T` symbols and fixed daily/chart-event options. `ATLAS_ENABLE_YAHOO_FINANCE=1` enables this personal-use secondary source; it is excluded from default diagnostics and probes. All normal source caches, rate limits, finite retries, response bounds, source hashes and JSON pointers apply. There is no Yahoo! JAPAN scraping, authentication bypass, host rotation or paid fallback.
+
+Yahoo and its providers retain data rights. The [Yahoo terms](https://legal.yahoo.com/us/en/yahoo/terms/otos/index.html) and [yfinance data-use notice](https://github.com/ranaroussi/yfinance#legal-stuff) are separate from Atlas's Apache-2.0 code license. A free response or an open-source client does not establish commercial or public-service redistribution rights. Real source responses remain private operator output; bundled source files are fictional. The international terms pages could not be retrieved during this verification (HTTP 999 from the connected web reader), so no independent current permission grant is claimed.
+
+Yahoo OHLC is already split-adjusted, while adjusted close also reflects dividends; see the [adjustment documentation](https://ranaroussi.github.io/yfinance/advanced/price_adjustment.html). Atlas preserves both as reported, with explicit price bases and no price repair or inferred historical capitalization. Dividends and split terms are retained without reconstructing payment dates or original cash amounts. [Exact coverage, opt-in, source evidence and limitations](docs/yahoo-finance.md).
 
 ## Additional activity sources
 

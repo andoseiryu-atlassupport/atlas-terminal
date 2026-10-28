@@ -51,6 +51,8 @@ def application(*, facts=None, submissions=None, index=None, documents=None, max
 
 
 def query(dataset, **extra):
+    if dataset in {"equity_prices", "equity_actions"}:
+        return {"dataset": dataset, "identifier": "7203.T", **extra}
     if dataset == "sdmx_catalog":
         return {"dataset": dataset, "source_id": "imf", **extra}
     if dataset == "international_economics":
@@ -98,9 +100,9 @@ def query(dataset, **extra):
 
 def test_catalog_reports_actual_scope_zero_cost_sources_and_coverage_gaps():
     catalog = Atlas.research_catalog()
-    assert len(catalog["datasets"]) == 32
+    assert len(catalog["datasets"]) == 34
     assert len(catalog["analytics_metrics"]) == 7
-    assert len(catalog["sources"]) == 21
+    assert len(catalog["sources"]) == 22
     assert len(catalog["statement_metrics"]) == 37
     assert len(catalog["economic_series"]) == 22
     assert all(s["upstream_price"] == "0" for s in catalog["sources"].values())
@@ -549,7 +551,7 @@ def test_cli_and_http_research_match_sdk_and_never_require_payment(tmp_path):
         r = client.post("/v1/research", json=q)
         assert r.status_code == 200 and r.json() == expected
         assert "PAYMENT-REQUIRED" not in r.headers and "Atlas-Recovery-Token" not in r.headers
-        assert len(client.get("/v1/research/catalog").json()["datasets"]) == 32
+        assert len(client.get("/v1/research/catalog").json()["datasets"]) == 34
         bad = client.post("/v1/research", json=q | {"as_of": "2020-01-01"})
         assert (
             bad.status_code == 400 and bad.json()["error"]["code"] == "UNSUPPORTED_HISTORICAL_QUERY"
@@ -568,7 +570,7 @@ async def test_mcp_research_schema_catalog_get_and_pit_rejection(tmp_path):
     ):
         await session.initialize()
         catalog = await session.call_tool("atlas_research_catalog", {})
-        assert len(catalog.structured_content["datasets"]) == 32
+        assert len(catalog.structured_content["datasets"]) == 34
         result = await session.call_tool(
             "atlas_get_research", {"query": {"dataset": "economics", "series": "cpi"}}
         )

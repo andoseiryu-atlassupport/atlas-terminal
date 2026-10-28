@@ -1,6 +1,6 @@
 # Free public-source research
 
-`atlas research`, `Atlas.get_research`, MCP `atlas_get_research` and HTTP `POST /v1/research` use the same service. Sources are free public primary sources. No data subscription, model or wallet is required. BEA national accounts require a free registered `BEA_API_KEY`; other sources need no data API key. SEC alone requires a private `SEC_USER_AGENT` with the operator's actual contact details.
+`atlas research`, `Atlas.get_research`, MCP `atlas_get_research` and HTTP `POST /v1/research` use the same service. Sources are free public primary sources by default. The optional [international Yahoo Tokyo prices/actions](yahoo-finance.md) are a secondary-source exception for operator-enabled personal use, without a redistribution grant. No data subscription, model or wallet is required. BEA national accounts require a free registered `BEA_API_KEY`; other sources need no data API key. SEC alone requires a private `SEC_USER_AGENT` with the operator's actual contact details.
 
 Queries can include optional `response` settings for compact evidence references, field selection and snapshot-bound pages. The default response is unchanged. See [agent contracts](agents.md) for typed MCP schemas, evidence retrieval and structured recovery hints.
 
@@ -8,31 +8,33 @@ Results include missing-data status, periods, coverage and source terms. Discove
 
 ## Datasets
 
-| ID                         | Content                                                        | Query fields                                                 | Output                              |
-| -------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------ | ----------------------------------- |
-| `companies`                | Search the current SEC issuer/ticker directory                 | Optional `identifier`, `limit`                               | Current reference data              |
-| `profile`                  | Name, SIC, exchanges and fiscal year end                       | `identifier`                                                 | Submission metadata                 |
-| `statements`               | 37 financial concepts                                          | `identifier`, `metrics`, `period`, `count`, `allow_partial`  | Normalized reported facts           |
-| `ratios`                   | Six ratios with formulas and inputs                            | `identifier`, `period`, `count`, `allow_partial`             | Derived values                      |
-| `financial_analytics`      | Five YoY growth rates, free cash flow and FCF margin           | `identifier`, `metrics`, `period`, `count`, `allow_partial`  | Derived values with reported inputs |
-| `company_facts`            | Concept inventory or raw XBRL observations                     | `identifier`, `taxonomy`, `concept`, `unit`, `limit`         | Original accounting contexts        |
-| `filings`                  | All-form filing discovery                                      | `identifier`, `form`, `limit`                                | Filing references                   |
-| `insider_transactions`     | Form 3/4/5 transactions and positions                          | `identifier`, `accession`, `limit`                           | XML records from one filing         |
-| `institutional_holdings`   | A manager's 13F information table                              | `identifier`, `accession`, `limit`                           | XML records from one filing         |
-| `ownership_filings`        | 13D/13G beneficial ownership reports                           | `identifier`, `limit`                                        | Filing references                   |
-| `fund_filings`             | N-PORT, N-PX, N-CSR and related reports                        | `identifier`, `limit`                                        | Filing references                   |
-| `corporate_action_filings` | Current reports, proxies, offerings and tender-related filings | `identifier`, `limit`                                        | Filing references                   |
-| `economics`                | Twenty-two BLS price/labour/cost/productivity series           | `series`, `limit`, optional paired dates                     | Economic observations               |
-| `treasury_yields`          | Daily Treasury par yields                                      | `year`, `limit`                                              | Observations by date and maturity   |
-| `fx_rates`                 | ECB daily reference FX, with inverse/cross calculations        | Required `base_currency`, `quote_currency`; optional `limit` | Dated quote units per base unit     |
-| `reference_rates`          | New York Fed overnight EFFR/SOFR                               | Required `series`; optional `limit`                          | Effective daily observations        |
-| `treasury_real_yields`     | Treasury TIPS-based real par yield curve                       | `year`, `limit`                                              | Observations by date and maturity   |
-| `macro_analytics`          | CPI/core CPI YoY, payroll change and 10Y–2Y nominal spread     | Required `series`; optional `year`, `limit`                  | Derived values with original inputs |
-| `federal_debt`             | Debt to the Penny                                              | `limit`                                                      | Daily debt observations             |
-| `policy_news`              | Federal Reserve releases                                       | `limit`                                                      | Headlines, dates and source links   |
-| `europe_economics`         | Eurostat GDP, HICP, labour, industry and retail                | `series`, `limit`, optional paired dates                     | European economic observations      |
-| `uk_economics`             | ONS CPI, GDP and rolling unemployment                          | `series`, `limit`, optional paired dates                     | UK economic observations            |
-| `compare`                  | Common reported period for up to ten specified issuers         | `identifiers`, `metrics`, `period`, `allow_partial`          | Aligned reported/derived financials |
+| ID                         | Content                                                             | Query fields                                                 | Output                                |
+| -------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------- |
+| `companies`                | Search the current SEC issuer/ticker directory                      | Optional `identifier`, `limit`                               | Current reference data                |
+| `profile`                  | Name, SIC, exchanges and fiscal year end                            | `identifier`                                                 | Submission metadata                   |
+| `statements`               | 37 financial concepts                                               | `identifier`, `metrics`, `period`, `count`, `allow_partial`  | Normalized reported facts             |
+| `ratios`                   | Six ratios with formulas and inputs                                 | `identifier`, `period`, `count`, `allow_partial`             | Derived values                        |
+| `financial_analytics`      | Five YoY growth rates, free cash flow and FCF margin                | `identifier`, `metrics`, `period`, `count`, `allow_partial`  | Derived values with reported inputs   |
+| `company_facts`            | Concept inventory or raw XBRL observations                          | `identifier`, `taxonomy`, `concept`, `unit`, `limit`         | Original accounting contexts          |
+| `filings`                  | All-form filing discovery                                           | `identifier`, `form`, `limit`                                | Filing references                     |
+| `insider_transactions`     | Form 3/4/5 transactions and positions                               | `identifier`, `accession`, `limit`                           | XML records from one filing           |
+| `institutional_holdings`   | A manager's 13F information table                                   | `identifier`, `accession`, `limit`                           | XML records from one filing           |
+| `ownership_filings`        | 13D/13G beneficial ownership reports                                | `identifier`, `limit`                                        | Filing references                     |
+| `fund_filings`             | N-PORT, N-PX, N-CSR and related reports                             | `identifier`, `limit`                                        | Filing references                     |
+| `corporate_action_filings` | Current reports, proxies, offerings and tender-related filings      | `identifier`, `limit`                                        | Filing references                     |
+| `economics`                | Twenty-two BLS price/labour/cost/productivity series                | `series`, `limit`, optional paired dates                     | Economic observations                 |
+| `equity_prices`            | Optional international Yahoo Tokyo daily OHLC/volume/adjusted close | Explicit `.T` `identifier`, `limit`, optional paired dates   | Secondary-source prices, personal use |
+| `equity_actions`           | Optional international Yahoo reported Tokyo dividends/splits        | Explicit `.T` `identifier`, `limit`, optional paired dates   | Secondary-source events, personal use |
+| `treasury_yields`          | Daily Treasury par yields                                           | `year`, `limit`                                              | Observations by date and maturity     |
+| `fx_rates`                 | ECB daily reference FX, with inverse/cross calculations             | Required `base_currency`, `quote_currency`; optional `limit` | Dated quote units per base unit       |
+| `reference_rates`          | New York Fed overnight EFFR/SOFR                                    | Required `series`; optional `limit`                          | Effective daily observations          |
+| `treasury_real_yields`     | Treasury TIPS-based real par yield curve                            | `year`, `limit`                                              | Observations by date and maturity     |
+| `macro_analytics`          | CPI/core CPI YoY, payroll change and 10Y–2Y nominal spread          | Required `series`; optional `year`, `limit`                  | Derived values with original inputs   |
+| `federal_debt`             | Debt to the Penny                                                   | `limit`                                                      | Daily debt observations               |
+| `policy_news`              | Federal Reserve releases                                            | `limit`                                                      | Headlines, dates and source links     |
+| `europe_economics`         | Eurostat GDP, HICP, labour, industry and retail                     | `series`, `limit`, optional paired dates                     | European economic observations        |
+| `uk_economics`             | ONS CPI, GDP and rolling unemployment                               | `series`, `limit`, optional paired dates                     | UK economic observations              |
+| `compare`                  | Common reported period for up to ten specified issuers              | `identifiers`, `metrics`, `period`, `allow_partial`          | Aligned reported/derived financials   |
 
 `identifier` accepts a ticker, CIK or company name. For 13F, use the **reporting manager's CIK**. An issuer CIK does not reverse-search every manager holding that issuer. Insider reports are likewise limited to the resolved filing history. Omitting `accession` selects the latest matching filing. Original filings and amendments are not merged automatically.
 
@@ -109,7 +111,7 @@ Selection joins accession, form, filed date and submissions reportDate to actual
 
 Missing or equally ranked conflicting facts return `null` with a reason. Incomplete coverage produces `INCOMPLETE_COVERAGE` by default. `allow_partial=true` / `--allow-partial` permits partial results; no eligible reported periods remains an error.
 
-Ratios cover net margin, gross margin, operating margin, current ratio, total liabilities / stockholders' equity, and operating cash flow / net income. Output units are `ratio`, with Decimal precision 28. Inputs must cover the same period; missing inputs, mismatched periods and zero denominators prevent calculation. Price/earnings, price/book and forecast yields are unavailable because prices and analyst estimates are not supplied.
+Ratios cover net margin, gross margin, operating margin, current ratio, total liabilities / stockholders' equity, and operating cash flow / net income. Output units are `ratio`, with Decimal precision 28. Inputs must cover the same period; missing inputs, mismatched periods and zero denominators prevent calculation. Price/earnings, price/book and forecast yields remain unavailable: the optional Tokyo daily-price reader does not provide aligned historical equity/share/earnings inputs or analyst estimates.
 
 ## Growth and cash-flow analytics
 

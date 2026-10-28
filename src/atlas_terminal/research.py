@@ -15,6 +15,7 @@ from xml.etree.ElementTree import Element
 from atlas_terminal.activity_catalog import ACTIVITY_SERIES
 from atlas_terminal.documentation import DOCUMENTATION_ORIGIN, research_documentation
 from atlas_terminal.economic_catalog import JAPAN_SERIES, NATIONAL_ACCOUNTS
+from atlas_terminal.equity_sources import EQUITY_DATASETS, require_yahoo_enabled
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.macro_catalog import CURVE_SERIES, FX_CURRENCIES, MACRO_SERIES, REFERENCE_SERIES
 from atlas_terminal.normalize import number
@@ -120,6 +121,16 @@ FAMILIES = {
     "institutional_holdings": {"13F-HR", "13F-HR/A"},
 }
 DATASETS = {
+    "equity_prices": (
+        "Optional international Yahoo daily Tokyo OHLC, volume and adjusted close",
+        "yahoo_finance",
+        "secondary_market_observations",
+    ),
+    "equity_actions": (
+        "Optional international Yahoo reported Tokyo dividends and share splits",
+        "yahoo_finance",
+        "secondary_action_observations",
+    ),
     "activity_economics": (
         "Official US activity/trade/claims, Australian/Canadian macro and Chinese CPI/annual GDP",
         "census",
@@ -258,7 +269,8 @@ GAPS = {
         "No licensed consolidated trades, NBBO, depth or intraday ticks."
     ),
     "daily_equity_prices_and_adjustments": (
-        "No verified zero-cost source with suitable service redistribution rights is integrated."
+        "Optional personal-use international Yahoo Tokyo daily data is available. "
+        "No equity source with verified public-service redistribution rights is integrated."
     ),
     "options_and_analyst_consensus": (
         "No option chain, analyst estimates, ratings or proprietary forecast feed."
@@ -374,6 +386,17 @@ def research_catalog(
                 "implementation": "implemented",
                 "validation": "offline_fixtures_and_mock_http",
                 "live_verified": False,
+                **(
+                    {
+                        "optional": True,
+                        "operator_enablement": "ATLAS_ENABLE_YAHOO_FINANCE=1",
+                        "source_kind": "secondary_aggregator",
+                        "personal_use_only": True,
+                        "max_calendar_years": 10,
+                    }
+                    if name in EQUITY_DATASETS
+                    else {}
+                ),
                 "query_fields": sorted(FIELDS[name]),
                 "required_fields": dataset_required(name),
                 "response_options": ["view", "fields", "page_size", "cursor"],
@@ -461,7 +484,15 @@ def research_catalog(
         result.pop("query_schema")
         result.pop("response_schema")
         result["sources"] = {
-            key: {"terms": source["terms"]} for key, source in result["sources"].items()
+            key: {
+                "terms": source["terms"],
+                **{
+                    k: source[k]
+                    for k in ("optional", "operator_enablement", "source_kind", "personal_use_only")
+                    if k in source
+                },
+            }
+            for key, source in result["sources"].items()
         }
         for key in [
             "statement_metrics",
@@ -578,6 +609,8 @@ class ResearchService:
 
     def get(self, query: ResearchQuery | dict[str, Any]) -> dict[str, Any]:
         q = query if isinstance(query, ResearchQuery) else parse_research(query)
+        if q.dataset in EQUITY_DATASETS and not self.synthetic:
+            require_yahoo_enabled()
         if q.response.cursor:
             return self.views.render(q)
         if q.dataset == "macro_panel":
@@ -585,6 +618,8 @@ class ResearchService:
 
             result = macro_panel(q, self.get)
         elif q.dataset in {
+            "equity_prices",
+            "equity_actions",
             "economics",
             "treasury_yields",
             "federal_debt",
@@ -1117,6 +1152,10 @@ class ResearchService:
 
     def public_data(self, q: ResearchQuery) -> dict[str, Any]:
         assert self.public is not None
+        if q.dataset in EQUITY_DATASETS:
+            from atlas_terminal.research_equities import yahoo_equities
+
+            return yahoo_equities(self.public, q)
         if q.dataset == "activity_economics":
             from atlas_terminal.research_activity import activity_economics
 
