@@ -33,7 +33,7 @@ On 2026-10-29 (JST), explicit private Yahoo checks passed for a Sony 2024 split 
 
 `ATLAS_ENABLE_YAHOO_FINANCE=1 uv run --offline python scripts/verify_data_workflows.py --allow-network --selection yahoo --output build/yahoo-expanded` completed successfully. The macro selection remains incomplete: normal proxy requests to newly required official hosts returned `httpx.ProxyError: 403 Forbidden`, and BEA/Census/FRED credentials were unavailable. No BLS data was re-fetched or quota/cache reset. Captures and raw source versions remain private and ignored. The existing BLS retained evidence is unchanged.
 
-The intermediate extension passed 235 existing interface/source/Yahoo contract tests, Ruff checks and formatting, mypy (70 source files) and source/wheel building. These checks do not replace the still-pending dedicated regression tests, full suite, documentation/distribution checks or latest-commit CI.
+The intermediate extension passed 235 existing interface/source/Yahoo contract tests, Ruff checks and formatting, mypy (70 source files) and source/wheel building. A subsequent full run reported 1,308 passed, two failed and two live cases deselected; the two failures were outdated 34-dataset expectations in Streamable HTTP and stdio risk tests. After updating those expectations to 38, both targeted tests passed. A complete rerun on the final commit remains pending. These checks do not replace the still-pending dedicated regression tests, documentation/distribution checks or latest-commit CI.
 
 ## Optional international Yahoo Tokyo equities
 
