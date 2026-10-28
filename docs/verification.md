@@ -25,6 +25,16 @@ Default tests prohibit IP sockets and use fictional sources, mocked transports o
 
 Test cases use isolated private state directories so repeated verification does not consume an operator's persistent cache quota. The numerical and protocol assertions remain unchanged.
 
+## Data integrity and Japanese company extensions (in development)
+
+The source branch adds `japan_disclosures`, `japan_filing_facts`, `japan_securities` and private `source_history` queries through the shared research service. It also adds an operator-configured Yahoo time-series risk connector, original-source version retention and an opt-in `scripts/verify_data_workflows.py` capture script. These extensions are not release-ready: dedicated regression tests, full acceptance checks, official contract/terms review and public capability documentation updates remain pending. The EDINET reader has not been live-verified; it requires a privately configured free API key. The new ZIP/XLS/JSON source fixtures are fictional.
+
+On 2026-10-29 (JST), explicit private Yahoo checks passed for a Sony 2024 split window and a Toyota 2021 split window (41 daily rows and one split event each), plus `1306.T` and `2843.T` ETF reads (22 daily rows each). A separate 2026 year-to-date Toyota read observed one null adjusted close among 199 daily rows and preserved it as unavailable. Zero volume was not observed. The two equity windows and both ETFs retained original cells and source evidence. Real Tokyo equity returns and a separate `1306.T` ETF proxy completed the existing time-series risk run with a 120-session lookback, using an explicit earlier end date to avoid the observed latest-day null. No missing price was filled or re-adjusted; the ETF proxy is not an official market factor.
+
+`ATLAS_ENABLE_YAHOO_FINANCE=1 uv run --offline python scripts/verify_data_workflows.py --allow-network --selection yahoo --output build/yahoo-expanded` completed successfully. The macro selection remains incomplete: normal proxy requests to newly required official hosts returned `httpx.ProxyError: 403 Forbidden`, and BEA/Census/FRED credentials were unavailable. No BLS data was re-fetched or quota/cache reset. Captures and raw source versions remain private and ignored. The existing BLS retained evidence is unchanged.
+
+The intermediate extension passed 235 existing interface/source/Yahoo contract tests, Ruff checks and formatting, mypy (70 source files) and source/wheel building. These checks do not replace the still-pending dedicated regression tests, full suite, documentation/distribution checks or latest-commit CI.
+
 ## Optional international Yahoo Tokyo equities
 
 On 2026-10-27 (UTC), the source checkout passed 1,302 offline tests with two live cases deselected. The 57 new Yahoo-specific cases and four additional generic dataset cases cover `equity_prices`, `equity_actions` and the two-item `japan_equity_history` preset. The catalog now contains 34 datasets (32 primary-source plus two optional Yahoo datasets), 22 source families and 24 presets. Yahoo is explicitly described as a personal-use secondary source, disabled unless `ATLAS_ENABLE_YAHOO_FINANCE=1` is set in the operator environment. Default diagnostics and probes exclude it; one explicitly selected Yahoo probe brings the registry to 37 probes, including 36 primary-source probes.

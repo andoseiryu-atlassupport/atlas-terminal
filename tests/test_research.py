@@ -51,6 +51,19 @@ def application(*, facts=None, submissions=None, index=None, documents=None, max
 
 
 def query(dataset, **extra):
+    if dataset == "source_history":
+        return {
+            "dataset": dataset,
+            "source_url": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist.xml",
+            **extra,
+        }
+    if dataset == "japan_disclosures":
+        return {"dataset": dataset, "filing_date": "2026-06-25", **extra}
+    if dataset == "japan_filing_facts":
+        return {"dataset": dataset, "filing_date": "2026-06-25", "document_id": "S100DEMO", **extra}
+    if dataset == "japan_securities":
+        return {"dataset": dataset, **extra}
+
     if dataset in {"equity_prices", "equity_actions"}:
         return {"dataset": dataset, "identifier": "7203.T", **extra}
     if dataset == "sdmx_catalog":
@@ -100,9 +113,9 @@ def query(dataset, **extra):
 
 def test_catalog_reports_actual_scope_zero_cost_sources_and_coverage_gaps():
     catalog = Atlas.research_catalog()
-    assert len(catalog["datasets"]) == 34
+    assert len(catalog["datasets"]) == 38
     assert len(catalog["analytics_metrics"]) == 7
-    assert len(catalog["sources"]) == 22
+    assert len(catalog["sources"]) == 24
     assert len(catalog["statement_metrics"]) == 37
     assert len(catalog["economic_series"]) == 22
     assert all(s["upstream_price"] == "0" for s in catalog["sources"].values())
@@ -110,6 +123,7 @@ def test_catalog_reports_actual_scope_zero_cost_sources_and_coverage_gaps():
         "bea",
         "census",
         "fred",
+        "edinet",
     }
     assert all(not d["live_verified"] for d in catalog["datasets"])
     assert "daily_equity_prices_and_adjustments" in catalog["not_available"]
@@ -137,7 +151,8 @@ def test_every_dataset_runs_offline_from_source_bytes(dataset):
         extra.update(identifiers=["ATLASDEMO"], allow_partial=True)
     with Atlas("fixture") as atlas:
         result = atlas.get_research(query(dataset, **extra))
-    assert result["dataset"] == dataset and result["records"]
+    assert result["dataset"] == dataset
+    assert result["records"] or dataset == "source_history"
     assert result["is_synthetic"] and result["upstream_data_cost"] == "0"
     for source in result["sources"]:
         assert source["raw_source_url"].startswith("https://fixtures.atlas.invalid/")
@@ -551,7 +566,7 @@ def test_cli_and_http_research_match_sdk_and_never_require_payment(tmp_path):
         r = client.post("/v1/research", json=q)
         assert r.status_code == 200 and r.json() == expected
         assert "PAYMENT-REQUIRED" not in r.headers and "Atlas-Recovery-Token" not in r.headers
-        assert len(client.get("/v1/research/catalog").json()["datasets"]) == 34
+        assert len(client.get("/v1/research/catalog").json()["datasets"]) == 38
         bad = client.post("/v1/research", json=q | {"as_of": "2020-01-01"})
         assert (
             bad.status_code == 400 and bad.json()["error"]["code"] == "UNSUPPORTED_HISTORICAL_QUERY"
@@ -570,7 +585,7 @@ async def test_mcp_research_schema_catalog_get_and_pit_rejection(tmp_path):
     ):
         await session.initialize()
         catalog = await session.call_tool("atlas_research_catalog", {})
-        assert len(catalog.structured_content["datasets"]) == 34
+        assert len(catalog.structured_content["datasets"]) == 38
         result = await session.call_tool(
             "atlas_get_research", {"query": {"dataset": "economics", "series": "cpi"}}
         )

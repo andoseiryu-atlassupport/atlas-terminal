@@ -1,0 +1,22 @@
+{
+  "metadata": {
+    "status": "200"
+  },
+  "results": [
+    {
+      "docID": "S100DEMO",
+      "edinetCode": "E99999",
+      "secCode": "99990",
+      "filerName": "FICTIONAL Atlas Japan Company",
+      "docTypeCode": "120",
+      "docDescription": "FICTIONAL annual disclosure",
+      "periodStart": "2025-04-01",
+      "periodEnd": "2026-03-31",
+      "submitDateTime": "2026-06-25 09:30",
+      "xbrlFlag": "1",
+      "withdrawalStatus": "0",
+      "disclosureStatus": "0",
+      "parentDocID": null
+    }
+  ]
+}

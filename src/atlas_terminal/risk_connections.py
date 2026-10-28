@@ -18,6 +18,7 @@ from atlas_terminal.errors import AtlasError
 from atlas_terminal.risk_math import text
 from atlas_terminal.risk_models import Identifier, Number, RiskBase, RiskMethod, timestamp, utc_key
 from atlas_terminal.util import canonical, digest
+from atlas_terminal.yahoo_risk import YahooRiskConnector, YahooRiskSpec
 
 MAX_PANEL_BYTES = 32 * 1024 * 1024
 TABLE_LIMITS = {"sessions": 640, "returns": 128200, "fundamentals": 10000, "factors": 7680}
@@ -64,7 +65,7 @@ class RiskConnectionSpec(RiskBase):
 
 class RiskConnectionConfig(RiskBase):
     schema_version: Literal["0.1.0"]
-    connections: list[RiskConnectionSpec] = Field(max_length=32)
+    connections: list[RiskConnectionSpec | YahooRiskSpec] = Field(max_length=32)
 
     @model_validator(mode="after")
     def unique_connections(self) -> Self:
@@ -446,7 +447,8 @@ class NativeRiskConnector:
 
 
 class RiskConnections:
-    def __init__(self) -> None:
+    def __init__(self, directory: Path | None = None) -> None:
+        self.directory = directory
         self._providers: dict[str, RiskConnector] = {}
         self._configured = False
 
@@ -480,7 +482,12 @@ class RiskConnections:
                 if len(self._providers) + len(config.connections) > 32:
                     raise ValueError("Connection quota is reached")
                 for spec in config.connections:
-                    self.register(spec.connection_id, NativeRiskConnector(spec))
+                    self.register(
+                        spec.connection_id,
+                        YahooRiskConnector(spec, self.directory)
+                        if isinstance(spec, YahooRiskSpec)
+                        else NativeRiskConnector(spec),
+                    )
             except (OSError, ValidationError, ValueError):
                 raise AtlasError(
                     "CONFIG_REQUIRED", "Configure a private valid risk connections file."

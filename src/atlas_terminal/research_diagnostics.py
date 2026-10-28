@@ -17,6 +17,8 @@ from atlas_terminal.util import stamp
 
 SourceId = Literal[
     "yahoo_finance",
+    "edinet",
+    "jpx",
     "sec",
     "bls",
     "treasury",
@@ -114,12 +116,17 @@ def research_diagnostics(
     synthetic = provider == "fixture"
     sec_ready = True
     bea_ready = True
-    key_ready = {"census": True, "fred": True}
+    key_ready = {"census": True, "fred": True, "edinet": True}
     if not synthetic:
         for name in key_ready:
             if name in selected:
                 try:
-                    activity_key(name)
+                    if name == "edinet":
+                        from atlas_terminal.japan_company_sources import edinet_key
+
+                        edinet_key()
+                    else:
+                        activity_key(name)
                 except AtlasError:
                     key_ready[name] = False
     if "bea" in selected and not synthetic:
@@ -162,7 +169,11 @@ def research_diagnostics(
                 if name == "yahoo_finance"
                 else (
                     "Set "
-                    + {"census": "CENSUS_API_KEY", "fred": "FRED_API_KEY"}[name]
+                    + {
+                        "census": "CENSUS_API_KEY",
+                        "fred": "FRED_API_KEY",
+                        "edinet": "EDINET_API_KEY",
+                    }[name]
                     + " privately after free registration; use the source documentation for signup."
                 )
                 if name in key_ready

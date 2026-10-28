@@ -64,7 +64,7 @@ class RiskSource(RiskBase):
     uri: Annotated[str, Field(pattern=r"^https://[A-Za-z0-9.-]+(?::[0-9]+)?/[A-Za-z0-9_./%-]*$")]
     raw_sha256: RiskHash
     retrieved_at: RiskTimestamp
-    usage_basis: Literal["operator_supplied_rights_cleared"]
+    usage_basis: Literal["operator_supplied_rights_cleared", "personal_use_yahoo_terms"]
 
 
 class RiskAsset(RiskBase):

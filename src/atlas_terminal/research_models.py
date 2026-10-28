@@ -63,9 +63,17 @@ Dataset = Literal[
     "macro_panel",
     "equity_prices",
     "equity_actions",
+    "japan_disclosures",
+    "japan_filing_facts",
+    "japan_securities",
+    "source_history",
 ]
 
 FIELDS = {
+    "japan_disclosures": {"filing_date", "identifier", "limit"},
+    "japan_filing_facts": {"filing_date", "document_id", "concept", "limit"},
+    "japan_securities": {"identifier", "limit"},
+    "source_history": {"source_url", "history_action", "sha256", "before_sha256", "as_of", "limit"},
     "equity_prices": {"identifier", "limit", "start_date", "end_date"},
     "equity_actions": {"identifier", "limit", "start_date", "end_date"},
     "companies": {"identifier", "limit"},
@@ -111,6 +119,14 @@ FIELDS = {
 
 
 def dataset_required(name: str) -> list[str]:
+    if name == "source_history":
+        return ["source_url"]
+    if name == "japan_disclosures":
+        return ["filing_date"]
+    if name == "japan_filing_facts":
+        return ["filing_date", "document_id"]
+    if name == "japan_securities":
+        return []
     if name == "sdmx_catalog":
         return ["source_id"]
     if name == "international_economics":
@@ -326,6 +342,13 @@ def dataset_schema(schema: dict[str, Any]) -> None:
 class ResearchQuery(Model):
     model_config = ConfigDict(extra="forbid", json_schema_extra=dataset_schema)
     dataset: Dataset
+    filing_date: str | None = Field(default=None, pattern=r"^[0-9]{4}-[0-9]{2}-[0-9]{2}$")
+    document_id: str | None = Field(default=None, pattern=r"^S[0-9A-Z]{7}$")
+    source_url: str | None = Field(default=None, min_length=1, max_length=2048)
+    history_action: Literal["list", "get", "as_of", "diff"] = "list"
+    sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    before_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    as_of: str | None = Field(default=None, max_length=64)
     identifier: str | None = None
     identifiers: list[str] = Field(default_factory=list, max_length=10)
     metrics: list[str] = Field(default_factory=list, max_length=40)
@@ -383,6 +406,25 @@ class ResearchQuery(Model):
 
     @model_validator(mode="after")
     def check_dataset(self) -> "ResearchQuery":
+        if self.dataset in {"japan_disclosures", "japan_filing_facts"}:
+            from atlas_terminal.japan_company_sources import edinet_list_url
+
+            edinet_list_url(self.filing_date or "")
+            if self.dataset == "japan_filing_facts" and self.document_id is None:
+                raise AtlasError("INVALID_INPUT", "Provide the selected EDINET document ID.")
+        if self.dataset == "japan_securities" and self.identifier is not None:
+            yahoo_symbol(self.identifier)
+        if self.dataset == "source_history":
+            from atlas_terminal.source_history import SourceHistoryQuery
+
+            SourceHistoryQuery(
+                action=self.history_action,
+                url=self.source_url or "",
+                sha256=self.sha256,
+                before_sha256=self.before_sha256,
+                as_of=self.as_of,
+                limit=self.limit,
+            )
         if self.dataset in EQUITY_DATASETS:
             yahoo_symbol(self.identifier or "")
             yahoo_url(self.identifier or "", self.start_date, self.end_date)

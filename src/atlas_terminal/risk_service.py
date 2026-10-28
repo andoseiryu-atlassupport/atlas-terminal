@@ -134,7 +134,7 @@ class RiskService:
     def __init__(self, path: Path) -> None:
         self.path = path
         self._db: Database | None = None
-        self.connections = RiskConnections()
+        self.connections = RiskConnections(path.parent)
 
     @property
     def db(self) -> Database:

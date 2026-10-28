@@ -30,6 +30,11 @@ from atlas_terminal.research_quality import (
 from atlas_terminal.util import Database, canonical, digest, stamp, state_dir
 
 PROBES: dict[str, tuple[str, dict[str, Any]]] = {
+    "jpx_securities": ("jpx", {"dataset": "japan_securities", "limit": 5}),
+    "edinet_documents": (
+        "edinet",
+        {"dataset": "japan_disclosures", "filing_date": date.today().isoformat(), "limit": 5},
+    ),
     "yahoo_tokyo_daily": (
         "yahoo_finance",
         {"dataset": "equity_prices", "identifier": "7203.T", "limit": 5},
