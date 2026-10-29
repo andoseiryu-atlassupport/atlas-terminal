@@ -196,7 +196,8 @@ for _key, _flow, _dims, _title, _frequency, _adjusted in (
         "metadata_url": "https://www.abs.gov.au/statistics/application-programming-interfaces-apis/data-api-user-guide",
     }
 
-# ABS moved quarterly CPI to CPI_Q in April 2026; CPI 2.0.0 is monthly.
+# Current CPI 2.0.0 publishes both original all-groups frequencies. CPI_Q holds
+# selected seasonally adjusted component indexes, not this original all-groups key.
 ACTIVITY_SERIES["au_cpi_quarterly"] = {
     "source_id": "abs",
     "country": "AU",
@@ -205,7 +206,7 @@ ACTIVITY_SERIES["au_cpi_quarterly"] = {
     "unit": None,
     "seasonally_adjusted": False,
     "annualized": False,
-    "code": "ABS,CPI_Q,1.0.0",
+    "code": "ABS,CPI,2.0.0",
     "dimensions": {"MEASURE": "1", "INDEX": "10001", "TSEST": "10", "REGION": "50", "FREQ": "Q"},
     "metadata_url": "https://www.abs.gov.au/statistics/application-programming-interfaces-apis/data-api-user-guide/updates",
 }

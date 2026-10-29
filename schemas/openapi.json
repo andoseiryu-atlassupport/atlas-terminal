@@ -484,6 +484,7 @@
                     "international_economics",
                     "macro_panel",
                     "equity_prices",
+                    "intraday_prices",
                     "equity_actions",
                     "japan_disclosures",
                     "japan_filing_facts",
@@ -4304,6 +4305,7 @@
               "international_economics",
               "macro_panel",
               "equity_prices",
+              "intraday_prices",
               "equity_actions",
               "japan_disclosures",
               "japan_filing_facts",
@@ -6022,6 +6024,65 @@
       "ResearchQuery": {
         "additionalProperties": false,
         "oneOf": [
+          {
+            "additionalProperties": false,
+            "dependentRequired": {
+              "end_date": ["start_date"],
+              "start_date": ["end_date"]
+            },
+            "properties": {
+              "dataset": {
+                "const": "intraday_prices",
+                "type": "string"
+              },
+              "end_date": {
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                "type": "string"
+              },
+              "identifier": {
+                "description": "Explicit supported Yahoo symbol; source metadata validates its market.",
+                "pattern": "^(?:[0-9][0-9A-Z]{3}\\.T|[A-Z][A-Z0-9]{0,5}(?:-[A-Z])?|\\^GSPC|\\^DJI|\\^IXIC|\\^RUT|\\^VIX|\\^N225|EURUSD=X|GBPUSD=X|AUDUSD=X|NZDUSD=X|USDJPY=X|USDCHF=X|USDCAD=X|BTC\\-USD|ETH\\-USD|GC=F|SI=F|CL=F|NG=F|ES=F|NQ=F)$",
+                "type": "string"
+              },
+              "interval": {
+                "enum": ["1m", "5m", "15m", "30m", "60m"],
+                "type": "string"
+              },
+              "limit": {
+                "default": 100,
+                "maximum": 500,
+                "minimum": 1,
+                "title": "Limit",
+                "type": "integer"
+              },
+              "start_date": {
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                "type": "string"
+              },
+              "response": {
+                "$ref": "#/components/schemas/ResponseOptions"
+              },
+              "requirements": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ResearchRequirements"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              }
+            },
+            "required": [
+              "dataset",
+              "identifier",
+              "start_date",
+              "end_date",
+              "interval"
+            ],
+            "type": "object"
+          },
           {
             "additionalProperties": false,
             "dependentRequired": {
@@ -9536,6 +9597,7 @@
               "international_economics",
               "macro_panel",
               "equity_prices",
+              "intraday_prices",
               "equity_actions",
               "japan_disclosures",
               "japan_filing_facts",
@@ -9910,6 +9972,19 @@
             ],
             "default": null,
             "title": "End Date"
+          },
+          "interval": {
+            "anyOf": [
+              {
+                "enum": ["1m", "5m", "15m", "30m", "60m"],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Interval"
           },
           "source_id": {
             "anyOf": [

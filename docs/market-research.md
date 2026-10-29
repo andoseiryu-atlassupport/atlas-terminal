@@ -153,6 +153,8 @@ uv run --offline atlas research chart --input prices.json --output prices.html -
 uv run --offline atlas research chart --input indicators.json --output rsi.html --field value --metric rsi_14
 ```
 
-The output is a standalone local HTML chart with a data table and source evidence. It does not start a service, load third-party assets or publish the result. Charts require one series and unit, at most 4 MiB of saved input and at most 500 supplied records. Missing observations break the line. Keep source-data rights in mind before sharing an exported file; local visualization does not grant redistribution permission.
+The output is a standalone local HTML chart with a data table and source evidence. It does not start a service, load third-party assets or publish the result. Charts require one series and unit, at most 4 MiB of saved input and at most 500 supplied records. Missing or ambiguous observations break the line; exact supplied values remain in the table. Intraday charts use source timestamps with explicit offsets. Keep source-data rights in mind before sharing an exported file; local visualization does not grant redistribution permission.
 
 [Data sources and terms](../DATA_SOURCES.md) · [Research queries](research.md) · [Agent contracts](agents.md) · [Verification scope](verification.md)
+
+For timestamped bars see [intraday prices](intraday-prices.md). Analyze a complete saved series with [offline statistics](time-series-statistics.md), or inspect several independent captures in the [local research workbench](research-workbench.md).

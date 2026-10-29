@@ -2,10 +2,15 @@
 
 ## Unreleased
 
+- Add explicitly bounded optional Yahoo intraday bars with source timestamps, elapsed-interval/session evidence, nulls and short-session intervals, separate from adjusted daily prices.
+- Add offline source-backed descriptive/ACF/Ljung–Box statistics and fixed-lag ADF/KPSS diagnostics. Preserve exact Decimal inputs, published critical-value conventions and explicit insufficient/singular sample results.
+- Add a private offline research workbench for independent saved captures, searchable tables, optional charts and complete evidence. Intraday charts use offset timestamps and ambiguous observations break plotted lines.
+- Validate supported SDMX Actual availability constraints conservatively and expose their source evidence. Unknown shapes never assert that a code combination is unavailable.
+
 - Add six registration-free BLS employment-cost, productivity, unit-labor-cost and import/export-price selections, plus the eight-item `us_inflation_costs` preset. Preserve quarterly periods, source index bases and published annualized changes; exclude Q05 annual summaries explicitly and retain original evidence.
 
 - Add US goods/services trade exports, imports and reported balance with a shared preset. Include Census program/time-slot fields in requests and validate their returned identities.
-- Add ABS monthly CPI 2.0.0 and move quarterly CPI to the separate `CPI_Q` flow, preserving frequencies, source bases and explicit metadata failures. Add opt-in probes for trade and both CPI frequencies.
+- Use ABS CPI 2.0.0 for both monthly and native quarterly original all-groups CPI, preserving distinct frequencies, original source bases and explicit metadata failures. Add opt-in probes for trade and both CPI frequencies.
 
 - Add twenty-two curated activity selections across the US, Australia, Canada and China, plus seven Japanese machinery-order, external-account and corporate-statistics selectors.
 - Add bounded Census, DOL-through-FRED, Federal Reserve G.17, Statistics Canada and World Bank WDI adapters, and ABS SDMX access. Preserve source flags, original scales, weekly/quarterly/annual distinctions and fixed-width text evidence; free Census/FRED keys stay private.

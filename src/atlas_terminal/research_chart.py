@@ -3,7 +3,7 @@
 import html
 import json
 import re
-from datetime import date
+from datetime import UTC, date, datetime
 from decimal import Decimal, InvalidOperation, localcontext
 from typing import Any
 from urllib.parse import urlsplit
@@ -73,6 +73,30 @@ def _link(value: str) -> str:
     return f'<a href="{escaped}" rel="noreferrer noopener">{escaped}</a>' if valid else escaped
 
 
+def _axis_label(row: dict[str, Any]) -> str:
+    return (
+        row["observation_at"]
+        if row.get("interval") in {"1m", "5m", "15m", "30m", "60m"}
+        else row["date"]
+    )
+
+
+def _axis_value(row: dict[str, Any]) -> int:
+    """Integer microseconds for intraday bars; ordinal days for daily observations."""
+    value = _axis_label(row)
+    if not isinstance(value, str):
+        raise ValueError("Invalid observation coordinate")
+    if row.get("interval") in {"1m", "5m", "15m", "30m", "60m"}:
+        observed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        if observed.tzinfo is None:
+            raise ValueError("Intraday timestamps require an offset")
+        delta = observed.astimezone(UTC) - datetime(1970, 1, 1, tzinfo=UTC)
+        return (delta.days * 86400 + delta.seconds) * 1000000 + delta.microseconds
+    if not re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", value):
+        raise ValueError("Use an ISO date")
+    return date.fromisoformat(value).toordinal()
+
+
 def _selected_rows(
     result: dict[str, Any], field: str, metric: str | None
 ) -> tuple[list[dict[str, Any]], list[Decimal | None], str]:
@@ -82,22 +106,17 @@ def _selected_rows(
     rows = [row for row in raw if metric is None or row.get("metric") == metric]
     if not rows:
         raise AtlasError("INCOMPLETE_COVERAGE", "No records match the selected chart metric.")
-    values: dict[str, Decimal | None] = {}
+    values: dict[int, Decimal | None] = {}
     identity = None
     units: set[str] = set()
     for row in rows:
-        observed = row.get("date")
         try:
-            if (
-                not isinstance(observed, str)
-                or not re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", observed)
-                or date.fromisoformat(observed).isoformat() != observed
-                or observed in values
-            ):
-                raise ValueError
-        except ValueError:
+            observed = _axis_value(row)
+            if observed in values:
+                raise ValueError("Duplicate observation coordinate")
+        except (ValueError, TypeError, KeyError, OverflowError):
             raise _invalid(
-                "Chart records need unique valid ISO dates for one selected series."
+                "Chart records need unique valid ISO dates or offset intraday timestamps."
             ) from None
         if field not in row:
             raise _invalid("The selected chart field is absent; null values must remain explicit.")
@@ -117,6 +136,10 @@ def _selected_rows(
                     "tenor",
                     "maturity",
                     "frequency",
+                    "interval",
+                    "price_basis",
+                    "adjusted_close_basis",
+                    "price_adjustment_verified",
                     "date_basis",
                 )
             }
@@ -125,11 +148,12 @@ def _selected_rows(
             identity = current
         elif current != identity:
             raise _invalid("Chart records must describe one series with a consistent basis.")
-        values[observed] = _number(row[field])
+        parsed = _number(row[field])
+        values[observed] = None if row.get("status") in {"unavailable", "ambiguous"} else parsed
     if len(units) != 1:
         raise _invalid("Chart records have incompatible units; select one series.")
-    rows.sort(key=lambda row: row["date"])
-    numbers = [values[row["date"]] for row in rows]
+    rows.sort(key=_axis_value)
+    numbers = [values[_axis_value(row)] for row in rows]
     if all(value is None for value in numbers):
         raise AtlasError("INCOMPLETE_COVERAGE", "No numeric observations are available to plot.")
     return rows, numbers, next(iter(units))
@@ -143,8 +167,8 @@ def _svg(rows: list[dict[str, Any]], values: list[Decimal | None], unit: str) ->
         spread = maximum - minimum
         padding = spread / Decimal(20) if spread else max(abs(minimum) / Decimal(20), Decimal(1))
         low, high = minimum - padding, maximum + padding
-        first = date.fromisoformat(rows[0]["date"]).toordinal()
-        last = date.fromisoformat(rows[-1]["date"]).toordinal()
+        first = _axis_value(rows[0])
+        last = _axis_value(rows[-1])
         paths: list[str] = []
         path: list[str] = []
         circles = []
@@ -154,14 +178,14 @@ def _svg(rows: list[dict[str, Any]], values: list[Decimal | None], unit: str) ->
                     paths.append(" ".join(path))
                     path = []
                 continue
-            day = date.fromisoformat(row["date"]).toordinal()
+            day = _axis_value(row)
             x = Decimal(70) + (Decimal(day - first) / Decimal(last - first or 1)) * 840
             y = Decimal(350) - (value - low) / (high - low) * 300
             command = "L" if path else "M"
             path.append(f"{command}{x:.2f},{y:.2f}")
             circles.append(
                 f'<circle cx="{x:.2f}" cy="{y:.2f}" r="3"><title>'
-                f"{_escape(row['date'])}: {_escape(value)} {_escape(unit)}</title></circle>"
+                f"{_escape(_axis_label(row))}: {_escape(value)} {_escape(unit)}</title></circle>"
             )
         if path:
             paths.append(" ".join(path))
@@ -176,13 +200,13 @@ def _svg(rows: list[dict[str, Any]], values: list[Decimal | None], unit: str) ->
     return (
         '<svg viewBox="0 0 960 410" role="img" aria-labelledby="chart-title chart-desc">'
         '<title id="chart-title">Research observations</title>'
-        '<desc id="chart-desc">One dated source series. Explicit missing values break the line. '
+        '<desc id="chart-desc">One dated series. Missing or ambiguous values break the line. '
         "Exact values and source evidence follow the chart.</desc>"
         + "".join(grid)
         + "".join(f'<path d="{path}" class="series"/>' for path in paths)
         + "".join(circles)
-        + f'<text x="70" y="380">{_escape(rows[0]["date"])}</text>'
-        + f'<text x="910" y="380" text-anchor="end">{_escape(rows[-1]["date"])}</text>'
+        + f'<text x="70" y="380">{_escape(_axis_label(rows[0]))}</text>'
+        + f'<text x="910" y="380" text-anchor="end">{_escape(_axis_label(rows[-1]))}</text>'
         + f'<text x="70" y="25">{_escape(unit)}</text></svg>'
     )
 
@@ -222,8 +246,8 @@ def render_research_chart(
     display_title = title or str(result.get("series_title") or metric or result["dataset"])
     chart = _svg(rows, values, unit)
     table = "".join(
-        f"<tr><td>{_escape(row['date'])}</td><td>"
-        f"{'Unavailable' if value is None else _escape(row[field])}</td>"
+        f"<tr><td>{_escape(_axis_label(row))}</td><td>"
+        f"{'Unavailable' if row[field] is None else _escape(row[field])}</td>"
         f"<td>{_escape(unit)}</td><td>{_escape(row.get('status', 'unspecified'))}</td></tr>"
         for row, value in zip(rows, values, strict=True)
     )
@@ -260,7 +284,7 @@ svg text{{fill:#c2d1dd}}.meta{{color:#bdcbd5}}pre{{background:#14212b}}
 <p class="meta">Field: {_escape(field)} · Unit: {_escape(unit)} · {len(rows)} selected records ·
 Retrieved: {_escape(result["retrieved_at"])}</p>
 {chart}
-<p>Lines connect consecutive supplied observations. Explicit missing values break the line;
+<p>Lines connect consecutive supplied observations. Missing or ambiguous values break the line;
 unreported dates are not reconstructed. Display coordinates are rounded; exact values follow.
 This report renders only the supplied result and does not fetch additional pages.</p>
 <details open><summary>Exact observations</summary><table><thead><tr><th>Date</th><th>Value</th>

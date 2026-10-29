@@ -4,7 +4,7 @@ import json
 import os
 import sys
 from pathlib import Path
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
 import typer
 from pydantic import BaseModel, ValidationError
@@ -187,6 +187,7 @@ def research_get(
     quote_currency: Currency | None = None,
     start_date: str | None = None,
     end_date: str | None = None,
+    interval: str | None = None,
     source_id: str | None = None,
     dataflow: str | None = None,
     search: str | None = None,
@@ -231,6 +232,7 @@ def research_get(
         "quote_currency": quote_currency,
         "start_date": start_date,
         "end_date": end_date,
+        "interval": interval,
         "source_id": source_id,
         "dataflow": dataflow,
         "search": search,
@@ -310,6 +312,86 @@ def research_chart(
             "INVALID_INPUT", "Read a full result up to 4 MiB and choose a new writable HTML path."
         ) from None
     output({"output": str(output_file), "network_used": False, "published": False})
+
+
+def _saved_research_result(path: str) -> dict[str, Any]:
+    """Read one bounded local JSON object without creating a source client."""
+    try:
+        with Path(path).open("rb") as stream:
+            body = stream.read(4 * 1024 * 1024 + 1)
+        if len(body) > 4 * 1024 * 1024:
+            raise ValueError("Input exceeds bounds")
+        value = json.loads(body)
+        if not isinstance(value, dict):
+            raise ValueError("Expected an object")
+        return value
+    except (OSError, ValueError, RecursionError):
+        raise AtlasError("INVALID_INPUT", "Read a full research JSON object up to 4 MiB.") from None
+
+
+def _private_research_export(path: str, body: str) -> None:
+    """Create a new private artifact; never overwrite existing files or follow symlinks."""
+    try:
+        descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+            stream.write(body)
+    except OSError:
+        raise AtlasError("INVALID_INPUT", "Choose a new writable local output path.") from None
+
+
+@research_app.command("statistics")
+def research_statistics(
+    input_file: str = typer.Option(..., "--input"),
+    output_file: str = typer.Option(..., "--output"),
+    field: str = "value",
+    metric: str | None = None,
+    transform: str = "level",
+    frequency: str = "observations",
+    max_lag: int = 10,
+    adf_lags: int = 0,
+    kpss_lags: int = 0,
+    deterministic: str = "constant",
+) -> None:
+    """Analyze one saved complete series, retaining source evidence, entirely offline."""
+    from atlas_terminal.research_statistics import analyze_research_series
+
+    result = analyze_research_series(
+        _saved_research_result(input_file),
+        field=field,
+        metric=metric,
+        transform=transform,
+        frequency=frequency,
+        max_lag=max_lag,
+        adf_lags=adf_lags,
+        kpss_lags=kpss_lags,
+        deterministic=deterministic,
+    )
+    _private_research_export(output_file, json.dumps(result, ensure_ascii=False, indent=2) + "\n")
+    output({"output": output_file, "network_used": False, "published": False})
+
+
+@research_app.command("workbench")
+def research_workbench(
+    input_files: Annotated[list[str], typer.Option("--input")],
+    output_file: str = typer.Option(..., "--output"),
+    field: str | None = None,
+    metric: str | None = None,
+    title: str = "Research workbench",
+) -> None:
+    """Combine up to eight saved full results in a private offline HTML workbench."""
+    from atlas_terminal.research_workbench import WorkbenchPanel, render_research_workbench
+
+    if not 1 <= len(input_files) <= 8:
+        raise AtlasError("INVALID_INPUT", "Select between one and eight saved results.")
+    panels = [
+        WorkbenchPanel(_saved_research_result(path), field=field, metric=metric)
+        for path in input_files
+    ]
+    html = render_research_workbench(panels, title=title)
+    _private_research_export(output_file, html)
+    output(
+        {"output": output_file, "panels": len(panels), "network_used": False, "published": False}
+    )
 
 
 @research_app.command("run")

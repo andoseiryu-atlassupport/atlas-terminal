@@ -100,3 +100,7 @@ ATLAS_ENABLE_YAHOO_FINANCE=1 uv run --offline python scripts/verify_market_price
 On 2026-10-30 JST, expanded verification fetched 25 symbols for 2026-09-01–2026-10-23, plus the 2020-04-17–2020-04-23 `CL=F` window. All 990 normalized price rows and 6,930 numeric/timestamp locators matched the retained raw source. Six FX results contained ten conflicting OHLC bars, retained as ambiguous. The verification therefore reports 21 `PASS` and six `PARTIAL` checks and exits nonzero to expose these source-quality limits. One passing check was a USD time-series risk execution using 203 observed AAPL/MSFT/SPY returns and a 120-session estimation window. Another confirmed the negative 2020-04-20 crude-oil close without rounding or repair.
 
 Source bytes, normalized observations and risk artifacts stay in ignored private output/cache directories. No real Yahoo data is bundled or published. Historical Tokyo split windows, ETF reads, one null adjusted close and a 120-session JPY risk execution were checked separately; zero Tokyo volume was not observed. [Verification scope](verification.md#data-integrity-and-japanese-company-extensions).
+
+## Explicit intraday bars
+
+The separate [`intraday_prices` dataset](intraday-prices.md) accepts 1/5/15/30/60-minute intervals and short explicit local-date windows. It retains timestamp/session evidence and an unverified adjustment basis, excludes unfinished or future bars and never substitutes intraday closes for daily adjusted prices. It uses the same source enablement, normal proxy/TLS, cache and rate limits.

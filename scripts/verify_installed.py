@@ -22,6 +22,13 @@ from atlas_terminal.util import canonical, digest
 QUERY = parse_query({"identifier": "ATLASDEMO", "metrics": ["revenue", "net_income"], "count": 3})
 expected = Atlas("fixture").get_financials(QUERY).model_dump(mode="json")
 MACRO_QUERIES = [
+    {
+        "dataset": "intraday_prices",
+        "identifier": "AAPL",
+        "interval": "5m",
+        "start_date": "2026-10-28",
+        "end_date": "2026-10-28",
+    },
     {"dataset": "price_analytics", "identifier": "AAPL", "metrics": ["rsi_14"], "limit": 3},
     {
         "dataset": "price_comparison",

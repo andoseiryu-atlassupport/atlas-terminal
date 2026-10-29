@@ -363,6 +363,7 @@ def yahoo_equities(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
             "front-contract quotations, not a verified continuous total-return series; no "
             "roll adjustment, contract multiplier, settlement status or expiry is inferred.",
             "Current revised prices/actions are not point-in-time vintages or a "
-            "delisting-complete universe. No fundamentals, intraday or real-time feed is supplied.",
+            "delisting-complete universe. This dataset supplies daily observations/actions, "
+            "not intraday bars or a real-time feed.",
         ],
     }
