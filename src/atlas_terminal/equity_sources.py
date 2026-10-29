@@ -111,9 +111,11 @@ YAHOO_SOURCE: dict[str, Any] = {
         "No Yahoo! JAPAN endpoint, cookie/crumb harvesting or authentication bypass."
     ),
     "cadence": (
-        "US/Tokyo daily securities, selected indexes, FX, crypto and futures; "
-        "reported security dividend/split events; latest month by default, "
-        "at most ten calendar years per dated request; shared 1 request/second limiter "
+        "US/Tokyo daily/intraday securities, selected indexes, FX, crypto and futures; "
+        "reported security dividend/split events. Daily requests default to the latest month "
+        "and allow at most ten calendar years. Intraday requests require explicit dates "
+        "within recent retention bounds, with 7-day (1m) or 31-day maximum windows. "
+        "Shared 1 request/second limiter "
         "and 15-minute source cache. Unofficial endpoint availability is not guaranteed."
     ),
 }

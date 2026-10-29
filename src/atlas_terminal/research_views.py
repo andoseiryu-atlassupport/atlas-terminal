@@ -151,6 +151,16 @@ CREATE TABLE IF NOT EXISTS research_evidence (
 # Field selection never strips context needed to interpret a selected value.
 # Reported inputs/formulas and per-issuer coverage remain intact too.
 CONTEXT_FIELDS = {
+    "interval",
+    "source_interval",
+    "bar_end_at",
+    "bar_status",
+    "bar_finality_verified",
+    "session_verified",
+    "price_adjustment_verified",
+    "timestamp_gap_seconds",
+    "observation_local",
+    "bar_duration_seconds",
     "identifiers",
     "observation_count",
     "return_count",

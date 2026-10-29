@@ -73,6 +73,7 @@ Dataset = Literal[
     "international_economics",
     "macro_panel",
     "equity_prices",
+    "intraday_prices",
     "equity_actions",
     "japan_disclosures",
     "japan_filing_facts",
@@ -87,6 +88,7 @@ Dataset = Literal[
 ]
 
 FIELDS = {
+    "intraday_prices": {"identifier", "start_date", "end_date", "interval", "limit"},
     "price_comparison": {"identifiers", "start_date", "end_date", "limit"},
     "price_analytics": {"identifier", "start_date", "end_date", "metrics", "limit"},
     "company_screen": {
@@ -150,6 +152,8 @@ FIELDS = {
 
 
 def dataset_required(name: str) -> list[str]:
+    if name == "intraday_prices":
+        return ["identifier", "start_date", "end_date", "interval"]
     if name == "price_comparison":
         return ["identifiers", "start_date", "end_date"]
     if name == "company_screen":
@@ -272,7 +276,7 @@ def dataset_schema(schema: dict[str, Any]) -> None:
                     part for part in properties[required]["anyOf"] if part.get("type") != "null"
                 ]
                 properties[required] = choices[0] if len(choices) == 1 else {"anyOf": choices}
-        if name in EQUITY_DATASETS | {"price_analytics"}:
+        if name in EQUITY_DATASETS | {"price_analytics", "intraday_prices"}:
             properties["identifier"] = {
                 "type": "string",
                 "pattern": "^" + YAHOO_SYMBOL_PATTERN + "$",
@@ -437,6 +441,7 @@ class ResearchQuery(Model):
     quote_currency: Currency | None = None
     start_date: str | None = Field(default=None, pattern=r"^[0-9]{4}-[0-9]{2}-[0-9]{2}$")
     end_date: str | None = Field(default=None, pattern=r"^[0-9]{4}-[0-9]{2}-[0-9]{2}$")
+    interval: Literal["1m", "5m", "15m", "30m", "60m"] | None = None
     source_id: Literal["imf", "oecd", "abs"] | None = None
     dataflow: str | None = Field(default=None, pattern="^" + FLOW_PATTERN + "$", max_length=250)
     dimensions: dict[str, str] = Field(default_factory=dict, max_length=32)
@@ -457,7 +462,10 @@ class ResearchQuery(Model):
     @field_validator("identifier")
     @classmethod
     def check_identifier(cls, value: str | None, info: ValidationInfo) -> str | None:
-        if value is not None and info.data.get("dataset") in EQUITY_DATASETS | {"price_analytics"}:
+        if value is not None and info.data.get("dataset") in EQUITY_DATASETS | {
+            "price_analytics",
+            "intraday_prices",
+        }:
             return yahoo_symbol(value)
         return identifier(value) if value is not None else None
 
@@ -479,6 +487,15 @@ class ResearchQuery(Model):
 
     @model_validator(mode="after")
     def check_dataset(self) -> "ResearchQuery":
+        if self.dataset == "intraday_prices":
+            from atlas_terminal.equity_intraday import intraday_url
+
+            intraday_url(
+                self.identifier or "",
+                self.start_date or "",
+                self.end_date or "",
+                self.interval or "",
+            )
         if self.dataset == "price_comparison":
             from atlas_terminal.research_price_comparison import validate_price_comparison
 

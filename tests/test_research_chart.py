@@ -172,6 +172,7 @@ def test_one_constant_or_negative_observation_has_finite_display_coordinates():
         result["records"] = result["records"][: len(values)]
         for row, value in zip(result["records"], values, strict=True):
             row["value"] = value
+            row["status"] = "reported"
         report = render_research_chart(result)
         nodes = Elements(report).elements
         assert len([1 for tag, _ in nodes if tag == "circle"]) == len(values)
@@ -237,3 +238,44 @@ def test_cli_writes_private_standalone_report_and_refuses_to_overwrite(tmp_path)
     run = runner.invoke(app, arguments)
     assert run.exit_code != 0
     assert target.read_text() == contents
+
+
+def test_intraday_timestamp_axis_preserves_same_day_bars_and_offsets():
+    result = research_result()
+    result["dataset"] = "intraday_prices"
+    for row, observed in zip(
+        result["records"],
+        ("2026-10-29T13:30:00Z", "2026-10-29T09:35:00-04:00", "2026-10-29T13:40:00Z"),
+        strict=True,
+    ):
+        row.update(date="2026-10-29", observation_at=observed, interval="5m")
+    result["records"].reverse()
+    report = render_research_chart(result)
+    table = report.split("<tbody>")[1].split("</tbody>")[0]
+    assert table.index("13:30:00Z") < table.index("09:35:00-04:00") < table.index("13:40:00Z")
+    assert table.count("<tr>") == 3
+    nodes = Elements(report).elements
+    assert len([1 for tag, _ in nodes if tag == "path"]) == 2
+    assert len([1 for tag, _ in nodes if tag == "circle"]) == 2
+
+
+@pytest.mark.parametrize("timestamp", ["2026-10-29T13:30:00", "2026-10-29T09:30:00-04:00"])
+def test_intraday_naive_and_duplicate_instant_fail(timestamp):
+    result = research_result()
+    result["dataset"] = "intraday_prices"
+    result["records"] = result["records"][:2]
+    for row, observed in zip(result["records"], ("2026-10-29T13:30:00Z", timestamp), strict=True):
+        row.update(date="2026-10-29", observation_at=observed, interval="5m")
+    with pytest.raises(AtlasError, match="timestamps"):
+        render_research_chart(result)
+
+
+def test_ambiguous_price_is_not_a_valid_plot_point_but_reported_value_is_retained():
+    result = research_result()
+    result["records"][1].update(value="900", status="ambiguous")
+    report = render_research_chart(result)
+    nodes = Elements(report).elements
+    assert len([1 for tag, _ in nodes if tag == "path"]) == 2
+    assert len([1 for tag, _ in nodes if tag == "circle"]) == 2
+    table = report.split("<tbody>")[1].split("</tbody>")[0]
+    assert "900" in table and "ambiguous" in table

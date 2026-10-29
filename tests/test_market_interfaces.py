@@ -16,6 +16,13 @@ from atlas_terminal.research_models import parse_research
 from atlas_terminal.server import create_app
 
 QUERIES = [
+    {
+        "dataset": "intraday_prices",
+        "identifier": "AAPL",
+        "interval": "5m",
+        "start_date": "2026-10-28",
+        "end_date": "2026-10-28",
+    },
     {"dataset": "price_analytics", "identifier": "AAPL", "metrics": ["rsi_14"], "limit": 3},
     {
         "dataset": "price_comparison",

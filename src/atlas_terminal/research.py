@@ -121,6 +121,11 @@ FAMILIES = {
     "institutional_holdings": {"13F-HR", "13F-HR/A"},
 }
 DATASETS = {
+    "intraday_prices": (
+        "Optional timestamped Yahoo intraday bars with explicit interval and elapsed-bar status",
+        "yahoo_finance",
+        "secondary_market_observations",
+    ),
     "price_comparison": (
         "Same-market price performance, drawdown, sample volatility, covariance and correlation",
         "yahoo_finance",
@@ -456,9 +461,25 @@ def research_catalog(
                         "operator_enablement": "ATLAS_ENABLE_YAHOO_FINANCE=1",
                         "source_kind": "secondary_aggregator",
                         "personal_use_only": True,
-                        "max_calendar_years": 10,
+                        **(
+                            {
+                                "max_calendar_days": 31,
+                                "one_minute_max_calendar_days": 7,
+                                "live_lookback_calendar_days": {
+                                    "1m": 7,
+                                    "5m": 60,
+                                    "15m": 60,
+                                    "30m": 60,
+                                    "60m": 60,
+                                },
+                                "bar_finality_verified": False,
+                            }
+                            if name == "intraday_prices"
+                            else {"max_calendar_years": 10}
+                        ),
                     }
-                    if name in EQUITY_DATASETS | {"price_analytics", "price_comparison"}
+                    if name
+                    in EQUITY_DATASETS | {"price_analytics", "price_comparison", "intraday_prices"}
                     else {}
                 ),
                 "query_fields": sorted(FIELDS[name]),
@@ -486,6 +507,8 @@ def research_catalog(
                 for symbol, spec in REFERENCE_INSTRUMENTS.items()
             },
             "interval": "1d",
+            "intraday_intervals": ["1m", "5m", "15m", "30m", "60m"],
+            "intraday_price_adjustment_verified": False,
             "point_in_time": False,
         },
         "company_screen": screen_catalog(),
@@ -511,6 +534,7 @@ def research_catalog(
             "date_selection": "dataset_specific_inclusive_observation_dates",
             "date_basis": {
                 "equity_prices": "exchange_local_date",
+                "intraday_prices": "source_bar_timestamp_with_exchange_local_date_bounds",
                 "equity_actions": "exchange_local_event_date",
                 "price_analytics": "exchange_local_date",
                 "price_comparison": "exact_common_exchange_local_dates",
@@ -705,7 +729,8 @@ class ResearchService:
     def get(self, query: ResearchQuery | dict[str, Any]) -> dict[str, Any]:
         q = query if isinstance(query, ResearchQuery) else parse_research(query)
         if (
-            q.dataset in EQUITY_DATASETS | {"price_analytics", "price_comparison"}
+            q.dataset
+            in EQUITY_DATASETS | {"price_analytics", "price_comparison", "intraday_prices"}
             and not self.synthetic
         ):
             require_yahoo_enabled()
@@ -757,6 +782,7 @@ class ResearchService:
             "japan_filing_facts",
             "japan_securities",
             "equity_prices",
+            "intraday_prices",
             "equity_actions",
             "price_analytics",
             "price_comparison",
@@ -1323,6 +1349,10 @@ class ResearchService:
 
     def public_data(self, q: ResearchQuery) -> dict[str, Any]:
         assert self.public is not None
+        if q.dataset == "intraday_prices":
+            from atlas_terminal.research_intraday import yahoo_intraday
+
+            return yahoo_intraday(self.public, q)
         if q.dataset == "price_comparison":
             from atlas_terminal.research_price_comparison import price_comparison
 

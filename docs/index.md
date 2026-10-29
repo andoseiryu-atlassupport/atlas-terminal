@@ -1,6 +1,6 @@
 # Financial data for AI agents through one MCP connection
 
-Atlas Terminal connects AI agents to company financials, US/Japan and international macro indicators and reference foreign exchange data from free public primary sources. One MCP connection exposes 44 datasets, twenty-four research presets and traceable evidence, including four optional [international Yahoo price/action/analytics/comparison selections](yahoo-finance.md) for operator-enabled personal use. A Python SDK, CLI and HTTP API use the same services. Research needs no data subscription, wallet or built-in LLM. BEA, Census, FRED and EDINET require separate free registered API keys. Yahoo is a secondary-source exception and grants no public-service data redistribution rights.
+Atlas Terminal connects AI agents to company financials, US/Japan and international macro indicators and reference foreign exchange data from free public primary sources. One MCP connection exposes 45 datasets, twenty-four research presets and traceable evidence, including five optional [international Yahoo daily/intraday price, action and analytics selections](yahoo-finance.md) for operator-enabled personal use. A Python SDK, CLI and HTTP API use the same services. Research needs no data subscription, wallet or built-in LLM. BEA, Census, FRED and EDINET require separate free registered API keys. Yahoo is a secondary-source exception and grants no public-service data redistribution rights.
 
 US/Japan/euro area/Australia [government-bond research](fixed-income.md) adds Japanese 1–40-year curves, local slopes, butterflies, rate changes and US nominal/real par inflation-compensation proxies with original inputs.
 
@@ -57,3 +57,5 @@ Current or revised source snapshots are not point-in-time history. Atlas does no
 [Japanese company disclosures/reference data](japan-companies.md), [local source history](source-history.md) and the [personal-use Yahoo time-series connection](data-connections.md#optional-yahoo-time-series-connection) are available in the latest source checkout, with explicit source rights and availability limits.
 
 See [market research and company discovery](market-research.md) for price indicators/comparison, issuer screening, N-PORT holdings, filing events, generic FRED and local charts.
+
+[Intraday prices](intraday-prices.md), [offline series statistics](time-series-statistics.md) and a [local research workbench](research-workbench.md) extend the source checkout with timestamped bars, explicit stationarity diagnostics and multiple evidence-backed panels.

@@ -1,6 +1,6 @@
 # Discover and align macro series
 
-Series search, IMF/OECD/ABS retrieval and macro panels use the same SDK, CLI, MCP and HTTP research service. No wallet, subscription or LLM is required. Dated live checks cover IMF/OECD catalogues, selected OECD China CPI and ABS GDP/monthly CPI/labour. IMF observation retrieval and the ABS quarterly CPI data key remain unverified or unavailable as detailed in [verification](verification.md#data-integrity-and-japanese-company-extensions). Examples marked `fixture` use fictional source bytes.
+Series search, IMF/OECD/ABS retrieval and macro panels use the same SDK, CLI, MCP and HTTP research service. No wallet, subscription or LLM is required. Dated live checks cover IMF/OECD catalogues, selected OECD China CPI and ABS GDP/monthly and quarterly CPI/labour. IMF observation retrieval remains unverified as detailed in [verification](verification.md). Examples marked `fixture` use fictional source bytes.
 
 ## Search existing series
 
@@ -27,6 +27,8 @@ uv run atlas research get sdmx_catalog --source-id oecd --search "unemployment" 
 Each dataflow record includes a query for its structure. Submit that returned query to obtain ordered series dimensions and classification codes. A dataflow ID has the form `agency,id,version`; retain the returned version. To narrow a large structure, supply `dimension` and/or `search`. For example, after finding a structure whose country dimension is `REF_AREA`, use `--dimension REF_AREA --search Japan` with its returned `--dataflow`.
 
 The `dimensions` metadata lists each dimension's ID and key position. Records contain codes and labels for dimensions and attributes, with original XML locators. A code being present does not guarantee that every combination has observations. There is no automatic substitution of country, frequency, adjustment or measure codes.
+
+For a selected dataflow, `availability_constraints` retains applicable SDMX Actual constraints with their source XML paths, validity bounds and evaluation at the metadata capture time. One active, exactly attached, include-only cube can explicitly exclude a selected code before a data request. Other constraint shapes, ambiguous attachments, concurrent constraints and unknown validity remain nonassertive. Inclusion does not prove that a combination or period exists. These are current source availability hints, not historical release vintages; the 24-hour metadata cache can lag a change. Constraint time ranges never expand the query or certify its completeness.
 
 Then submit `international_economics` with:
 

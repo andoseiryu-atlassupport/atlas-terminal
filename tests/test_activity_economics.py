@@ -495,7 +495,7 @@ def test_curated_sdmx_rejects_other_geographies(series):
     assert error.value.code == "SOURCE_UNAVAILABLE"
 
 
-def test_abs_monthly_and_quarterly_cpi_use_separate_current_flows():
+def test_abs_monthly_and_quarterly_cpi_use_explicit_frequencies_in_current_flow():
     class Recorded(PublicFixtures):
         urls: list[str]
 
@@ -512,8 +512,10 @@ def test_abs_monthly_and_quarterly_cpi_use_separate_current_flows():
         monthly = atlas.get_research(query("au_cpi_monthly"))
         quarterly = atlas.get_research(query("au_cpi_quarterly"))
     assert any("/data/ABS,CPI,2.0.0/1.10001.10.50.M?" in u for u in source.urls)
-    assert any("/data/ABS,CPI_Q,1.0.0/1.10001.10.50.Q?" in u for u in source.urls)
-    assert not any("/data/ABS,CPI,2.0.0/1.10001.10.50.Q?" in u for u in source.urls)
+    assert any("/data/ABS,CPI,2.0.0/1.10001.10.50.Q?" in u for u in source.urls)
+    assert not any("/CPI_Q/" in u or "/data/ABS,CPI_Q," in u for u in source.urls)
+    assert monthly["records"][0]["metadata_source"] == quarterly["records"][0]["metadata_source"]
+    assert monthly["records"][0]["source"] != quarterly["records"][0]["source"]
     assert monthly["records"][0]["base_period"] == "2025-09"
     assert [r["date"] for r in monthly["records"]] == ["2026-09-30", "2026-08-31", "2026-07-31"]
     assert [r["date"] for r in quarterly["records"]] == ["2026-09-30", "2026-06-30", "2026-03-31"]
@@ -525,7 +527,7 @@ def test_abs_cpi_missing_requested_frequency_never_falls_back(series):
     with pytest.raises(AtlasError) as error:
         changed(
             series,
-            f"activity_{series}_structure.xml",
+            "activity_au_cpi_quarterly_structure.xml",
             lambda b: b.replace(frequency, b'id="OTHER"'),
         )
     assert error.value.code == "INCOMPLETE_COVERAGE"

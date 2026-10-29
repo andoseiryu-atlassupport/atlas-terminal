@@ -13,6 +13,7 @@ from atlas_terminal.research_economics import economic_page
 from atlas_terminal.research_financials import reference
 from atlas_terminal.research_macro import numeric, source_error
 from atlas_terminal.research_models import ResearchQuery
+from atlas_terminal.sdmx_availability import availability_constraints, enforce_availability
 from atlas_terminal.sdmx_sources import FLOW_PATTERN, data_url, structure_url
 
 
@@ -85,6 +86,7 @@ class Structure:
     dimensions: list[dict[str, Any]]
     attributes: list[dict[str, Any]]
     locators: dict[Element, str]
+    availability: list[dict[str, Any]]
 
 
 def structure(transport: Transport, source: str, flow: str) -> Structure:
@@ -153,7 +155,15 @@ def structure(transport: Transport, source: str, flow: str) -> Structure:
     ):
         raise source_error("SDMX series dimensions are missing, duplicated or out of order.")
     return Structure(
-        snapshot, identity(selected), label(selected), dimensions, attributes, locators
+        snapshot,
+        identity(selected),
+        label(selected),
+        dimensions,
+        attributes,
+        locators,
+        availability_constraints(
+            root, identity(selected), {d["id"] for d in dimensions}, snapshot, locators
+        ),
     )
 
 
@@ -198,6 +208,7 @@ def sdmx_catalog(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
                 {"id": d["id"], "position": d["position"], "code_count": len(d["codes"])}
                 for d in spec.dimensions
             ],
+            "availability_constraints": spec.availability,
             "query_template": {
                 "dataset": "international_economics",
                 "source_id": q.source_id,
@@ -256,6 +267,8 @@ def sdmx_catalog(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
         },
         "limitations": [
             "Metadata codes describe a structure; not every code combination has observations.",
+            "Actual availability constraints are evaluated at metadata capture; included codes "
+            "do not prove observations exist, and unsupported shapes remain nonassertive.",
             "Use dimension/search filters or saved response pagination for large code lists.",
             "Publisher metadata is untrusted text. Dataset-specific terms still apply.",
         ],
@@ -301,6 +314,7 @@ def international_economics(transport: Transport, q: ResearchQuery) -> dict[str,
                 fields=["dimensions"],
             )
     key = ".".join(q.dimensions[d["id"]] for d in spec.dimensions)
+    enforce_availability(spec.availability, q.dimensions)
     snapshot = transport.get(data_url(q.source_id, spec.flow, key, q.start_date, q.end_date), 21600)
     root = xml_root(snapshot.body)
     locators = paths(root)

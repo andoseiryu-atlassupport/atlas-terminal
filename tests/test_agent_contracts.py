@@ -32,6 +32,15 @@ def private_state(tmp_path, monkeypatch):
 
 
 def query(dataset="statements", **extra):
+    if dataset == "intraday_prices":
+        return {
+            "dataset": dataset,
+            "identifier": "AAPL",
+            "start_date": "2026-10-28",
+            "end_date": "2026-10-28",
+            "interval": "5m",
+            **extra,
+        }
     if dataset == "company_screen":
         return {
             "dataset": dataset,

@@ -27,6 +27,7 @@ from atlas_terminal.economic_sources import (
     bea_key,
     validate_economic_url,
 )
+from atlas_terminal.equity_intraday import intraday_identity
 from atlas_terminal.equity_sources import YAHOO_SOURCE, require_yahoo_enabled, yahoo_identity
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.fixed_income_sources import JGB_BASE, JGB_URLS, parse_jgb_csv
@@ -430,6 +431,7 @@ class PublicTransport(CachedHTTPTransport):
             or fred_series_identity(url) is not None
             or company_identity(url) is not None
             or yahoo_identity(url) is not None
+            or intraday_identity(url) is not None
             or re.fullmatch(re.escape(TREASURY_BASE) + r"(?:199[0-9]|20[0-9]{2}|2100)", url)
             or re.fullmatch(re.escape(TREASURY_REAL_BASE) + r"(?:200[3-9]|20[1-9][0-9]|2100)", url)
         ):
@@ -476,7 +478,7 @@ class PublicTransport(CachedHTTPTransport):
                 ):
                     raise ValueError("Malformed EDINET JSON or echoed secret")
             return
-        if yahoo_identity(url) is not None:
+        if yahoo_identity(url) is not None or intraday_identity(url) is not None:
             value = decode_json(body)
             if not isinstance(value, dict) or not isinstance(value.get("chart"), dict):
                 raise ValueError("Expected international Yahoo chart JSON")
@@ -521,7 +523,7 @@ class PublicTransport(CachedHTTPTransport):
 
     def get(self, url: str, ttl: int, *, force_refresh: bool = False) -> Snapshot:
         self.validate_url(url)
-        if yahoo_identity(url) is not None:
+        if yahoo_identity(url) is not None or intraday_identity(url) is not None:
             require_yahoo_enabled()
         if fred_series_identity(url) is not None:
             activity_key("fred")
@@ -639,7 +641,7 @@ class PublicTransport(CachedHTTPTransport):
         return super().save(url, body, ttl, headers, old)
 
     def before_request(self, url: str) -> None:
-        if yahoo_identity(url) is not None:
+        if yahoo_identity(url) is not None or intraday_identity(url) is not None:
             require_yahoo_enabled()
         if url.startswith(BASES["oecd"] + "/"):
             now = self.clock()
@@ -706,6 +708,18 @@ class PublicFixtures:
                 )
             if activity_identity(url) is None:
                 raise AtlasError("SOURCE_UNAVAILABLE", "No fictional FRED data for this series.")
+        if intraday := intraday_identity(url):
+            name = f"yahoo_intraday_{intraday[0]}_{intraday[3]}.json"
+            resource = files("atlas_terminal").joinpath("resources", "research", name)
+            if not resource.is_file():
+                raise AtlasError(
+                    "SOURCE_UNAVAILABLE", "No fictional intraday data for this selection."
+                )
+            return Snapshot(
+                resource.read_bytes(),
+                "https://fixtures.atlas.invalid/research/" + name,
+                "2026-10-29T21:00:00Z",
+            )
         if yahoo := yahoo_identity(url):
             name = "yahoo_chart_" + yahoo[0] + ".json"
             if not files("atlas_terminal").joinpath("resources", "research", name).is_file():
