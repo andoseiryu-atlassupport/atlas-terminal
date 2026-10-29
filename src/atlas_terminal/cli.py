@@ -161,6 +161,9 @@ def research_get(
     dataset: str,
     identifier: str | None = None,
     identifiers: str | None = None,
+    filters: str | None = None,
+    sort_by: str | None = None,
+    sort_order: str | None = None,
     metrics: str | None = None,
     period: str | None = None,
     count: int | None = None,
@@ -205,6 +208,8 @@ def research_get(
     data: dict[str, Any] = {"dataset": dataset}
     options = {
         "identifier": identifier,
+        "sort_by": sort_by,
+        "sort_order": sort_order,
         "period": period,
         "count": count,
         "limit": limit,
@@ -232,6 +237,13 @@ def research_get(
         "dimension": dimension,
     }
     data.update({k: v for k, v in options.items() if v is not None})
+    if filters is not None:
+        try:
+            if len(filters) > 8192:
+                raise ValueError("Filters exceed bounds")
+            data["filters"] = json.loads(filters)
+        except ValueError:
+            raise AtlasError("INVALID_INPUT", "Provide filters as a bounded JSON array.") from None
     if dimensions is not None:
         try:
             if len(dimensions) > 8192:
@@ -269,6 +281,35 @@ def research_get(
         data["response"] = response
     with Atlas(provider) as atlas:
         output(atlas.get_research(data))
+
+
+@research_app.command("chart")
+def research_chart(
+    input_file: str = typer.Option(..., "--input"),
+    output_file: str = typer.Option(..., "--output"),
+    field: str = "value",
+    metric: str | None = None,
+    title: str | None = None,
+) -> None:
+    """Render a saved full research result to a private standalone HTML chart, offline."""
+    from atlas_terminal.research_chart import render_research_chart
+
+    try:
+        with Path(input_file).open("rb") as stream:
+            body = stream.read(4 * 1024 * 1024 + 1)
+        if len(body) > 4 * 1024 * 1024:
+            raise ValueError("Input exceeds bounds")
+        result = json.loads(body)
+        html = render_research_chart(result, field=field, metric=metric, title=title)
+        # Exclusive creation protects existing files; generated source data stays private.
+        descriptor = os.open(output_file, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+            stream.write(html)
+    except (OSError, ValueError):
+        raise AtlasError(
+            "INVALID_INPUT", "Read a full result up to 4 MiB and choose a new writable HTML path."
+        ) from None
+    output({"output": str(output_file), "network_used": False, "published": False})
 
 
 @research_app.command("run")

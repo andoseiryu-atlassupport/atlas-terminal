@@ -121,6 +121,36 @@ FAMILIES = {
     "institutional_holdings": {"13F-HR", "13F-HR/A"},
 }
 DATASETS = {
+    "price_comparison": (
+        "Same-market price performance, drawdown, sample volatility, covariance and correlation",
+        "yahoo_finance",
+        "aligned_market_analytics",
+    ),
+    "price_analytics": (
+        "Optional adjusted-price indicators with exact source inputs and warm-up coverage",
+        "yahoo_finance",
+        "derived_market_observations",
+    ),
+    "company_screen": (
+        "Filter and rank up to ten explicit issuers at exactly aligned reported periods",
+        "sec",
+        "aligned_financial_screen",
+    ),
+    "filing_events": (
+        "Historical SEC filing events classified from disclosed forms and items",
+        "sec",
+        "filing_metadata",
+    ),
+    "fund_holdings": (
+        "One explicit SEC N-PORT filing's reported fund investments and allocations",
+        "sec",
+        "reported_facts",
+    ),
+    "fred_series": (
+        "Explicit FRED series metadata and current revised observations",
+        "fred",
+        "observations",
+    ),
     "japan_disclosures": (
         "EDINET documents submitted on one explicit date",
         "edinet",
@@ -142,12 +172,12 @@ DATASETS = {
         "local_source_versions",
     ),
     "equity_prices": (
-        "Optional international Yahoo daily Tokyo OHLC, volume and adjusted close",
+        "Optional international Yahoo daily prices for supported securities and market symbols",
         "yahoo_finance",
         "secondary_market_observations",
     ),
     "equity_actions": (
-        "Optional international Yahoo reported Tokyo dividends and share splits",
+        "Optional international Yahoo reported dividends and share splits",
         "yahoo_finance",
         "secondary_action_observations",
     ),
@@ -289,7 +319,7 @@ GAPS = {
         "No licensed consolidated trades, NBBO, depth or intraday ticks."
     ),
     "daily_equity_prices_and_adjustments": (
-        "Optional personal-use international Yahoo Tokyo daily data is available. "
+        "Optional personal-use international Yahoo supported daily market data is available. "
         "No equity source with verified public-service redistribution rights is integrated."
     ),
     "options_and_analyst_consensus": (
@@ -308,6 +338,17 @@ GAPS = {
     ),
 }
 
+MAX_RESEARCH_RESPONSE_BYTES = 4 * 1024 * 1024
+
+
+def bounded_research_result(result: dict[str, Any]) -> dict[str, Any]:
+    if len(canonical(result)) > MAX_RESEARCH_RESPONSE_BYTES:
+        raise AtlasError(
+            "INVALID_INPUT",
+            "Research result exceeds the 4 MiB response limit; narrow dates, metrics or inputs.",
+        )
+    return result
+
 
 def research_catalog(
     dataset: Dataset | None = None,
@@ -321,6 +362,9 @@ def research_catalog(
 ) -> dict[str, Any]:
     from pydantic import ValidationError
 
+    from atlas_terminal.equity_sources import REFERENCE_INSTRUMENTS
+    from atlas_terminal.research_discovery import event_catalog, screen_catalog
+    from atlas_terminal.research_price_analytics import price_analytics_catalog
     from atlas_terminal.series_catalog import series_catalog
 
     try:
@@ -414,7 +458,7 @@ def research_catalog(
                         "personal_use_only": True,
                         "max_calendar_years": 10,
                     }
-                    if name in EQUITY_DATASETS
+                    if name in EQUITY_DATASETS | {"price_analytics", "price_comparison"}
                     else {}
                 ),
                 "query_fields": sorted(FIELDS[name]),
@@ -427,6 +471,25 @@ def research_catalog(
         "statement_metrics": metric_catalog(),
         "ratios": RATIOS,
         "analytics_metrics": analytics_catalog(),
+        "price_analytics_metrics": price_analytics_catalog(),
+        "market_symbols": {
+            "security_policy": "Explicit US USD or Tokyo JPY stock/ETF symbols; metadata validated",
+            "reference_symbols": {
+                symbol: {
+                    "instrument_type": spec[0],
+                    "currency": spec[1],
+                    "timezone": spec[2],
+                    "exchange": spec[3],
+                    "price_unit": spec[4],
+                    "volume_unit": spec[5],
+                }
+                for symbol, spec in REFERENCE_INSTRUMENTS.items()
+            },
+            "interval": "1d",
+            "point_in_time": False,
+        },
+        "company_screen": screen_catalog(),
+        "filing_event_series": event_catalog(),
         "periods": ["annual", "quarterly", "ytd"],
         "economic_series": {
             k: {
@@ -445,7 +508,18 @@ def research_catalog(
         "uk_series": UK_SERIES,
         "activity_series": ACTIVITY_SERIES,
         "history": {
-            "date_selection": "inclusive_observation_period_end",
+            "date_selection": "dataset_specific_inclusive_observation_dates",
+            "date_basis": {
+                "equity_prices": "exchange_local_date",
+                "equity_actions": "exchange_local_event_date",
+                "price_analytics": "exchange_local_date",
+                "price_comparison": "exact_common_exchange_local_dates",
+                "filing_events": "SEC_filing_date",
+                "fund_holdings": "explicit_selected_filing_report_date",
+                "fred_series": "native_FRED_date_label_may_be_period_start",
+                "source_history": "local_capture_time_not_publication_time",
+                "default": "documented_observation_or_period_end",
+            },
             "max_calendar_years": 30,
             "requires_both_dates": True,
             "point_in_time": False,
@@ -546,6 +620,7 @@ class ResearchSecFixtures(FixtureTransport):
             "insider.xml",
             "holdings.xml",
             "cover.xml",
+            "fund.xml",
             "index.json",
         }
         if name == "CIK9999999999.json":
@@ -629,14 +704,21 @@ class ResearchService:
 
     def get(self, query: ResearchQuery | dict[str, Any]) -> dict[str, Any]:
         q = query if isinstance(query, ResearchQuery) else parse_research(query)
-        if q.dataset in EQUITY_DATASETS and not self.synthetic:
+        if (
+            q.dataset in EQUITY_DATASETS | {"price_analytics", "price_comparison"}
+            and not self.synthetic
+        ):
             require_yahoo_enabled()
+        if q.dataset == "fred_series" and not self.synthetic:
+            from atlas_terminal.activity_sources import activity_key
+
+            activity_key("fred")
         if q.dataset in {"japan_disclosures", "japan_filing_facts"} and not self.synthetic:
             from atlas_terminal.japan_company_sources import edinet_key
 
             edinet_key()
         if q.response.cursor:
-            return self.views.render(q)
+            return bounded_research_result(self.views.render(q))
         if q.dataset == "source_history":
             from atlas_terminal.source_history import source_history
 
@@ -676,6 +758,9 @@ class ResearchService:
             "japan_securities",
             "equity_prices",
             "equity_actions",
+            "price_analytics",
+            "price_comparison",
+            "fred_series",
             "economics",
             "treasury_yields",
             "federal_debt",
@@ -715,6 +800,18 @@ class ResearchService:
             result = analytics_data(self.sec_factory(), q)
         elif q.dataset == "compare":
             result = self.compare(q)
+        elif q.dataset == "company_screen":
+            from atlas_terminal.research_discovery import screen_data
+
+            result = screen_data(self.sec_factory(), q)
+        elif q.dataset == "filing_events":
+            from atlas_terminal.research_discovery import filing_events
+
+            result = filing_events(self.filing_inputs, q)
+        elif q.dataset == "fund_holdings":
+            from atlas_terminal.research_funds import fund_holdings
+
+            result = fund_holdings(self.sec_factory(), q)
         elif q.dataset in {"insider_transactions", "institutional_holdings"}:
             result = self.xml_filing(q)
         else:
@@ -758,13 +855,12 @@ class ResearchService:
             ),
             **result,
         }
-        if q.dataset == "source_history" and len(canonical(result)) > 4 * 1024 * 1024:
-            raise AtlasError("INVALID_INPUT", "Source history exceeds the 4 MiB response limit.")
         ResearchResult.model_validate(result)
         if q.requirements is not None:
             result["quality"] = enforce_requirements(result, q.requirements)
+        bounded_research_result(result)
         if q.response.view == "compact" or q.response.fields or q.response.page_size:
-            return self.views.render(q, result)
+            return bounded_research_result(self.views.render(q, result))
         return result
 
     def companies(self, q: ResearchQuery) -> dict[str, Any]:
@@ -927,7 +1023,7 @@ class ResearchService:
         source = self.sec_factory()
         company, history, truncated = source.history(source.resolve(identifier))
         snapshot = source.transport.get(f"{SUBMISSIONS}CIK{company.cik}.json", 900)
-        refs = {}
+        refs: dict[str, dict[str, Any]] = {}
         pages = [(snapshot, "/filings/recent")]
         for archive in snapshot.data["filings"].get("files", [])[: source.max_pages]:
             pages.append((source.transport.get(SUBMISSIONS + archive["name"], 900), ""))
@@ -935,8 +1031,25 @@ class ResearchService:
             raw = page.data["filings"]["recent"] if base else page.data
             for i, accession in enumerate(raw.get("accessionNumber", [])):
                 items = raw.get("items", [])
+                disclosed_items = items[i] if i < len(items) else None
+                if disclosed_items is not None and not isinstance(disclosed_items, str):
+                    raise AtlasError("SOURCE_UNAVAILABLE", "Malformed filing item metadata.")
+                previous = refs.get(accession)
+                if previous is not None:
+                    if (
+                        previous["items"] is not None
+                        and disclosed_items is not None
+                        and previous["items"] != disclosed_items
+                    ):
+                        raise AtlasError(
+                            "SOURCE_UNAVAILABLE", "Conflicting disclosed items for one accession."
+                        )
+                    # Keep one coherent source row. Prefer an explicitly reported items
+                    # field over an absent field; equal rows keep the recent-page reference.
+                    if previous["items"] is not None or disclosed_items is None:
+                        continue
                 refs[accession] = reference(page, base + "/accessionNumber/" + str(i)) | {
-                    "items": items[i] if i < len(items) else None
+                    "items": disclosed_items
                 }
         return company.model_dump(), history, refs, truncated
 
@@ -1209,6 +1322,19 @@ class ResearchService:
         }
 
     def public_data(self, q: ResearchQuery) -> dict[str, Any]:
+        assert self.public is not None
+        if q.dataset == "price_comparison":
+            from atlas_terminal.research_price_comparison import price_comparison
+
+            return price_comparison(self.public, q)
+        if q.dataset == "price_analytics":
+            from atlas_terminal.research_price_analytics import price_analytics
+
+            return price_analytics(self.public, q)
+        if q.dataset == "fred_series":
+            from atlas_terminal.research_fred import fred_series
+
+            return fred_series(self.public, q)
         assert self.public is not None
         if q.dataset in {"japan_disclosures", "japan_filing_facts", "japan_securities"}:
             from atlas_terminal.research_japan_companies import japan_companies

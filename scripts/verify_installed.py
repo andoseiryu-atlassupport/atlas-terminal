@@ -22,6 +22,26 @@ from atlas_terminal.util import canonical, digest
 QUERY = parse_query({"identifier": "ATLASDEMO", "metrics": ["revenue", "net_income"], "count": 3})
 expected = Atlas("fixture").get_financials(QUERY).model_dump(mode="json")
 MACRO_QUERIES = [
+    {"dataset": "price_analytics", "identifier": "AAPL", "metrics": ["rsi_14"], "limit": 3},
+    {
+        "dataset": "price_comparison",
+        "identifiers": ["AAPL", "MSFT"],
+        "start_date": "2026-04-01",
+        "end_date": "2026-10-26",
+    },
+    {
+        "dataset": "company_screen",
+        "identifiers": ["ATLASDEMO"],
+        "filters": [{"metric": "revenue", "operator": "gt", "value": "0", "unit": "USD"}],
+    },
+    {"dataset": "filing_events", "identifier": "ATLASDEMO", "series": "earnings_results"},
+    {"dataset": "fund_holdings", "identifier": "ATLASDEMO", "accession": "9999999999-26-000008"},
+    {
+        "dataset": "fred_series",
+        "series": "DEMO_INDEX",
+        "start_date": "2026-01-01",
+        "end_date": "2026-12-31",
+    },
     {"dataset": "sdmx_catalog", "source_id": "imf"},
     {
         "dataset": "international_economics",
@@ -480,6 +500,7 @@ with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
                 "wheel_demo": "PASS",
                 "wheel_research_cli_mcp_http": "PASS",
                 "wheel_macro_fx_cli_sdk_mcp_http": "PASS",
+                "wheel_market_discovery_funds_fred_cli_sdk_mcp_http": "PASS",
                 "wheel_quality_batch_cli_sdk_mcp_http": "PASS",
                 "wheel_presets_cli_sdk_mcp_http": "PASS",
                 "wheel_openapi_contracts": "PASS",

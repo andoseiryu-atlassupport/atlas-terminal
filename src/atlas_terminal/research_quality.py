@@ -138,7 +138,13 @@ def record_date(row: dict[str, Any], dataset: str) -> str | None:
     if isinstance(row.get("reported_context"), dict):
         candidates.append(row["reported_context"].get("end"))
     candidates.extend([row.get("report_date"), row.get("transaction_date")])
-    if dataset in {"filings", "ownership_filings", "fund_filings", "corporate_action_filings"}:
+    if dataset in {
+        "filings",
+        "ownership_filings",
+        "fund_filings",
+        "corporate_action_filings",
+        "filing_events",
+    }:
         candidates.insert(0, row.get("filed_on"))
     if dataset == "policy_news" and row.get("published_at"):
         candidates.append(

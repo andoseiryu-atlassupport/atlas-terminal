@@ -3,6 +3,10 @@
     "name": "SYNTHETIC",
     "item": [
       {
+        "name": "fund.xml",
+        "type": "text/xml"
+      },
+      {
         "name": "cover.xml",
         "type": "text/xml"
       },

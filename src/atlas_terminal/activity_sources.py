@@ -203,19 +203,21 @@ ACTIVITY_SOURCES = {
         ),
     },
     "fred": {
-        "name": "Federal Reserve Bank of St. Louis, selected US Department of Labor series",
+        "name": "Federal Reserve Bank of St. Louis FRED",
+        "source_kind": "aggregator",
         "upstream_price": "0",
         "api_key_required": True,
         "contact_user_agent_required": False,
         "documentation": "https://fred.stlouisfed.org/docs/api/fred/",
         "terms": "https://fred.stlouisfed.org/legal/",
         "use": (
-            "Only the curated ICSA/CCSA government series are retrieved. Credit US "
-            "Department of Labor and FRED; API and source-specific conditions still "
-            "apply."
+            "Credit FRED and each series' original producer. Curated ICSA/CCSA are US "
+            "Department of Labor data; generic series may carry third-party restrictions. "
+            "Free API access grants no blanket redistribution license."
         ),
         "cadence": (
-            "Weekly claims, revised snapshots; private free FRED_API_KEY required; "
+            "Source-declared frequency, current revised snapshots; "
+            "private free FRED_API_KEY required; "
             "six-hour cache. No ALFRED vintages."
         ),
     },

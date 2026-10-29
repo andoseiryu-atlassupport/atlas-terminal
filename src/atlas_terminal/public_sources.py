@@ -30,6 +30,7 @@ from atlas_terminal.economic_sources import (
 from atlas_terminal.equity_sources import YAHOO_SOURCE, require_yahoo_enabled, yahoo_identity
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.fixed_income_sources import JGB_BASE, JGB_URLS, parse_jgb_csv
+from atlas_terminal.fred_sources import fred_series_identity
 from atlas_terminal.japan_company_sources import (
     COMPANY_SOURCES,
     company_identity,
@@ -390,6 +391,19 @@ def local_name(node: ET.Element) -> str:
     return node.tag.rsplit("}", 1)[-1]
 
 
+def contains_private_token(value: Any, token: str) -> bool:
+    """Check decoded JSON too, including escaped string values and object keys."""
+    if isinstance(value, str):
+        return token in value
+    if isinstance(value, dict):
+        return any(
+            token in key or contains_private_token(item, token) for key, item in value.items()
+        )
+    if isinstance(value, list):
+        return any(contains_private_token(item, token) for item in value)
+    return False
+
+
 class PublicTransport(CachedHTTPTransport):
     """Separate from SEC: never sends the operator's private SEC contact to other hosts."""
 
@@ -413,6 +427,7 @@ class PublicTransport(CachedHTTPTransport):
             or valid_sdmx_url(url)
             or regional_economic_identity(url) is not None
             or activity_identity(url) is not None
+            or fred_series_identity(url) is not None
             or company_identity(url) is not None
             or yahoo_identity(url) is not None
             or re.fullmatch(re.escape(TREASURY_BASE) + r"(?:199[0-9]|20[0-9]{2}|2100)", url)
@@ -423,6 +438,26 @@ class PublicTransport(CachedHTTPTransport):
 
     @staticmethod
     def validate_body(url: str, body: bytes) -> None:
+        if url.startswith(BEA_BASE + "?"):
+            value = decode_json(body)
+            if (
+                not isinstance(value, dict)
+                or bea_key().encode() in body
+                or contains_private_token(value, bea_key())
+            ):
+                raise ValueError("Malformed BEA response or echoed private credential")
+            return
+        if fred_series_identity(url) is not None:
+            value = decode_json(body)
+            if (
+                not isinstance(value, dict)
+                or activity_key("fred").encode() in body
+                or contains_private_token(value, activity_key("fred"))
+                or "error_code" in value
+                or "error" in value
+            ):
+                raise ValueError("Malformed FRED response or echoed private credential")
+            return
         if company := company_identity(url):
             if company[1] == "xbrl":
                 from atlas_terminal.research_japan_companies import xbrl_member
@@ -434,7 +469,11 @@ class PublicTransport(CachedHTTPTransport):
                 jpx_rows(Snapshot(body, url, stamp()))
             else:
                 value = decode_json(body)
-                if not isinstance(value, dict) or edinet_key().encode() in body:
+                if (
+                    not isinstance(value, dict)
+                    or edinet_key().encode() in body
+                    or contains_private_token(value, edinet_key())
+                ):
                     raise ValueError("Malformed EDINET JSON or echoed secret")
             return
         if yahoo_identity(url) is not None:
@@ -451,7 +490,11 @@ class PublicTransport(CachedHTTPTransport):
                 if not isinstance(value, (dict, list)) or not value:
                     raise ValueError("Expected nonempty official activity JSON")
                 if activity_selection[0] in {"census", "fred"}:
-                    if activity_key(activity_selection[0]).encode() in body:
+                    if activity_key(
+                        activity_selection[0]
+                    ).encode() in body or contains_private_token(
+                        value, activity_key(activity_selection[0])
+                    ):
                         raise ValueError("Source echoed a private credential")
                     if isinstance(value, dict) and ("error_code" in value or "error" in value):
                         raise ValueError("Source rejected the activity request")
@@ -480,16 +523,34 @@ class PublicTransport(CachedHTTPTransport):
         self.validate_url(url)
         if yahoo_identity(url) is not None:
             require_yahoo_enabled()
+        if fred_series_identity(url) is not None:
+            activity_key("fred")
         if (company := company_identity(url)) and company[0] == "edinet":
             edinet_key()
         if url.startswith(BEA_BASE + "?"):
             bea_key()
         if (activity := activity_identity(url)) and activity[0] in {"census", "fred"}:
             activity_key(activity[0])
-        return super().get(url, ttl, force_refresh=force_refresh)
+        result = super().get(url, ttl, force_refresh=force_refresh)
+        if url.startswith(BEA_BASE + "?"):
+            # Legacy caches may predate credential-echo validation. Never expose such bodies.
+            try:
+                self.validate_body(url, result.body)
+            except ValueError:
+                raise AtlasError(
+                    "SOURCE_UNAVAILABLE", "Cached BEA response failed credential validation."
+                ) from None
+        return result
 
     def request(self, url: str, headers: dict[str, str]) -> Any:
         self.validate_url(url)
+        if fred_series_identity(url) is not None:
+            return self.client.stream(
+                "GET",
+                httpx.URL(url).copy_add_param("api_key", activity_key("fred")),
+                headers={**headers, "Accept": "application/json"},
+                follow_redirects=False,
+            )
         if (company := company_identity(url)) and company[0] == "edinet":
             return self.client.stream(
                 "GET",
@@ -505,6 +566,7 @@ class PublicTransport(CachedHTTPTransport):
                     "GET",
                     url + "&" + urlencode({key_name: activity_key(source)}),
                     headers={**headers, "Accept": "application/json"},
+                    follow_redirects=False,
                 )
             if source == "statcan" and kind == "metadata" and "getSeriesInfoFromVector?" in url:
                 return self.client.stream(
@@ -530,7 +592,10 @@ class PublicTransport(CachedHTTPTransport):
         if url.startswith(BEA_BASE + "?"):
             # Only the outbound request receives the key. Provenance and cache keys never do.
             return self.client.stream(
-                "GET", url + "&" + urlencode({"UserID": bea_key()}), headers=headers
+                "GET",
+                url + "&" + urlencode({"UserID": bea_key()}),
+                headers=headers,
+                follow_redirects=False,
             )
         if url.startswith(BLS_BASE) and "?" in url:
             base, query = url.split("?", 1)
@@ -548,8 +613,23 @@ class PublicTransport(CachedHTTPTransport):
         return super().request(url, headers)
 
     def save(self, url: str, body: bytes, ttl: int, headers: Any, old: Any = None) -> str:
-        if (company := company_identity(url)) and company[0] == "edinet":
-            key = edinet_key()
+        if url.startswith(BEA_BASE + "?"):
+            # Conditional 304 responses can reuse legacy cached bodies without validate_body.
+            self.validate_body(url, body)
+        company = company_identity(url)
+        activity = activity_identity(url)
+        key = (
+            bea_key()
+            if url.startswith(BEA_BASE + "?")
+            else edinet_key()
+            if company and company[0] == "edinet"
+            else activity_key("fred")
+            if fred_series_identity(url) is not None
+            else activity_key(activity[0])
+            if activity and activity[0] in {"fred", "census"}
+            else None
+        )
+        if key is not None:
             headers = {field: value for field, value in headers.items() if key not in str(value)}
             if old is not None:
                 old = dict(old)
@@ -616,6 +696,16 @@ class PublicFixtures:
                 "2026-10-27T02:00:00Z",
             )
         PublicTransport.validate_url(url)
+        if fred := fred_series_identity(url):
+            if fred[0] == "DEMO_INDEX":
+                name = f"fred_DEMO_INDEX_{fred[1]}.json"
+                return Snapshot(
+                    files("atlas_terminal").joinpath("resources", "research", name).read_bytes(),
+                    "https://fixtures.atlas.invalid/research/" + name,
+                    "2026-10-29T01:00:00Z",
+                )
+            if activity_identity(url) is None:
+                raise AtlasError("SOURCE_UNAVAILABLE", "No fictional FRED data for this series.")
         if yahoo := yahoo_identity(url):
             name = "yahoo_chart_" + yahoo[0] + ".json"
             if not files("atlas_terminal").joinpath("resources", "research", name).is_file():

@@ -132,9 +132,1414 @@
       "title": "ResponseOptions",
       "type": "object"
     },
+    "ScreenFilter": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "accounts_payable"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "USD"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "accounts_receivable"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "USD"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "assets"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "USD"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "capital_expenditure"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "USD"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "cash_and_equivalents"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "USD"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "cost_of_revenue"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "USD"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "current_assets"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "USD"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "current_liabilities"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "USD"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "current_ratio"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "ratio"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "depreciation_amortization"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "USD"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "dividends_paid"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "USD"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "dividends_per_share"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "USD/shares"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "eps_basic"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "USD/shares"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "eps_basic_growth_yoy"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "ratio"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "eps_diluted"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "USD/shares"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "eps_diluted_growth_yoy"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "ratio"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "financing_cash_flow"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "USD"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "free_cash_flow"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "USD"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "free_cash_flow_margin"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "ratio"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "goodwill"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "USD"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "gross_margin"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "ratio"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "gross_profit"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "USD"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "income_tax_expense"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "USD"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "interest_expense"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "USD"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "inventory"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "USD"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "investing_cash_flow"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "USD"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "liabilities"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "USD"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "liabilities_to_equity"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "ratio"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "long_term_debt_noncurrent"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "USD"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "net_income"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "USD"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "net_income_growth_yoy"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "ratio"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "net_margin"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "ratio"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "operating_cash_flow"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "USD"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "operating_cash_flow_to_net_income"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "ratio"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "operating_income"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "USD"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "operating_income_growth_yoy"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "ratio"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "operating_margin"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "ratio"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "property_plant_equipment"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "USD"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "research_and_development"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "USD"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "retained_earnings"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "USD"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "revenue"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "USD"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "revenue_growth_yoy"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "ratio"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "selling_general_administrative"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "USD"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "share_repurchases"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "USD"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "shares_outstanding"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "shares"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "short_term_investments"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "USD"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "stock_based_compensation"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "USD"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "stockholders_equity"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "USD"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "weighted_average_shares_basic"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "shares"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "metric": {
+                "const": "weighted_average_shares_diluted"
+              }
+            },
+            "required": ["metric"]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "shares"
+              }
+            }
+          }
+        }
+      ],
+      "description": "A threshold in the catalog metric's original unit, without numeric coercion.",
+      "properties": {
+        "metric": {
+          "enum": [
+            "accounts_payable",
+            "accounts_receivable",
+            "assets",
+            "capital_expenditure",
+            "cash_and_equivalents",
+            "cost_of_revenue",
+            "current_assets",
+            "current_liabilities",
+            "current_ratio",
+            "depreciation_amortization",
+            "dividends_paid",
+            "dividends_per_share",
+            "eps_basic",
+            "eps_basic_growth_yoy",
+            "eps_diluted",
+            "eps_diluted_growth_yoy",
+            "financing_cash_flow",
+            "free_cash_flow",
+            "free_cash_flow_margin",
+            "goodwill",
+            "gross_margin",
+            "gross_profit",
+            "income_tax_expense",
+            "interest_expense",
+            "inventory",
+            "investing_cash_flow",
+            "liabilities",
+            "liabilities_to_equity",
+            "long_term_debt_noncurrent",
+            "net_income",
+            "net_income_growth_yoy",
+            "net_margin",
+            "operating_cash_flow",
+            "operating_cash_flow_to_net_income",
+            "operating_income",
+            "operating_income_growth_yoy",
+            "operating_margin",
+            "property_plant_equipment",
+            "research_and_development",
+            "retained_earnings",
+            "revenue",
+            "revenue_growth_yoy",
+            "selling_general_administrative",
+            "share_repurchases",
+            "shares_outstanding",
+            "short_term_investments",
+            "stock_based_compensation",
+            "stockholders_equity",
+            "weighted_average_shares_basic",
+            "weighted_average_shares_diluted"
+          ],
+          "maxLength": 80,
+          "minLength": 1,
+          "title": "Metric",
+          "type": "string"
+        },
+        "operator": {
+          "enum": ["lt", "lte", "eq", "gte", "gt"],
+          "title": "Operator",
+          "type": "string"
+        },
+        "value": {
+          "pattern": "^-?(?:0|[1-9][0-9]{0,59})(?:\\.[0-9]{1,30})?$",
+          "title": "Value",
+          "type": "string"
+        },
+        "unit": {
+          "enum": ["USD", "USD/shares", "ratio", "shares"],
+          "maxLength": 50,
+          "minLength": 1,
+          "title": "Unit",
+          "type": "string"
+        }
+      },
+      "required": ["metric", "operator", "value", "unit"],
+      "title": "ScreenFilter",
+      "type": "object"
+    },
     "ResearchQuery": {
       "additionalProperties": false,
       "oneOf": [
+        {
+          "additionalProperties": false,
+          "dependentRequired": {
+            "end_date": ["start_date"],
+            "start_date": ["end_date"]
+          },
+          "properties": {
+            "dataset": {
+              "const": "price_comparison",
+              "type": "string"
+            },
+            "end_date": {
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+              "type": "string"
+            },
+            "identifiers": {
+              "items": {
+                "pattern": "^(?:[0-9][0-9A-Z]{3}\\.T|[A-Z][A-Z0-9]{0,5}(?:-[A-Z])?)$",
+                "type": "string"
+              },
+              "maxItems": 10,
+              "minItems": 2,
+              "title": "Identifiers",
+              "type": "array",
+              "uniqueItems": true
+            },
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "start_date": {
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+              "type": "string"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": ["dataset", "identifiers", "start_date", "end_date"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "dependentRequired": {
+            "end_date": ["start_date"],
+            "start_date": ["end_date"]
+          },
+          "properties": {
+            "dataset": {
+              "const": "price_analytics",
+              "type": "string"
+            },
+            "end_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "End Date"
+            },
+            "identifier": {
+              "description": "Explicit supported Yahoo symbol; source metadata validates its market.",
+              "pattern": "^(?:[0-9][0-9A-Z]{3}\\.T|[A-Z][A-Z0-9]{0,5}(?:-[A-Z])?|\\^GSPC|\\^DJI|\\^IXIC|\\^RUT|\\^VIX|\\^N225|EURUSD=X|GBPUSD=X|AUDUSD=X|NZDUSD=X|USDJPY=X|USDCHF=X|USDCAD=X|BTC\\-USD|ETH\\-USD|GC=F|SI=F|CL=F|NG=F|ES=F|NQ=F)$",
+              "type": "string"
+            },
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "metrics": {
+              "items": {
+                "enum": [
+                  "bollinger_lower_20",
+                  "bollinger_upper_20",
+                  "cumulative_return",
+                  "drawdown",
+                  "ema_12",
+                  "ema_26",
+                  "macd",
+                  "macd_histogram",
+                  "macd_signal",
+                  "return_1d",
+                  "rsi_14",
+                  "sma_20",
+                  "sma_50",
+                  "volatility_20"
+                ],
+                "type": "string"
+              },
+              "maxItems": 40,
+              "title": "Metrics",
+              "type": "array",
+              "uniqueItems": true
+            },
+            "start_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Start Date"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": ["dataset", "identifier"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "company_screen",
+              "type": "string"
+            },
+            "allow_partial": {
+              "default": false,
+              "title": "Allow Partial",
+              "type": "boolean"
+            },
+            "filters": {
+              "items": {
+                "$ref": "#/$defs/ScreenFilter"
+              },
+              "maxItems": 10,
+              "minItems": 1,
+              "title": "Filters",
+              "type": "array"
+            },
+            "identifiers": {
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 10,
+              "minItems": 1,
+              "title": "Identifiers",
+              "type": "array"
+            },
+            "metrics": {
+              "items": {
+                "enum": [
+                  "accounts_payable",
+                  "accounts_receivable",
+                  "assets",
+                  "capital_expenditure",
+                  "cash_and_equivalents",
+                  "cost_of_revenue",
+                  "current_assets",
+                  "current_liabilities",
+                  "current_ratio",
+                  "depreciation_amortization",
+                  "dividends_paid",
+                  "dividends_per_share",
+                  "eps_basic",
+                  "eps_basic_growth_yoy",
+                  "eps_diluted",
+                  "eps_diluted_growth_yoy",
+                  "financing_cash_flow",
+                  "free_cash_flow",
+                  "free_cash_flow_margin",
+                  "goodwill",
+                  "gross_margin",
+                  "gross_profit",
+                  "income_tax_expense",
+                  "interest_expense",
+                  "inventory",
+                  "investing_cash_flow",
+                  "liabilities",
+                  "liabilities_to_equity",
+                  "long_term_debt_noncurrent",
+                  "net_income",
+                  "net_income_growth_yoy",
+                  "net_margin",
+                  "operating_cash_flow",
+                  "operating_cash_flow_to_net_income",
+                  "operating_income",
+                  "operating_income_growth_yoy",
+                  "operating_margin",
+                  "property_plant_equipment",
+                  "research_and_development",
+                  "retained_earnings",
+                  "revenue",
+                  "revenue_growth_yoy",
+                  "selling_general_administrative",
+                  "share_repurchases",
+                  "shares_outstanding",
+                  "short_term_investments",
+                  "stock_based_compensation",
+                  "stockholders_equity",
+                  "weighted_average_shares_basic",
+                  "weighted_average_shares_diluted"
+                ],
+                "type": "string"
+              },
+              "maxItems": 40,
+              "title": "Metrics",
+              "type": "array"
+            },
+            "period": {
+              "default": "annual",
+              "enum": ["annual", "quarterly", "ytd"],
+              "title": "Period",
+              "type": "string"
+            },
+            "sort_by": {
+              "anyOf": [
+                {
+                  "maxLength": 80,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Sort By"
+            },
+            "sort_order": {
+              "default": "desc",
+              "enum": ["asc", "desc"],
+              "title": "Sort Order",
+              "type": "string"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": ["dataset", "identifiers", "filters"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "dependentRequired": {
+            "end_date": ["start_date"],
+            "start_date": ["end_date"]
+          },
+          "properties": {
+            "dataset": {
+              "const": "filing_events",
+              "type": "string"
+            },
+            "end_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "End Date"
+            },
+            "identifier": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "series": {
+              "enum": [
+                null,
+                "all",
+                "earnings_results",
+                "periodic_reports",
+                "current_reports",
+                "offerings",
+                "shareholder_votes",
+                "ownership",
+                "fund_reports"
+              ],
+              "type": ["string", "null"]
+            },
+            "start_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Start Date"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": ["dataset", "identifier"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "dataset": {
+              "const": "fund_holdings",
+              "type": "string"
+            },
+            "accession": {
+              "pattern": "^[0-9]{10}-[0-9]{2}-[0-9]{6}$",
+              "type": "string"
+            },
+            "identifier": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": ["dataset", "identifier", "accession"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "dependentRequired": {
+            "end_date": ["start_date"],
+            "start_date": ["end_date"]
+          },
+          "properties": {
+            "dataset": {
+              "const": "fred_series",
+              "type": "string"
+            },
+            "end_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "End Date"
+            },
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "series": {
+              "pattern": "^[A-Z0-9_]{1,80}$",
+              "type": "string"
+            },
+            "start_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Start Date"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": ["dataset", "series"],
+          "type": "object"
+        },
         {
           "additionalProperties": false,
           "properties": {
@@ -387,8 +1792,8 @@
               "title": "End Date"
             },
             "identifier": {
-              "description": "Explicit Tokyo Yahoo symbol, for example 7203.T or 130A.T.",
-              "pattern": "^[0-9][0-9A-Z]{3}\\.T$",
+              "description": "Explicit supported Yahoo symbol; source metadata validates its market.",
+              "pattern": "^(?:[0-9][0-9A-Z]{3}\\.T|[A-Z][A-Z0-9]{0,5}(?:-[A-Z])?|\\^GSPC|\\^DJI|\\^IXIC|\\^RUT|\\^VIX|\\^N225|EURUSD=X|GBPUSD=X|AUDUSD=X|NZDUSD=X|USDJPY=X|USDCHF=X|USDCAD=X|BTC\\-USD|ETH\\-USD|GC=F|SI=F|CL=F|NG=F|ES=F|NQ=F)$",
               "type": "string"
             },
             "limit": {
@@ -454,8 +1859,8 @@
               "title": "End Date"
             },
             "identifier": {
-              "description": "Explicit Tokyo Yahoo symbol, for example 7203.T or 130A.T.",
-              "pattern": "^[0-9][0-9A-Z]{3}\\.T$",
+              "description": "Explicit supported Yahoo symbol; source metadata validates its market.",
+              "pattern": "^(?:[0-9][0-9A-Z]{3}\\.T|[A-Z][A-Z0-9]{0,5}(?:-[A-Z])?)$",
               "type": "string"
             },
             "limit": {
@@ -1356,6 +2761,7 @@
                   "cost_of_revenue",
                   "current_assets",
                   "current_liabilities",
+                  "current_ratio",
                   "depreciation_amortization",
                   "dividends_paid",
                   "dividends_per_share",
@@ -1367,18 +2773,23 @@
                   "free_cash_flow",
                   "free_cash_flow_margin",
                   "goodwill",
+                  "gross_margin",
                   "gross_profit",
                   "income_tax_expense",
                   "interest_expense",
                   "inventory",
                   "investing_cash_flow",
                   "liabilities",
+                  "liabilities_to_equity",
                   "long_term_debt_noncurrent",
                   "net_income",
                   "net_income_growth_yoy",
+                  "net_margin",
                   "operating_cash_flow",
+                  "operating_cash_flow_to_net_income",
                   "operating_income",
                   "operating_income_growth_yoy",
+                  "operating_margin",
                   "property_plant_equipment",
                   "research_and_development",
                   "retained_earnings",
@@ -3178,7 +4589,13 @@
             "japan_disclosures",
             "japan_filing_facts",
             "japan_securities",
-            "source_history"
+            "source_history",
+            "price_analytics",
+            "price_comparison",
+            "company_screen",
+            "filing_events",
+            "fund_holdings",
+            "fred_series"
           ],
           "title": "Dataset",
           "type": "string"
@@ -3288,6 +4705,34 @@
           "title": "Identifiers",
           "type": "array"
         },
+        "filters": {
+          "items": {
+            "$ref": "#/$defs/ScreenFilter"
+          },
+          "maxItems": 10,
+          "title": "Filters",
+          "type": "array"
+        },
+        "sort_by": {
+          "anyOf": [
+            {
+              "maxLength": 80,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sort By"
+        },
+        "sort_order": {
+          "default": "desc",
+          "enum": ["asc", "desc"],
+          "title": "Sort Order",
+          "type": "string"
+        },
         "metrics": {
           "items": {
             "type": "string"
@@ -3375,7 +4820,7 @@
         "series": {
           "anyOf": [
             {
-              "pattern": "^[A-Za-z0-9_]{1,40}$",
+              "pattern": "^[A-Za-z0-9_]{1,80}$",
               "type": "string"
             },
             {
@@ -4011,7 +5456,13 @@
             "japan_disclosures",
             "japan_filing_facts",
             "japan_securities",
-            "source_history"
+            "source_history",
+            "price_analytics",
+            "price_comparison",
+            "company_screen",
+            "filing_events",
+            "fund_holdings",
+            "fred_series"
           ],
           "title": "Dataset",
           "type": "string"
@@ -4505,7 +5956,7 @@
             "identifier": {
               "maxLength": 100,
               "minLength": 1,
-              "pattern": "^[0-9][0-9A-Z]{3}\\.T$",
+              "pattern": "^(?:[0-9][0-9A-Z]{3}\\.T|[A-Z][A-Z0-9]{0,5}(?:-[A-Z])?|\\^GSPC|\\^DJI|\\^IXIC|\\^RUT|\\^VIX|\\^N225|EURUSD=X|GBPUSD=X|AUDUSD=X|NZDUSD=X|USDJPY=X|USDCHF=X|USDCAD=X|BTC\\-USD|ETH\\-USD|GC=F|SI=F|CL=F|NG=F|ES=F|NQ=F)$",
               "type": "string"
             },
             "include": {

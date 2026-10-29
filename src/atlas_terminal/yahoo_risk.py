@@ -6,7 +6,13 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import Field, model_validator
 
-from atlas_terminal.equity_sources import TOKYO, require_yahoo_enabled, yahoo_symbol, yahoo_url
+from atlas_terminal.equity_sources import (
+    require_yahoo_enabled,
+    yahoo_profile,
+    yahoo_symbol,
+    yahoo_timezone,
+    yahoo_url,
+)
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.risk_models import RiskBase, RiskMethod
 
@@ -28,8 +34,17 @@ class YahooRiskSpec(RiskBase):
     def valid_selection(self) -> "YahooRiskSpec":
         if len(set(self.symbols)) != len(self.symbols) or self.factor_symbol in self.symbols:
             raise ValueError("Use unique assets and a separate observed ETF factor")
-        for symbol in [*self.symbols, self.factor_symbol]:
+        selected = [*self.symbols, self.factor_symbol]
+        profile = yahoo_profile(selected[0])
+        for symbol in selected:
             yahoo_symbol(symbol)
+            other = yahoo_profile(symbol)
+            if (
+                other["asset_class"] != "security"
+                or other["currency"] != profile["currency"]
+                or other["timezone"] != profile["timezone"]
+            ):
+                raise ValueError("Use securities from one supported currency and market")
             yahoo_url(symbol, self.start_date, self.end_date)
         return self
 
@@ -40,18 +55,22 @@ def panel_from_prices(spec: YahooRiskSpec, results: list[dict[str, Any]]) -> "Ri
     from atlas_terminal.util import canonical, digest
 
     symbols = [*spec.symbols, spec.factor_symbol]
+    profile = yahoo_profile(symbols[0])
+    timezone = yahoo_timezone(symbols[0])
+    currency = profile["currency"]
     if len(results) != len(symbols):
         raise AtlasError("RISK_INPUT_INCOMPLETE", "Supply every selected price result.")
     series, sources, documents = {}, [], []
     for symbol, result in zip(symbols, results, strict=True):
         if (
             result["instrument"]["symbol"] != symbol
-            or result["instrument"]["currency"] != "JPY"
+            or result["instrument"]["currency"] != currency
+            or result["instrument"].get("exchange_timezone") != profile["timezone"]
             or result["instrument"]["source_instrument_type"] not in {"EQUITY", "ETF"}
             or result["coverage"]["truncated"]
         ):
             raise AtlasError(
-                "RISK_INPUT_INCOMPLETE", "Require complete selected JPY price histories."
+                "RISK_INPUT_INCOMPLETE", "Require complete selected same-market price histories."
             )
         if symbol == spec.factor_symbol and result["instrument"]["source_instrument_type"] != "ETF":
             raise AtlasError(
@@ -118,14 +137,14 @@ def panel_from_prices(spec: YahooRiskSpec, results: list[dict[str, Any]]) -> "Ri
         for before, after in zip(dates, dates[1:], strict=False):
             # Explicit calendar boundaries label daily return periods, not exchange close times.
             start = datetime.combine(
-                datetime.fromisoformat(before).date() + timedelta(days=1), time(), TOKYO
+                datetime.fromisoformat(before).date() + timedelta(days=1), time(), timezone
             )
             end = datetime.combine(
-                datetime.fromisoformat(after).date() + timedelta(days=1), time(), TOKYO
+                datetime.fromisoformat(after).date() + timedelta(days=1), time(), timezone
             )
             if end > available:
                 raise AtlasError(
-                    "RISK_INPUT_INCOMPLETE", "Wait until the selected Tokyo day has ended."
+                    "RISK_INPUT_INCOMPLETE", "Wait until the selected source-local day has ended."
                 )
             returns = {}
             for symbol in symbols:
@@ -153,7 +172,7 @@ def panel_from_prices(spec: YahooRiskSpec, results: list[dict[str, Any]]) -> "Ri
         "kind": "time_series_manifest",
         "schema_version": "0.1.0",
         "is_synthetic": any(r["is_synthetic"] for r in results),
-        "currency": "JPY",
+        "currency": currency,
         "frequency": "daily",
         "return_unit": "decimal_return",
         "return_convention": "split_and_dividend_adjusted_simple_total_return",
@@ -163,10 +182,10 @@ def panel_from_prices(spec: YahooRiskSpec, results: list[dict[str, Any]]) -> "Ri
         "universe": [
             {
                 "asset_id": s,
-                "currency": "JPY",
+                "currency": currency,
                 "security_type": "etf"
                 if r["instrument"]["source_instrument_type"] == "ETF"
-                else "common_stock",
+                else "other",
             }
             for s, r in zip(spec.symbols, results, strict=False)
         ],
@@ -178,11 +197,15 @@ def panel_from_prices(spec: YahooRiskSpec, results: list[dict[str, Any]]) -> "Ri
         normalization={
             "formula": "adjusted_close[t] / adjusted_close[t-1] - 1",
             "rounding": "18 decimal places, ROUND_HALF_EVEN",
-            "session_boundary_basis": "Tokyo calendar day end, not verified market close",
+            "session_boundary_basis": profile["timezone"]
+            + " calendar day end, not verified market close",
             "availability_basis": (
                 "latest source retrieval; no historical first availability inferred"
             ),
             "factor_basis": "selected ETF proxy, not an official market factor",
+            "security_type_basis": (
+                "source ETF identified; Yahoo EQUITY does not establish common-share class"
+            ),
             "point_in_time": False,
             "gap_filling": False,
             "re_adjustment": False,

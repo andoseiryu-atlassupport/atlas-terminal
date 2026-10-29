@@ -4,13 +4,23 @@ from copy import deepcopy
 from datetime import date
 from typing import Any, Literal
 
-from pydantic import ConfigDict, Field, ValidationError, field_validator, model_validator
+from pydantic import (
+    ConfigDict,
+    Field,
+    ValidationError,
+    ValidationInfo,
+    field_validator,
+    model_validator,
+)
 
 from atlas_terminal.activity_catalog import ACTIVITY_SERIES
 from atlas_terminal.economic_catalog import JAPAN_SERIES, NATIONAL_ACCOUNTS
 from atlas_terminal.equity_sources import (
     EQUITY_DATASETS,
+    TOKYO_SYMBOL_PATTERN,
+    US_SYMBOL_PATTERN,
     YAHOO_SYMBOL_PATTERN,
+    yahoo_profile,
     yahoo_symbol,
     yahoo_url,
 )
@@ -25,6 +35,7 @@ from atlas_terminal.macro_catalog import (
 from atlas_terminal.models import Model, identifier
 from atlas_terminal.regional_bond_sources import EURO_SERIES
 from atlas_terminal.regional_economic_catalog import EUROPE_SERIES, UK_SERIES
+from atlas_terminal.research_discovery import ScreenFilter
 from atlas_terminal.research_quality import ResearchRequirements
 from atlas_terminal.sdmx_sources import CODE_PATTERN, FLOW_PATTERN
 
@@ -67,9 +78,29 @@ Dataset = Literal[
     "japan_filing_facts",
     "japan_securities",
     "source_history",
+    "price_analytics",
+    "price_comparison",
+    "company_screen",
+    "filing_events",
+    "fund_holdings",
+    "fred_series",
 ]
 
 FIELDS = {
+    "price_comparison": {"identifiers", "start_date", "end_date", "limit"},
+    "price_analytics": {"identifier", "start_date", "end_date", "metrics", "limit"},
+    "company_screen": {
+        "identifiers",
+        "metrics",
+        "period",
+        "allow_partial",
+        "filters",
+        "sort_by",
+        "sort_order",
+    },
+    "filing_events": {"identifier", "series", "start_date", "end_date", "limit"},
+    "fund_holdings": {"identifier", "accession", "limit"},
+    "fred_series": {"series", "start_date", "end_date", "limit"},
     "japan_disclosures": {"filing_date", "identifier", "limit"},
     "japan_filing_facts": {"filing_date", "document_id", "concept", "limit"},
     "japan_securities": {"identifier", "limit"},
@@ -119,6 +150,14 @@ FIELDS = {
 
 
 def dataset_required(name: str) -> list[str]:
+    if name == "price_comparison":
+        return ["identifiers", "start_date", "end_date"]
+    if name == "company_screen":
+        return ["identifiers", "filters"]
+    if name == "fund_holdings":
+        return ["identifier", "accession"]
+    if name == "fred_series":
+        return ["series"]
     if name == "source_history":
         return ["source_url"]
     if name == "japan_disclosures":
@@ -210,7 +249,7 @@ def dataset_schema(schema: dict[str, Any]) -> None:
     # One source of truth for runtime validation, MCP, HTTP and the catalog.
     from atlas_terminal.public_sources import BLS_SERIES
     from atlas_terminal.research_analytics import ANALYTICS_METRICS
-    from atlas_terminal.research_financials import STATEMENT_METRICS
+    from atlas_terminal.research_financials import RATIOS, STATEMENT_METRICS
 
     branches = []
     for name, fields in FIELDS.items():
@@ -233,18 +272,46 @@ def dataset_schema(schema: dict[str, Any]) -> None:
                     part for part in properties[required]["anyOf"] if part.get("type") != "null"
                 ]
                 properties[required] = choices[0] if len(choices) == 1 else {"anyOf": choices}
-        if name in EQUITY_DATASETS:
+        if name in EQUITY_DATASETS | {"price_analytics"}:
             properties["identifier"] = {
                 "type": "string",
                 "pattern": "^" + YAHOO_SYMBOL_PATTERN + "$",
-                "description": "Explicit Tokyo Yahoo symbol, for example 7203.T or 130A.T.",
+                "description": (
+                    "Explicit supported Yahoo symbol; source metadata validates its market."
+                ),
             }
-        if name in {"statements", "financial_analytics", "compare"}:
+        if name == "equity_actions":
+            properties["identifier"]["pattern"] = (
+                "^(?:" + TOKYO_SYMBOL_PATTERN + "|" + US_SYMBOL_PATTERN + ")$"
+            )
+        if name == "price_analytics":
+            from atlas_terminal.research_price_analytics import PRICE_METRICS
+
+            properties["metrics"]["items"] = {"type": "string", "enum": sorted(PRICE_METRICS)}
+            properties["metrics"]["uniqueItems"] = True
+        if name == "price_comparison":
+            properties["identifiers"]["minItems"] = 2
+            properties["identifiers"]["uniqueItems"] = True
+            properties["identifiers"]["items"] = {
+                "type": "string",
+                "pattern": "^(?:" + TOKYO_SYMBOL_PATTERN + "|" + US_SYMBOL_PATTERN + ")$",
+            }
+        if name == "company_screen":
+            properties["filters"]["minItems"] = 1
+        if name == "filing_events":
+            from atlas_terminal.research_discovery import EVENT_SERIES
+
+            properties["series"] = {"type": ["string", "null"], "enum": [None, *EVENT_SERIES]}
+        if name == "fred_series":
+            properties["series"] = {"type": "string", "pattern": "^[A-Z0-9_]{1,80}$"}
+        if name in {"statements", "financial_analytics", "compare", "company_screen"}:
             metrics: set[str] = set()
             if name != "financial_analytics":
                 metrics.update(STATEMENT_METRICS)
             if name != "statements":
                 metrics.update(ANALYTICS_METRICS)
+            if name in {"compare", "company_screen"}:
+                metrics.update(RATIOS)
             properties["metrics"]["items"] = {"type": "string", "enum": sorted(metrics)}
         if name == "economics":
             properties["series"]["enum"] = sorted(
@@ -351,6 +418,9 @@ class ResearchQuery(Model):
     as_of: str | None = Field(default=None, max_length=64)
     identifier: str | None = None
     identifiers: list[str] = Field(default_factory=list, max_length=10)
+    filters: list[ScreenFilter] = Field(default_factory=list, max_length=10)
+    sort_by: str | None = Field(default=None, min_length=1, max_length=80)
+    sort_order: Literal["asc", "desc"] = "desc"
     metrics: list[str] = Field(default_factory=list, max_length=40)
     period: Literal["annual", "quarterly", "ytd"] = "annual"
     count: int = Field(default=3, ge=1, le=20, strict=True)
@@ -361,7 +431,7 @@ class ResearchQuery(Model):
     unit: str | None = Field(default=None, pattern=r"^[A-Za-z][A-Za-z0-9_/-]{0,49}$")
     form: str = Field(default="all", pattern=r"^[A-Za-z0-9][A-Za-z0-9 /-]{0,29}$")
     accession: str | None = Field(default=None, pattern=r"^[0-9]{10}-[0-9]{2}-[0-9]{6}$")
-    series: str | None = Field(default=None, pattern=r"^[A-Za-z0-9_]{1,40}$")
+    series: str | None = Field(default=None, pattern=r"^[A-Za-z0-9_]{1,80}$")
     year: int | None = Field(default=None, ge=1990, le=2100, strict=True)
     base_currency: Currency | None = None
     quote_currency: Currency | None = None
@@ -386,13 +456,16 @@ class ResearchQuery(Model):
 
     @field_validator("identifier")
     @classmethod
-    def check_identifier(cls, value: str | None) -> str | None:
+    def check_identifier(cls, value: str | None, info: ValidationInfo) -> str | None:
+        if value is not None and info.data.get("dataset") in EQUITY_DATASETS | {"price_analytics"}:
+            return yahoo_symbol(value)
         return identifier(value) if value is not None else None
 
     @field_validator("identifiers")
     @classmethod
-    def check_identifiers(cls, values: list[str]) -> list[str]:
-        result = [identifier(v) for v in values]
+    def check_identifiers(cls, values: list[str], info: ValidationInfo) -> list[str]:
+        validator = yahoo_symbol if info.data.get("dataset") == "price_comparison" else identifier
+        result = [validator(v) for v in values]
         if len(set(result)) != len(result):
             raise ValueError("Duplicate identifiers")
         return result
@@ -406,6 +479,29 @@ class ResearchQuery(Model):
 
     @model_validator(mode="after")
     def check_dataset(self) -> "ResearchQuery":
+        if self.dataset == "price_comparison":
+            from atlas_terminal.research_price_comparison import validate_price_comparison
+
+            validate_price_comparison(self)
+        if self.dataset == "company_screen":
+            from atlas_terminal.research_discovery import check_screen_query
+
+            check_screen_query(self)
+        if self.dataset == "filing_events":
+            from atlas_terminal.research_discovery import check_event_query
+
+            check_event_query(self)
+        if self.dataset == "fund_holdings" and self.accession is None:
+            raise AtlasError("INVALID_INPUT", "Select one explicit fund filing accession.")
+        if self.dataset == "fred_series":
+            from atlas_terminal.fred_sources import fred_series_id
+
+            fred_series_id(self.series or "")
+        if self.dataset == "price_analytics":
+            from atlas_terminal.research_price_analytics import PRICE_METRICS
+
+            if set(self.metrics) - set(PRICE_METRICS):
+                raise AtlasError("UNSUPPORTED_METRIC", "Choose a catalog price indicator.")
         if self.dataset in {"japan_disclosures", "japan_filing_facts"}:
             from atlas_terminal.japan_company_sources import edinet_list_url
 
@@ -427,9 +523,14 @@ class ResearchQuery(Model):
                 as_of=self.as_of,
                 limit=self.limit,
             )
-        if self.dataset in EQUITY_DATASETS:
+        if self.dataset in EQUITY_DATASETS | {"price_analytics"}:
             yahoo_symbol(self.identifier or "")
             yahoo_url(self.identifier or "", self.start_date, self.end_date)
+        if (
+            self.dataset == "equity_actions"
+            and yahoo_profile(self.identifier or "")["asset_class"] != "security"
+        ):
+            raise AtlasError("INVALID_INPUT", "Corporate actions require a stock or ETF symbol.")
         if self.dataset in {"sdmx_catalog", "international_economics"}:
             if self.source_id is None:
                 raise AtlasError("INVALID_INPUT", "Choose imf, oecd or abs.", fields=["source_id"])
@@ -575,13 +676,15 @@ class ResearchQuery(Model):
             )
         if self.dataset in {"statements", "financial_analytics", "compare"} and self.metrics:
             from atlas_terminal.research_analytics import ANALYTICS_METRICS
-            from atlas_terminal.research_financials import STATEMENT_METRICS
+            from atlas_terminal.research_financials import RATIOS, STATEMENT_METRICS
 
             supported: set[str] = set()
             if self.dataset != "financial_analytics":
                 supported.update(STATEMENT_METRICS)
             if self.dataset != "statements":
                 supported.update(ANALYTICS_METRICS)
+            if self.dataset == "compare":
+                supported.update(RATIOS)
             if set(self.metrics) - supported:
                 raise AtlasError(
                     "UNSUPPORTED_METRIC",

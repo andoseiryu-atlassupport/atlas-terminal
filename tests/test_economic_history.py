@@ -204,13 +204,10 @@ def test_full_ecb_feed_accepts_old_dates_new_currencies_and_keeps_same_date_inpu
     assert result["records"][0]["date"] == "2000-01-03"
 
 
-def test_bea_private_key_wire_only_echo_not_returned_and_units_not_rescaled(
-    tmp_path, monkeypatch, caplog
-):
+def test_bea_private_key_wire_only_no_echo_and_units_not_rescaled(tmp_path, monkeypatch, caplog):
     monkeypatch.setenv("BEA_API_KEY", KEY)
     requests = []
     body = fixture_json("bea_T10106.json")
-    body["BEAAPI"]["Request"] = {"RequestParam": [{"ParameterValue": KEY}]}
     next(
         row
         for row in body["BEAAPI"]["Results"]["Data"]

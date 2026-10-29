@@ -28,10 +28,20 @@ def research_documentation(dataset: str) -> dict[str, str]:
         "macro_panel",
     }
     equity = dataset in {"equity_prices", "equity_actions"}
+    market = dataset in {
+        "price_analytics",
+        "price_comparison",
+        "company_screen",
+        "filing_events",
+        "fund_holdings",
+        "fred_series",
+    }
     japan = dataset in {"japan_disclosures", "japan_filing_facts", "japan_securities"}
     history = dataset == "source_history"
     methodology = (
-        "japan-companies"
+        "market-research"
+        if market
+        else "japan-companies"
         if japan
         else "source-history"
         if history
@@ -42,7 +52,9 @@ def research_documentation(dataset: str) -> dict[str, str]:
         else "methodology"
     )
     guide = (
-        "japan-companies"
+        "market-research"
+        if market
+        else "japan-companies"
         if japan
         else "source-history"
         if history

@@ -180,9 +180,9 @@ def test_dates_use_tokyo_and_date_filtering_is_inclusive_without_holiday_fill():
 
 
 @pytest.mark.parametrize(
-    "symbol", ["AAPL", "7203", "7203.t", "7203.T?x=1", "7203.T/", "7203.N", "^N225"]
+    "symbol", ["7203", "7203.t", "7203.T?x=1", "7203.T/", "7203.N", "^UNKNOWN", "JPY=X"]
 )
-def test_only_explicit_tokyo_symbols_are_accepted_by_runtime_and_schema(symbol):
+def test_only_supported_explicit_symbols_are_accepted_by_runtime_and_schema(symbol):
     validator = Draft202012Validator(ResearchQuery.model_json_schema())
     with pytest.raises(ValidationError):
         validator.validate(query(identifier=symbol))

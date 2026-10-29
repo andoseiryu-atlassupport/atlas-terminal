@@ -19,7 +19,7 @@ from atlas_terminal.hosted import HostedClient
 from atlas_terminal.public_sources import BLS_SERIES, PublicTransport
 from atlas_terminal.research import DATASETS
 from atlas_terminal.research_analytics import ANALYTICS_METRICS
-from atlas_terminal.research_financials import STATEMENT_METRICS
+from atlas_terminal.research_financials import RATIOS, STATEMENT_METRICS
 from atlas_terminal.research_models import ResearchQuery, dataset_required
 from atlas_terminal.research_views import ResearchResult, ResearchViews
 from atlas_terminal.server import create_app
@@ -32,6 +32,48 @@ def private_state(tmp_path, monkeypatch):
 
 
 def query(dataset="statements", **extra):
+    if dataset == "company_screen":
+        return {
+            "dataset": dataset,
+            "identifiers": ["ATLASDEMO"],
+            "metrics": ["revenue", "net_margin"],
+            "filters": [
+                {"metric": "net_margin", "operator": "gte", "value": "0.1", "unit": "ratio"}
+            ],
+            **extra,
+        }
+    if dataset == "price_comparison":
+        return {
+            "dataset": dataset,
+            "identifiers": ["AAPL", "MSFT"],
+            "start_date": "2026-04-01",
+            "end_date": "2026-06-30",
+            **extra,
+        }
+    if dataset == "price_analytics":
+        return {
+            "dataset": dataset,
+            "identifier": "AAPL",
+            "start_date": "2026-04-01",
+            "end_date": "2026-06-30",
+            "metrics": ["return_1d", "sma_20", "rsi_14"],
+            **extra,
+        }
+    if dataset == "fund_holdings":
+        return {
+            "dataset": dataset,
+            "identifier": "ATLASDEMO",
+            "accession": "9999999999-26-000008",
+            **extra,
+        }
+    if dataset == "fred_series":
+        return {
+            "dataset": dataset,
+            "series": "DEMO_INDEX",
+            "start_date": "2026-01-01",
+            "end_date": "2026-12-31",
+            **extra,
+        }
     if dataset == "source_history":
         return {
             "dataset": dataset,
@@ -135,9 +177,12 @@ def test_query_schema_discriminates_datasets_and_enumerates_actual_metrics():
     assert set(variants["financial_analytics"]["properties"]["metrics"]["items"]["enum"]) == set(
         ANALYTICS_METRICS
     )
-    assert set(variants["compare"]["properties"]["metrics"]["items"]["enum"]) == set(
-        STATEMENT_METRICS
-    ) | set(ANALYTICS_METRICS)
+    comparable_metrics = set(STATEMENT_METRICS) | set(ANALYTICS_METRICS) | set(RATIOS)
+    assert set(variants["compare"]["properties"]["metrics"]["items"]["enum"]) == comparable_metrics
+    assert (
+        set(variants["company_screen"]["properties"]["metrics"]["items"]["enum"])
+        == comparable_metrics
+    )
     assert set(variants["economics"]["properties"]["series"]["enum"]) == set(BLS_SERIES) | {
         v[0] for v in BLS_SERIES.values()
     }
@@ -150,6 +195,11 @@ def test_query_schema_discriminates_datasets_and_enumerates_actual_metrics():
         query(metrics=["made_up_metric"]),
         query("profile", metrics=["revenue"]),
         query("compare", identifiers=[]),
+        query("company_screen", filters=[]),
+        query("price_comparison", identifiers=["AAPL"]),
+        query("price_analytics", metrics=["made_up_metric"]),
+        query("fund_holdings", accession=None),
+        query("fred_series", series="demo_index"),
         query(count=True),
     ]:
         with pytest.raises(ValidationError):
