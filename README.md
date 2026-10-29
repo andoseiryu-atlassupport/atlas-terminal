@@ -6,7 +6,7 @@
 
 Atlas Terminal gives AI agents company financials, US/Japan macro indicators and reference FX through one MCP connection, using free public primary sources. The same retrieval, calculation and evidence services are available through a CLI, Python SDK and HTTP API.
 
-Optional [native factor risk models](docs/risk-model.md) analyze supplied [US, Japanese, Korean and British stock histories](docs/equity-markets.md). One request reads a named JSON, CSV or SQLite connection, validates inputs, fits a cross-sectional or time-series model and analyzes a portfolio. The models are experimental; a historical equity database and verified vintages are not included. A separate optional [international Yahoo Finance reader](docs/yahoo-finance.md) supplies Tokyo daily prices, dividends and splits for personal use, with explicit operator enablement. A [named Yahoo time-series connection](docs/data-connections.md#optional-yahoo-time-series-connection) can fit real adjusted-price returns against a separately chosen ETF proxy.
+Optional [native factor risk models](docs/risk-model.md) analyze supplied [US, Japanese, Korean and British stock histories](docs/equity-markets.md). One request reads a named JSON, CSV or SQLite connection, validates inputs, fits a cross-sectional or time-series model and analyzes a portfolio. The models are experimental; a historical equity database and verified vintages are not included. A separate optional [international Yahoo Finance reader](docs/yahoo-finance.md) supplies US/Tokyo daily security prices/actions and selected index, FX, crypto and futures observations for personal use, with explicit operator enablement. A [named Yahoo time-series connection](docs/data-connections.md#optional-yahoo-time-series-connection) can fit real adjusted-price returns against a separately chosen ETF proxy.
 
 [Documentation website](https://atlas-terminal-docs.citrus-genet-7815.chatgpt.site) · [Connect Codex](docs/codex.md) · [Reproducible examples](docs/research-examples.md) · [Capabilities](IMPLEMENTATION_STATUS.md) · [Data sources](DATA_SOURCES.md)
 
@@ -29,7 +29,9 @@ Run `atlas showcase research --provider public --allow-network` for actual ECB/N
 
 ## Available data
 
-Atlas provides 35 primary-source datasets from SEC EDGAR, BLS, US Treasury yields, Treasury Fiscal Data, the Federal Reserve, the ECB, the New York Fed, BEA, the Bank of Japan, Japan's Statistical Dashboard, Japan's Ministry of Finance, IMF, OECD, the Reserve Bank of Australia, Eurostat, the UK Office for National Statistics, US Census, FRED-distributed DOL claims, the Australian Bureau of Statistics, Statistics Canada and World Bank WDI. Two optional international Yahoo Finance datasets and one local source-history dataset bring the catalog to 38; this secondary source is disabled by default and restricted to personal-use access under its separate terms.
+Atlas provides 44 research datasets, including private local source history, with data from 24 upstream source families. Official sources include SEC EDGAR, BLS, Treasury, the Federal Reserve, ECB, New York Fed, BEA, BOJ, Japan's Statistical Dashboard/MOF, EDINET, JPX, IMF, OECD, RBA, Eurostat, ONS, Census, ABS, StatCan and World Bank. Generic FRED retrieval preserves original producer conditions. Four optional Yahoo price/action/analytics/comparison datasets remain disabled by default for personal-use access under separate terms.
+
+[Market research](docs/market-research.md) adds 14 trailing price indicators, same-market performance/correlation comparison, financial screening over up to ten named issuers, classified historical filing events, selected N-PORT fund holdings, generic FRED series and offline HTML chart export. Each retains source evidence and explicit missingness.
 
 | Area         | Information                                                                                                                           |
 | ------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
@@ -45,7 +47,7 @@ Atlas provides 35 primary-source datasets from SEC EDGAR, BLS, US Treasury yield
 | US activity  | Retail, housing, durable goods, industrial production, weekly claims and goods/services trade                                         |
 | AU / CA / CN | Four Australian, three Canadian and four Chinese GDP/price/labour selections, with distinct source frequencies                        |
 | Japan        | Twenty-nine selections including machinery orders, trade, current account, corporate statistics and BOJ financial series              |
-| JP equities  | Optional Yahoo Tokyo daily OHLC, volume, adjusted close, dividends and splits; personal use, with original source-cell evidence       |
+| Market data  | Optional US/Tokyo securities and selected indexes/FX/crypto/futures; price analytics, comparison and original source-cell evidence    |
 | Europe / UK  | Eurostat GDP, HICP, unemployment, production and retail for six regions; five ONS CPI/GDP/rolling-unemployment series                 |
 | Policy       | Federal Reserve release headlines, publication times and original links                                                               |
 

@@ -1,6 +1,6 @@
 # Validation scope
 
-Recorded on 2026-10-29 (JST) for the source checkout following Atlas Terminal 0.7.0, with Python 3.12.14 and Node.js 24 on Linux. Local verification, GitHub Actions, public deployment, official-source access and model observations are distinct evidence.
+Recorded on 2026-10-30 (JST) for the source checkout following Atlas Terminal 0.7.0, with Python 3.12.14 and Node.js 24 on Linux. Local verification, GitHub Actions, public deployment, official-source access and model observations are distinct evidence.
 
 Version 0.7.0 includes the experimental native factor risk extension and installed walkthroughs described below. The prior 0.6.0 release did not include risk estimation. Local wheel checks remain separate evidence from a published GitHub release.
 
@@ -10,11 +10,11 @@ Version 0.7.0 includes the experimental native factor risk extension and install
 | --------------------------------------------------------- | ------------------------------------------------------------------- |
 | `uv run --offline ruff check .`                           | PASS                                                                |
 | `uv run --offline ruff format --check .`                  | PASS                                                                |
-| `uv run --offline mypy`                                   | PASS; 72 source files                                               |
-| `uv run --offline pytest`                                 | PASS; 1,394 tests, 2 live tests deselected                          |
+| `uv run --offline mypy`                                   | PASS; 79 source files                                               |
+| `uv run --offline pytest`                                 | PASS; 1,697 tests, 2 live tests deselected                          |
 | `uv run --offline python -m build --no-isolation`         | PASS; wheel and source distribution                                 |
 | `uv run --offline python scripts/verify_distribution.py`  | PASS; metadata, required contents and forbidden paths               |
-| `uv run --offline python scripts/build_docs.py`           | PASS; 50 HTML pages and internal file/section links                 |
+| `uv run --offline python scripts/build_docs.py`           | PASS; 51 HTML pages and internal file/section links                 |
 | `uv run --offline python scripts/verify_showcases.py`     | PASS; both recorded versions, data modes and checksums              |
 | `uv run --offline python scripts/verify_bls_capture.py`   | PASS; offline audit/replay of 14 captured responses and 168 records |
 | `uv run --offline python scripts/prepare_distribution.py` | PREPARED; versioned plugin ZIP and Registry draft                   |
@@ -25,9 +25,27 @@ Default tests prohibit IP sockets and use fictional sources, mocked transports o
 
 Test cases use isolated private state directories so repeated verification does not consume an operator's persistent cache quota. The numerical and protocol assertions remain unchanged.
 
+## Market prices, analytics and discovery
+
+The source checkout now exposes **44 datasets** and 24 upstream source families. Six added datasets cover trailing price indicators, aligned price comparison, explicit-universe financial screening, historical filing events, one-filing N-PORT investments and generic FRED series. The optional Yahoo reader also covers US/Tokyo securities and 21 explicit index/FX/crypto/futures references. Local HTML/SVG charts render saved full responses without fetching data or publishing a service. Existing release assets are unchanged.
+
+On **2026-10-30 JST** (2026-10-29 UTC), `ATLAS_ENABLE_YAHOO_FINANCE=1 uv run --offline python scripts/verify_market_prices_live.py --allow-network --output build/market-prices-verified` executed 27 checks: **21 PASS and six PARTIAL**, with no fetch failures. Twenty-five symbols used 2026-09-01 through 2026-10-23; a separate `CL=F` request covered 2020-04-17 through 2020-04-23. All **990 price rows and 6,930 original numeric/timestamp cells** matched retained raw responses. Six FX windows contained ten source OHLC contradictions, preserved as ambiguous instead of repaired. The script intentionally exits nonzero when any check is partial. Negative crude-oil prices were retained exactly, including the 2020-04-20 close. Source aliases, units and local dates remain explicit.
+
+A real USD time-series risk run used AAPL/MSFT with SPY as the separate ETF proxy, 203 observed returns and a 120-session fit. All inputs were captured before selecting the risk availability cutoff. This verifies execution, not forecast accuracy or an official factor series. Mixed markets and index/FX/crypto/futures inputs remain excluded from the connector.
+
+Separate Python SDK reads used `price_analytics` for AAPL and `price_comparison` for AAPL/MSFT/SPY over 2026-01-01 through 2026-09-30. Each asset supplied **187 prices** and 186 consecutive-observation returns. Fourteen indicators generated 2,618 rows, including 268 explicit warm-up/unavailable rows; the selected output limit was 500. Comparison returned nine complete asset/pair groups. **1,496 original price/date cells** were independently checked against matching source hashes, including exchange-local timestamp conversion. No dates or prices were filled. Raw responses, normalized results and reports remain ignored private output; bundled examples are fictional.
+
+Direct normal-proxy checks of Yahoo quote, options and quote-summary holdings/calendar/estimates endpoints returned **HTTP 401**. No cookies, crumbs, alternate-host access or authentication bypass was attempted; these endpoints are not integrated. SEC directory access returned **`httpx.ProxyError: 403 Forbidden`** under the environment's allowed-host policy, and no identifying contact configuration was set. This is an environment restriction, not evidence of a SEC outage. FRED, BEA, Census and EDINET keys were absent; authenticated live compatibility remains unverified. N-PORT XML behavior is covered by fictional tests and secondary schema-example corroboration, without a claim of direct official-schema or live verification.
+
+Credential regressions cover exact destinations, redirect rejection, canonical/cache/log separation, literal and escaped echoes, sanitized response headers and legacy BEA cache/304 paths. BEA responses echoing a private key, including request metadata, fail before retention instead of rewriting original bytes. Compatibility with actual authenticated BEA responses remains unverified. Full, compact and cursor result envelopes enforce a 4 MiB budget, including calculation inputs and quality/presentation metadata.
+
+The common service contracts preserve original evidence through all four interfaces. Screening includes 37 reported concepts, seven growth/FCF metrics and six ratios, with exact period/unit alignment and an explicit universe of at most ten issuers. N-PORT country/category allocations are disclosed valuations divided by reported net assets; missing or truncated portfolios remain unavailable, and derivative economic exposure is not inferred. Filing events use filing dates and exact form/item classifications, including contradictory duplicate-row checks. These capabilities do not provide a full-market financial screen, current ETF mapping, future earnings calendar, intraday prices, licensed consensus/news/transcripts, verified PIT or general GARCH/unit-root analysis.
+
+The final offline suite passed **1,697 tests**, including **291 new dedicated regressions**, with two live cases excluded. Ruff/format, mypy (79 source files), schema export, npm checks, 51-page documentation/link validation, distribution preparation, source/wheel checks, credential-pattern scanning and existing BLS/showcase replay checks passed. A fresh runtime installed the wheel with hash-locked dependencies and passed CLI/SDK/official stdio MCP/loopback HTTP for all six new datasets, plus Streamable HTTP restart/evidence and existing recovery checks. These installed tests made no external source requests or real transfers. A saved real AAPL indicator response rendered to a private local chart without network access. Local checks and GitHub Actions remain separate evidence.
+
 ## Data integrity and Japanese company extensions
 
-The source checkout adds `japan_disclosures`, `japan_filing_facts`, `japan_securities`, private `source_history` and a named personal-use Yahoo time-series risk connector. The catalog contains 38 datasets, 24 upstream source families and 24 presets. Existing release assets and both showcase recordings are unchanged. Real raw/normalized captures remain private, ignored output. EDINET/JPX fixtures and new regression inputs are fictional.
+The source checkout adds `japan_disclosures`, `japan_filing_facts`, `japan_securities`, private `source_history` and a named personal-use Yahoo time-series risk connector. At that checkpoint the catalog contained 38 datasets, 24 upstream source families and 24 presets. Existing release assets and both showcase recordings are unchanged. Real raw/normalized captures remain private, ignored output. EDINET/JPX fixtures and new regression inputs are fictional.
 
 On 2026-10-29 JST, the live macro/source workflow executed 153 checks, including both fixed probes and per-selector reads. **115 passed, 31 required unavailable private keys, five returned `INCOMPLETE_COVERAGE`, and two returned HTTP 404.** Probe/selector duplicates are included in these totals; they are not counts of independent series. An independent JSON-pointer/XML/CSV/text resolver verified 501 reported numeric cells and 541 locators in the returned selections against retained original bytes. Successful checks included Treasury nominal/real curves and debt, MOF JGBs, ECB FX/curves, EFFR/SOFR, Federal Reserve releases/G.17, all eight BOJ selections, 16 Dashboard selections, 48 Eurostat selections, five ONS selections, ABS GDP/monthly CPI/unemployment, StatCan CPI/unemployment/GDP, OECD China CPI and WDI annual GDP. IMF/OECD catalogue probes establish metadata retrieval only. The six previously captured BLS series were not fetched again; their separate offline replay remains intact.
 

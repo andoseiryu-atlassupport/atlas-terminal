@@ -10,7 +10,13 @@ from atlas_terminal.research_analytics import (
     analytics_inputs,
     analytics_records,
 )
-from atlas_terminal.research_financials import DEFAULT_METRICS, STATEMENT_METRICS, statement_data
+from atlas_terminal.research_financials import (
+    DEFAULT_METRICS,
+    RATIOS,
+    STATEMENT_METRICS,
+    ratio_records,
+    statement_data,
+)
 from atlas_terminal.research_models import ResearchQuery
 
 
@@ -29,8 +35,19 @@ def period_key(record: dict[str, Any]) -> tuple[Any, ...]:
 
 
 def missing_record(metric: str) -> dict[str, Any]:
-    derived = metric in ANALYTICS_METRICS
-    unit = ANALYTICS_METRICS[metric].unit if derived else STATEMENT_METRICS[metric].unit
+    derived = metric in ANALYTICS_METRICS or metric in RATIOS
+    unit = (
+        "ratio"
+        if metric in RATIOS
+        else ANALYTICS_METRICS[metric].unit
+        if metric in ANALYTICS_METRICS
+        else STATEMENT_METRICS[metric].unit
+    )
+    instant = (
+        STATEMENT_METRICS[RATIOS[metric][0]].instant
+        if metric in RATIOS
+        else not derived and STATEMENT_METRICS[metric].instant
+    )
     return {
         "metric": metric,
         "value": None,
@@ -39,7 +56,7 @@ def missing_record(metric: str) -> dict[str, Any]:
         "reason": "No common period end exists in the retrieved issuer histories.",
         "derived": derived,
         "period": {
-            "kind": "duration" if derived or not STATEMENT_METRICS[metric].instant else "instant",
+            "kind": "instant" if instant else "duration",
             "start": None,
             "end": None,
         },
@@ -51,6 +68,14 @@ def missing_record(metric: str) -> dict[str, Any]:
 def comparison_data(source: SECProvider, query: ResearchQuery) -> dict[str, Any]:
     metrics = query.metrics or DEFAULT_METRICS
     derived_metrics = [metric for metric in metrics if metric in ANALYTICS_METRICS]
+    ratio_metrics = [metric for metric in metrics if metric in RATIOS]
+    reported_metrics = list(
+        dict.fromkeys(
+            dependency
+            for metric in analytics_inputs(metrics)
+            for dependency in (RATIOS[metric] if metric in RATIOS else (metric,))
+        )
+    )
     histories, errors, sources = [], [], []
     for identifier in query.identifiers:
         try:
@@ -59,7 +84,7 @@ def comparison_data(source: SECProvider, query: ResearchQuery) -> dict[str, Any]
                 ResearchQuery(
                     dataset="statements",
                     identifier=identifier,
-                    metrics=analytics_inputs(metrics),
+                    metrics=reported_metrics,
                     period=query.period,
                     allow_partial=True,
                 ),
@@ -90,6 +115,8 @@ def comparison_data(source: SECProvider, query: ResearchQuery) -> dict[str, Any]
                 record["metric"]: record
                 for record in analytics_records(history, derived_metrics, [end])
             }
+            for ratio in ratio_records(history["records"], [end], ratio_metrics):
+                derived[ratio["metric"]] = ratio | {"period": ratio["inputs"][0]["period"]}
             selected = [
                 dict((derived if metric in derived else reported)[metric]) for metric in metrics
             ]

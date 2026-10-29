@@ -2,7 +2,7 @@
 
 from dataclasses import asdict, dataclass
 from datetime import date, datetime
-from decimal import Decimal, InvalidOperation, localcontext
+from decimal import ROUND_HALF_EVEN, Decimal, InvalidOperation, localcontext
 from typing import Any
 
 from atlas_terminal.errors import AtlasError
@@ -252,23 +252,17 @@ def statement_data(
     }
 
 
-def ratio_data(source: SECProvider, query: ResearchQuery) -> dict[str, Any]:
-    metrics = list(dict.fromkeys(m for pair in RATIOS.values() for m in pair))
-    result = statement_data(
-        source,
-        ResearchQuery(
-            dataset="statements",
-            identifier=query.identifier,
-            metrics=metrics,
-            period=query.period,
-            count=query.count,
-            allow_partial=True,
-        ),
-    )
-    inputs = {(r["metric"], r["period"]["end"]): r for r in result["records"]}
+def ratio_records(
+    reported: list[dict[str, Any]],
+    period_ends: list[str],
+    metrics: list[str] | None = None,
+) -> list[dict[str, Any]]:
+    """Derive ratios once for statements, comparisons and threshold screens."""
+    inputs = {(record["metric"], record["period"]["end"]): record for record in reported}
     records = []
-    for end in result["period_ends"]:
-        for name, (numerator, denominator) in RATIOS.items():
+    for end in period_ends:
+        for name in list(RATIOS) if metrics is None else metrics:
+            numerator, denominator = RATIOS[name]
             a, b = inputs[(numerator, end)], inputs[(denominator, end)]
             reason = None
             value = None
@@ -281,6 +275,7 @@ def ratio_data(source: SECProvider, query: ResearchQuery) -> dict[str, Any]:
             else:
                 with localcontext() as context:
                     context.prec = 28
+                    context.rounding = ROUND_HALF_EVEN
                     value = format(Decimal(a["value"]) / Decimal(b["value"]), "f")
             records.append(
                 {
@@ -296,6 +291,23 @@ def ratio_data(source: SECProvider, query: ResearchQuery) -> dict[str, Any]:
                     "inputs": [a, b],
                 }
             )
+    return records
+
+
+def ratio_data(source: SECProvider, query: ResearchQuery) -> dict[str, Any]:
+    metrics = list(dict.fromkeys(m for pair in RATIOS.values() for m in pair))
+    result = statement_data(
+        source,
+        ResearchQuery(
+            dataset="statements",
+            identifier=query.identifier,
+            metrics=metrics,
+            period=query.period,
+            count=query.count,
+            allow_partial=True,
+        ),
+    )
+    records = ratio_records(result["records"], result["period_ends"])
     reported = sum(r["value"] is not None for r in records)
     partial = reported < query.count * len(RATIOS) or result["coverage"]["history_truncated"]
     if partial and not query.allow_partial:

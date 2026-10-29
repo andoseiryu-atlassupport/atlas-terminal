@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Entirely fictional Form N-PORT data for offline contract tests. -->
+<edgarSubmission xmlns="http://www.sec.gov/edgar/nport">
+  <headerData><submissionType>NPORT-P</submissionType></headerData>
+  <formData>
+    <genInfo>
+      <regName>Atlas Demo Corporation (SYNTHETIC)</regName>
+      <regCik>9999999999</regCik>
+      <regLei>00000000000000000000</regLei>
+      <seriesName>Atlas Fictional Multi-Asset Fund (SYNTHETIC)</seriesName>
+      <seriesId>S999999999</seriesId>
+      <seriesLei>00000000000000000001</seriesLei>
+      <repPdEnd>2026-12-31</repPdEnd>
+      <repPdDate>2026-08-31</repPdDate>
+      <isFinalFiling>N</isFinalFiling>
+    </genInfo>
+    <fundInfo><totAssets>1020</totAssets><totLiabs>20</totLiabs><netAssets>1000</netAssets></fundInfo>
+    <invstOrSecs>
+      <invstOrSec>
+        <name>Atlas Fictional US Company (SYNTHETIC)</name><lei>00000000000000000002</lei>
+        <title>Common Stock (SYNTHETIC)</title><cusip>000000AA0</cusip>
+        <identifiers><isin value="US000000AA00"/><ticker value="FICTIONAL"/></identifiers>
+        <balance>30</balance><units>NS</units><curCd>USD</curCd><valUSD>600</valUSD><pctVal>60</pctVal>
+        <payoffProfile>Long</payoffProfile><assetCat>EC</assetCat><issuerCat>CORP</issuerCat>
+        <invCountry>US</invCountry><isRestrictedSec>N</isRestrictedSec><fairValLevel>1</fairValLevel>
+      </invstOrSec>
+      <invstOrSec>
+        <name>Atlas Fictional Japan Company (SYNTHETIC)</name><title>Common Stock (SYNTHETIC)</title>
+        <identifiers><isin value="JP0000000000"/><other otherDesc="Fictional local code" value="000A"/></identifiers>
+        <balance>1000.125</balance><units>NS</units><curCd>JPY</curCd><valUSD>250</valUSD><pctVal>25</pctVal>
+        <payoffProfile>Long</payoffProfile><assetConditional assetCat="OTHER" desc="Fictional category"/>
+        <issuerCat>CORP</issuerCat><invCountry>JP</invCountry><isRestrictedSec>N</isRestrictedSec><fairValLevel>2</fairValLevel>
+      </invstOrSec>
+      <invstOrSec>
+        <name>Atlas Fictional Swap Counterparty (SYNTHETIC)</name><title>Fictional Total Return Swap</title>
+        <balance>100</balance><units>PA</units><curCd>USD</curCd><valUSD>-10</valUSD><pctVal>-1</pctVal>
+        <payoffProfile>Short</payoffProfile><assetCat>DCO</assetCat><issuerCat>CORP</issuerCat>
+        <invCountry>US</invCountry><isRestrictedSec>N</isRestrictedSec><fairValLevel>2</fairValLevel>
+        <derivInfo><swapDeriv><notionalAmount>5000</notionalAmount><curCd>USD</curCd></swapDeriv></derivInfo>
+      </invstOrSec>
+    </invstOrSecs>
+  </formData>
+</edgarSubmission>

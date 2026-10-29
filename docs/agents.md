@@ -160,3 +160,5 @@ Errors retain `code`, `message`, `retryable`, `details` and `request_id`, with a
 All current hints have `automatic=false`. They guide the caller's policy and never grant spending permission, change a query or execute another tool. `retryable` alone does not authorize a payment retry. The server returns HTTP `Retry-After` when it knows a delay; hints are bounded to 86,400 seconds. Local BLS quota exhaustion reports time until the next UTC day. Missing hints remain null rather than inventing an upstream recovery time.
 
 [Research methodology](research.md) · [Payments and recovery](payments.md) · [Verification](verification.md)
+
+All full, compact and cursor research responses are bounded to 4 MiB, including retained calculation input tables and quality/presentation metadata. Narrow the dates, metrics or selected inputs when the result exceeds this limit; pagination does not discard shared calculation evidence.

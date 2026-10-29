@@ -64,6 +64,7 @@ def histories():
                 "instrument": {
                     "symbol": symbol,
                     "currency": "JPY",
+                    "exchange_timezone": "Asia/Tokyo",
                     "source_instrument_type": "ETF" if j == 2 else "EQUITY",
                 },
                 "coverage": {"truncated": False},
