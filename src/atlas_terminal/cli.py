@@ -159,6 +159,7 @@ def research_catalog(
 @research_app.command("get")
 def research_get(
     dataset: str,
+    country: str | None = None,
     identifier: str | None = None,
     identifiers: str | None = None,
     filters: str | None = None,
@@ -209,6 +210,7 @@ def research_get(
     data: dict[str, Any] = {"dataset": dataset}
     options = {
         "identifier": identifier,
+        "country": country,
         "sort_by": sort_by,
         "sort_order": sort_order,
         "period": period,
@@ -450,6 +452,7 @@ def research_batch(
 @research_app.command("preset")
 def research_preset(
     preset: str | None = typer.Argument(None),
+    country: str | None = None,
     identifier: str | None = None,
     period: str | None = None,
     count: int | None = None,
@@ -468,6 +471,7 @@ def research_preset(
     """Preview/execute a named recipe, or load its reusable JSON query with --input FILE/- ."""
     options = {
         "preset": preset,
+        "country": country,
         "identifier": identifier,
         "period": period,
         "count": count,

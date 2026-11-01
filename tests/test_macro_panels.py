@@ -333,7 +333,11 @@ async def test_one_actual_mcp_connection_discovers_queries_aligns_and_resolves_e
         found = await session.call_tool(
             "atlas_research_catalog", {"search": "失業", "country": "JP", "view": "compact"}
         )
-        assert not found.is_error and found.structured_content["series_search"]["matched"] == 1
+        assert not found.is_error and found.structured_content["series_search"]["matched"] == 2
+        assert {r["dataset"] for r in found.structured_content["series_search"]["records"]} == {
+            "japan_economics",
+            "global_economics",
+        }
         catalog = await session.call_tool(
             "atlas_get_research", {"query": {"dataset": "sdmx_catalog", "source_id": "imf"}}
         )

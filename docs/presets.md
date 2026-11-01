@@ -1,5 +1,7 @@
 # Research presets and connection diagnostics
 
+`g20_country_overview` accepts a required `country` (nineteen G20 countries or `EU`) and optional paired date bounds. Its ten independent annual WDI reads cover GDP, growth, prices, employment, income per person, population, exports, imports, current account and central-government debt. Defaults select the last three completed reference years; each item preserves its nulls, definitions and up to thirty selected annual rows. [Countries, units, limitations and commands](g20-macro.md).
+
 One Atlas MCP connection exposes company data, international macro indicators, government curves and reference FX. Named presets expand into ordinary free research queries and execute through the shared batch service. The same service is available in the Python SDK, CLI and local HTTP API. There is no LLM dependency, data subscription or wallet requirement.
 
 Three additional government-bond presets, `us_bond_context`, `japan_bond_context` and `us_japan_bond_context`, combine curves, local changes, funding and optional reference FX. Each accepts a curve `year`, selection, preview and item-level requirements. The year applies to curve items only; dates for funding, CPI and FX remain independent. [Bond preset items and methodology](fixed-income.md#bond-presets-through-one-connection).

@@ -1,0 +1,36 @@
+{
+  "dataset": "macro_panel",
+  "frequency": "annual",
+  "start_date": "2023-01-01",
+  "end_date": "2025-12-31",
+  "allow_partial": true,
+  "items": [
+    {
+      "id": "india",
+      "aggregation": "last",
+      "query": {
+        "dataset": "global_economics",
+        "country": "IN",
+        "series": "gdp_growth"
+      }
+    },
+    {
+      "id": "brazil",
+      "aggregation": "last",
+      "query": {
+        "dataset": "global_economics",
+        "country": "BR",
+        "series": "gdp_growth"
+      }
+    },
+    {
+      "id": "indonesia",
+      "aggregation": "last",
+      "query": {
+        "dataset": "global_economics",
+        "country": "ID",
+        "series": "gdp_growth"
+      }
+    }
+  ]
+}

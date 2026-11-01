@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add fourteen annual World Bank WDI indicators for nineteen G20 countries and the EU aggregate, with 280 searchable templates and an explicit-country overview preset. Preserve source definitions, fiscal-year labels, estimates, missingness, exact source cells and local observation history through CLI, SDK, MCP and HTTP.
+
 - Add explicitly bounded optional Yahoo intraday bars with source timestamps, elapsed-interval/session evidence, nulls and short-session intervals, separate from adjusted daily prices.
 - Add offline source-backed descriptive/ACF/Ljung–Box statistics and fixed-lag ADF/KPSS diagnostics. Preserve exact Decimal inputs, published critical-value conventions and explicit insufficient/singular sample results.
 - Add a private offline research workbench for independent saved captures, searchable tables, optional charts and complete evidence. Intraday charts use offset timestamps and ambiguous observations break plotted lines.

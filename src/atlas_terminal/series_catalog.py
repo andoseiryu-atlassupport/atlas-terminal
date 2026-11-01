@@ -4,6 +4,7 @@ from typing import Any
 
 from atlas_terminal.activity_catalog import ACTIVITY_SERIES
 from atlas_terminal.economic_catalog import JAPAN_SERIES, NATIONAL_ACCOUNTS
+from atlas_terminal.global_macro_sources import G20_AREAS, GLOBAL_INDICATORS, MEMBERSHIP_URL
 from atlas_terminal.macro_catalog import CURVE_SERIES, FX_CURRENCIES, MACRO_SERIES, REFERENCE_SERIES
 from atlas_terminal.public_sources import BLS_DETAILS, BLS_SERIES, SOURCE_CATALOG
 from atlas_terminal.regional_economic_catalog import EUROPE_SERIES, UK_SERIES
@@ -185,6 +186,25 @@ def series_catalog(filters: CatalogQuery) -> dict[str, Any]:
             else "calendar_period",
             unit_basis="source_metadata",
         )
+    for country, area in G20_AREAS.items():
+        for key, indicator in GLOBAL_INDICATORS.items():
+            add(
+                "global_economics",
+                country.lower() + "_" + key,
+                area["name"] + ": " + indicator["title"],
+                "world_bank",
+                country,
+                "annual",
+                indicator["unit"],
+                {"country": country, "series": key},
+                source_series=indicator["code"],
+                series=key,
+                definition=indicator["definition"],
+                reference_area_kind=area["kind"],
+                membership_source=MEMBERSHIP_URL,
+                seasonally_adjusted=False,
+                annualized=False,
+            )
     for key, spec_macro in MACRO_SERIES.items():
         add(
             "macro_analytics",
