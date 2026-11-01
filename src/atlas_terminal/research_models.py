@@ -25,6 +25,7 @@ from atlas_terminal.equity_sources import (
     yahoo_url,
 )
 from atlas_terminal.errors import AtlasError
+from atlas_terminal.global_macro_sources import G20_AREAS, GLOBAL_INDICATORS
 from atlas_terminal.macro_catalog import (
     CURVE_SERIES,
     FX_CURRENCIES,
@@ -69,6 +70,7 @@ Dataset = Literal[
     "europe_economics",
     "uk_economics",
     "activity_economics",
+    "global_economics",
     "sdmx_catalog",
     "international_economics",
     "macro_panel",
@@ -138,6 +140,7 @@ FIELDS = {
     "europe_economics": {"series", "limit", "start_date", "end_date"},
     "uk_economics": {"series", "limit", "start_date", "end_date"},
     "activity_economics": {"series", "limit", "start_date", "end_date"},
+    "global_economics": {"country", "series", "limit", "start_date", "end_date"},
     "sdmx_catalog": {"source_id", "dataflow", "search", "dimension", "limit"},
     "international_economics": {
         "source_id",
@@ -152,6 +155,8 @@ FIELDS = {
 
 
 def dataset_required(name: str) -> list[str]:
+    if name == "global_economics":
+        return ["country", "series"]
     if name == "intraday_prices":
         return ["identifier", "start_date", "end_date", "interval"]
     if name == "price_comparison":
@@ -335,6 +340,9 @@ def dataset_schema(schema: dict[str, Any]) -> None:
             )
         if name == "activity_economics":
             properties["series"]["enum"] = sorted(ACTIVITY_SERIES)
+        if name == "global_economics":
+            properties["country"] = {"type": "string", "enum": sorted(G20_AREAS)}
+            properties["series"] = {"type": "string", "enum": sorted(GLOBAL_INDICATORS)}
         if name == "fx_rates":
             for key in ("base_currency", "quote_currency"):
                 properties[key] = {"type": "string", "enum": list(FX_CURRENCIES)}
@@ -413,6 +421,7 @@ def dataset_schema(schema: dict[str, Any]) -> None:
 class ResearchQuery(Model):
     model_config = ConfigDict(extra="forbid", json_schema_extra=dataset_schema)
     dataset: Dataset
+    country: str | None = Field(default=None, pattern=r"^[A-Z]{2}$")
     filing_date: str | None = Field(default=None, pattern=r"^[0-9]{4}-[0-9]{2}-[0-9]{2}$")
     document_id: str | None = Field(default=None, pattern=r"^S[0-9A-Z]{7}$")
     source_url: str | None = Field(default=None, min_length=1, max_length=2048)
@@ -641,6 +650,14 @@ class ResearchQuery(Model):
         if self.dataset == "activity_economics" and self.series not in ACTIVITY_SERIES:
             raise AtlasError(
                 "INVALID_INPUT", "Choose an activity series from the catalog.", fields=["series"]
+            )
+        if self.dataset == "global_economics" and (
+            self.country not in G20_AREAS or self.series not in GLOBAL_INDICATORS
+        ):
+            raise AtlasError(
+                "INVALID_INPUT",
+                "Choose a supported G20 country/EU and annual WDI indicator.",
+                fields=["country", "series"],
             )
         if self.dataset == "fx_rates" and (
             self.base_currency is None

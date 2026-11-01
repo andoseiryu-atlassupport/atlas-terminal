@@ -23,6 +23,7 @@ SUPPORTED = {
     "europe_economics",
     "uk_economics",
     "activity_economics",
+    "global_economics",
 }
 MAX_PANEL_BYTES = 4 * 1024 * 1024
 CONTEXT = (
@@ -38,6 +39,11 @@ CONTEXT = (
     "reference_area",
     "reference_period_kind",
     "reference_period_months",
+    "country",
+    "country_iso3",
+    "reference_area_kind",
+    "definition",
+    "currency",
 )
 
 

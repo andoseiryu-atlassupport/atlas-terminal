@@ -1,5 +1,6 @@
 """Primary and optional secondary source registry with allowlisted HTTP transport."""
 
+import json
 import math
 import re
 import xml.etree.ElementTree as ET
@@ -32,6 +33,7 @@ from atlas_terminal.equity_sources import YAHOO_SOURCE, require_yahoo_enabled, y
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.fixed_income_sources import JGB_BASE, JGB_URLS, parse_jgb_csv
 from atlas_terminal.fred_sources import fred_series_identity
+from atlas_terminal.global_macro_sources import G20_AREAS, GLOBAL_INDICATORS, global_wdi_identity
 from atlas_terminal.japan_company_sources import (
     COMPANY_SOURCES,
     company_identity,
@@ -428,6 +430,7 @@ class PublicTransport(CachedHTTPTransport):
             or valid_sdmx_url(url)
             or regional_economic_identity(url) is not None
             or activity_identity(url) is not None
+            or global_wdi_identity(url) is not None
             or fred_series_identity(url) is not None
             or company_identity(url) is not None
             or yahoo_identity(url) is not None
@@ -482,6 +485,11 @@ class PublicTransport(CachedHTTPTransport):
             value = decode_json(body)
             if not isinstance(value, dict) or not isinstance(value.get("chart"), dict):
                 raise ValueError("Expected international Yahoo chart JSON")
+            return
+        if global_wdi_identity(url) is not None:
+            value = decode_json(body)
+            if not isinstance(value, list) or len(value) != 2:
+                raise ValueError("Expected World Bank metadata/observation JSON")
             return
         if activity_selection := activity_identity(url):
             if url in G17_URLS:
@@ -698,6 +706,32 @@ class PublicFixtures:
                 "2026-10-27T02:00:00Z",
             )
         PublicTransport.validate_url(url)
+        if global_selection := global_wdi_identity(url):
+            kind, country, series = global_selection
+            area = G20_AREAS[country] if country else None
+            global_spec = GLOBAL_INDICATORS[series] if series else None
+            template = (
+                files("atlas_terminal")
+                .joinpath("resources", "research", f"global_wdi_{kind}.json")
+                .read_bytes()
+            )
+            values = {
+                "country": country,
+                "iso3": area["iso3"] if area else None,
+                "country_name": area["name"] if area else None,
+                "region": "NA" if area and area["kind"] == "regional_aggregate" else "FIC",
+                "indicator": global_spec["code"] if global_spec else None,
+                "title": global_spec["title"] if global_spec else None,
+            }
+            for key, item in values.items():
+                template = template.replace(
+                    ('"{{' + key + '}}"').encode(), json.dumps(item).encode()
+                )
+            return Snapshot(
+                template,
+                f"https://fixtures.atlas.invalid/research/global_wdi/{kind}/{country}/{series}.json",
+                "2026-10-30T01:00:00Z",
+            )
         if fred := fred_series_identity(url):
             if fred[0] == "DEMO_INDEX":
                 name = f"fred_DEMO_INDEX_{fred[1]}.json"

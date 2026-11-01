@@ -8,6 +8,8 @@ Results include missing-data status, periods, coverage and source terms. Discove
 
 ## Datasets
 
+`global_economics` accepts required `country` and `series`, plus optional paired date bounds and `limit`. Fourteen annual WDI indicators cover nineteen G20 countries and the EU aggregate. [Countries, units, missingness and examples](g20-macro.md).
+
 | ID                         | Content                                                             | Query fields                                                 | Output                                |
 | -------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------- |
 | `companies`                | Search the current SEC issuer/ticker directory                      | Optional `identifier`, `limit`                               | Current reference data                |
@@ -38,7 +40,7 @@ Results include missing-data status, periods, coverage and source terms. Discove
 
 `intraday_prices` requires `identifier`, `start_date`, `end_date` and `interval` (`1m`, `5m`, `15m`, `30m`, `60m`), with optional `limit`. It shares CLI/SDK/MCP/HTTP validation and preserves source timestamps and bar completeness. See [intraday prices](intraday-prices.md).
 
-The catalog contains 45 datasets, including five optional Yahoo selections, generic FRED and local source history. [Japanese company queries](japan-companies.md) add `japan_disclosures` (`filing_date`), `japan_filing_facts` (`filing_date`, `document_id`, optional `concept`) and `japan_securities` (optional JPX `.T` identifier). [Source history](source-history.md) accepts an approved `source_url`, `history_action` and action-specific hashes or a timezone-aware local-observation `as_of`. These query fields work through `research get` flags or `research run --input`.
+The catalog contains 46 datasets, including five optional Yahoo selections, generic FRED and local source history. [Japanese company queries](japan-companies.md) add `japan_disclosures` (`filing_date`), `japan_filing_facts` (`filing_date`, `document_id`, optional `concept`) and `japan_securities` (optional JPX `.T` identifier). [Source history](source-history.md) accepts an approved `source_url`, `history_action` and action-specific hashes or a timezone-aware local-observation `as_of`. These query fields work through `research get` flags or `research run --input`.
 
 `identifier` accepts a ticker, CIK or company name. For 13F, use the **reporting manager's CIK**. An issuer CIK does not reverse-search every manager holding that issuer. Insider reports are likewise limited to the resolved filing history. Omitting `accession` selects the latest matching filing. Original filings and amendments are not merged automatically.
 

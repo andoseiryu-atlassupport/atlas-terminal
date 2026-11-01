@@ -17,6 +17,7 @@ from atlas_terminal.documentation import DOCUMENTATION_ORIGIN, research_document
 from atlas_terminal.economic_catalog import JAPAN_SERIES, NATIONAL_ACCOUNTS
 from atlas_terminal.equity_sources import EQUITY_DATASETS, require_yahoo_enabled
 from atlas_terminal.errors import AtlasError
+from atlas_terminal.global_macro_sources import G20_AREAS, GLOBAL_INDICATORS
 from atlas_terminal.macro_catalog import CURVE_SERIES, FX_CURRENCIES, MACRO_SERIES, REFERENCE_SERIES
 from atlas_terminal.normalize import number
 from atlas_terminal.providers import (
@@ -189,6 +190,11 @@ DATASETS = {
     "activity_economics": (
         "Official US activity/trade/claims, Australian/Canadian macro and Chinese CPI/annual GDP",
         "census",
+        "observations",
+    ),
+    "global_economics": (
+        "Annual WDI GDP, prices, employment, external accounts and debt for G20 countries/EU",
+        "world_bank",
         "observations",
     ),
     "europe_economics": (
@@ -455,6 +461,18 @@ def research_catalog(
                 "implementation": "implemented",
                 "validation": "offline_fixtures_and_mock_http",
                 "live_verified": False,
+                **(
+                    {
+                        "countries": G20_AREAS,
+                        "indicators": GLOBAL_INDICATORS,
+                        "unsupported_regional_members": ["African Union"],
+                        "geography_note": (
+                            "AU is Australia; EU is the overlapping WDI EU aggregate."
+                        ),
+                    }
+                    if name == "global_economics"
+                    else {}
+                ),
                 **(
                     {
                         "optional": True,
@@ -803,6 +821,7 @@ class ResearchService:
             "europe_economics",
             "uk_economics",
             "activity_economics",
+            "global_economics",
             "sdmx_catalog",
             "international_economics",
         }:
@@ -1378,6 +1397,10 @@ class ResearchService:
             from atlas_terminal.research_activity import activity_economics
 
             return activity_economics(self.public, q)
+        if q.dataset == "global_economics":
+            from atlas_terminal.research_global_macro import global_economics
+
+            return global_economics(self.public, q)
         if q.dataset in {"europe_economics", "uk_economics"}:
             from atlas_terminal.research_regional_economics import europe_economics, uk_economics
 

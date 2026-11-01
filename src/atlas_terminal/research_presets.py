@@ -8,6 +8,7 @@ from pydantic import ConfigDict, Field, ValidationError, field_validator, model_
 
 from atlas_terminal.equity_sources import YAHOO_SYMBOL_PATTERN
 from atlas_terminal.errors import AtlasError
+from atlas_terminal.global_macro_sources import G20_AREAS
 from atlas_terminal.macro_catalog import CURVE_SERIES, MACRO_SERIES, Currency
 from atlas_terminal.models import Model, identifier
 from atlas_terminal.public_sources import SOURCE_CATALOG
@@ -27,6 +28,7 @@ from atlas_terminal.research_quality import (
 from atlas_terminal.util import canonical, stamp, utcnow
 
 PresetName = Literal[
+    "g20_country_overview",
     "japan_equity_history",
     "company_overview",
     "us_macro_overview",
@@ -53,6 +55,26 @@ PresetName = Literal[
     "china_macro_overview",
 ]
 PRESETS: dict[str, dict[str, Any]] = {
+    "g20_country_overview": {
+        "description": "Annual WDI macro context for one explicit G20 country or the EU aggregate.",
+        "fields": ["country", "start_date", "end_date"],
+        "required": ["country"],
+        "items": {
+            key: {"dataset": "global_economics", "series": key, "limit": 30}
+            for key in (
+                "gdp_nominal",
+                "gdp_growth",
+                "cpi_inflation",
+                "unemployment",
+                "gdp_per_capita",
+                "population",
+                "exports",
+                "imports",
+                "current_account",
+                "central_government_debt",
+            )
+        },
+    },
     "japan_equity_history": {
         "description": (
             "Optional personal-use Yahoo Tokyo daily prices and reported dividends/splits."
@@ -646,6 +668,8 @@ def preset_schema(schema: dict[str, Any]) -> None:
             properties[key] = properties[key]["anyOf"][0]
         if name == "japan_equity_history":
             properties["identifier"]["pattern"] = "^" + YAHOO_SYMBOL_PATTERN + "$"
+        if name == "g20_country_overview":
+            properties["country"] = {"type": "string", "enum": sorted(G20_AREAS)}
         properties["include"]["anyOf"][0]["items"] = {"enum": list(spec["items"])}
         properties["include"]["anyOf"][0]["uniqueItems"] = True
         properties["requirements_by_item"]["propertyNames"] = {"enum": list(spec["items"])}
@@ -679,6 +703,7 @@ def preset_schema(schema: dict[str, Any]) -> None:
 class ResearchPresetQuery(Model):
     model_config = ConfigDict(extra="forbid", json_schema_extra=preset_schema)
     preset: PresetName
+    country: str | None = Field(default=None, pattern=r"^[A-Z]{2}$")
     identifier: str | None = Field(default=None, min_length=1, max_length=100)
     period: Literal["annual", "quarterly", "ytd"] = "quarterly"
     count: int = Field(default=1, ge=1, le=20, strict=True)
@@ -716,6 +741,8 @@ class ResearchPresetQuery(Model):
             raise ValueError("Parameter does not apply to this preset")
         if any(getattr(self, key) is None for key in spec["required"]):
             raise ValueError("Missing required preset parameter")
+        if self.preset == "g20_country_overview" and self.country not in G20_AREAS:
+            raise ValueError("Choose a G20 country or the EU aggregate")
         if self.preset == "fx_context" and self.base_currency == self.quote_currency:
             raise ValueError("Choose distinct currencies")
         selected = self.include if self.include is not None else list(spec["items"])
@@ -835,6 +862,8 @@ def preset_plan(query: ResearchPresetQuery) -> ResearchPresetPlan:
     year_basis: Literal["explicit", "current_utc_year"] | None = None
     for name in selected:
         data = deepcopy(spec["items"][name])
+        if query.preset == "g20_country_overview":
+            data["country"] = query.country
         if query.start_date is not None:
             data.update(start_date=query.start_date, end_date=query.end_date)
         if query.preset == "company_overview":

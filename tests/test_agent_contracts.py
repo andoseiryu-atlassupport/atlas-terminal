@@ -32,6 +32,8 @@ def private_state(tmp_path, monkeypatch):
 
 
 def query(dataset="statements", **extra):
+    if dataset == "global_economics":
+        return {"dataset": dataset, "country": "IN", "series": "gdp_growth", **extra}
     if dataset == "intraday_prices":
         return {
             "dataset": dataset,

@@ -1,8 +1,22 @@
 # Validation scope
 
-Recorded on 2026-10-30 (JST) for the source checkout following Atlas Terminal 0.7.0, with Python 3.12.14 and Node.js 24 on Linux. Local verification, GitHub Actions, public deployment, official-source access and model observations are distinct evidence.
+Recorded on 2026-11-01 (JST) for the source checkout following Atlas Terminal 0.7.0, with Python 3.12.14 and Node.js 24 on Linux. Local verification, GitHub Actions, public deployment, official-source access and model observations are distinct evidence.
 
 Version 0.7.0 includes the experimental native factor risk extension and installed walkthroughs described below. The prior 0.6.0 release did not include risk estimation. Local wheel checks remain separate evidence from a published GitHub release.
+
+## G20 annual macro coverage
+
+The `global_economics` reader exposes fourteen annual WDI indicators for nineteen G20 countries and the EU aggregate through the shared research interfaces. Country/indicator metadata, expected source definitions, complete pages, annual labels, source flags and exact original cells are validated. Nulls and absent years remain explicit; historical year queries return current revised statistics. The African Union has no selected aggregate, and EU observations overlap national selections. Annual LCU units follow publisher denomination conventions without imposing current ISO currencies on historical values.
+
+Offline regression checks cover geography/aggregate identity, changed source/unit/base definitions, incomplete pages, duplicate years, zero/null/flagged values, negative growth, source precision, date bounds, future labels, canonical URL restrictions, cache/history evidence, country presets and annual panels. SDK, CLI, HTTP and an actual official stdio MCP connection exercise the new queries and evidence lookup. The fictional source templates contain no actual national statistics.
+
+On **2026-11-01 JST**, `uv run --offline python scripts/verify_g20_live.py --allow-network --output build/g20-live` completed **280 country/indicator reads** for 2020–2025. All **1,680 original observation cells** matched retained source bytes and hashes: **1,587 usable numeric values and 93 null/unavailable cells**. The first pass reported 17 `SOURCE_UNAVAILABLE` retrieval/parsing errors; a subsequent pass retained the existing cache, retrieved the failed selections and completed with no read failures. The underlying cause of those transient errors was not established. This does not establish continuous API availability. Normal proxy settings and TLS verification remained enabled; no API key or new BLS request was used.
+
+Twelve selections were entirely null over this window: central-government debt for AR, CN, DE, FR, ID, IN, IT, JP, SA and EU, plus EU current account and annual official exchange rate. Other selections can have isolated missing years. No general-government debt, alternate geography, interpolated observation or forecast replaced a missing cell. EU and national observations must not be summed without handling overlap; the African Union is not represented by an Africa/Sub-Saharan Africa substitution.
+
+A separate official stdio MCP session read six **cached, previously live-verified** Indian growth observations, resolved original source evidence and executed a three-item Brazilian GDP/growth/inflation preset. This was a public-provider interface check using persistent source captures, not six new upstream requests. CLI country-preset preview and the fictional India/Brazil/Indonesia annual panel also passed. The additional regression file passed 64 tests; the complete offline suite passed 1,987 tests with two live tests deselected. Raw responses, normalized real observations, cache databases and detailed coverage receipts remain private ignored output. These checks do not verify publisher release-time vintages, uniform monthly/quarterly coverage or a public deployment.
+
+Wheel-payload SDK and CLI smoke reads loaded the packaged fictional WDI templates directly from the built wheel while reusing existing locked dependencies. Fresh isolated dependency resolution was unavailable offline because registry artifacts were absent from the local wheel cache; this smoke check does not certify a fresh dependency installation.
 
 ## Current local checks
 
@@ -10,11 +24,11 @@ Version 0.7.0 includes the experimental native factor risk extension and install
 | --------------------------------------------------------- | ------------------------------------------------------------------- |
 | `uv run --offline ruff check .`                           | PASS                                                                |
 | `uv run --offline ruff format --check .`                  | PASS                                                                |
-| `uv run --offline mypy`                                   | PASS; 84 source files                                               |
-| `uv run --offline pytest`                                 | PASS; 1,921 tests, 2 live tests deselected                          |
+| `uv run --offline mypy`                                   | PASS; 86 source files                                               |
+| `uv run --offline pytest`                                 | PASS; 1,987 tests, 2 live tests deselected                          |
 | `uv run --offline python -m build --no-isolation`         | PASS; wheel and source distribution                                 |
 | `uv run --offline python scripts/verify_distribution.py`  | PASS; metadata, required contents and forbidden paths               |
-| `uv run --offline python scripts/build_docs.py`           | PASS; 54 HTML pages and internal file/section links                 |
+| `uv run --offline python scripts/build_docs.py`           | PASS; 55 HTML pages and internal file/section links                 |
 | `uv run --offline python scripts/verify_showcases.py`     | PASS; both recorded versions, data modes and checksums              |
 | `uv run --offline python scripts/verify_bls_capture.py`   | PASS; offline audit/replay of 14 captured responses and 168 records |
 | `uv run --offline python scripts/prepare_distribution.py` | PREPARED; versioned plugin ZIP and Registry draft                   |
@@ -27,7 +41,7 @@ Test cases use isolated private state directories so repeated verification does 
 
 ## Intraday observations and offline research tools
 
-The current source checkout exposes **45 datasets**. `intraday_prices` shares the existing research interfaces and optional Yahoo gate; statistics and the multi-panel workbench are offline Python/CLI operations on saved full results. No new release or service deployment is part of these checks. The final full offline suite passed **1,921 tests** (224 more than the preceding checkout), including 72 intraday, 81 statistics, 38 workbench and 26 SDMX-availability regressions. Installed CLI/SDK/official stdio MCP/loopback HTTP and Streamable HTTP restart/evidence checks passed; installed offline workbench/statistics commands were also exercised.
+The intraday expansion established **45 datasets**. `intraday_prices` shares the existing research interfaces and optional Yahoo gate; statistics and the multi-panel workbench are offline Python/CLI operations on saved full results. No new release or service deployment is part of these checks. The final full offline suite passed **1,921 tests** (224 more than the preceding checkout), including 72 intraday, 81 statistics, 38 workbench and 26 SDMX-availability regressions. Installed CLI/SDK/official stdio MCP/loopback HTTP and Streamable HTTP restart/evidence checks passed; installed offline workbench/statistics commands were also exercised.
 
 On **2026-10-30 JST**, `ATLAS_ENABLE_YAHOO_FINANCE=1 uv run --offline python scripts/verify_intraday_live.py --allow-network --output build/intraday-live` checked 12 selections for 2026-10-28: **nine PASS, three PARTIAL, no retrieval failures**. All **1,186 returned rows and 7,116 original timestamp/OHLC/volume cells** matched retained source bytes. The five AAPL intervals (1/5/15/30/60 minutes), SPY 5-minute, Toyota 60-minute, BTC and EUR/USD hourly reads passed. Toyota 1-minute/5-minute and 1306.T 5-minute reads retained **88 unavailable rows**, including explicit source nulls, without filling. The script intentionally exits nonzero for partial results. Source `1h` metadata for requested `60m`, shortened final session intervals and timestamps outside the requested dates remain explicit. Elapsed intervals do not establish exchange finality or real-time delivery; the 15-minute cache and source usage conditions still apply.
 

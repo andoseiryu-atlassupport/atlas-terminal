@@ -23,6 +23,7 @@ def research_documentation(dataset: str) -> dict[str, str]:
         "europe_economics",
         "uk_economics",
         "activity_economics",
+        "global_economics",
         "sdmx_catalog",
         "international_economics",
         "macro_panel",
@@ -54,7 +55,9 @@ def research_documentation(dataset: str) -> dict[str, str]:
         else "methodology"
     )
     guide = (
-        "intraday-prices"
+        "g20-macro"
+        if dataset == "global_economics"
+        else "intraday-prices"
         if dataset == "intraday_prices"
         else "market-research"
         if market
