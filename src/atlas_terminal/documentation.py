@@ -6,7 +6,16 @@ PROJECT_TAGLINE = "Free financial data for AI agents through one MCP connection.
 
 
 def research_documentation(dataset: str) -> dict[str, str]:
+    filing = dataset in {
+        "trailing_financials",
+        "filing_documents",
+        "filing_facts",
+        "segment_financials",
+        "filing_sections",
+        "filing_tables",
+    }
     macro = {
+        "policy_rates",
         "economics",
         "treasury_yields",
         "treasury_real_yields",
@@ -40,7 +49,9 @@ def research_documentation(dataset: str) -> dict[str, str]:
     japan = dataset in {"japan_disclosures", "japan_filing_facts", "japan_securities"}
     history = dataset == "source_history"
     methodology = (
-        "intraday-prices"
+        "filing-research"
+        if filing
+        else "intraday-prices"
         if dataset == "intraday_prices"
         else "market-research"
         if market
@@ -55,7 +66,11 @@ def research_documentation(dataset: str) -> dict[str, str]:
         else "methodology"
     )
     guide = (
-        "g20-macro"
+        "filing-research"
+        if filing
+        else "policy-rates"
+        if dataset == "policy_rates"
+        else "g20-macro"
         if dataset == "global_economics"
         else "intraday-prices"
         if dataset == "intraday_prices"

@@ -6,6 +6,7 @@ from atlas_terminal.activity_catalog import ACTIVITY_SERIES
 from atlas_terminal.economic_catalog import JAPAN_SERIES, NATIONAL_ACCOUNTS
 from atlas_terminal.global_macro_sources import G20_AREAS, GLOBAL_INDICATORS, MEMBERSHIP_URL
 from atlas_terminal.macro_catalog import CURVE_SERIES, FX_CURRENCIES, MACRO_SERIES, REFERENCE_SERIES
+from atlas_terminal.policy_sources import POLICY_SERIES
 from atlas_terminal.public_sources import BLS_DETAILS, BLS_SERIES, SOURCE_CATALOG
 from atlas_terminal.regional_economic_catalog import EUROPE_SERIES, UK_SERIES
 from atlas_terminal.research_models import CatalogQuery
@@ -81,6 +82,18 @@ def series_catalog(filters: CatalogQuery) -> dict[str, Any]:
             }
         )
 
+    for key, policy in POLICY_SERIES.items():
+        add(
+            "policy_rates",
+            key,
+            policy["title"],
+            policy["source_id"],
+            policy["country"],
+            "daily",
+            "percent_per_annum",
+            {"series": key},
+            source_series=policy["code"],
+        )
     for key, (code, title, unit, adjusted) in BLS_SERIES.items():
         add(
             "economics",

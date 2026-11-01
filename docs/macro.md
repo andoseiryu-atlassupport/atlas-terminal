@@ -150,3 +150,7 @@ Official ECB documentation/conditions, New York Fed reference-rate terms and Tre
 ## International series and aligned panels
 
 Use `sdmx_catalog` and `international_economics` for metadata-selected IMF/OECD/ABS series. Use `macro_panel` to align explicit macro/FX queries into monthly, quarterly or annual periods, retaining original inputs and missingness. Registered-series search is available through the existing catalog. [Discovery, aggregation rules and runnable examples](international-macro.md).
+
+## Central-bank policy instruments
+
+The separate `policy_rates` dataset selects three ECB instruments and the RBA cash rate target, with exact series identity and original CSV cells. It does not substitute overnight reference rates or infer announcement timestamps. [Series, query examples and live verification](policy-rates.md).

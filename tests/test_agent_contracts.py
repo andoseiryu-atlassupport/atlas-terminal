@@ -32,6 +32,36 @@ def private_state(tmp_path, monkeypatch):
 
 
 def query(dataset="statements", **extra):
+    if dataset in {
+        "filing_documents",
+        "filing_facts",
+        "segment_financials",
+        "filing_sections",
+        "filing_tables",
+    }:
+        return {
+            "dataset": dataset,
+            "identifier": "ATLASDEMO",
+            "accession": "9999999999-26-000001",
+            **extra,
+        }
+    if dataset == "trailing_financials":
+        return {
+            "dataset": dataset,
+            "identifier": "ATLASDEMO",
+            "metrics": ["revenue"],
+            "count": 3,
+            "allow_partial": True,
+            **extra,
+        }
+    if dataset == "policy_rates":
+        return {
+            "dataset": dataset,
+            "series": "ecb_deposit_facility",
+            "start_date": "2026-10-28",
+            "end_date": "2026-10-30",
+            **extra,
+        }
     if dataset == "global_economics":
         return {"dataset": dataset, "country": "IN", "series": "gdp_growth", **extra}
     if dataset == "intraday_prices":

@@ -6,8 +6,9 @@ from decimal import ROUND_HALF_EVEN, Decimal, InvalidOperation, localcontext
 from typing import Any
 
 from atlas_terminal.errors import AtlasError
+from atlas_terminal.models import Company
 from atlas_terminal.normalize import number
-from atlas_terminal.providers import SECProvider, Snapshot
+from atlas_terminal.providers import Filing, SECProvider, Snapshot
 from atlas_terminal.research_models import ResearchQuery
 
 
@@ -99,10 +100,18 @@ def eligible_period(raw: dict[str, Any], spec: MetricSpec, period: str) -> bool:
 
 
 def statement_data(
-    source: SECProvider, query: ResearchQuery, *, include_history: bool = False
+    source: SECProvider,
+    query: ResearchQuery,
+    *,
+    include_history: bool = False,
+    reported_inputs: tuple[Company, Snapshot, list[Filing], bool] | None = None,
 ) -> dict[str, Any]:
     """Select reported facts; internal analytics may need older comparison inputs."""
-    company, snapshot, filings, truncated = source.financial_inputs(query.identifier or "")
+    company, snapshot, filings, truncated = (
+        reported_inputs
+        if reported_inputs is not None
+        else source.financial_inputs(query.identifier or "")
+    )
     metrics = query.metrics or DEFAULT_METRICS
     if set(metrics) - STATEMENT_METRICS.keys():
         raise AtlasError(

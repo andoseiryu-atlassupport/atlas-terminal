@@ -23,6 +23,29 @@ QUERY = parse_query({"identifier": "ATLASDEMO", "metrics": ["revenue", "net_inco
 expected = Atlas("fixture").get_financials(QUERY).model_dump(mode="json")
 MACRO_QUERIES = [
     {
+        "dataset": "trailing_financials",
+        "identifier": "ATLASDEMO",
+        "metrics": ["revenue"],
+        "count": 4,
+        "allow_partial": True,
+    },
+    *[
+        {"dataset": dataset, "identifier": "ATLASDEMO", "accession": "9999999999-26-000001"}
+        for dataset in (
+            "filing_documents",
+            "filing_facts",
+            "segment_financials",
+            "filing_sections",
+            "filing_tables",
+        )
+    ],
+    {
+        "dataset": "policy_rates",
+        "series": "ecb_deposit_facility",
+        "start_date": "2026-10-28",
+        "end_date": "2026-10-30",
+    },
+    {
         "dataset": "intraday_prices",
         "identifier": "AAPL",
         "interval": "5m",
@@ -507,6 +530,7 @@ with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
                 "wheel_demo": "PASS",
                 "wheel_research_cli_mcp_http": "PASS",
                 "wheel_macro_fx_cli_sdk_mcp_http": "PASS",
+                "wheel_filing_ttm_policy_cli_sdk_mcp_http": "PASS",
                 "wheel_market_discovery_funds_fred_cli_sdk_mcp_http": "PASS",
                 "wheel_quality_batch_cli_sdk_mcp_http": "PASS",
                 "wheel_presets_cli_sdk_mcp_http": "PASS",

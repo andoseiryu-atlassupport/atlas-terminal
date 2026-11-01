@@ -17,6 +17,7 @@ from atlas_terminal.documentation import DOCUMENTATION_ORIGIN, research_document
 from atlas_terminal.economic_catalog import JAPAN_SERIES, NATIONAL_ACCOUNTS
 from atlas_terminal.equity_sources import EQUITY_DATASETS, require_yahoo_enabled
 from atlas_terminal.errors import AtlasError
+from atlas_terminal.filing_catalog import TTM_FLOW_METRICS
 from atlas_terminal.global_macro_sources import G20_AREAS, GLOBAL_INDICATORS
 from atlas_terminal.macro_catalog import CURVE_SERIES, FX_CURRENCIES, MACRO_SERIES, REFERENCE_SERIES
 from atlas_terminal.normalize import number
@@ -122,6 +123,41 @@ FAMILIES = {
     "institutional_holdings": {"13F-HR", "13F-HR/A"},
 }
 DATASETS = {
+    "trailing_financials": (
+        "Trailing monetary flows and margins from exact reported windows",
+        "sec",
+        "derived_facts",
+    ),
+    "filing_documents": (
+        "Issuer-bound member inventory for one explicit SEC filing",
+        "sec",
+        "filing_metadata",
+    ),
+    "filing_facts": (
+        "Scoped numeric XBRL facts, units and dimensions from one SEC filing",
+        "sec",
+        "reported_facts",
+    ),
+    "segment_financials": (
+        "Reported monetary facts on standard business, product and geography axes",
+        "sec",
+        "reported_facts",
+    ),
+    "filing_sections": (
+        "Visible selected document or Item text with original source coordinates",
+        "sec",
+        "reported_text",
+    ),
+    "filing_tables": (
+        "Reported HTML text cells and spans with source coordinates",
+        "sec",
+        "reported_text",
+    ),
+    "policy_rates": (
+        "Official ECB policy instruments and RBA cash rate target",
+        "multiple",
+        "observations",
+    ),
     "intraday_prices": (
         "Optional timestamped Yahoo intraday bars with explicit interval and elapsed-bar status",
         "yahoo_finance",
@@ -337,11 +373,19 @@ GAPS = {
         "No option chain, analyst estimates, ratings or proprietary forecast feed."
     ),
     "newswire_and_earnings_transcripts": (
-        "Official release metadata and filing links only; no licensed "
+        "Official release metadata and selected filing text are available; no licensed "
         "newswire or call-transcript corpus."
     ),
     "complete_ownership_and_corporate_actions": (
         "13F omits shorts and many assets; discovery links are not normalized action histories."
+    ),
+    "standardized_company_kpis_and_guidance": (
+        "Custom tagged facts and selected release text are available; no standardized "
+        "operational KPI, guidance-range or adjusted-earnings database is supplied."
+    ),
+    "market_valuations": (
+        "No standardized market-cap, P/E or enterprise-value dataset; historical prices "
+        "and reported shares do not establish a compatible share-class/adjustment basis."
     ),
     "historical_security_master_and_pit": (
         "Current directory and revised observations are not a "
@@ -426,7 +470,9 @@ def research_catalog(
                 "id": name,
                 "description": title,
                 "source": source,
-                "source_ids": ["imf", "oecd", "abs"]
+                "source_ids": ["ecb", "rba"]
+                if name == "policy_rates"
+                else ["imf", "oecd", "abs"]
                 if name in {"sdmx_catalog", "international_economics"}
                 else sorted({spec["source_id"] for spec in ACTIVITY_SERIES.values()})
                 if name == "activity_economics"
@@ -508,6 +554,15 @@ def research_catalog(
             for name, (title, source, kind) in DATASETS.items()
         ],
         "statement_metrics": metric_catalog(),
+        "trailing_financials": {
+            "flow_metrics": list(TTM_FLOW_METRICS),
+            "methods": [
+                "reported_annual",
+                "four_reported_quarters",
+                "annual_plus_ytd_minus_prior_ytd",
+            ],
+            "point_in_time": False,
+        },
         "ratios": RATIOS,
         "analytics_metrics": analytics_catalog(),
         "price_analytics_metrics": price_analytics_catalog(),
@@ -656,7 +711,13 @@ class ResearchSecFixtures(FixtureTransport):
 
     def get(self, url: str, ttl: int) -> Snapshot:
         name = url.rsplit("/", 1)[-1]
+        if name == "index.json" and "/999999999926000001/" in url:
+            name = "filing_index.json"
         known = {
+            "filing_index.json",
+            "atlasdemo-20251231.htm",
+            "atlasdemo-20251231_htm.xml",
+            "earnings.htm",
             "submissions.json",
             "companyfacts.json",
             "insider.xml",
@@ -791,6 +852,20 @@ class ResearchService:
                 "history": history,
                 "limitations": history.pop("limitations"),
             }
+        elif q.dataset == "trailing_financials":
+            from atlas_terminal.research_trailing import trailing_financials
+
+            result = trailing_financials(self.sec_factory(), q)
+        elif q.dataset in {
+            "filing_documents",
+            "filing_facts",
+            "segment_financials",
+            "filing_sections",
+            "filing_tables",
+        }:
+            from atlas_terminal.sec_filing_sources import filing_research
+
+            result = filing_research(self.sec_factory(), self.filing_inputs, q)
         elif q.dataset == "macro_panel":
             from atlas_terminal.research_panel import macro_panel
 
@@ -822,6 +897,7 @@ class ResearchService:
             "uk_economics",
             "activity_economics",
             "global_economics",
+            "policy_rates",
             "sdmx_catalog",
             "international_economics",
         }:
@@ -1368,6 +1444,10 @@ class ResearchService:
 
     def public_data(self, q: ResearchQuery) -> dict[str, Any]:
         assert self.public is not None
+        if q.dataset == "policy_rates":
+            from atlas_terminal.policy_sources import policy_rates
+
+            return policy_rates(self.public, q)
         if q.dataset == "intraday_prices":
             from atlas_terminal.research_intraday import yahoo_intraday
 

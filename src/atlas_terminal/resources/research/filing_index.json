@@ -1,0 +1,22 @@
+{
+  "directory": {
+    "name": "/Archives/edgar/data/9999999999/999999999926000001",
+    "item": [
+      {
+        "name": "atlasdemo-20251231.htm",
+        "type": "text/html",
+        "size": "1000"
+      },
+      {
+        "name": "atlasdemo-20251231_htm.xml",
+        "type": "text/xml",
+        "size": "2000"
+      },
+      {
+        "name": "earnings.htm",
+        "type": "text/html",
+        "size": "500"
+      }
+    ]
+  }
+}

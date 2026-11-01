@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xbrl xmlns="http://www.xbrl.org/2003/instance"
+ xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:xbrldi="http://xbrl.org/2006/xbrldi"
+ xmlns:iso4217="http://www.xbrl.org/2003/iso4217" xmlns:us-gaap="http://fasb.org/us-gaap/2025"
+ xmlns:dei="http://xbrl.sec.gov/dei/2025"
+ xmlns:srt="http://fasb.org/srt/2025" xmlns:demo="https://fixtures.atlas.invalid/taxonomy/2025"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ <context id="business"><entity><identifier scheme="http://www.sec.gov/CIK">9999999999</identifier><segment>
+  <xbrldi:explicitMember dimension="us-gaap:StatementBusinessSegmentsAxis">demo:CloudMember</xbrldi:explicitMember>
+ </segment></entity><period><startDate>2025-01-01</startDate><endDate>2025-12-31</endDate></period></context>
+ <context id="crossed"><entity><identifier scheme="http://www.sec.gov/CIK">9999999999</identifier><segment>
+  <xbrldi:explicitMember dimension="us-gaap:StatementBusinessSegmentsAxis">demo:CloudMember</xbrldi:explicitMember>
+  <xbrldi:explicitMember dimension="srt:StatementGeographicalAxis">demo:DomesticMember</xbrldi:explicitMember>
+ </segment></entity><period><startDate>2025-01-01</startDate><endDate>2025-12-31</endDate></period></context>
+ <context id="instant"><entity><identifier scheme="http://www.sec.gov/CIK">9999999999</identifier></entity><period><instant>2025-12-31</instant></period></context>
+ <context id="typed"><entity><identifier scheme="http://www.sec.gov/CIK">9999999999</identifier><segment>
+  <xbrldi:typedMember dimension="demo:CustomerAxis"><demo:CustomerCode>A-1</demo:CustomerCode></xbrldi:typedMember>
+ </segment></entity><period><startDate>2025-01-01</startDate><endDate>2025-12-31</endDate></period></context>
+ <unit id="USD"><measure>iso4217:USD</measure></unit>
+ <unit id="shares"><measure>xbrli:shares</measure></unit>
+ <unit id="per-share"><divide><unitNumerator><measure>iso4217:USD</measure></unitNumerator><unitDenominator><measure>xbrli:shares</measure></unitDenominator></divide></unit>
+ <dei:DocumentType contextRef="instant">10-K</dei:DocumentType>
+ <dei:DocumentPeriodEndDate contextRef="instant">2025-12-31</dei:DocumentPeriodEndDate>
+ <dei:EntityCentralIndexKey contextRef="instant">9999999999</dei:EntityCentralIndexKey>
+ <us-gaap:Revenues contextRef="business" unitRef="USD" decimals="-3">1200000</us-gaap:Revenues>
+ <us-gaap:Revenues contextRef="crossed" unitRef="USD" decimals="-3">800000</us-gaap:Revenues>
+ <us-gaap:OperatingIncomeLoss contextRef="business" unitRef="USD" decimals="-3">200000</us-gaap:OperatingIncomeLoss>
+ <us-gaap:Assets contextRef="instant" unitRef="USD" decimals="-3">5000000</us-gaap:Assets>
+ <us-gaap:CommonStockSharesOutstanding contextRef="instant" unitRef="shares" decimals="0">100000</us-gaap:CommonStockSharesOutstanding>
+ <us-gaap:EarningsPerShareBasic contextRef="business" unitRef="per-share" decimals="2">1.25</us-gaap:EarningsPerShareBasic>
+ <demo:ActiveCustomers contextRef="typed" unitRef="shares" decimals="0">42</demo:ActiveCustomers>
+ <demo:UnreportedMetric contextRef="business" unitRef="USD" xsi:nil="true" decimals="INF"/>
+</xbrl>

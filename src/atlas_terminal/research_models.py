@@ -25,6 +25,13 @@ from atlas_terminal.equity_sources import (
     yahoo_url,
 )
 from atlas_terminal.errors import AtlasError
+from atlas_terminal.filing_catalog import (
+    DOCUMENT_NAME_PATTERN,
+    FILING_DATASETS,
+    SECTION_PATTERN,
+    SEGMENT_METRICS,
+    TTM_METRICS,
+)
 from atlas_terminal.global_macro_sources import G20_AREAS, GLOBAL_INDICATORS
 from atlas_terminal.macro_catalog import (
     CURVE_SERIES,
@@ -34,6 +41,7 @@ from atlas_terminal.macro_catalog import (
     Currency,
 )
 from atlas_terminal.models import Model, identifier
+from atlas_terminal.policy_sources import POLICY_SERIES
 from atlas_terminal.regional_bond_sources import EURO_SERIES
 from atlas_terminal.regional_economic_catalog import EUROPE_SERIES, UK_SERIES
 from atlas_terminal.research_discovery import ScreenFilter
@@ -41,6 +49,13 @@ from atlas_terminal.research_quality import ResearchRequirements
 from atlas_terminal.sdmx_sources import CODE_PATTERN, FLOW_PATTERN
 
 Dataset = Literal[
+    "trailing_financials",
+    "filing_documents",
+    "filing_facts",
+    "segment_financials",
+    "filing_sections",
+    "filing_tables",
+    "policy_rates",
     "companies",
     "profile",
     "statements",
@@ -90,6 +105,13 @@ Dataset = Literal[
 ]
 
 FIELDS = {
+    "trailing_financials": {"identifier", "metrics", "count", "allow_partial"},
+    "filing_documents": {"identifier", "accession", "limit"},
+    "filing_facts": {"identifier", "accession", "document_name", "concept", "limit"},
+    "segment_financials": {"identifier", "accession", "document_name", "metrics", "limit"},
+    "filing_sections": {"identifier", "accession", "document_name", "section", "limit"},
+    "filing_tables": {"identifier", "accession", "document_name", "table_index", "limit"},
+    "policy_rates": {"series", "start_date", "end_date", "limit"},
     "intraday_prices": {"identifier", "start_date", "end_date", "interval", "limit"},
     "price_comparison": {"identifiers", "start_date", "end_date", "limit"},
     "price_analytics": {"identifier", "start_date", "end_date", "metrics", "limit"},
@@ -155,6 +177,10 @@ FIELDS = {
 
 
 def dataset_required(name: str) -> list[str]:
+    if name in FILING_DATASETS:
+        return ["identifier", "accession"]
+    if name == "policy_rates":
+        return ["series"]
     if name == "global_economics":
         return ["country", "series"]
     if name == "intraday_prices":
@@ -293,6 +319,14 @@ def dataset_schema(schema: dict[str, Any]) -> None:
             properties["identifier"]["pattern"] = (
                 "^(?:" + TOKYO_SYMBOL_PATTERN + "|" + US_SYMBOL_PATTERN + ")$"
             )
+        if name in {"trailing_financials", "segment_financials"}:
+            properties["metrics"]["items"] = {
+                "type": "string",
+                "enum": list(TTM_METRICS if name == "trailing_financials" else SEGMENT_METRICS),
+            }
+            properties["metrics"]["uniqueItems"] = True
+        if name == "policy_rates":
+            properties["series"] = {"type": "string", "enum": list(POLICY_SERIES)}
         if name == "price_analytics":
             from atlas_terminal.research_price_analytics import PRICE_METRICS
 
@@ -423,6 +457,9 @@ class ResearchQuery(Model):
     dataset: Dataset
     country: str | None = Field(default=None, pattern=r"^[A-Z]{2}$")
     filing_date: str | None = Field(default=None, pattern=r"^[0-9]{4}-[0-9]{2}-[0-9]{2}$")
+    document_name: str | None = Field(default=None, pattern="^" + DOCUMENT_NAME_PATTERN + "$")
+    section: str = Field(default="all", pattern="^" + SECTION_PATTERN + "$")
+    table_index: int | None = Field(default=None, ge=1, le=500, strict=True)
     document_id: str | None = Field(default=None, pattern=r"^S[0-9A-Z]{7}$")
     source_url: str | None = Field(default=None, min_length=1, max_length=2048)
     history_action: Literal["list", "get", "as_of", "diff"] = "list"
@@ -496,6 +533,18 @@ class ResearchQuery(Model):
 
     @model_validator(mode="after")
     def check_dataset(self) -> "ResearchQuery":
+        if self.dataset in FILING_DATASETS and self.accession is None:
+            raise AtlasError("INVALID_INPUT", "Select an explicit issuer filing accession.")
+        if self.dataset in {"trailing_financials", "segment_financials"}:
+            allowed_metrics = (
+                TTM_METRICS if self.dataset == "trailing_financials" else SEGMENT_METRICS
+            )
+            if set(self.metrics) - set(allowed_metrics):
+                raise AtlasError(
+                    "UNSUPPORTED_METRIC", "Choose a metric registered for this dataset."
+                )
+        if self.dataset == "policy_rates" and self.series not in POLICY_SERIES:
+            raise AtlasError("INVALID_INPUT", "Choose a registered policy instrument.")
         if self.dataset == "intraday_prices":
             from atlas_terminal.equity_intraday import intraday_url
 
