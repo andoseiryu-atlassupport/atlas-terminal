@@ -1,8 +1,24 @@
 # Validation scope
 
-Recorded on 2026-11-01 (JST) for the source checkout following Atlas Terminal 0.7.0, with Python 3.12.14 and Node.js 24 on Linux. Local verification, GitHub Actions, public deployment, official-source access and model observations are distinct evidence.
+Recorded on 2026-11-02 (JST) for the source checkout following Atlas Terminal 0.7.0, with Python 3.12.14 and Node.js 24 on Linux. Local verification, GitHub Actions, public deployment, official-source access and model observations are distinct evidence.
 
 Version 0.7.0 includes the experimental native factor risk extension and installed walkthroughs described below. The prior 0.6.0 release did not include risk estimation. Local wheel checks remain separate evidence from a published GitHub release.
+
+## Trailing financials, original filing research and policy instruments
+
+The source checkout exposes **53 datasets**. Seven additions share the existing SDK/CLI/MCP/HTTP service: `trailing_financials`, `filing_documents`, `filing_facts`, `segment_financials`, `filing_sections`, `filing_tables` and `policy_rates`. TTM retains exact reported operands and actual periods without synthesizing Q4 statements. Numeric filing facts preserve scoped QNames, divided units, dimensions, nils and original XML members; DEI issuer/form/report-date metadata must match the selected submission. Segment selections do not add overlapping axes. Visible text retains Item occurrences and bounded source envelopes; HTML cells retain source order and spans without claiming a reconstructed statement hierarchy.
+
+The new regression files passed **81 tests** covering identity/path restrictions, malformed and namespace-rebound XML, periods/units/nils/share facts, conflicting segment duplicates, hidden/nested HTML, source coordinates, exact trailing identities, missing/misaligned inputs, half-even ratios, policy instrument/metadata changes, sparse RBA columns, source precision, cache reuse, catalog discovery and explicit panel aggregation. Existing dataset contract cases now include all seven additions. The final complete offline suite passed **2,082 tests**, with two live tests deselected; mypy passed for **91 source files**. Wheel and source-distribution checks, 57-page documentation validation, formatting, distribution preparation, the public-file scan and existing showcase/BLS replay checks also passed.
+
+The built wheel payload was loaded directly while reusing the locked development environment's dependencies. `scripts/verify_installed.py` exercised all seven additions through CLI, SDK, an actual official stdio MCP session and actual loopback HTTP; compact evidence and the existing restart/mock-recovery checks passed. The imported package path was confirmed inside the wheel-payload directory. This does not certify a fresh dependency installation or a public service deployment.
+
+On **2026-11-01 UTC (2026-11-02 JST)**, `uv run --offline python scripts/verify_policy_rates.py --allow-network --output build/policy-live` completed four official-source reads with the normal proxy and TLS checks. ECB deposit, fixed main-refinancing and marginal-lending series each returned **304 observations** for 2026-01-01 through 2026-10-31. The RBA table returned **4,007 source observations** from 2011-01-04 through 2026-10-30, including **212 observations** in the selected 2026 interval. All **4,919 original value cells** matched normalized source values, with exact Decimal comparison for numeric values. The requested window contained **1,124 observations** in total. Raw bytes, normalized actual observations and detailed receipts remain in ignored private output and the existing private cache/history.
+
+RBA rows omit different numbers of trailing unselected columns. Validation now requires the cash-target column and bounds the row by the published series header, instead of incorrectly requiring every unselected trailing cell. It still checks `FIRMMCRTD`, target title, RBA producer, daily frequency and percent units; no interbank/ASX series is substituted. ECB source calendar dates are retained as published; Atlas inserts no daily forward fill or announcement timestamp.
+
+SEC destinations were absent from the runtime's observed effective allowlist, and normal requests to `data.sec.gov` and `www.sec.gov` returned `httpx.ProxyError: 403 Forbidden`. `SEC_USER_AGENT` was unset. Saved configuration and observed runtime policy are distinct; the enforced/current runtime observations do not make a blocked request successful. New SEC live retrieval and current upstream document compatibility remain unverified, and these errors are not classified as an SEC outage. BEA/Census/FRED/EDINET key settings were also absent; no values were printed, no SEC contact was invented and no network/TLS restriction was bypassed. No fresh BLS request or counter/cache reset was performed.
+
+Raw company tags and selected earnings-release text are not a standardized operational-KPI, company-guidance or adjusted-earnings database. Market-cap/PER/enterprise-value series, analyst consensus, complete reverse ownership search, complete international issuer coverage and release-time PIT remain outside this implementation. Local checks remain separate from subsequent GitHub Actions results.
 
 ## G20 annual macro coverage
 
@@ -24,11 +40,11 @@ Wheel-payload SDK and CLI smoke reads loaded the packaged fictional WDI template
 | --------------------------------------------------------- | ------------------------------------------------------------------- |
 | `uv run --offline ruff check .`                           | PASS                                                                |
 | `uv run --offline ruff format --check .`                  | PASS                                                                |
-| `uv run --offline mypy`                                   | PASS; 86 source files                                               |
-| `uv run --offline pytest`                                 | PASS; 1,987 tests, 2 live tests deselected                          |
+| `uv run --offline mypy`                                   | PASS; 91 source files                                               |
+| `uv run --offline pytest`                                 | PASS; 2,082 tests, 2 live tests deselected                          |
 | `uv run --offline python -m build --no-isolation`         | PASS; wheel and source distribution                                 |
 | `uv run --offline python scripts/verify_distribution.py`  | PASS; metadata, required contents and forbidden paths               |
-| `uv run --offline python scripts/build_docs.py`           | PASS; 55 HTML pages and internal file/section links                 |
+| `uv run --offline python scripts/build_docs.py`           | PASS; 57 HTML pages and internal file/section links                 |
 | `uv run --offline python scripts/verify_showcases.py`     | PASS; both recorded versions, data modes and checksums              |
 | `uv run --offline python scripts/verify_bls_capture.py`   | PASS; offline audit/replay of 14 captured responses and 168 records |
 | `uv run --offline python scripts/prepare_distribution.py` | PREPARED; versioned plugin ZIP and Registry draft                   |

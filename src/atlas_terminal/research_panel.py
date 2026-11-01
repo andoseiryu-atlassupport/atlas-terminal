@@ -13,6 +13,7 @@ from atlas_terminal.research_models import ResearchQuery, parse_research
 from atlas_terminal.util import canonical
 
 SUPPORTED = {
+    "policy_rates",
     "economics",
     "national_accounts",
     "japan_economics",

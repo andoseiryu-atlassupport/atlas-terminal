@@ -4,6 +4,10 @@ Atlas Terminal retrieves US equity research, macro data and reference FX from fr
 
 ## Datasets
 
+[Filing research](docs/filing-research.md) adds six datasets: TTM monetary flows/margins, explicit-accession document inventories, scoped XBRL numeric facts, standard US-GAAP segment selections, visible Item/document text and reported HTML table cells. Exact operands, periods, namespaces, dimensions, units, nils and original coordinates remain inspectable. TTM does not synthesize Q4 statements, and source tables do not establish a presentation hierarchy. Custom facts and releases are not automatically standardized into operational KPIs, guidance or non-GAAP earnings. SEC live retrieval remains unverified under the current destination policy and missing contact configuration.
+
+[Policy rates](docs/policy-rates.md) adds four official instruments from ECB/RBA, searchable templates and explicit macro-panel aggregation. Normal-proxy live checks matched the source identities and parsed 304 observations per ECB instrument plus 212 RBA observations in the selected 2026 window. Current source snapshots are not announcement-time PIT data.
+
 `global_economics` supplies fourteen annual WDI indicators for the nineteen G20 countries and the overlapping EU aggregate, with 280 searchable country/indicator templates. GDP price/PPP bases, modeled ILO unemployment, central-government debt scope, publisher reference years and annual average FX remain explicit. The ten-item `g20_country_overview` preset accepts one required country, date bounds and independent quality requirements. Original country/indicator metadata, exact source cells, nulls, flags, missing years and local source history share the research service. The African Union has no selected aggregate. There are 25 research presets. [Definitions, examples and verification](docs/g20-macro.md).
 
 | Area           | Capabilities                                                                                           |
@@ -24,7 +28,7 @@ Atlas Terminal retrieves US equity research, macro data and reference FX from fr
 
 US national accounts add sixteen BEA series; Japanese macro adds twenty-nine BOJ/Statistical Dashboard series. Eurostat adds 48 exact European selections and ONS adds five UK series. Five activity/global presets join the existing macro presets through shared batches with dates, source IDs and per-item failures. [Series and statistical definitions](docs/economic-indicators.md).
 
-Run `atlas research catalog --json` for identifiers, query fields, units and limits for all 46 datasets, including five optional Yahoo datasets, generic FRED observations and private local history. The [research guide](docs/research.md) includes examples for each dataset.
+Run `atlas research catalog --json` for identifiers, query fields, units and limits for all 53 datasets, including five optional Yahoo datasets, generic FRED observations and private local history. The [research guide](docs/research.md) includes examples for each dataset.
 
 `japan_disclosures`, `japan_filing_facts` and `japan_securities` add dated EDINET document lists, original numeric XBRL facts and current JPX reference rows. Actual XBRL contexts, scoped QNames, divided units, consolidation dimensions, share facts and original ZIP/member evidence remain explicit. JPX supports current XLSX and retained XLS, alphanumeric/class codes and per-field worksheet coordinates. EDINET needs a private free API key and is not live-verified; JPX rights require the applicable permission. [Japanese company coverage](docs/japan-companies.md).
 

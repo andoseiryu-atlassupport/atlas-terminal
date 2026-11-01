@@ -40,6 +40,7 @@ from atlas_terminal.japan_company_sources import (
     edinet_key,
 )
 from atlas_terminal.macro_catalog import REFERENCE_SERIES
+from atlas_terminal.policy_sources import parse_policy, policy_identity
 from atlas_terminal.providers import CachedHTTPTransport, Snapshot, decode_json
 from atlas_terminal.regional_bond_sources import (
     ECB_CURVE_BASE,
@@ -424,6 +425,7 @@ class PublicTransport(CachedHTTPTransport):
     def validate_url(url: str) -> None:
         if (
             url in {DEBT_URL, FED_NEWS, ECB_FX_URL, RBA_URL, *NYFED_RATES.values(), *JGB_URLS}
+            or policy_identity(url) is not None
             or ecb_curve_identity(url) is not None
             or valid_bls_url(url)
             or validate_economic_url(url)
@@ -509,6 +511,9 @@ class PublicTransport(CachedHTTPTransport):
                     if isinstance(value, dict) and ("error_code" in value or "error" in value):
                         raise ValueError("Source rejected the activity request")
             return
+        if policy_selection := policy_identity(url):
+            parse_policy(Snapshot(body, url, "2000-01-01T00:00:00Z"), policy_selection[0])
+            return
         if selection := ecb_curve_identity(url):
             parse_ecb_curve(Snapshot(body, url, "2000-01-01T00:00:00Z"), *selection)
             return
@@ -587,7 +592,11 @@ class PublicTransport(CachedHTTPTransport):
                 )
         if regional_economic_identity(url) is not None:
             headers = {**headers, "Accept": "application/json"}
-        if ecb_curve_identity(url) is not None or url == RBA_URL:
+        if (
+            policy_identity(url) is not None
+            or ecb_curve_identity(url) is not None
+            or url == RBA_URL
+        ):
             headers = {**headers, "Accept": "text/csv"}
         if sdmx_source(url):
             headers = {
@@ -706,6 +715,13 @@ class PublicFixtures:
                 "2026-10-27T02:00:00Z",
             )
         PublicTransport.validate_url(url)
+        if policy_selection := policy_identity(url):
+            name = "policy_" + policy_selection[0] + ".csv"
+            return Snapshot(
+                files("atlas_terminal").joinpath("resources", "research", name).read_bytes(),
+                "https://fixtures.atlas.invalid/research/" + name,
+                "2026-10-30T12:00:00Z",
+            )
         if global_selection := global_wdi_identity(url):
             kind, country, series = global_selection
             area = G20_AREAS[country] if country else None
