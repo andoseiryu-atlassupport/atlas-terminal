@@ -15,6 +15,7 @@ def research_documentation(dataset: str) -> dict[str, str]:
         "filing_tables",
     }
     macro = {
+        "commodity_prices",
         "policy_rates",
         "economics",
         "treasury_yields",
@@ -49,7 +50,11 @@ def research_documentation(dataset: str) -> dict[str, str]:
     japan = dataset in {"japan_disclosures", "japan_filing_facts", "japan_securities"}
     history = dataset == "source_history"
     methodology = (
-        "filing-research"
+        "credit-ratings"
+        if dataset == "credit_ratings"
+        else "commodities-futures"
+        if dataset in {"commodity_prices", "futures_prices", "futures_curve"}
+        else "filing-research"
         if filing
         else "intraday-prices"
         if dataset == "intraday_prices"
@@ -66,7 +71,11 @@ def research_documentation(dataset: str) -> dict[str, str]:
         else "methodology"
     )
     guide = (
-        "filing-research"
+        "credit-ratings"
+        if dataset == "credit_ratings"
+        else "commodities-futures"
+        if dataset in {"commodity_prices", "futures_prices", "futures_curve"}
+        else "filing-research"
         if filing
         else "policy-rates"
         if dataset == "policy_rates"

@@ -1,0 +1,41 @@
+<mes:Structure xmlns:mes="http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message" xmlns:s="http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure" xmlns:c="http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common"><mes:Structures><s:Codelists>
+<s:Codelist id="CL_COUNTRY" agencyID="IMF.RES" version="1.0.0">
+<s:Code id="G001"><c:Name xml:lang="en">World</c:Name></s:Code>
+</s:Codelist>
+<s:Codelist id="CL_INDICATOR" agencyID="IMF.RES" version="1.0.0">
+<s:Code id="PGOLD"><c:Name xml:lang="en">Gold, US dollars per troy ounce of gold, Unit prices</c:Name></s:Code>
+<s:Code id="PSILVER"><c:Name xml:lang="en">Silver, US dollars per troy ounce of gold, Unit prices</c:Name></s:Code>
+<s:Code id="PCOPP"><c:Name xml:lang="en">Copper, US dollars per metric tonne, Unit prices</c:Name></s:Code>
+<s:Code id="PALUM"><c:Name xml:lang="en">Aluminum, US dollars per metric tonne, Unit prices</c:Name></s:Code>
+<s:Code id="PIORECR"><c:Name xml:lang="en">Iron Ore, US dollars per metric tonne, Unit prices</c:Name></s:Code>
+<s:Code id="PPLAT"><c:Name xml:lang="en">Platinum, US dollars per troy ounce of gold, Unit prices</c:Name></s:Code>
+<s:Code id="PPALLA"><c:Name xml:lang="en">Palladium, US dollars per troy ounce of gold, Unit prices</c:Name></s:Code>
+<s:Code id="POILWTI"><c:Name xml:lang="en">WTI Crude, US dollars per barrel, Unit prices</c:Name></s:Code>
+<s:Code id="POILBRE"><c:Name xml:lang="en">Brent Crude, US dollars per barrel, Unit prices</c:Name></s:Code>
+<s:Code id="POILDUB"><c:Name xml:lang="en">Dubai Crude, US dollars per barrel, Unit prices</c:Name></s:Code>
+<s:Code id="PNGASUS"><c:Name xml:lang="en">Natural Gas, US Henry Hub Gas, US dollars per million metric British thermal units of gas, Unit prices</c:Name></s:Code>
+<s:Code id="PNGASEU"><c:Name xml:lang="en">Natural gas, EU, US dollars per million metric British thermal units of gas, Unit prices</c:Name></s:Code>
+<s:Code id="PWHEAMT"><c:Name xml:lang="en">Wheat, US dollars per metric tonne, Unit prices</c:Name></s:Code>
+<s:Code id="PMAIZMT"><c:Name xml:lang="en">Corn, US dollars per metric tonne, Unit prices</c:Name></s:Code>
+<s:Code id="PCOFFOTM"><c:Name xml:lang="en">Coffee, Other Mild Arabica, US cents per pound, Unit prices</c:Name></s:Code>
+<s:Code id="PCOFFROB"><c:Name xml:lang="en">Coffee, Robustas, US cents per pound, Unit prices</c:Name></s:Code>
+<s:Code id="PSUGAISA"><c:Name xml:lang="en">Sugar, No. 11, World, US cents per pound, Unit prices</c:Name></s:Code>
+<s:Code id="PCOTTIND"><c:Name xml:lang="en">Cotton, US cents per pound, Unit prices</c:Name></s:Code>
+</s:Codelist>
+<s:Codelist id="CL_DATA_TRANSFORMATION" agencyID="IMF.RES" version="1.0.0">
+<s:Code id="USD"><c:Name xml:lang="en">US dollars</c:Name></s:Code>
+</s:Codelist>
+<s:Codelist id="CL_FREQUENCY" agencyID="IMF.RES" version="1.0.0">
+<s:Code id="M"><c:Name xml:lang="en">Monthly</c:Name></s:Code>
+</s:Codelist>
+</s:Codelists><s:Concepts><s:ConceptScheme id="CS_PCPS" agencyID="IMF.RES" version="1.0.0">
+<s:Concept id="COUNTRY"><c:Name xml:lang="en">COUNTRY</c:Name><s:CoreRepresentation><s:Enumeration><Ref id="CL_COUNTRY" agencyID="IMF.RES" version="1.0.0"/></s:Enumeration></s:CoreRepresentation></s:Concept>
+<s:Concept id="INDICATOR"><c:Name xml:lang="en">INDICATOR</c:Name><s:CoreRepresentation><s:Enumeration><Ref id="CL_INDICATOR" agencyID="IMF.RES" version="1.0.0"/></s:Enumeration></s:CoreRepresentation></s:Concept>
+<s:Concept id="DATA_TRANSFORMATION"><c:Name xml:lang="en">DATA_TRANSFORMATION</c:Name><s:CoreRepresentation><s:Enumeration><Ref id="CL_DATA_TRANSFORMATION" agencyID="IMF.RES" version="1.0.0"/></s:Enumeration></s:CoreRepresentation></s:Concept>
+<s:Concept id="FREQUENCY"><c:Name xml:lang="en">FREQUENCY</c:Name><s:CoreRepresentation><s:Enumeration><Ref id="CL_FREQUENCY" agencyID="IMF.RES" version="1.0.0"/></s:Enumeration></s:CoreRepresentation></s:Concept>
+</s:ConceptScheme></s:Concepts><s:DataStructures><s:DataStructure id="DSD_PCPS" agencyID="IMF.RES" version="1.0.0"><s:DataStructureComponents><s:DimensionList>
+<s:Dimension id="COUNTRY" position="0"><s:ConceptIdentity><Ref id="COUNTRY" agencyID="IMF.RES" maintainableParentID="CS_PCPS" maintainableParentVersion="1.0.0"/></s:ConceptIdentity></s:Dimension>
+<s:Dimension id="INDICATOR" position="1"><s:ConceptIdentity><Ref id="INDICATOR" agencyID="IMF.RES" maintainableParentID="CS_PCPS" maintainableParentVersion="1.0.0"/></s:ConceptIdentity></s:Dimension>
+<s:Dimension id="DATA_TRANSFORMATION" position="2"><s:ConceptIdentity><Ref id="DATA_TRANSFORMATION" agencyID="IMF.RES" maintainableParentID="CS_PCPS" maintainableParentVersion="1.0.0"/></s:ConceptIdentity></s:Dimension>
+<s:Dimension id="FREQUENCY" position="3"><s:ConceptIdentity><Ref id="FREQUENCY" agencyID="IMF.RES" maintainableParentID="CS_PCPS" maintainableParentVersion="1.0.0"/></s:ConceptIdentity></s:Dimension>
+<s:TimeDimension id="TIME_PERIOD"/></s:DimensionList><s:AttributeList><s:Attribute id="SCALE"/><s:Attribute id="DERIVATION_TYPE"/></s:AttributeList></s:DataStructureComponents></s:DataStructure></s:DataStructures><s:Dataflows><s:Dataflow id="PCPS" agencyID="IMF.RES" version="9.0.0"><c:Name xml:lang="en">Fictional commodity reference fixture</c:Name><s:Structure><Ref id="DSD_PCPS" agencyID="IMF.RES" version="1.0.0"/></s:Structure></s:Dataflow></s:Dataflows></mes:Structures></mes:Structure>

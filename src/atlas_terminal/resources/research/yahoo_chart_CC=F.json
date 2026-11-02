@@ -1,0 +1,77 @@
+{
+  "chart": {
+    "result": [
+      {
+        "meta": {
+          "symbol": "CC=F",
+          "currency": "USD",
+          "exchangeName": "NYB",
+          "exchangeTimezoneName": "America/New_York",
+          "instrumentType": "FUTURE",
+          "dataGranularity": "1d",
+          "shortName": "FICTIONAL Atlas futures fixture"
+        },
+        "timestamp": [
+          1792382400,
+          1792468800,
+          1792555200,
+          1792641600,
+          1792728000
+        ],
+        "indicators": {
+          "quote": [
+            {
+              "open": [
+                101,
+                102,
+                103,
+                104,
+                105
+              ],
+              "close": [
+                101,
+                102,
+                103,
+                104,
+                105
+              ],
+              "high": [
+                102,
+                103,
+                104,
+                105,
+                106
+              ],
+              "low": [
+                100,
+                101,
+                102,
+                103,
+                104
+              ],
+              "volume": [
+                10,
+                0,
+                20,
+                null,
+                30
+              ]
+            }
+          ],
+          "adjclose": [
+            {
+              "adjclose": [
+                101,
+                102,
+                103,
+                104,
+                105
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "error": null
+  }
+}

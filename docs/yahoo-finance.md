@@ -85,7 +85,7 @@ For cross-sectional risk, supply actual historical capitalization or a separate 
 
 ## Verification
 
-Five bundled Yahoo-shaped files are fictional: two Tokyo and three US examples (`AAPL`, `MSFT`, `SPY`). Offline tests cover decimals and locators; strict source identity; source-local inclusive dates and US daylight saving; completed-session filtering; zero/null prices and volume; empty actions and splits; FX ambiguity; signed futures; endpoint allowlisting; operator-only enablement; evidence/quality/shared interfaces; and same-market USD/JPY risk inputs. Fictional checks do not establish live availability.
+Bundled Yahoo-shaped files are fictional, including Tokyo, US, European, Korean and futures examples. Offline tests cover decimals and locators; strict source identity; source-local inclusive dates and US daylight saving; completed-session filtering; zero/null prices and volume; empty actions and splits; FX ambiguity; signed futures; endpoint allowlisting; operator-only enablement; evidence/quality/shared interfaces; and same-market USD/JPY risk inputs. Fictional checks do not establish live availability.
 
 The Tokyo live workflow remains available:
 
@@ -106,3 +106,7 @@ Source bytes, normalized observations and risk artifacts stay in ignored private
 ## Explicit intraday bars
 
 The separate [`intraday_prices` dataset](intraday-prices.md) accepts 1/5/15/30/60-minute intervals and short explicit local-date windows. It retains timestamp/session evidence and an unverified adjustment basis, excludes unfinished or future bars and never substitutes intraday closes for daily adjusted prices. It uses the same source enablement, normal proxy/TLS, cache and rate limits.
+
+## Dedicated futures research
+
+[Commodities and futures](commodities-futures.md) documents thirty supported futures families, explicitly dated contract identifiers and same-date curves/calendar spreads. These use the same personal-use enablement, normal proxy/TLS and cache. Contract month is distinct from expiry day; raw source quote units are preserved, and multiplier/settlement/roll adjustment is not inferred. Futures remain excluded from the equity/ETF risk connection.

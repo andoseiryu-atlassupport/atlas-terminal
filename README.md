@@ -29,9 +29,11 @@ Run `atlas showcase research --provider public --allow-network` for actual ECB/N
 
 ## Available data
 
-Atlas provides 53 research datasets, including private local source history, with data from 24 upstream source families. Official sources include SEC EDGAR, BLS, Treasury, the Federal Reserve, ECB, New York Fed, BEA, BOJ, Japan's Statistical Dashboard/MOF, EDINET, JPX, IMF, OECD, RBA, Eurostat, ONS, Census, ABS, StatCan and World Bank. Generic FRED retrieval preserves original producer conditions. Five optional Yahoo daily/intraday price, action and analytics datasets remain disabled by default for personal-use access under separate terms.
+Atlas provides 57 research datasets, including private local source history, with data from 24 upstream source families. Official sources include SEC EDGAR, BLS, Treasury, the Federal Reserve, ECB, New York Fed, BEA, BOJ, Japan's Statistical Dashboard/MOF, EDINET, JPX, IMF, OECD, RBA, Eurostat, ONS, Census, ABS, StatCan and World Bank. Generic FRED retrieval preserves original producer conditions. Seven optional Yahoo daily/intraday price, action, analytics and futures datasets remain disabled by default for personal-use access under separate terms.
 
 [European and Korean market data](docs/europe-korea-equities.md) covers KOSPI/KOSDAQ and sixteen European countries through the existing price/action, intraday and analytics datasets. British pound/pence quote units remain explicit. The optional time-series connector supports the same national markets with a separately selected ETF proxy; local standardized company financial readers remain unavailable.
+
+[Commodities and futures](docs/commodities-futures.md) add eighteen IMF monthly reference-price series, thirty Yahoo futures families, explicit dated contracts and same-date calendar spreads. [Credit ratings](docs/credit-ratings.md) imports operator-owned or licensed issuer/issue observations on S&P, Moody’s and Fitch global long-term scales, with private source versions; no automatic agency feed is supplied.
 
 [Original filing research](docs/filing-research.md) adds exact TTM flows and margins, issuer-bound SEC document inventories, scoped numeric XBRL facts, standard-axis segment selections, visible Item/document text and reported HTML cells. Raw custom tags and release text retain their original meaning; they are not a standardized KPI or guidance database. [Policy rates](docs/policy-rates.md) adds the ECB's three policy instruments and the RBA cash rate target, with exact CSV-cell evidence.
 

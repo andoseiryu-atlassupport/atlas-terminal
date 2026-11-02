@@ -367,8 +367,9 @@ def yahoo_equities(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
             "FX bars with close/open outside the reported high/low retain every original value "
             "with status ambiguous and an OHLC conflict flag; no tolerance or repair is applied.",
             "Reference index/FX/crypto/futures values retain Yahoo conventions. Non-security "
-            "adjusted close has no inferred dividend/split adjustment. Futures are changing "
-            "front-contract quotations, not a verified continuous total-return series; no "
+            "adjusted close has no inferred dividend/split adjustment. Front references can change "
+            "contracts; explicit dated symbols select one contract month. Neither establishes "
+            "a verified continuous total-return series; no "
             "roll adjustment, contract multiplier, settlement status or expiry is inferred.",
             "Current revised prices/actions are not point-in-time vintages or a "
             "delisting-complete universe. This dataset supplies daily observations/actions, "

@@ -722,6 +722,15 @@ class PublicFixtures:
                 "https://fixtures.atlas.invalid/research/" + name,
                 "2026-10-30T12:00:00Z",
             )
+        if "/dataflow/IMF.RES/PCPS/" in url and sdmx_source(url) == "imf":
+            name = "pcps_data.xml" if "/3.0/data/" in url else "pcps_structure.xml"
+            body = files("atlas_terminal").joinpath("resources", "research", name).read_bytes()
+            if name == "pcps_data.xml":
+                pcps_key = url.split("?", 1)[0].rsplit("/", 1)[-1].split(".")
+                body = body.replace(b"__INDICATOR__", pcps_key[1].encode())
+            return Snapshot(
+                body, "https://fixtures.atlas.invalid/research/" + name, "2026-10-27T02:00:00Z"
+            )
         if global_selection := global_wdi_identity(url):
             kind, country, series = global_selection
             area = G20_AREAS[country] if country else None

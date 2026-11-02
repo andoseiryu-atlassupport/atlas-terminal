@@ -149,7 +149,18 @@ def source_history(query: SourceHistoryQuery | dict[str, Any], directory: Path) 
         raise AtlasError(
             "INVALID_INPUT", "Use a valid source-history action and arguments."
         ) from None
-    PublicTransport.validate_url(q.url)
+    from atlas_terminal.credit_catalog import CREDIT_RATINGS_URL
+
+    if q.url == CREDIT_RATINGS_URL:
+        import os
+
+        if not os.environ.get("ATLAS_CREDIT_RATINGS_FILE"):
+            raise AtlasError(
+                "CONFIG_REQUIRED",
+                "Operator credit-rating file configuration is required for retained books.",
+            )
+    else:
+        PublicTransport.validate_url(q.url)
     if yahoo_identity(q.url) is not None:
         require_yahoo_enabled()
     store = Database(directory / "public-cache.sqlite3", SCHEMA)

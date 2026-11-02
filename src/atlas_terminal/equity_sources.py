@@ -8,6 +8,12 @@ from urllib.parse import parse_qs, quote, unquote, urlencode
 from zoneinfo import ZoneInfo
 
 from atlas_terminal.errors import AtlasError
+from atlas_terminal.futures_catalog import (
+    FUTURES,
+    FUTURES_SYMBOL_PATTERN,
+    future_context,
+    future_identity,
+)
 from atlas_terminal.market_catalog import (
     SECURITY_MARKETS,
     SECURITY_SYMBOL_PATTERN,
@@ -95,11 +101,15 @@ REFERENCE_INSTRUMENTS: dict[str, tuple[str, str, str, str, str, str]] = {
     "NQ=F": ("FUTURE", "USD", "America/New_York", "CME", "index_points", "contracts"),
 }
 YAHOO_SYMBOL_PATTERN = (
-    "(?:" + "|".join([SECURITY_SYMBOL_PATTERN, *map(re.escape, REFERENCE_INSTRUMENTS)]) + ")"
+    "(?:"
+    + "|".join(
+        [SECURITY_SYMBOL_PATTERN, FUTURES_SYMBOL_PATTERN, *map(re.escape, REFERENCE_INSTRUMENTS)]
+    )
+    + ")"
 )
 YAHOO_ENABLE_ENV = "ATLAS_ENABLE_YAHOO_FINANCE"
 TOKYO = ZoneInfo("Asia/Tokyo")
-EQUITY_DATASETS = {"equity_prices", "equity_actions"}
+EQUITY_DATASETS = {"equity_prices", "equity_actions", "futures_prices"}
 YAHOO_SOURCE: dict[str, Any] = {
     "name": "Yahoo Finance international (optional, unofficial access)",
     "source_kind": "secondary_aggregator",
@@ -154,6 +164,30 @@ def yahoo_symbol(value: str) -> str:
 def yahoo_profile(symbol: str, quote_currency: str | None = None) -> dict[str, Any]:
     """Expected identity and units; upstream metadata must agree with this policy."""
     yahoo_symbol(symbol)
+    future = future_identity(symbol)
+    if future is not None:
+        root, month = future
+        future_spec = FUTURES[root]
+        legacy = REFERENCE_INSTRUMENTS.get(symbol)
+        allowed = (
+            {"USD", "USX"} if future_spec.quote_measure_unit.startswith("US_cent_") else {"USD"}
+        )
+        quoted = quote_currency if quote_currency is not None else "USD"
+        if quoted not in allowed:
+            raise AtlasError("SOURCE_UNAVAILABLE", "Unsupported quote currency for this future.")
+        return {
+            "types": {"FUTURE"},
+            "currency": quoted,
+            "quote_currencies": allowed,
+            "denomination_currency": "USD",
+            "quote_unit_scale": "0.01" if quoted == "USX" else "1",
+            "timezone": "America/New_York",
+            "exchanges": {future_spec.exchange},
+            "price_unit": legacy[4] if legacy else "source_quote_units",
+            "volume_unit": "contracts",
+            "asset_class": "futures",
+            **future_context(symbol),
+        }
     if symbol in REFERENCE_INSTRUMENTS:
         kind, currency, timezone, exchange, unit, volume_unit = REFERENCE_INSTRUMENTS[symbol]
         return {
@@ -199,6 +233,8 @@ def yahoo_profile(symbol: str, quote_currency: str | None = None) -> dict[str, A
 
 def quote_context(profile: dict[str, Any]) -> dict[str, Any]:
     """Raw price values keep source units; scale is explicit metadata, not a price conversion."""
+    if profile["asset_class"] == "futures":
+        return {key: profile[key] for key in ("denomination_currency", "quote_unit_scale")}
     if profile["asset_class"] != "security":
         return {}
     return {

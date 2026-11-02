@@ -22,6 +22,24 @@ from atlas_terminal.util import canonical, digest
 QUERY = parse_query({"identifier": "ATLASDEMO", "metrics": ["revenue", "net_income"], "count": 3})
 expected = Atlas("fixture").get_financials(QUERY).model_dump(mode="json")
 MACRO_QUERIES = [
+    {
+        "dataset": "commodity_prices",
+        "series": "gold",
+        "start_date": "2026-01-01",
+        "end_date": "2026-03-31",
+    },
+    {
+        "dataset": "futures_prices",
+        "identifier": "GCZ26.CMX",
+        "start_date": "2026-10-19",
+        "end_date": "2026-10-23",
+    },
+    {
+        "dataset": "futures_curve",
+        "identifiers": ["GCZ26.CMX", "GCG27.CMX"],
+        "observation_date": "2026-10-20",
+    },
+    {"dataset": "credit_ratings", "identifier": "ATLASDEMO"},
     *[
         {
             "dataset": "equity_prices",
@@ -561,6 +579,7 @@ with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
                 "wheel_macro_fx_cli_sdk_mcp_http": "PASS",
                 "wheel_filing_ttm_policy_cli_sdk_mcp_http": "PASS",
                 "wheel_europe_korea_cli_sdk_mcp_http": "PASS",
+                "wheel_commodities_futures_credit_cli_sdk_mcp_http": "PASS",
                 "wheel_market_discovery_funds_fred_cli_sdk_mcp_http": "PASS",
                 "wheel_quality_batch_cli_sdk_mcp_http": "PASS",
                 "wheel_presets_cli_sdk_mcp_http": "PASS",
