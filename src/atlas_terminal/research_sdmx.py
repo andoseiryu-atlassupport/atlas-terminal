@@ -78,6 +78,45 @@ def resolve(root: Element, ref: Element, kind: str) -> Element:
     return candidates[0]
 
 
+def component_representation(root: Element, node: Element) -> list[Element]:
+    """Resolve local representation or an exactly scoped concept's core representation."""
+    local = named(node, "LocalRepresentation")
+    if len(local) > 1:
+        raise source_error("SDMX component has duplicate local representations.")
+    if local:
+        return local
+    identities = named(node, "ConceptIdentity")
+    if not identities:
+        return []
+    refs = [child for part in identities for child in part if local_name(child) == "Ref"]
+    if len(identities) != 1 or len(refs) != 1:
+        raise source_error("SDMX concept identity is ambiguous.")
+    ref = refs[0]
+    schemes = [
+        part
+        for part in root.iter()
+        if local_name(part) == "ConceptScheme"
+        and part.get("id") == ref.get("maintainableParentID")
+        and part.get("agencyID") == ref.get("agencyID")
+        and (
+            ref.get("maintainableParentVersion") is None
+            or part.get("version") == ref.get("maintainableParentVersion")
+        )
+    ]
+    concepts = [
+        child
+        for scheme in schemes
+        for child in named(scheme, "Concept")
+        if child.get("id") == ref.get("id")
+    ]
+    if len(schemes) != 1 or len(concepts) != 1:
+        raise source_error("SDMX core concept is missing or ambiguous.")
+    core = named(concepts[0], "CoreRepresentation")
+    if len(core) > 1:
+        raise source_error("SDMX concept has duplicate core representations.")
+    return core
+
+
 @dataclass
 class Structure:
     snapshot: Snapshot
@@ -121,7 +160,8 @@ def structure(transport: Transport, source: str, flow: str) -> Structure:
             raise source_error("SDMX component lacks an identifier.")
         enumerations = [
             ref
-            for part in node.iter()
+            for representation in component_representation(root, node)
+            for part in representation.iter()
             if local_name(part) == "Enumeration"
             for ref in part
             if local_name(ref) == "Ref"
@@ -147,9 +187,13 @@ def structure(transport: Transport, source: str, flow: str) -> Structure:
         else:
             attributes.append(part)
     dimensions.sort(key=lambda row: row["position"])
+    positions = [row["position"] for row in dimensions]
+    ordered = positions == list(range(1, len(dimensions) + 1)) or (
+        source == "imf" and positions == list(range(len(dimensions)))
+    )
     if (
         not 1 <= len(dimensions) <= 32
-        or [row["position"] for row in dimensions] != list(range(1, len(dimensions) + 1))
+        or not ordered
         or len({row["id"] for row in dimensions}) != len(dimensions)
         or len({row["id"] for row in attributes}) != len(attributes)
     ):
@@ -292,14 +336,21 @@ def period_end(value: str, frequency: str) -> str:
         return month_end(int(value), 12)
     if frequency == "Q" and re.fullmatch(r"[0-9]{4}-Q[1-4]", value):
         return month_end(int(value[:4]), int(value[-1]) * 3)
-    if frequency == "M" and re.fullmatch(r"[0-9]{4}-(?:0[1-9]|1[0-2])", value):
+    if frequency == "M" and re.fullmatch(r"[0-9]{4}-M?(?:0[1-9]|1[0-2])", value):
         return month_end(int(value[:4]), int(value[-2:]))
     raise source_error("Only annual, quarterly and monthly SDMX observations are supported.")
 
 
-def international_economics(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
+def international_economics(
+    transport: Transport, q: ResearchQuery, *, resolved_structure: Structure | None = None
+) -> dict[str, Any]:
     assert q.source_id and q.dataflow and q.start_date and q.end_date
-    spec = structure(transport, q.source_id, q.dataflow)
+    spec = resolved_structure or structure(transport, q.source_id, q.dataflow)
+    if q.dataflow != spec.flow and not (
+        q.dataflow.endswith(",latest")
+        and q.dataflow.rsplit(",", 1)[0] == spec.flow.rsplit(",", 1)[0]
+    ):
+        raise source_error("Resolved SDMX structure differs from the requested flow.")
     if set(q.dimensions) != {d["id"] for d in spec.dimensions}:
         raise AtlasError(
             "INVALID_INPUT",

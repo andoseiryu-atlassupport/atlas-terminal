@@ -123,6 +123,26 @@ FAMILIES = {
     "institutional_holdings": {"13F-HR", "13F-HR/A"},
 }
 DATASETS = {
+    "commodity_prices": (
+        "Metadata-checked monthly IMF commodity reference prices",
+        "imf",
+        "observations",
+    ),
+    "futures_prices": (
+        "Optional Yahoo front references and explicit dated futures quotes",
+        "yahoo_finance",
+        "secondary_market_observations",
+    ),
+    "futures_curve": (
+        "Same-date quotes and exact spreads for explicitly selected dated contracts",
+        "yahoo_finance",
+        "derived_market_observations",
+    ),
+    "credit_ratings": (
+        "Operator-supplied issuer and issue credit observations with retained source books",
+        "multiple",
+        "operator_supplied_observations",
+    ),
     "trailing_financials": (
         "Trailing monetary flows and margins from exact reported windows",
         "sec",
@@ -419,7 +439,9 @@ def research_catalog(
 
     from pydantic import ValidationError
 
+    from atlas_terminal.credit_catalog import credit_scale_catalog
     from atlas_terminal.equity_sources import REFERENCE_INSTRUMENTS
+    from atlas_terminal.futures_catalog import FUTURES, MONTH_CODES
     from atlas_terminal.market_catalog import SECURITY_MARKETS
     from atlas_terminal.research_discovery import event_catalog, screen_catalog
     from atlas_terminal.research_price_analytics import price_analytics_catalog
@@ -512,6 +534,17 @@ def research_catalog(
                 "live_verified": False,
                 **(
                     {
+                        "optional": True,
+                        "operator_enablement": "ATLAS_CREDIT_RATINGS_FILE",
+                        "source_kind": "operator_supplied",
+                        "automatic_agency_feed": False,
+                        "origin_verified": False,
+                    }
+                    if name == "credit_ratings"
+                    else {}
+                ),
+                **(
+                    {
                         "countries": G20_AREAS,
                         "indicators": GLOBAL_INDICATORS,
                         "unsupported_regional_members": ["African Union"],
@@ -546,7 +579,8 @@ def research_catalog(
                         ),
                     }
                     if name
-                    in EQUITY_DATASETS | {"price_analytics", "price_comparison", "intraday_prices"}
+                    in EQUITY_DATASETS
+                    | {"price_analytics", "price_comparison", "intraday_prices", "futures_curve"}
                     else {}
                 ),
                 "query_fields": sorted(FIELDS[name]),
@@ -569,6 +603,22 @@ def research_catalog(
         "ratios": RATIOS,
         "analytics_metrics": analytics_catalog(),
         "price_analytics_metrics": price_analytics_catalog(),
+        "credit_rating_scales": credit_scale_catalog(),
+        "futures_contracts": {
+            "families": {
+                key: {
+                    **asdict(spec),
+                    "accepted_source_quote_currencies": ["USD", "USX"]
+                    if spec.quote_measure_unit.startswith("US_cent_")
+                    else ["USD"],
+                    "source_quote_convention_verified": False,
+                }
+                for key, spec in FUTURES.items()
+            },
+            "month_codes": MONTH_CODES,
+            "dated_years": [2020, 2049],
+            "listed_contract_discovery": False,
+        },
         "market_symbols": {
             "security_policy": (
                 "Explicit registered US, Tokyo, Korean and European stock/ETF symbols; "
@@ -820,7 +870,8 @@ class ResearchService:
         q = query if isinstance(query, ResearchQuery) else parse_research(query)
         if (
             q.dataset
-            in EQUITY_DATASETS | {"price_analytics", "price_comparison", "intraday_prices"}
+            in EQUITY_DATASETS
+            | {"price_analytics", "price_comparison", "intraday_prices", "futures_curve"}
             and not self.synthetic
         ):
             require_yahoo_enabled()
@@ -828,6 +879,11 @@ class ResearchService:
             from atlas_terminal.activity_sources import activity_key
 
             activity_key("fred")
+        if q.dataset == "credit_ratings" and not self.synthetic:
+            import os
+
+            if not os.environ.get("ATLAS_CREDIT_RATINGS_FILE"):
+                raise AtlasError("CONFIG_REQUIRED", "Configure ATLAS_CREDIT_RATINGS_FILE.")
         if q.dataset in {"japan_disclosures", "japan_filing_facts"} and not self.synthetic:
             from atlas_terminal.japan_company_sources import edinet_key
 
@@ -877,6 +933,10 @@ class ResearchService:
             from atlas_terminal.sec_filing_sources import filing_research
 
             result = filing_research(self.sec_factory(), self.filing_inputs, q)
+        elif q.dataset == "credit_ratings":
+            from atlas_terminal.research_credit import credit_ratings
+
+            result = credit_ratings(q, self.view_path.parent, synthetic=self.synthetic)
         elif q.dataset == "macro_panel":
             from atlas_terminal.research_panel import macro_panel
 
@@ -908,6 +968,9 @@ class ResearchService:
             "uk_economics",
             "activity_economics",
             "global_economics",
+            "commodity_prices",
+            "futures_curve",
+            "futures_prices",
             "policy_rates",
             "sdmx_catalog",
             "international_economics",
@@ -1455,6 +1518,16 @@ class ResearchService:
 
     def public_data(self, q: ResearchQuery) -> dict[str, Any]:
         assert self.public is not None
+        if q.dataset == "commodity_prices":
+            from atlas_terminal.research_commodities import commodity_prices
+
+            return commodity_prices(self.public, q)
+        if q.dataset in {"futures_prices", "futures_curve"}:
+            from atlas_terminal.research_futures import futures_curve, futures_prices
+
+            return (futures_prices if q.dataset == "futures_prices" else futures_curve)(
+                self.public, q
+            )
         if q.dataset == "policy_rates":
             from atlas_terminal.policy_sources import policy_rates
 

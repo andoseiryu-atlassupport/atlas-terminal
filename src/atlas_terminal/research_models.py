@@ -14,6 +14,7 @@ from pydantic import (
 )
 
 from atlas_terminal.activity_catalog import ACTIVITY_SERIES
+from atlas_terminal.commodity_catalog import COMMODITIES
 from atlas_terminal.economic_catalog import JAPAN_SERIES, NATIONAL_ACCOUNTS
 from atlas_terminal.equity_sources import (
     EQUITY_DATASETS,
@@ -29,6 +30,12 @@ from atlas_terminal.filing_catalog import (
     SECTION_PATTERN,
     SEGMENT_METRICS,
     TTM_METRICS,
+)
+from atlas_terminal.futures_catalog import (
+    DATED_FUTURES_PATTERNS,
+    DATED_FUTURES_SYMBOL_PATTERN,
+    FUTURES_SYMBOL_PATTERN,
+    future_identity,
 )
 from atlas_terminal.global_macro_sources import G20_AREAS, GLOBAL_INDICATORS
 from atlas_terminal.macro_catalog import (
@@ -48,6 +55,10 @@ from atlas_terminal.research_quality import ResearchRequirements
 from atlas_terminal.sdmx_sources import CODE_PATTERN, FLOW_PATTERN
 
 Dataset = Literal[
+    "commodity_prices",
+    "futures_prices",
+    "futures_curve",
+    "credit_ratings",
     "trailing_financials",
     "filing_documents",
     "filing_facts",
@@ -104,6 +115,10 @@ Dataset = Literal[
 ]
 
 FIELDS = {
+    "commodity_prices": {"series", "start_date", "end_date", "limit"},
+    "futures_prices": {"identifier", "start_date", "end_date", "limit"},
+    "futures_curve": {"identifiers", "observation_date", "allow_partial", "limit"},
+    "credit_ratings": {"identifier", "agency", "limit"},
     "trailing_financials": {"identifier", "metrics", "count", "allow_partial"},
     "filing_documents": {"identifier", "accession", "limit"},
     "filing_facts": {"identifier", "accession", "document_name", "concept", "limit"},
@@ -176,6 +191,10 @@ FIELDS = {
 
 
 def dataset_required(name: str) -> list[str]:
+    if name == "futures_curve":
+        return ["identifiers", "observation_date"]
+    if name == "commodity_prices":
+        return ["series"]
     if name in FILING_DATASETS:
         return ["identifier", "accession"]
     if name == "policy_rates":
@@ -324,6 +343,24 @@ def dataset_schema(schema: dict[str, Any]) -> None:
             properties["metrics"]["uniqueItems"] = True
         if name == "policy_rates":
             properties["series"] = {"type": "string", "enum": list(POLICY_SERIES)}
+        if name == "commodity_prices":
+            properties["series"] = {"type": "string", "enum": list(COMMODITIES)}
+        if name == "futures_prices":
+            properties["identifier"]["pattern"] = "^" + FUTURES_SYMBOL_PATTERN + "$"
+        if name == "futures_curve":
+            properties["identifiers"].update(
+                minItems=2,
+                maxItems=10,
+                uniqueItems=True,
+                anyOf=[
+                    {"items": {"type": "string", "pattern": "^" + pattern + "$"}}
+                    for pattern in DATED_FUTURES_PATTERNS.values()
+                ],
+            )
+            properties["identifiers"]["items"] = {
+                "type": "string",
+                "pattern": "^" + DATED_FUTURES_SYMBOL_PATTERN + "$",
+            }
         if name == "price_analytics":
             from atlas_terminal.research_price_analytics import PRICE_METRICS
 
@@ -453,6 +490,8 @@ class ResearchQuery(Model):
     model_config = ConfigDict(extra="forbid", json_schema_extra=dataset_schema)
     dataset: Dataset
     country: str | None = Field(default=None, pattern=r"^[A-Z]{2}$")
+    agency: Literal["sp_global", "moodys", "fitch"] | None = None
+    observation_date: str | None = Field(default=None, pattern=r"^[0-9]{4}-[0-9]{2}-[0-9]{2}$")
     filing_date: str | None = Field(default=None, pattern=r"^[0-9]{4}-[0-9]{2}-[0-9]{2}$")
     document_name: str | None = Field(default=None, pattern="^" + DOCUMENT_NAME_PATTERN + "$")
     section: str = Field(default="all", pattern="^" + SECTION_PATTERN + "$")
@@ -495,7 +534,7 @@ class ResearchQuery(Model):
     response: ResponseOptions = Field(default_factory=ResponseOptions)
     requirements: ResearchRequirements | None = None
 
-    @field_validator("start_date", "end_date")
+    @field_validator("start_date", "end_date", "observation_date")
     @classmethod
     def calendar_date(cls, value: str | None) -> str | None:
         if value is not None and not 1900 <= date.fromisoformat(value).year <= 2100:
@@ -515,7 +554,11 @@ class ResearchQuery(Model):
     @field_validator("identifiers")
     @classmethod
     def check_identifiers(cls, values: list[str], info: ValidationInfo) -> list[str]:
-        validator = yahoo_symbol if info.data.get("dataset") == "price_comparison" else identifier
+        validator = (
+            yahoo_symbol
+            if info.data.get("dataset") in {"price_comparison", "futures_curve"}
+            else identifier
+        )
         result = [validator(v) for v in values]
         if len(set(result)) != len(result):
             raise ValueError("Duplicate identifiers")
@@ -530,6 +573,14 @@ class ResearchQuery(Model):
 
     @model_validator(mode="after")
     def check_dataset(self) -> "ResearchQuery":
+        if self.dataset == "commodity_prices" and self.series not in COMMODITIES:
+            raise AtlasError("INVALID_INPUT", "Choose a registered monthly commodity series.")
+        if self.dataset == "futures_prices" and future_identity(self.identifier or "") is None:
+            raise AtlasError("INVALID_INPUT", "Choose a registered future identifier.")
+        if self.dataset == "futures_curve":
+            from atlas_terminal.research_futures import check_curve
+
+            check_curve(self)
         if self.dataset in FILING_DATASETS and self.accession is None:
             raise AtlasError("INVALID_INPUT", "Select an explicit issuer filing accession.")
         if self.dataset in {"trailing_financials", "segment_financials"}:

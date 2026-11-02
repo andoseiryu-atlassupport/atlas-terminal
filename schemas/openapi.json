@@ -451,6 +451,10 @@
               "anyOf": [
                 {
                   "enum": [
+                    "commodity_prices",
+                    "futures_prices",
+                    "futures_curve",
+                    "credit_ratings",
                     "trailing_financials",
                     "filing_documents",
                     "filing_facts",
@@ -4281,6 +4285,10 @@
           "dataset": {
             "type": "string",
             "enum": [
+              "commodity_prices",
+              "futures_prices",
+              "futures_curve",
+              "credit_ratings",
               "trailing_financials",
               "filing_documents",
               "filing_facts",
@@ -6043,6 +6051,442 @@
         "oneOf": [
           {
             "additionalProperties": false,
+            "dependentRequired": {
+              "end_date": ["start_date"],
+              "start_date": ["end_date"]
+            },
+            "properties": {
+              "dataset": {
+                "const": "commodity_prices",
+                "type": "string"
+              },
+              "end_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "End Date"
+              },
+              "limit": {
+                "default": 100,
+                "maximum": 500,
+                "minimum": 1,
+                "title": "Limit",
+                "type": "integer"
+              },
+              "series": {
+                "enum": [
+                  "gold",
+                  "silver",
+                  "copper",
+                  "aluminum",
+                  "iron_ore",
+                  "platinum",
+                  "palladium",
+                  "crude_oil_wti",
+                  "crude_oil_brent",
+                  "crude_oil_dubai",
+                  "natural_gas_us",
+                  "natural_gas_europe",
+                  "wheat",
+                  "corn",
+                  "coffee_arabica",
+                  "coffee_robusta",
+                  "sugar_world",
+                  "cotton"
+                ],
+                "type": "string"
+              },
+              "start_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Start Date"
+              },
+              "response": {
+                "$ref": "#/components/schemas/ResponseOptions"
+              },
+              "requirements": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ResearchRequirements"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              }
+            },
+            "required": ["dataset", "series"],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "dependentRequired": {
+              "end_date": ["start_date"],
+              "start_date": ["end_date"]
+            },
+            "properties": {
+              "dataset": {
+                "const": "futures_prices",
+                "type": "string"
+              },
+              "end_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "End Date"
+              },
+              "identifier": {
+                "description": "Explicit supported Yahoo symbol; source metadata validates its market.",
+                "pattern": "^(?:GC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|SI(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|HG(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|PL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|PA(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|CL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|BZ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|NG(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|RB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|HO(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|ZC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZW(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZS(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZM(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|KC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|SB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|CC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|OJ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|LE(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|HE(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|GF(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|ES(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|NQ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|YM(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|RTY(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|ZB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZN(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZF(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZT(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT))$",
+                "type": "string"
+              },
+              "limit": {
+                "default": 100,
+                "maximum": 500,
+                "minimum": 1,
+                "title": "Limit",
+                "type": "integer"
+              },
+              "start_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Start Date"
+              },
+              "response": {
+                "$ref": "#/components/schemas/ResponseOptions"
+              },
+              "requirements": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ResearchRequirements"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              }
+            },
+            "required": ["dataset", "identifier"],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "dataset": {
+                "const": "futures_curve",
+                "type": "string"
+              },
+              "allow_partial": {
+                "default": false,
+                "title": "Allow Partial",
+                "type": "boolean"
+              },
+              "identifiers": {
+                "anyOf": [
+                  {
+                    "items": {
+                      "pattern": "^GC[FGHJKMNQUVXZ][2-4][0-9]\\.CMX$",
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "items": {
+                      "pattern": "^SI[FGHJKMNQUVXZ][2-4][0-9]\\.CMX$",
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "items": {
+                      "pattern": "^HG[FGHJKMNQUVXZ][2-4][0-9]\\.CMX$",
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "items": {
+                      "pattern": "^PL[FGHJKMNQUVXZ][2-4][0-9]\\.NYM$",
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "items": {
+                      "pattern": "^PA[FGHJKMNQUVXZ][2-4][0-9]\\.NYM$",
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "items": {
+                      "pattern": "^CL[FGHJKMNQUVXZ][2-4][0-9]\\.NYM$",
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "items": {
+                      "pattern": "^BZ[FGHJKMNQUVXZ][2-4][0-9]\\.NYM$",
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "items": {
+                      "pattern": "^NG[FGHJKMNQUVXZ][2-4][0-9]\\.NYM$",
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "items": {
+                      "pattern": "^RB[FGHJKMNQUVXZ][2-4][0-9]\\.NYM$",
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "items": {
+                      "pattern": "^HO[FGHJKMNQUVXZ][2-4][0-9]\\.NYM$",
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "items": {
+                      "pattern": "^ZC[FGHJKMNQUVXZ][2-4][0-9]\\.CBT$",
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "items": {
+                      "pattern": "^ZW[FGHJKMNQUVXZ][2-4][0-9]\\.CBT$",
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "items": {
+                      "pattern": "^ZS[FGHJKMNQUVXZ][2-4][0-9]\\.CBT$",
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "items": {
+                      "pattern": "^ZM[FGHJKMNQUVXZ][2-4][0-9]\\.CBT$",
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "items": {
+                      "pattern": "^ZL[FGHJKMNQUVXZ][2-4][0-9]\\.CBT$",
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "items": {
+                      "pattern": "^KC[FGHJKMNQUVXZ][2-4][0-9]\\.NYB$",
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "items": {
+                      "pattern": "^SB[FGHJKMNQUVXZ][2-4][0-9]\\.NYB$",
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "items": {
+                      "pattern": "^CC[FGHJKMNQUVXZ][2-4][0-9]\\.NYB$",
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "items": {
+                      "pattern": "^OJ[FGHJKMNQUVXZ][2-4][0-9]\\.NYB$",
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "items": {
+                      "pattern": "^LE[FGHJKMNQUVXZ][2-4][0-9]\\.CME$",
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "items": {
+                      "pattern": "^HE[FGHJKMNQUVXZ][2-4][0-9]\\.CME$",
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "items": {
+                      "pattern": "^GF[FGHJKMNQUVXZ][2-4][0-9]\\.CME$",
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "items": {
+                      "pattern": "^ES[FGHJKMNQUVXZ][2-4][0-9]\\.CME$",
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "items": {
+                      "pattern": "^NQ[FGHJKMNQUVXZ][2-4][0-9]\\.CME$",
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "items": {
+                      "pattern": "^YM[FGHJKMNQUVXZ][2-4][0-9]\\.CBT$",
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "items": {
+                      "pattern": "^RTY[FGHJKMNQUVXZ][2-4][0-9]\\.CME$",
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "items": {
+                      "pattern": "^ZB[FGHJKMNQUVXZ][2-4][0-9]\\.CBT$",
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "items": {
+                      "pattern": "^ZN[FGHJKMNQUVXZ][2-4][0-9]\\.CBT$",
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "items": {
+                      "pattern": "^ZF[FGHJKMNQUVXZ][2-4][0-9]\\.CBT$",
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "items": {
+                      "pattern": "^ZT[FGHJKMNQUVXZ][2-4][0-9]\\.CBT$",
+                      "type": "string"
+                    }
+                  }
+                ],
+                "items": {
+                  "pattern": "^(?:GC[FGHJKMNQUVXZ][2-4][0-9]\\.CMX|SI[FGHJKMNQUVXZ][2-4][0-9]\\.CMX|HG[FGHJKMNQUVXZ][2-4][0-9]\\.CMX|PL[FGHJKMNQUVXZ][2-4][0-9]\\.NYM|PA[FGHJKMNQUVXZ][2-4][0-9]\\.NYM|CL[FGHJKMNQUVXZ][2-4][0-9]\\.NYM|BZ[FGHJKMNQUVXZ][2-4][0-9]\\.NYM|NG[FGHJKMNQUVXZ][2-4][0-9]\\.NYM|RB[FGHJKMNQUVXZ][2-4][0-9]\\.NYM|HO[FGHJKMNQUVXZ][2-4][0-9]\\.NYM|ZC[FGHJKMNQUVXZ][2-4][0-9]\\.CBT|ZW[FGHJKMNQUVXZ][2-4][0-9]\\.CBT|ZS[FGHJKMNQUVXZ][2-4][0-9]\\.CBT|ZM[FGHJKMNQUVXZ][2-4][0-9]\\.CBT|ZL[FGHJKMNQUVXZ][2-4][0-9]\\.CBT|KC[FGHJKMNQUVXZ][2-4][0-9]\\.NYB|SB[FGHJKMNQUVXZ][2-4][0-9]\\.NYB|CC[FGHJKMNQUVXZ][2-4][0-9]\\.NYB|OJ[FGHJKMNQUVXZ][2-4][0-9]\\.NYB|LE[FGHJKMNQUVXZ][2-4][0-9]\\.CME|HE[FGHJKMNQUVXZ][2-4][0-9]\\.CME|GF[FGHJKMNQUVXZ][2-4][0-9]\\.CME|ES[FGHJKMNQUVXZ][2-4][0-9]\\.CME|NQ[FGHJKMNQUVXZ][2-4][0-9]\\.CME|YM[FGHJKMNQUVXZ][2-4][0-9]\\.CBT|RTY[FGHJKMNQUVXZ][2-4][0-9]\\.CME|ZB[FGHJKMNQUVXZ][2-4][0-9]\\.CBT|ZN[FGHJKMNQUVXZ][2-4][0-9]\\.CBT|ZF[FGHJKMNQUVXZ][2-4][0-9]\\.CBT|ZT[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)$",
+                  "type": "string"
+                },
+                "maxItems": 10,
+                "minItems": 2,
+                "title": "Identifiers",
+                "type": "array",
+                "uniqueItems": true
+              },
+              "limit": {
+                "default": 100,
+                "maximum": 500,
+                "minimum": 1,
+                "title": "Limit",
+                "type": "integer"
+              },
+              "observation_date": {
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                "type": "string"
+              },
+              "response": {
+                "$ref": "#/components/schemas/ResponseOptions"
+              },
+              "requirements": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ResearchRequirements"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              }
+            },
+            "required": ["dataset", "identifiers", "observation_date"],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "dataset": {
+                "const": "credit_ratings",
+                "type": "string"
+              },
+              "agency": {
+                "anyOf": [
+                  {
+                    "enum": ["sp_global", "moodys", "fitch"],
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Agency"
+              },
+              "identifier": {
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string"
+              },
+              "limit": {
+                "default": 100,
+                "maximum": 500,
+                "minimum": 1,
+                "title": "Limit",
+                "type": "integer"
+              },
+              "response": {
+                "$ref": "#/components/schemas/ResponseOptions"
+              },
+              "requirements": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ResearchRequirements"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              }
+            },
+            "required": ["dataset", "identifier"],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
             "properties": {
               "dataset": {
                 "const": "trailing_financials",
@@ -6510,7 +6954,7 @@
               },
               "identifier": {
                 "description": "Explicit supported Yahoo symbol; source metadata validates its market.",
-                "pattern": "^(?:(?:[A-Z][A-Z0-9]{0,5}(?:-[A-Z])?|[0-9][0-9A-Z]{3}\\.T|[0-9A-Z]{6}\\.KS|[0-9A-Z]{6}\\.KQ|[A-Z0-9][A-Z0-9-]{0,19}\\.L|[A-Z0-9][A-Z0-9-]{0,19}\\.DE|[A-Z0-9][A-Z0-9-]{0,19}\\.PA|[A-Z0-9][A-Z0-9-]{0,19}\\.AS|[A-Z0-9][A-Z0-9-]{0,19}\\.MI|[A-Z0-9][A-Z0-9-]{0,19}\\.MC|[A-Z0-9][A-Z0-9-]{0,19}\\.SW|[A-Z0-9][A-Z0-9-]{0,19}\\.ST|[A-Z0-9][A-Z0-9-]{0,19}\\.CO|[A-Z0-9][A-Z0-9-]{0,19}\\.OL|[A-Z0-9][A-Z0-9-]{0,19}\\.HE|[A-Z0-9][A-Z0-9-]{0,19}\\.BR|[A-Z0-9][A-Z0-9-]{0,19}\\.VI|[A-Z0-9][A-Z0-9-]{0,19}\\.IR|[A-Z0-9][A-Z0-9-]{0,19}\\.LS|[A-Z0-9][A-Z0-9-]{0,19}\\.WA)|\\^GSPC|\\^DJI|\\^IXIC|\\^RUT|\\^VIX|\\^N225|EURUSD=X|GBPUSD=X|AUDUSD=X|NZDUSD=X|USDJPY=X|USDCHF=X|USDCAD=X|BTC\\-USD|ETH\\-USD|GC=F|SI=F|CL=F|NG=F|ES=F|NQ=F)$",
+                "pattern": "^(?:(?:[A-Z][A-Z0-9]{0,5}(?:-[A-Z])?|[0-9][0-9A-Z]{3}\\.T|[0-9A-Z]{6}\\.KS|[0-9A-Z]{6}\\.KQ|[A-Z0-9][A-Z0-9-]{0,19}\\.L|[A-Z0-9][A-Z0-9-]{0,19}\\.DE|[A-Z0-9][A-Z0-9-]{0,19}\\.PA|[A-Z0-9][A-Z0-9-]{0,19}\\.AS|[A-Z0-9][A-Z0-9-]{0,19}\\.MI|[A-Z0-9][A-Z0-9-]{0,19}\\.MC|[A-Z0-9][A-Z0-9-]{0,19}\\.SW|[A-Z0-9][A-Z0-9-]{0,19}\\.ST|[A-Z0-9][A-Z0-9-]{0,19}\\.CO|[A-Z0-9][A-Z0-9-]{0,19}\\.OL|[A-Z0-9][A-Z0-9-]{0,19}\\.HE|[A-Z0-9][A-Z0-9-]{0,19}\\.BR|[A-Z0-9][A-Z0-9-]{0,19}\\.VI|[A-Z0-9][A-Z0-9-]{0,19}\\.IR|[A-Z0-9][A-Z0-9-]{0,19}\\.LS|[A-Z0-9][A-Z0-9-]{0,19}\\.WA)|(?:GC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|SI(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|HG(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|PL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|PA(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|CL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|BZ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|NG(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|RB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|HO(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|ZC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZW(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZS(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZM(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|KC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|SB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|CC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|OJ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|LE(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|HE(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|GF(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|ES(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|NQ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|YM(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|RTY(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|ZB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZN(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZF(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZT(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT))|\\^GSPC|\\^DJI|\\^IXIC|\\^RUT|\\^VIX|\\^N225|EURUSD=X|GBPUSD=X|AUDUSD=X|NZDUSD=X|USDJPY=X|USDCHF=X|USDCAD=X|BTC\\-USD|ETH\\-USD|GC=F|SI=F|CL=F|NG=F|ES=F|NQ=F)$",
                 "type": "string"
               },
               "interval": {
@@ -6633,7 +7077,7 @@
               },
               "identifier": {
                 "description": "Explicit supported Yahoo symbol; source metadata validates its market.",
-                "pattern": "^(?:(?:[A-Z][A-Z0-9]{0,5}(?:-[A-Z])?|[0-9][0-9A-Z]{3}\\.T|[0-9A-Z]{6}\\.KS|[0-9A-Z]{6}\\.KQ|[A-Z0-9][A-Z0-9-]{0,19}\\.L|[A-Z0-9][A-Z0-9-]{0,19}\\.DE|[A-Z0-9][A-Z0-9-]{0,19}\\.PA|[A-Z0-9][A-Z0-9-]{0,19}\\.AS|[A-Z0-9][A-Z0-9-]{0,19}\\.MI|[A-Z0-9][A-Z0-9-]{0,19}\\.MC|[A-Z0-9][A-Z0-9-]{0,19}\\.SW|[A-Z0-9][A-Z0-9-]{0,19}\\.ST|[A-Z0-9][A-Z0-9-]{0,19}\\.CO|[A-Z0-9][A-Z0-9-]{0,19}\\.OL|[A-Z0-9][A-Z0-9-]{0,19}\\.HE|[A-Z0-9][A-Z0-9-]{0,19}\\.BR|[A-Z0-9][A-Z0-9-]{0,19}\\.VI|[A-Z0-9][A-Z0-9-]{0,19}\\.IR|[A-Z0-9][A-Z0-9-]{0,19}\\.LS|[A-Z0-9][A-Z0-9-]{0,19}\\.WA)|\\^GSPC|\\^DJI|\\^IXIC|\\^RUT|\\^VIX|\\^N225|EURUSD=X|GBPUSD=X|AUDUSD=X|NZDUSD=X|USDJPY=X|USDCHF=X|USDCAD=X|BTC\\-USD|ETH\\-USD|GC=F|SI=F|CL=F|NG=F|ES=F|NQ=F)$",
+                "pattern": "^(?:(?:[A-Z][A-Z0-9]{0,5}(?:-[A-Z])?|[0-9][0-9A-Z]{3}\\.T|[0-9A-Z]{6}\\.KS|[0-9A-Z]{6}\\.KQ|[A-Z0-9][A-Z0-9-]{0,19}\\.L|[A-Z0-9][A-Z0-9-]{0,19}\\.DE|[A-Z0-9][A-Z0-9-]{0,19}\\.PA|[A-Z0-9][A-Z0-9-]{0,19}\\.AS|[A-Z0-9][A-Z0-9-]{0,19}\\.MI|[A-Z0-9][A-Z0-9-]{0,19}\\.MC|[A-Z0-9][A-Z0-9-]{0,19}\\.SW|[A-Z0-9][A-Z0-9-]{0,19}\\.ST|[A-Z0-9][A-Z0-9-]{0,19}\\.CO|[A-Z0-9][A-Z0-9-]{0,19}\\.OL|[A-Z0-9][A-Z0-9-]{0,19}\\.HE|[A-Z0-9][A-Z0-9-]{0,19}\\.BR|[A-Z0-9][A-Z0-9-]{0,19}\\.VI|[A-Z0-9][A-Z0-9-]{0,19}\\.IR|[A-Z0-9][A-Z0-9-]{0,19}\\.LS|[A-Z0-9][A-Z0-9-]{0,19}\\.WA)|(?:GC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|SI(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|HG(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|PL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|PA(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|CL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|BZ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|NG(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|RB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|HO(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|ZC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZW(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZS(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZM(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|KC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|SB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|CC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|OJ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|LE(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|HE(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|GF(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|ES(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|NQ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|YM(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|RTY(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|ZB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZN(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZF(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZT(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT))|\\^GSPC|\\^DJI|\\^IXIC|\\^RUT|\\^VIX|\\^N225|EURUSD=X|GBPUSD=X|AUDUSD=X|NZDUSD=X|USDJPY=X|USDCHF=X|USDCAD=X|BTC\\-USD|ETH\\-USD|GC=F|SI=F|CL=F|NG=F|ES=F|NQ=F)$",
                 "type": "string"
               },
               "limit": {
@@ -7274,7 +7718,7 @@
               },
               "identifier": {
                 "description": "Explicit supported Yahoo symbol; source metadata validates its market.",
-                "pattern": "^(?:(?:[A-Z][A-Z0-9]{0,5}(?:-[A-Z])?|[0-9][0-9A-Z]{3}\\.T|[0-9A-Z]{6}\\.KS|[0-9A-Z]{6}\\.KQ|[A-Z0-9][A-Z0-9-]{0,19}\\.L|[A-Z0-9][A-Z0-9-]{0,19}\\.DE|[A-Z0-9][A-Z0-9-]{0,19}\\.PA|[A-Z0-9][A-Z0-9-]{0,19}\\.AS|[A-Z0-9][A-Z0-9-]{0,19}\\.MI|[A-Z0-9][A-Z0-9-]{0,19}\\.MC|[A-Z0-9][A-Z0-9-]{0,19}\\.SW|[A-Z0-9][A-Z0-9-]{0,19}\\.ST|[A-Z0-9][A-Z0-9-]{0,19}\\.CO|[A-Z0-9][A-Z0-9-]{0,19}\\.OL|[A-Z0-9][A-Z0-9-]{0,19}\\.HE|[A-Z0-9][A-Z0-9-]{0,19}\\.BR|[A-Z0-9][A-Z0-9-]{0,19}\\.VI|[A-Z0-9][A-Z0-9-]{0,19}\\.IR|[A-Z0-9][A-Z0-9-]{0,19}\\.LS|[A-Z0-9][A-Z0-9-]{0,19}\\.WA)|\\^GSPC|\\^DJI|\\^IXIC|\\^RUT|\\^VIX|\\^N225|EURUSD=X|GBPUSD=X|AUDUSD=X|NZDUSD=X|USDJPY=X|USDCHF=X|USDCAD=X|BTC\\-USD|ETH\\-USD|GC=F|SI=F|CL=F|NG=F|ES=F|NQ=F)$",
+                "pattern": "^(?:(?:[A-Z][A-Z0-9]{0,5}(?:-[A-Z])?|[0-9][0-9A-Z]{3}\\.T|[0-9A-Z]{6}\\.KS|[0-9A-Z]{6}\\.KQ|[A-Z0-9][A-Z0-9-]{0,19}\\.L|[A-Z0-9][A-Z0-9-]{0,19}\\.DE|[A-Z0-9][A-Z0-9-]{0,19}\\.PA|[A-Z0-9][A-Z0-9-]{0,19}\\.AS|[A-Z0-9][A-Z0-9-]{0,19}\\.MI|[A-Z0-9][A-Z0-9-]{0,19}\\.MC|[A-Z0-9][A-Z0-9-]{0,19}\\.SW|[A-Z0-9][A-Z0-9-]{0,19}\\.ST|[A-Z0-9][A-Z0-9-]{0,19}\\.CO|[A-Z0-9][A-Z0-9-]{0,19}\\.OL|[A-Z0-9][A-Z0-9-]{0,19}\\.HE|[A-Z0-9][A-Z0-9-]{0,19}\\.BR|[A-Z0-9][A-Z0-9-]{0,19}\\.VI|[A-Z0-9][A-Z0-9-]{0,19}\\.IR|[A-Z0-9][A-Z0-9-]{0,19}\\.LS|[A-Z0-9][A-Z0-9-]{0,19}\\.WA)|(?:GC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|SI(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|HG(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|PL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|PA(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|CL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|BZ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|NG(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|RB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|HO(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|ZC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZW(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZS(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZM(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|KC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|SB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|CC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|OJ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|LE(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|HE(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|GF(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|ES(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|NQ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|YM(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|RTY(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|ZB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZN(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZF(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZT(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT))|\\^GSPC|\\^DJI|\\^IXIC|\\^RUT|\\^VIX|\\^N225|EURUSD=X|GBPUSD=X|AUDUSD=X|NZDUSD=X|USDJPY=X|USDCHF=X|USDCAD=X|BTC\\-USD|ETH\\-USD|GC=F|SI=F|CL=F|NG=F|ES=F|NQ=F)$",
                 "type": "string"
               },
               "limit": {
@@ -10139,6 +10583,10 @@
         "properties": {
           "dataset": {
             "enum": [
+              "commodity_prices",
+              "futures_prices",
+              "futures_curve",
+              "credit_ratings",
               "trailing_financials",
               "filing_documents",
               "filing_facts",
@@ -10208,6 +10656,32 @@
             ],
             "default": null,
             "title": "Country"
+          },
+          "agency": {
+            "anyOf": [
+              {
+                "enum": ["sp_global", "moodys", "fitch"],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Agency"
+          },
+          "observation_date": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Observation Date"
           },
           "filing_date": {
             "anyOf": [
@@ -10911,7 +11385,7 @@
               "identifier": {
                 "maxLength": 100,
                 "minLength": 1,
-                "pattern": "^(?:(?:[A-Z][A-Z0-9]{0,5}(?:-[A-Z])?|[0-9][0-9A-Z]{3}\\.T|[0-9A-Z]{6}\\.KS|[0-9A-Z]{6}\\.KQ|[A-Z0-9][A-Z0-9-]{0,19}\\.L|[A-Z0-9][A-Z0-9-]{0,19}\\.DE|[A-Z0-9][A-Z0-9-]{0,19}\\.PA|[A-Z0-9][A-Z0-9-]{0,19}\\.AS|[A-Z0-9][A-Z0-9-]{0,19}\\.MI|[A-Z0-9][A-Z0-9-]{0,19}\\.MC|[A-Z0-9][A-Z0-9-]{0,19}\\.SW|[A-Z0-9][A-Z0-9-]{0,19}\\.ST|[A-Z0-9][A-Z0-9-]{0,19}\\.CO|[A-Z0-9][A-Z0-9-]{0,19}\\.OL|[A-Z0-9][A-Z0-9-]{0,19}\\.HE|[A-Z0-9][A-Z0-9-]{0,19}\\.BR|[A-Z0-9][A-Z0-9-]{0,19}\\.VI|[A-Z0-9][A-Z0-9-]{0,19}\\.IR|[A-Z0-9][A-Z0-9-]{0,19}\\.LS|[A-Z0-9][A-Z0-9-]{0,19}\\.WA)|\\^GSPC|\\^DJI|\\^IXIC|\\^RUT|\\^VIX|\\^N225|EURUSD=X|GBPUSD=X|AUDUSD=X|NZDUSD=X|USDJPY=X|USDCHF=X|USDCAD=X|BTC\\-USD|ETH\\-USD|GC=F|SI=F|CL=F|NG=F|ES=F|NQ=F)$",
+                "pattern": "^(?:(?:[A-Z][A-Z0-9]{0,5}(?:-[A-Z])?|[0-9][0-9A-Z]{3}\\.T|[0-9A-Z]{6}\\.KS|[0-9A-Z]{6}\\.KQ|[A-Z0-9][A-Z0-9-]{0,19}\\.L|[A-Z0-9][A-Z0-9-]{0,19}\\.DE|[A-Z0-9][A-Z0-9-]{0,19}\\.PA|[A-Z0-9][A-Z0-9-]{0,19}\\.AS|[A-Z0-9][A-Z0-9-]{0,19}\\.MI|[A-Z0-9][A-Z0-9-]{0,19}\\.MC|[A-Z0-9][A-Z0-9-]{0,19}\\.SW|[A-Z0-9][A-Z0-9-]{0,19}\\.ST|[A-Z0-9][A-Z0-9-]{0,19}\\.CO|[A-Z0-9][A-Z0-9-]{0,19}\\.OL|[A-Z0-9][A-Z0-9-]{0,19}\\.HE|[A-Z0-9][A-Z0-9-]{0,19}\\.BR|[A-Z0-9][A-Z0-9-]{0,19}\\.VI|[A-Z0-9][A-Z0-9-]{0,19}\\.IR|[A-Z0-9][A-Z0-9-]{0,19}\\.LS|[A-Z0-9][A-Z0-9-]{0,19}\\.WA)|(?:GC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|SI(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|HG(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|PL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|PA(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|CL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|BZ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|NG(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|RB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|HO(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|ZC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZW(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZS(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZM(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|KC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|SB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|CC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|OJ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|LE(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|HE(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|GF(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|ES(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|NQ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|YM(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|RTY(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|ZB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZN(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZF(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZT(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT))|\\^GSPC|\\^DJI|\\^IXIC|\\^RUT|\\^VIX|\\^N225|EURUSD=X|GBPUSD=X|AUDUSD=X|NZDUSD=X|USDJPY=X|USDCHF=X|USDCAD=X|BTC\\-USD|ETH\\-USD|GC=F|SI=F|CL=F|NG=F|ES=F|NQ=F)$",
                 "type": "string"
               },
               "include": {

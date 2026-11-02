@@ -3,6 +3,7 @@
 from typing import Any
 
 from atlas_terminal.activity_catalog import ACTIVITY_SERIES
+from atlas_terminal.commodity_catalog import COMMODITIES
 from atlas_terminal.economic_catalog import JAPAN_SERIES, NATIONAL_ACCOUNTS
 from atlas_terminal.global_macro_sources import G20_AREAS, GLOBAL_INDICATORS, MEMBERSHIP_URL
 from atlas_terminal.macro_catalog import CURVE_SERIES, FX_CURRENCIES, MACRO_SERIES, REFERENCE_SERIES
@@ -82,6 +83,18 @@ def series_catalog(filters: CatalogQuery) -> dict[str, Any]:
             }
         )
 
+    for key, (code, title, unit) in COMMODITIES.items():
+        add(
+            "commodity_prices",
+            key,
+            title,
+            "imf",
+            None,
+            "monthly",
+            unit,
+            {"series": key},
+            source_series=code,
+        )
     for key, policy in POLICY_SERIES.items():
         add(
             "policy_rates",

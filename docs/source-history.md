@@ -9,7 +9,7 @@
 | `as_of`          | Timezone-aware `as_of`    | Latest locally observed version at or before the inclusive cutoff                 |
 | `diff`           | `before_sha256`, `sha256` | Raw-hash change and up to 500 exact JSON-cell changes                             |
 
-All actions require `source_url` to be an exact approved public-source URL. Copy it from returned provenance; credential-bearing or arbitrary URLs are rejected. Yahoo history also requires `ATLAS_ENABLE_YAHOO_FINANCE=1`. SEC's separate cache is not queried through this dataset.
+All actions require `source_url` to be an exact approved public-source URL. The operator credit-rating book also supports the reserved local namespace `https://local.atlas.invalid/credit-ratings` while `ATLAS_CREDIT_RATINGS_FILE` is set; those bytes come from the configured file, never an HTTP fetch. Copy it from returned provenance; credential-bearing or arbitrary URLs are rejected. Yahoo history also requires `ATLAS_ENABLE_YAHOO_FINANCE=1`. SEC's separate cache is not queried through this dataset.
 
 ```json
 {

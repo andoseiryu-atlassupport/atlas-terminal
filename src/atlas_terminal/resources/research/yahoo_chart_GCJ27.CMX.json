@@ -1,0 +1,77 @@
+{
+  "chart": {
+    "result": [
+      {
+        "meta": {
+          "symbol": "GCJ27.CMX",
+          "currency": "USD",
+          "exchangeName": "CMX",
+          "exchangeTimezoneName": "America/New_York",
+          "instrumentType": "FUTURE",
+          "dataGranularity": "1d",
+          "shortName": "FICTIONAL Atlas futures fixture"
+        },
+        "timestamp": [
+          1792382400,
+          1792468800,
+          1792555200,
+          1792641600,
+          1792728000
+        ],
+        "indicators": {
+          "quote": [
+            {
+              "open": [
+                106,
+                107,
+                108,
+                109,
+                110
+              ],
+              "close": [
+                106,
+                107,
+                108,
+                109,
+                110
+              ],
+              "high": [
+                107,
+                108,
+                109,
+                110,
+                111
+              ],
+              "low": [
+                105,
+                106,
+                107,
+                108,
+                109
+              ],
+              "volume": [
+                10,
+                0,
+                20,
+                null,
+                30
+              ]
+            }
+          ],
+          "adjclose": [
+            {
+              "adjclose": [
+                106,
+                107,
+                108,
+                109,
+                110
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "error": null
+  }
+}

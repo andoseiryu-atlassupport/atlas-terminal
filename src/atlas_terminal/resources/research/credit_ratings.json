@@ -1,0 +1,57 @@
+{
+  "schema_version": "0.1.0",
+  "is_synthetic": true,
+  "ratings": [
+    {
+      "issuer_identifier": "ATLASDEMO",
+      "issuer_name": "Fictional Atlas issuer",
+      "agency": "sp_global",
+      "rating_scope": "issuer",
+      "issue_identifier": null,
+      "rating_scale": "global_long_term",
+      "currency_scope": "unspecified",
+      "debt_seniority": null,
+      "rating_status": "rated",
+      "rating": "BBB+",
+      "rating_date": "2026-10-20",
+      "outlook": "stable",
+      "watch": "none",
+      "original_source_url": "https://fixtures.atlas.invalid/credit-disclosure",
+      "published_at": "2026-10-20T12:00:00Z"
+    },
+    {
+      "issuer_identifier": "ATLASDEMO",
+      "issuer_name": "Fictional Atlas issuer",
+      "agency": "moodys",
+      "rating_scope": "issuer",
+      "issue_identifier": null,
+      "rating_scale": "global_long_term",
+      "currency_scope": "unspecified",
+      "debt_seniority": null,
+      "rating_status": "rated",
+      "rating": "Baa1",
+      "rating_date": "2026-10-20",
+      "outlook": "stable",
+      "watch": "none",
+      "original_source_url": "https://fixtures.atlas.invalid/credit-disclosure",
+      "published_at": "2026-10-20T12:00:00Z"
+    },
+    {
+      "issuer_identifier": "ATLASDEMO",
+      "issuer_name": "Fictional Atlas issuer",
+      "agency": "fitch",
+      "rating_scope": "issue",
+      "issue_identifier": "ATLAS-FICTIONAL-BOND-01",
+      "rating_scale": "global_long_term",
+      "currency_scope": "unspecified",
+      "debt_seniority": "senior_unsecured",
+      "rating_status": "rated",
+      "rating": "BBB-",
+      "rating_date": "2026-10-20",
+      "outlook": "stable",
+      "watch": "none",
+      "original_source_url": "https://fixtures.atlas.invalid/credit-disclosure",
+      "published_at": "2026-10-20T12:00:00Z"
+    }
+  ]
+}

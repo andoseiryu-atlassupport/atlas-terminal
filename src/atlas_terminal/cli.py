@@ -160,6 +160,8 @@ def research_catalog(
 def research_get(
     dataset: str,
     country: str | None = None,
+    agency: str | None = None,
+    observation_date: str | None = None,
     identifier: str | None = None,
     identifiers: str | None = None,
     filters: str | None = None,
@@ -214,6 +216,8 @@ def research_get(
     options = {
         "identifier": identifier,
         "country": country,
+        "agency": agency,
+        "observation_date": observation_date,
         "sort_by": sort_by,
         "sort_order": sort_order,
         "period": period,

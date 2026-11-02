@@ -62,6 +62,25 @@ def query(dataset="statements", **extra):
             "end_date": "2026-10-30",
             **extra,
         }
+    if dataset == "commodity_prices":
+        return {
+            "dataset": dataset,
+            "series": "gold",
+            "start_date": "2026-01-01",
+            "end_date": "2026-03-31",
+            **extra,
+        }
+    if dataset == "futures_prices":
+        return {"dataset": dataset, "identifier": "GCZ26.CMX", **extra}
+    if dataset == "futures_curve":
+        return {
+            "dataset": dataset,
+            "identifiers": ["GCZ26.CMX", "GCG27.CMX"],
+            "observation_date": "2026-10-20",
+            **extra,
+        }
+    if dataset == "credit_ratings":
+        return {"dataset": dataset, "identifier": "ATLASDEMO", **extra}
     if dataset == "global_economics":
         return {"dataset": dataset, "country": "IN", "series": "gdp_growth", **extra}
     if dataset == "intraday_prices":
