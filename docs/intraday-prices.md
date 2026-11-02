@@ -21,7 +21,7 @@ the same AAPL `5m` example with fictional observations, and `7203.T` at `60m` on
 | `5m`, `15m`, `30m`, `60m` | 31 calendar days              | Latest 60 source-local calendar days |
 
 Both dates and the interval are required. These client bounds do not promise
-upstream retention. The same explicitly supported US/Tokyo securities and reference
+upstream retention. The same explicitly supported US, Tokyo, Korean and registered European securities and reference
 symbols as the daily reader are accepted; metadata must match the expected symbol,
 currency, exchange, timezone and asset class. Yahoo's `1h` metadata is accepted only
 as the equivalent source spelling for a requested `60m` interval. There is no

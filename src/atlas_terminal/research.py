@@ -415,9 +415,12 @@ def research_catalog(
     source_id: str | None = None,
     unit: str | None = None,
 ) -> dict[str, Any]:
+    from dataclasses import asdict
+
     from pydantic import ValidationError
 
     from atlas_terminal.equity_sources import REFERENCE_INSTRUMENTS
+    from atlas_terminal.market_catalog import SECURITY_MARKETS
     from atlas_terminal.research_discovery import event_catalog, screen_catalog
     from atlas_terminal.research_price_analytics import price_analytics_catalog
     from atlas_terminal.series_catalog import series_catalog
@@ -567,7 +570,15 @@ def research_catalog(
         "analytics_metrics": analytics_catalog(),
         "price_analytics_metrics": price_analytics_catalog(),
         "market_symbols": {
-            "security_policy": "Explicit US USD or Tokyo JPY stock/ETF symbols; metadata validated",
+            "security_policy": (
+                "Explicit registered US, Tokyo, Korean and European stock/ETF symbols; "
+                "source metadata and quote units validated"
+            ),
+            "security_markets": {
+                key: {**asdict(spec), "exchanges": list(spec.exchanges)}
+                for key, spec in SECURITY_MARKETS.items()
+            },
+            "uk_quote_units": {"GBP": "1", "GBp": "0.01", "GBX": "0.01"},
             "reference_symbols": {
                 symbol: {
                     "instrument_type": spec[0],

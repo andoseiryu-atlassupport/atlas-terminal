@@ -9,7 +9,7 @@ from atlas_terminal.equity_intraday import (
     intraday_url,
     validate_intraday_window,
 )
-from atlas_terminal.equity_sources import yahoo_profile, yahoo_timezone
+from atlas_terminal.equity_sources import quote_context, yahoo_profile, yahoo_timezone
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.providers import Snapshot, Transport
 from atlas_terminal.research_equities import PREFIX, unix_time, whole
@@ -40,17 +40,24 @@ def intraday_result(
     meta = result.get("meta")
     if (
         not isinstance(meta, dict)
+        or not isinstance(meta.get("symbol"), str)
         or meta.get("symbol") not in ({symbol, "CAD=X"} if symbol == "USDCAD=X" else {symbol})
-        or meta.get("currency") != profile["currency"]
+        or not isinstance(meta.get("currency"), str)
+        or meta.get("currency") not in profile["quote_currencies"]
         or meta.get("exchangeTimezoneName") != profile["timezone"]
+        or not isinstance(meta.get("exchangeName"), str)
         or meta.get("exchangeName") not in profile["exchanges"]
+        or not isinstance(meta.get("instrumentType"), str)
         or meta.get("instrumentType") not in profile["types"]
+        or not isinstance(meta.get("dataGranularity"), str)
         or meta.get("dataGranularity") not in ({"60m", "1h"} if interval == "60m" else {interval})
     ):
         raise source_error(
             "Yahoo intraday symbol, currency, exchange, instrument type or interval differs."
         )
+    profile = yahoo_profile(symbol, meta["currency"])
     instrument = {
+        **quote_context(profile),
         "symbol": symbol,
         "source_symbol": meta["symbol"],
         "currency": profile["currency"],
@@ -118,7 +125,7 @@ def intraday_rows(
     start: str,
     end: str,
 ) -> tuple[list[dict[str, Any]], dict[str, int]]:
-    profile = yahoo_profile(symbol)
+    profile = yahoo_profile(symbol, result["meta"]["currency"])
     timezone = yahoo_timezone(symbol)
     seconds = INTRADAY_INTERVALS[interval]["seconds"]
     times = result.get("timestamp", [])
@@ -226,6 +233,7 @@ def intraday_rows(
                 "interval": interval,
                 "source_interval": result["meta"]["dataGranularity"],
                 "frequency": "intraday",
+                **quote_context(profile),
                 "currency": profile["currency"],
                 "unit": profile["price_unit"],
                 "asset_class": profile["asset_class"],

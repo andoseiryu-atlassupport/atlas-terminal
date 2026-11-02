@@ -46,7 +46,7 @@ def validate_price_comparison(query: "ResearchQuery") -> None:
     profiles = [yahoo_profile(identifier) for identifier in query.identifiers]
     if any(profile["asset_class"] != "security" for profile in profiles):
         raise AtlasError("INVALID_INPUT", "Price comparisons support stocks and ETFs only.")
-    if len({(profile["currency"], profile["timezone"]) for profile in profiles}) != 1:
+    if len({(profile["currency"], profile["market"]) for profile in profiles}) != 1:
         raise AtlasError("INVALID_INPUT", "Price comparisons require one currency and market.")
     for identifier in query.identifiers:
         yahoo_url(identifier, query.start_date, query.end_date)

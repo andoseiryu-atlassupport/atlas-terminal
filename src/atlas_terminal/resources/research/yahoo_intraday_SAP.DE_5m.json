@@ -1,0 +1,68 @@
+{
+  "chart": {
+    "result": [
+      {
+        "meta": {
+          "symbol": "SAP.DE",
+          "currency": "EUR",
+          "exchangeName": "GER",
+          "exchangeTimezoneName": "Europe/Berlin",
+          "instrumentType": "EQUITY",
+          "dataGranularity": "5m",
+          "shortName": "FICTIONAL Atlas market fixture",
+          "currentTradingPeriod": {
+            "regular": {
+              "start": 1793178000,
+              "end": 1793181600
+            }
+          },
+          "tradingPeriods": [
+            [
+              {
+                "start": 1793178000,
+                "end": 1793181600
+              }
+            ]
+          ]
+        },
+        "timestamp": [
+          1793178000,
+          1793178300,
+          1793178600
+        ],
+        "indicators": {
+          "quote": [
+            {
+              "open": [
+                100,
+                101,
+                102
+              ],
+              "high": [
+                102,
+                103,
+                104
+              ],
+              "low": [
+                99,
+                100,
+                101
+              ],
+              "close": [
+                101,
+                102,
+                103
+              ],
+              "volume": [
+                10,
+                0,
+                null
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "error": null
+  }
+}

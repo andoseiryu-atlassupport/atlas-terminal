@@ -1,0 +1,93 @@
+{
+  "chart": {
+    "result": [
+      {
+        "meta": {
+          "symbol": "ABI.BR",
+          "currency": "EUR",
+          "exchangeName": "BRU",
+          "exchangeTimezoneName": "Europe/Brussels",
+          "instrumentType": "EQUITY",
+          "dataGranularity": "1d",
+          "shortName": "FICTIONAL Atlas market fixture"
+        },
+        "timestamp": [
+          1792396800,
+          1792483200,
+          1792569600,
+          1792656000,
+          1792742400
+        ],
+        "indicators": {
+          "quote": [
+            {
+              "open": [
+                101,
+                103,
+                102,
+                104,
+                105
+              ],
+              "high": [
+                102,
+                104,
+                103,
+                105,
+                106
+              ],
+              "low": [
+                100,
+                102,
+                101,
+                103,
+                104
+              ],
+              "close": [
+                101,
+                103,
+                102,
+                104,
+                105
+              ],
+              "volume": [
+                10,
+                20,
+                0,
+                30,
+                null
+              ]
+            }
+          ],
+          "adjclose": [
+            {
+              "adjclose": [
+                100,
+                102,
+                101,
+                103,
+                104
+              ]
+            }
+          ]
+        },
+        "events": {
+          "dividends": {
+            "1792447200": {
+              "date": 1792447200,
+              "amount": 0.25
+            }
+          },
+          "splits": {
+            "1792533600": {
+              "date": 1792533600,
+              "numerator": 2,
+              "denominator": 1,
+              "splitRatio": "2:1"
+            }
+          }
+        }
+      }
+    ],
+    "error": null
+  }
+}

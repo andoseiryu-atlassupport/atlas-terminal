@@ -52,6 +52,8 @@ def histories():
             rows.append(
                 {
                     "date": day,
+                    "currency": "JPY",
+                    "unit": "JPY_per_share",
                     "adjusted_close": price,
                     "price_basis": "yahoo_split_adjusted",
                     "adjusted_close_basis": "yahoo_split_and_dividend_adjusted",
@@ -64,6 +66,7 @@ def histories():
                 "instrument": {
                     "symbol": symbol,
                     "currency": "JPY",
+                    "price_unit": "JPY_per_share",
                     "exchange_timezone": "Asia/Tokyo",
                     "source_instrument_type": "ETF" if j == 2 else "EQUITY",
                 },

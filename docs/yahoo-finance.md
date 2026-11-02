@@ -1,6 +1,6 @@
 # Optional Yahoo Finance market observations
 
-The source checkout supplies `equity_prices` and `equity_actions` through the shared CLI, Python SDK, MCP and HTTP research service. Daily prices cover US/Tokyo securities and the explicitly listed reference indexes, FX pairs, cryptocurrencies and futures below. `equity_actions` is restricted to securities. `japan_equity_history` combines prices and actions against one cached source response. These capabilities do not change the existing `v0.7.0` release assets.
+The source checkout supplies `equity_prices` and `equity_actions` through the shared CLI, Python SDK, MCP and HTTP research service. Daily prices cover US, Tokyo, Korean and registered European securities and the explicitly listed reference indexes, FX pairs, cryptocurrencies and futures below. `equity_actions` is restricted to securities. `japan_equity_history` combines prices and actions against one cached source response. These capabilities do not change the existing `v0.7.0` release assets.
 
 This is an **optional secondary source for personal use**, disabled by default. It uses the international `query1.finance.yahoo.com` chart endpoint, not Yahoo! JAPAN pages. Yahoo does not endorse Atlas or guarantee this unofficial API. The software license grants no license to republish or commercially redistribute Yahoo/provider data. Review the [Yahoo terms](https://legal.yahoo.com/us/en/yahoo/terms/otos/index.html) and the [yfinance project's data-use notice](https://github.com/ranaroussi/yfinance#legal-stuff) for intended use and separate data rights.
 
@@ -37,6 +37,8 @@ with Atlas("public") as atlas:
 
 ## Supported identities
 
+[Korean and European venue/quote-unit contracts](europe-korea-equities.md) extend the stock/ETF rows below. Source metadata must still agree with the selected venue. British GBp/GBX values remain pence, with explicit `denomination_currency=GBP` and `quote_unit_scale=0.01`.
+
 | Instruments         | Explicit symbols                                                                            | Identity and price units                                                              |
 | ------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
 | Tokyo equities/ETFs | Four-character `.T` codes beginning with a digit, such as `7203.T`, `6758.T`, `130A.T`      | JPY, Tokyo, JPX/TYO; JPY per share                                                    |
@@ -47,7 +49,7 @@ with Atlas("public") as atlas:
 | Commodity futures   | `GC=F`, `SI=F`, `CL=F`, `NG=F`                                                              | New York source dates; USD per source quote unit                                      |
 | Index futures       | `ES=F`, `NQ=F`                                                                              | New York source dates; index points                                                   |
 
-The returned source symbol, currency, exchange/timezone, instrument type and daily frequency must agree with the fixed instrument policy. `USDCAD=X` additionally accepts Yahoo's explicit `CAD=X` alias; `instrument.symbol` preserves the requested identifier and `instrument.source_symbol` preserves the original metadata identity. No other symbol rewriting occurs. Bare Japanese codes, unsupported markets, arbitrary URLs and intraday intervals are rejected. A Yahoo `EQUITY` label does not establish common-share class. Current security classifications and historical market capitalization are not inferred.
+The returned source symbol, currency, exchange/timezone, instrument type and daily frequency must agree with the fixed instrument policy. `USDCAD=X` additionally accepts Yahoo's explicit `CAD=X` alias; `instrument.symbol` preserves the requested identifier and `instrument.source_symbol` preserves the original metadata identity. No other symbol rewriting occurs. Bare Japanese/Korean codes, unsupported markets and arbitrary URLs are rejected; intraday reads use a separate bounded dataset. A Yahoo `EQUITY` label does not establish common-share class. Current security classifications and historical market capitalization are not inferred.
 
 Without dates, requests select the latest month. Supply both inclusive dates for up to ten calendar years. They become Unix timestamp boundaries at midnight in the declared source timezone, accounting for daylight saving, with the upper boundary moved to the following day because Yahoo uses an exclusive end. These are observation filters, not historical availability dates. `limit` is 1–500; inspect truncation for longer histories. The Japanese preset selects at most 100 prices and 100 actions per item.
 
@@ -75,7 +77,7 @@ Matching prices/actions use one canonical cache key and the same bytes. Public r
 
 ## Time-series risk
 
-The named Yahoo connector accepts 1–9 securities and a separate source-identified ETF factor, all from one supported market/currency: US/USD or Tokyo/JPY. It requires personal-use acknowledgement, source enablement and `allow_network=true`. Index, FX, crypto and futures symbols are excluded, as are mixed markets/currencies. An ETF factor is a proxy, not an official market factor. Yahoo `EQUITY` observations are labeled `other` in the time-series universe because the source does not verify common-share class.
+The named Yahoo connector accepts 1–9 securities and a separate source-identified ETF factor, all from one registered national market and denomination currency, including Korean and selected European markets. It requires personal-use acknowledgement, source enablement and `allow_network=true`. Index, FX, crypto and futures symbols are excluded, as are mixed markets/currencies. An ETF factor is a proxy, not an official market factor. Yahoo `EQUITY` observations are labeled `other` in the time-series universe because the source does not verify common-share class.
 
 The connector uses 61–500 exact common price dates with no gap filling. Adjusted-close ratios are rounded half-even to 18 decimal places. Return boundaries follow the end of each declared source-local calendar day, not verified exchange closing times; the selected day must have ended. Availability follows the latest retrieval among all input sources, and the fit's `as_of` must be selected after capture. Per-price evidence remains in the connection receipt. See [configuration and timing](data-connections.md#optional-yahoo-time-series-connection).
 
