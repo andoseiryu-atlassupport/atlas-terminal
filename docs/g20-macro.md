@@ -1,6 +1,6 @@
 # G20 annual macro data
 
-`global_economics` retrieves fourteen World Bank World Development Indicators (WDI) selections for each of the nineteen G20 countries and the European Union aggregate. The 280 country/indicator templates are searchable offline. CLI, Python SDK, MCP and HTTP use the same reader, with no data subscription, API key, wallet or LLM.
+`global_economics` retrieves fourteen World Bank World Development Indicators (WDI) selections for 23 countries and the European Union aggregate, including the nineteen G20 countries plus Malaysia, Thailand, Singapore and New Zealand. The 336 country/indicator templates are searchable offline. CLI, Python SDK, MCP and HTTP use the same reader, with no data subscription, API key, wallet or LLM.
 
 These selections are available in the latest source checkout. The existing `v0.7.0` release is unchanged.
 
@@ -31,7 +31,7 @@ Use an explicit two-letter `country` code:
 | ZA   | South Africa                        | ZAF      |
 | EU   | European Union, publisher aggregate | EUU      |
 
-The [G20 also includes the African Union](https://www.g20.org.za/about-g20/g20-members/). No African Union aggregate is selected: World Bank Africa and Sub-Saharan Africa are different geographies. `AU` means Australia. EU observations overlap its member countries; summing all twenty selections double-counts those countries. The country list describes the current selection universe, not historical G20 membership or a reconstructed historical EU composition.
+The [G20 also includes the African Union](https://www.g20.org.za/about-g20/g20-members/). No African Union aggregate is selected: World Bank Africa and Sub-Saharan Africa are different geographies. `AU` means Australia. EU observations overlap its member countries; summing overlapping selections double-counts those countries. The country list describes the current selection universe, not historical G20 membership or a reconstructed historical EU composition.
 
 ## Indicators and units
 
@@ -66,6 +66,8 @@ uv run --offline atlas research preset g20_country_overview --country BR --json
 ```
 
 Public reads require ordinary network access to `api.worldbank.org`. Use `--provider fixture` for explicitly fictional offline responses. The fixture templates contain no actual national statistics.
+
+The separate `country_macro_overview` preset accepts every registered geography, including `MY`, `TH`, `SG` and `NZ`, with the same ten annual items. Their [CPI and government-rate coverage](country-macro-bonds.md) uses distinct IMF/OECD definitions. The original G20 preset continues to reject nonmember countries.
 
 The `g20_country_overview` preset returns GDP level/growth, inflation, unemployment, GDP per capita, population, exports, imports, current account and central-government debt. Its ten independent reads share source caches, preserve separate errors and accept `include`, date bounds and per-item quality requirements. Defaults cover the last three completed source-year labels. Explicit paired date bounds select up to thirty years using inclusive December 31 labels. The preset returns up to thirty rows per item; ordinary queries use the common `limit` and snapshot paging options.
 

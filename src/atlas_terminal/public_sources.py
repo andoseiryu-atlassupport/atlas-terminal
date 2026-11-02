@@ -33,7 +33,7 @@ from atlas_terminal.equity_sources import YAHOO_SOURCE, require_yahoo_enabled, y
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.fixed_income_sources import JGB_BASE, JGB_URLS, parse_jgb_csv
 from atlas_terminal.fred_sources import fred_series_identity
-from atlas_terminal.global_macro_sources import G20_AREAS, GLOBAL_INDICATORS, global_wdi_identity
+from atlas_terminal.global_macro_sources import GLOBAL_AREAS, GLOBAL_INDICATORS, global_wdi_identity
 from atlas_terminal.japan_company_sources import (
     COMPANY_SOURCES,
     company_identity,
@@ -722,6 +722,59 @@ class PublicFixtures:
                 "https://fixtures.atlas.invalid/research/" + name,
                 "2026-10-30T12:00:00Z",
             )
+        from atlas_terminal.country_macro_catalog import CPI_FLOW, OECD_FLOW, RATE_FLOW
+        from atlas_terminal.sdmx_sources import structure_url
+
+        for country_flow, fixture in ((CPI_FLOW, "cpi"), (RATE_FLOW, "rates"), (OECD_FLOW, "oecd")):
+            country_source = "oecd" if fixture == "oecd" else "imf"
+            country_prefix = (
+                structure_url(country_source, country_flow).split("/latest?", 1)[0] + "/"
+            )
+            is_metadata = url.startswith(country_prefix)
+            flow_id = country_flow.split(",")[1]
+            is_data = (
+                f"/dataflow/IMF.STA/{flow_id}/" in url and "/3.0/data/" in url
+                if country_source == "imf"
+                else f"/data/OECD.SDD.STES,{flow_id}," in url
+            )
+            if not (is_metadata or is_data):
+                continue
+            name = f"country_{fixture}_{'structure' if is_metadata else 'data'}.xml"
+            body = files("atlas_terminal").joinpath("resources", "research", name).read_bytes()
+            if is_data:
+                country_components = url.split("?", 1)[0].rsplit("/", 1)[-1].split(".")
+                country_keys = (
+                    (
+                        "REF_AREA",
+                        "FREQ",
+                        "MEASURE",
+                        "UNIT_MEASURE",
+                        "ACTIVITY",
+                        "ADJUSTMENT",
+                        "TRANSFORMATION",
+                        "TIME_HORIZ",
+                        "METHODOLOGY",
+                    )
+                    if fixture == "oecd"
+                    else (
+                        "COUNTRY",
+                        "INDEX_TYPE",
+                        "COICOP_1999",
+                        "TYPE_OF_TRANSFORMATION",
+                        "FREQUENCY",
+                    )
+                    if fixture == "cpi"
+                    else ("COUNTRY", "INDICATOR", "FREQUENCY")
+                )
+                for country_key, country_code in zip(country_keys, country_components, strict=True):
+                    body = body.replace(("__" + country_key + "__").encode(), country_code.encode())
+                quarterly = country_components[-1] == "Q" and fixture == "cpi"
+                for index in range(1, 4):
+                    period = f"2026-Q{index}" if quarterly else f"2026-M{index:02d}"
+                    body = body.replace(f"__PERIOD{index}__".encode(), period.encode())
+            return Snapshot(
+                body, "https://fixtures.atlas.invalid/research/" + name, "2026-10-27T02:00:00Z"
+            )
         if "/dataflow/IMF.RES/PCPS/" in url and sdmx_source(url) == "imf":
             name = "pcps_data.xml" if "/3.0/data/" in url else "pcps_structure.xml"
             body = files("atlas_terminal").joinpath("resources", "research", name).read_bytes()
@@ -733,7 +786,7 @@ class PublicFixtures:
             )
         if global_selection := global_wdi_identity(url):
             kind, country, series = global_selection
-            area = G20_AREAS[country] if country else None
+            area = GLOBAL_AREAS[country] if country else None
             global_spec = GLOBAL_INDICATORS[series] if series else None
             template = (
                 files("atlas_terminal")

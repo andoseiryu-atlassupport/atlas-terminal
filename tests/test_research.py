@@ -100,6 +100,17 @@ def query(dataset, **extra):
         }
     if dataset == "credit_ratings":
         return {"dataset": dataset, "identifier": "ATLASDEMO", **extra}
+    if dataset in {"country_economics", "country_bond_yields"}:
+        return {
+            "dataset": dataset,
+            "country": "ZA",
+            "series": "cpi_index"
+            if dataset == "country_economics"
+            else "long_term_government_yield",
+            "start_date": "2026-01-01",
+            "end_date": "2026-09-30",
+            **extra,
+        }
     if dataset == "global_economics":
         return {"dataset": dataset, "country": "IN", "series": "gdp_growth", **extra}
     if dataset == "intraday_prices":
@@ -205,7 +216,7 @@ def query(dataset, **extra):
 
 def test_catalog_reports_actual_scope_zero_cost_sources_and_coverage_gaps():
     catalog = Atlas.research_catalog()
-    assert len(catalog["datasets"]) == 57
+    assert len(catalog["datasets"]) == 59
     assert len(catalog["analytics_metrics"]) == 7
     assert len(catalog["sources"]) == 24
     assert len(catalog["statement_metrics"]) == 37
@@ -658,7 +669,7 @@ def test_cli_and_http_research_match_sdk_and_never_require_payment(tmp_path):
         r = client.post("/v1/research", json=q)
         assert r.status_code == 200 and r.json() == expected
         assert "PAYMENT-REQUIRED" not in r.headers and "Atlas-Recovery-Token" not in r.headers
-        assert len(client.get("/v1/research/catalog").json()["datasets"]) == 57
+        assert len(client.get("/v1/research/catalog").json()["datasets"]) == 59
         bad = client.post("/v1/research", json=q | {"as_of": "2020-01-01"})
         assert (
             bad.status_code == 400 and bad.json()["error"]["code"] == "UNSUPPORTED_HISTORICAL_QUERY"
@@ -677,7 +688,7 @@ async def test_mcp_research_schema_catalog_get_and_pit_rejection(tmp_path):
     ):
         await session.initialize()
         catalog = await session.call_tool("atlas_research_catalog", {})
-        assert len(catalog.structured_content["datasets"]) == 57
+        assert len(catalog.structured_content["datasets"]) == 59
         result = await session.call_tool(
             "atlas_get_research", {"query": {"dataset": "economics", "series": "cpi"}}
         )

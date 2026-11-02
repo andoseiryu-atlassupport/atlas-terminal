@@ -1,6 +1,6 @@
 # Discover and align macro series
 
-[G20 annual macro data](g20-macro.md) supplies fourteen curated WDI indicators for nineteen countries and the EU aggregate without a key. Use `global_economics` with explicit `country` and `series`, or the `g20_country_overview` preset. Annual publisher reference-year conventions remain distinct from domestic monthly/quarterly releases; panels preserve those definitions and source evidence.
+[G20 annual macro data](g20-macro.md) supplies fourteen curated WDI indicators for 23 countries and the EU aggregate without a key. Use `global_economics` with explicit `country` and `series`, or the `g20_country_overview` preset. Annual publisher reference-year conventions remain distinct from domestic monthly/quarterly releases; panels preserve those definitions and source evidence.
 
 Series search, IMF/OECD/ABS retrieval and macro panels use the same SDK, CLI, MCP and HTTP research service. No wallet, subscription or LLM is required. Dated live checks cover IMF/OECD catalogues, selected OECD China CPI and ABS GDP/monthly and quarterly CPI/labour. IMF observation retrieval remains unverified as detailed in [verification](verification.md). Examples marked `fixture` use fictional source bytes.
 

@@ -4,8 +4,14 @@ from typing import Any
 
 from atlas_terminal.activity_catalog import ACTIVITY_SERIES
 from atlas_terminal.commodity_catalog import COMMODITIES
+from atlas_terminal.country_macro_catalog import country_series_catalog
 from atlas_terminal.economic_catalog import JAPAN_SERIES, NATIONAL_ACCOUNTS
-from atlas_terminal.global_macro_sources import G20_AREAS, GLOBAL_INDICATORS, MEMBERSHIP_URL
+from atlas_terminal.global_macro_sources import (
+    G20_AREAS,
+    GLOBAL_AREAS,
+    GLOBAL_INDICATORS,
+    MEMBERSHIP_URL,
+)
 from atlas_terminal.macro_catalog import CURVE_SERIES, FX_CURRENCIES, MACRO_SERIES, REFERENCE_SERIES
 from atlas_terminal.policy_sources import POLICY_SERIES
 from atlas_terminal.public_sources import BLS_DETAILS, BLS_SERIES, SOURCE_CATALOG
@@ -94,6 +100,20 @@ def series_catalog(filters: CatalogQuery) -> dict[str, Any]:
             unit,
             {"series": key},
             source_series=code,
+        )
+    for country_series in country_series_catalog():
+        add(
+            country_series["dataset"],
+            country_series["country"].lower() + "_" + country_series["series"],
+            country_series["title"],
+            country_series["source_id"],
+            country_series["country"],
+            country_series["frequency"],
+            country_series["unit"],
+            {"country": country_series["country"], "series": country_series["series"]},
+            source_series=country_series["source_series"],
+            benchmark_tenor_years=country_series["benchmark_tenor_years"],
+            rate_period_basis=country_series["rate_period_basis"],
         )
     for key, policy in POLICY_SERIES.items():
         add(
@@ -212,7 +232,7 @@ def series_catalog(filters: CatalogQuery) -> dict[str, Any]:
             else "calendar_period",
             unit_basis="source_metadata",
         )
-    for country, area in G20_AREAS.items():
+    for country, area in GLOBAL_AREAS.items():
         for key, indicator in GLOBAL_INDICATORS.items():
             add(
                 "global_economics",
@@ -227,7 +247,8 @@ def series_catalog(filters: CatalogQuery) -> dict[str, Any]:
                 series=key,
                 definition=indicator["definition"],
                 reference_area_kind=area["kind"],
-                membership_source=MEMBERSHIP_URL,
+                membership_source=MEMBERSHIP_URL if country in G20_AREAS else None,
+                g20_member=country in G20_AREAS,
                 seasonally_adjusted=False,
                 annualized=False,
             )

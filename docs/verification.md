@@ -1,8 +1,22 @@
 # Validation scope
 
-Recorded on 2026-11-02 (JST) for the source checkout following Atlas Terminal 0.7.0, with Python 3.12.14 and Node.js 24 on Linux. Local verification, GitHub Actions, public deployment, official-source access and model observations are distinct evidence.
+Recorded on 2026-11-03 (JST) for the source checkout following Atlas Terminal 0.7.0, with Python 3.12.14 and Node.js 24 on Linux. Local verification, GitHub Actions, public deployment, official-source access and model observations are distinct evidence.
 
 Version 0.7.0 includes the experimental native factor risk extension and installed walkthroughs described below. The prior 0.6.0 release did not include risk estimation. Local wheel checks remain separate evidence from a published GitHub release.
+
+## Seven-country macro and government-rate coverage
+
+`global_economics` now accepts Malaysia, Thailand, Singapore and New Zealand alongside the original nineteen G20 countries/EU: **23 countries plus the EU, 336 templates**. `G20_AREAS` and the original G20 preset retain their membership restriction; the new `country_macro_overview` preset accepts all registered geographies. Two named datasets add **29 IMF/OECD selections**, bringing the catalog to **59 datasets and 26 presets** within the existing **24 upstream source families**. [Exact country/series coverage](country-macro-bonds.md).
+
+On **2026-11-02 JST**, `uv run --offline python scripts/verify_country_macro_live.py --allow-network --output build/country-macro-live` verified **127 selections**. The seven countries’ fourteen annual WDI indicators for 2020–2025 returned **588 original cells: 572 numeric and 16 unavailable**. The 29 curated selections for January 2025–September 2026 returned **555 numeric observations**, all matched independently to original XML values, periods and hashes. Total original-cell checks: **1,143**. The first pass had one Thai real-GDP retrieval/parsing failure; a subsequent normal read and complete cached rerun succeeded without cache/counter resets. The transient cause was not established. Chinese central-government debt was entirely null across the six selected years; no other debt definition replaced it.
+
+All seven countries have native IMF CPI index and published YoY series. New Zealand returned seven quarterly observations per CPI selection; the other countries returned monthly observations, with Thai coverage through August and the others through September 2026. No monthly New Zealand CPI, interpolation or rebasing was substituted. Index bases and common-reference periods remain distinct. Projection/forecast flags and future periods remain unavailable while retaining their original values.
+
+IMF government-bond rates were verified for South Africa, Malaysia, Thailand and New Zealand; Treasury-bill yields for South Africa, Thailand and New Zealand; monetary-policy-related rates for South Africa, Türkiye, Malaysia, Thailand and New Zealand. The policy-related series can lag current central-bank decisions, including May 2026 endpoints in this window. They are not verified current targets. Maturity, source-currency denomination and month statistic remain unknown when omitted. OECD long-term government rates were verified for South Africa/New Zealand through September and China through August 2026. The approximately ten-year/average-rate convention comes from the OECD indicator definition rather than an individual instrument’s verified maturity.
+
+Recent Turkish OECD IRLT returned **HTTP 404**. The selected IMF bond/bill alternatives for Türkiye/Singapore returned no eligible observations. Normal requests to MAS benchmark statistics and the Türkiye central bank returned **`httpx.ProxyError: 403 Forbidden`** under the current, enforced revision **5/5** runtime policy, with those hosts outside its effective allowlist. This is not a national-source outage diagnosis. Those bond selections remain unregistered and fail explicitly; no money-market, policy, alternate-tenor or alternate-country proxy replaces them. Existing IMF/OECD/World Bank reads used the normal proxy/TLS path, without new credentials, paid sources or new BLS requests. Real raw/normalized captures remain ignored private output; six new XML templates are fictional.
+
+The complete offline suite passed **2,472 tests**, with two opt-in live tests deselected. The new country regression file contributes **115 tests**, covering all registered bindings/new WDI combinations, exact decimals, zero/null/negative rates, country/definition/scale drift, native quarter boundaries, CPI rebasing distinctions, forecast/future withholding, missing coverage without fallback, original G20 membership, source URLs, compact context and panel upsampling rejection. Ruff/format/mypy (**100 sources**) and schema regeneration passed. The wheel/sdist, 61-page documentation, distribution preparation, public-file scan and existing BLS/showcase replay checks passed. Installed-wheel SDK/CLI/official stdio MCP/actual loopback HTTP queries exercised Singapore annual GDP, New Zealand quarterly CPI, Chinese OECD yields and Malaysian IMF government rates. The temporary wheel installation reused locked dependencies via a `.pth` file and verified its package path outside the checkout; it does not certify fresh dependency resolution. Local and subsequent GitHub Actions evidence remain separate.
 
 ## Commodities, futures and operator-supplied credit observations
 
@@ -72,11 +86,11 @@ Wheel-payload SDK and CLI smoke reads loaded the packaged fictional WDI template
 | --------------------------------------------------------- | ------------------------------------------------------------------- |
 | `uv run --offline ruff check .`                           | PASS                                                                |
 | `uv run --offline ruff format --check .`                  | PASS                                                                |
-| `uv run --offline mypy`                                   | PASS; 98 source files                                               |
-| `uv run --offline pytest`                                 | PASS; 2,353 tests, 2 live tests deselected                          |
+| `uv run --offline mypy`                                   | PASS; 100 source files                                              |
+| `uv run --offline pytest`                                 | PASS; 2,472 tests, 2 live tests deselected                          |
 | `uv run --offline python -m build --no-isolation`         | PASS; wheel and source distribution                                 |
 | `uv run --offline python scripts/verify_distribution.py`  | PASS; metadata, required contents and forbidden paths               |
-| `uv run --offline python scripts/build_docs.py`           | PASS; 60 HTML pages and internal file/section links                 |
+| `uv run --offline python scripts/build_docs.py`           | PASS; 61 HTML pages and internal file/section links                 |
 | `uv run --offline python scripts/verify_showcases.py`     | PASS; both recorded versions, data modes and checksums              |
 | `uv run --offline python scripts/verify_bls_capture.py`   | PASS; offline audit/replay of 14 captured responses and 168 records |
 | `uv run --offline python scripts/prepare_distribution.py` | PREPARED; versioned plugin ZIP and Registry draft                   |

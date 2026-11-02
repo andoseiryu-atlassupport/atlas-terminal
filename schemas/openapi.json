@@ -451,6 +451,8 @@
               "anyOf": [
                 {
                   "enum": [
+                    "country_economics",
+                    "country_bond_yields",
                     "commodity_prices",
                     "futures_prices",
                     "futures_curve",
@@ -4007,6 +4009,7 @@
           "preset": {
             "type": "string",
             "enum": [
+              "country_macro_overview",
               "g20_country_overview",
               "japan_equity_history",
               "company_overview",
@@ -4285,6 +4288,8 @@
           "dataset": {
             "type": "string",
             "enum": [
+              "country_economics",
+              "country_bond_yields",
               "commodity_prices",
               "futures_prices",
               "futures_curve",
@@ -6049,6 +6054,154 @@
       "ResearchQuery": {
         "additionalProperties": false,
         "oneOf": [
+          {
+            "additionalProperties": false,
+            "dependentRequired": {
+              "end_date": ["start_date"],
+              "start_date": ["end_date"]
+            },
+            "properties": {
+              "dataset": {
+                "const": "country_economics",
+                "type": "string"
+              },
+              "country": {
+                "enum": ["ZA", "TR", "MY", "TH", "SG", "NZ", "CN"],
+                "type": "string"
+              },
+              "end_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "End Date"
+              },
+              "limit": {
+                "default": 100,
+                "maximum": 500,
+                "minimum": 1,
+                "title": "Limit",
+                "type": "integer"
+              },
+              "series": {
+                "enum": [
+                  "cpi_index",
+                  "cpi_inflation_yoy",
+                  "monetary_policy_related_rate"
+                ],
+                "type": "string"
+              },
+              "start_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Start Date"
+              },
+              "response": {
+                "$ref": "#/components/schemas/ResponseOptions"
+              },
+              "requirements": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ResearchRequirements"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              }
+            },
+            "required": ["dataset", "country", "series"],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "dependentRequired": {
+              "end_date": ["start_date"],
+              "start_date": ["end_date"]
+            },
+            "properties": {
+              "dataset": {
+                "const": "country_bond_yields",
+                "type": "string"
+              },
+              "country": {
+                "enum": ["ZA", "TR", "MY", "TH", "SG", "NZ", "CN"],
+                "type": "string"
+              },
+              "end_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "End Date"
+              },
+              "limit": {
+                "default": 100,
+                "maximum": 500,
+                "minimum": 1,
+                "title": "Limit",
+                "type": "integer"
+              },
+              "series": {
+                "enum": [
+                  "government_bond_rate",
+                  "long_term_government_yield",
+                  "treasury_bill_yield"
+                ],
+                "type": "string"
+              },
+              "start_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Start Date"
+              },
+              "response": {
+                "$ref": "#/components/schemas/ResponseOptions"
+              },
+              "requirements": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ResearchRequirements"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              }
+            },
+            "required": ["dataset", "country", "series"],
+            "type": "object"
+          },
           {
             "additionalProperties": false,
             "dependentRequired": {
@@ -10298,8 +10451,12 @@
                   "JP",
                   "KR",
                   "MX",
+                  "MY",
+                  "NZ",
                   "RU",
                   "SA",
+                  "SG",
+                  "TH",
                   "TR",
                   "US",
                   "ZA"
@@ -10583,6 +10740,8 @@
         "properties": {
           "dataset": {
             "enum": [
+              "country_economics",
+              "country_bond_yields",
               "commodity_prices",
               "futures_prices",
               "futures_curve",
@@ -14214,11 +14373,155 @@
             },
             "required": ["preset"],
             "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "dependentRequired": {
+              "end_date": ["start_date"],
+              "start_date": ["end_date"]
+            },
+            "properties": {
+              "country": {
+                "enum": [
+                  "AR",
+                  "AU",
+                  "BR",
+                  "CA",
+                  "CN",
+                  "DE",
+                  "EU",
+                  "FR",
+                  "GB",
+                  "ID",
+                  "IN",
+                  "IT",
+                  "JP",
+                  "KR",
+                  "MX",
+                  "MY",
+                  "NZ",
+                  "RU",
+                  "SA",
+                  "SG",
+                  "TH",
+                  "TR",
+                  "US",
+                  "ZA"
+                ],
+                "type": "string"
+              },
+              "end_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "End Date"
+              },
+              "include": {
+                "anyOf": [
+                  {
+                    "items": {
+                      "enum": [
+                        "gdp_nominal",
+                        "gdp_growth",
+                        "cpi_inflation",
+                        "unemployment",
+                        "gdp_per_capita",
+                        "population",
+                        "exports",
+                        "imports",
+                        "current_account",
+                        "central_government_debt"
+                      ]
+                    },
+                    "maxItems": 10,
+                    "minItems": 1,
+                    "type": "array",
+                    "uniqueItems": true
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Include"
+              },
+              "preset": {
+                "const": "country_macro_overview",
+                "type": "string"
+              },
+              "preview": {
+                "default": false,
+                "title": "Preview",
+                "type": "boolean"
+              },
+              "requirements": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ResearchRequirements"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              },
+              "requirements_by_item": {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/ResearchRequirements"
+                },
+                "maxProperties": 10,
+                "propertyNames": {
+                  "enum": [
+                    "gdp_nominal",
+                    "gdp_growth",
+                    "cpi_inflation",
+                    "unemployment",
+                    "gdp_per_capita",
+                    "population",
+                    "exports",
+                    "imports",
+                    "current_account",
+                    "central_government_debt"
+                  ]
+                },
+                "title": "Requirements By Item",
+                "type": "object"
+              },
+              "start_date": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Start Date"
+              },
+              "view": {
+                "default": "compact",
+                "enum": ["full", "compact"],
+                "title": "View",
+                "type": "string"
+              }
+            },
+            "required": ["preset", "country"],
+            "type": "object"
           }
         ],
         "properties": {
           "preset": {
             "enum": [
+              "country_macro_overview",
               "g20_country_overview",
               "japan_equity_history",
               "company_overview",

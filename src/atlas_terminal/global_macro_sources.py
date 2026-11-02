@@ -1,4 +1,4 @@
-"""Bounded World Development Indicators selections for G20 countries and the EU."""
+"""Bounded World Development Indicators selections with explicit country membership."""
 
 import re
 from typing import TypedDict
@@ -34,6 +34,16 @@ G20_AREAS: dict[str, Area] = {
         ("US", "USA", "United States", "country"),
         ("ZA", "ZAF", "South Africa", "country"),
         ("EU", "EUU", "European Union", "regional_aggregate"),
+    )
+}
+
+GLOBAL_AREAS: dict[str, Area] = G20_AREAS | {
+    code: {"iso3": iso3, "name": name, "kind": "country"}
+    for code, iso3, name in (
+        ("MY", "MYS", "Malaysia"),
+        ("TH", "THA", "Thailand"),
+        ("SG", "SGP", "Singapore"),
+        ("NZ", "NZL", "New Zealand"),
     )
 }
 
@@ -160,14 +170,14 @@ def wdi_metadata_url(series: str) -> str:
 
 
 def wdi_country_url(country: str) -> str:
-    return WORLD_BANK_BASE + "country/" + G20_AREAS[country]["iso3"] + "?format=json"
+    return WORLD_BANK_BASE + "country/" + GLOBAL_AREAS[country]["iso3"] + "?format=json"
 
 
 def wdi_data_url(country: str, series: str, first: int, last: int) -> str:
     return (
         WORLD_BANK_BASE
         + "country/"
-        + G20_AREAS[country]["iso3"]
+        + GLOBAL_AREAS[country]["iso3"]
         + "/indicator/"
         + GLOBAL_INDICATORS[series]["code"]
         + "?"
@@ -182,7 +192,7 @@ def global_wdi_identity(url: str) -> tuple[str, str | None, str | None] | None:
     for series in GLOBAL_INDICATORS:
         if url == wdi_metadata_url(series):
             return "metadata", None, series
-    for country in G20_AREAS:
+    for country in GLOBAL_AREAS:
         if url == wdi_country_url(country):
             return "country", country, None
     match = re.fullmatch(
@@ -190,7 +200,9 @@ def global_wdi_identity(url: str) -> tuple[str, str | None, str | None] | None:
     )
     if not match:
         return None
-    selected_country = next((k for k, area in G20_AREAS.items() if area["iso3"] == match[1]), None)
+    selected_country = next(
+        (k for k, area in GLOBAL_AREAS.items() if area["iso3"] == match[1]), None
+    )
     selected_series = next(
         (k for k, spec in GLOBAL_INDICATORS.items() if spec["code"] == match[2]), None
     )

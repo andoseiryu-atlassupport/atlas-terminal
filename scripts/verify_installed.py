@@ -23,6 +23,34 @@ QUERY = parse_query({"identifier": "ATLASDEMO", "metrics": ["revenue", "net_inco
 expected = Atlas("fixture").get_financials(QUERY).model_dump(mode="json")
 MACRO_QUERIES = [
     {
+        "dataset": "global_economics",
+        "country": "SG",
+        "series": "gdp_growth",
+        "start_date": "2020-01-01",
+        "end_date": "2025-12-31",
+    },
+    {
+        "dataset": "country_economics",
+        "country": "NZ",
+        "series": "cpi_index",
+        "start_date": "2026-01-01",
+        "end_date": "2026-09-30",
+    },
+    {
+        "dataset": "country_bond_yields",
+        "country": "CN",
+        "series": "long_term_government_yield",
+        "start_date": "2026-01-01",
+        "end_date": "2026-09-30",
+    },
+    {
+        "dataset": "country_bond_yields",
+        "country": "MY",
+        "series": "government_bond_rate",
+        "start_date": "2026-01-01",
+        "end_date": "2026-09-30",
+    },
+    {
         "dataset": "commodity_prices",
         "series": "gold",
         "start_date": "2026-01-01",
@@ -580,6 +608,7 @@ with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
                 "wheel_filing_ttm_policy_cli_sdk_mcp_http": "PASS",
                 "wheel_europe_korea_cli_sdk_mcp_http": "PASS",
                 "wheel_commodities_futures_credit_cli_sdk_mcp_http": "PASS",
+                "wheel_seven_country_macro_bonds_cli_sdk_mcp_http": "PASS",
                 "wheel_market_discovery_funds_fred_cli_sdk_mcp_http": "PASS",
                 "wheel_quality_batch_cli_sdk_mcp_http": "PASS",
                 "wheel_presets_cli_sdk_mcp_http": "PASS",

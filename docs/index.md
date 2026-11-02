@@ -1,6 +1,8 @@
 # Financial data for AI agents through one MCP connection
 
-Atlas Terminal connects AI agents to company financials, US/Japan and international macro indicators and reference foreign exchange data from free public primary sources. One MCP connection exposes 57 datasets, twenty-five research presets and traceable evidence, including seven optional [international Yahoo daily/intraday price, action, analytics and futures selections](yahoo-finance.md) for operator-enabled personal use. A Python SDK, CLI and HTTP API use the same services. Research needs no data subscription, wallet or built-in LLM. BEA, Census, FRED and EDINET require separate free registered API keys. Yahoo is a secondary-source exception and grants no public-service data redistribution rights.
+Atlas Terminal connects AI agents to company financials, US/Japan and international macro indicators and reference foreign exchange data from free public primary sources. One MCP connection exposes 59 datasets, twenty-six research presets and traceable evidence, including seven optional [international Yahoo daily/intraday price, action, analytics and futures selections](yahoo-finance.md) for operator-enabled personal use. A Python SDK, CLI and HTTP API use the same services. Research needs no data subscription, wallet or built-in LLM. BEA, Census, FRED and EDINET require separate free registered API keys. Yahoo is a secondary-source exception and grants no public-service data redistribution rights.
+
+[Seven-country macro and government rates](country-macro-bonds.md) cover named IMF/OECD series and four additional annual WDI countries, with exact source definitions, native frequencies and explicit gaps.
 
 [Commodities and futures](commodities-futures.md) include IMF monthly references, dated Yahoo contracts and same-date spreads. [Credit-rating observations](credit-ratings.md) support operator-owned/licensed issuer and issue inputs with private source history; automatic agency feeds are unavailable.
 
@@ -32,7 +34,7 @@ Select only the preset items you need. A preview shows the exact queries without
 
 The [company, CPI and USD/JPY example](company-macro-fx.md) retrieves four datasets through one official MCP session and resolves every returned evidence ID. Its fictional run and explicit public-data mode are separate. [Public HTTP and remote checks](public-checks.md) explain how to verify a published deployment.
 
-[G20 annual macro data](g20-macro.md) covers fourteen WDI indicators for nineteen countries and the EU aggregate, with country overviews, source definitions and explicit gaps. [Series discovery and macro panels](international-macro.md) explain IMF/OECD dataflows, metadata-selected series and explicit calendar aggregation.
+[G20 annual macro data](g20-macro.md) covers fourteen WDI indicators for 23 countries and the EU aggregate, with country overviews, source definitions and explicit gaps. [Series discovery and macro panels](international-macro.md) explain IMF/OECD dataflows, metadata-selected series and explicit calendar aggregation.
 
 An optional [fundamental risk workflow](risk-model.md) uses the same connection for supplied US equity observations, factor estimation and portfolio risk attribution. `atlas risk demo` exercises the complete fictional workflow; no price feed or verified historical fundamental database is bundled.
 

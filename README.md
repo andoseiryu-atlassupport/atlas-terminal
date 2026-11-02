@@ -29,11 +29,13 @@ Run `atlas showcase research --provider public --allow-network` for actual ECB/N
 
 ## Available data
 
-Atlas provides 57 research datasets, including private local source history, with data from 24 upstream source families. Official sources include SEC EDGAR, BLS, Treasury, the Federal Reserve, ECB, New York Fed, BEA, BOJ, Japan's Statistical Dashboard/MOF, EDINET, JPX, IMF, OECD, RBA, Eurostat, ONS, Census, ABS, StatCan and World Bank. Generic FRED retrieval preserves original producer conditions. Seven optional Yahoo daily/intraday price, action, analytics and futures datasets remain disabled by default for personal-use access under separate terms.
+Atlas provides 59 research datasets, including private local source history, with data from 24 upstream source families. Official sources include SEC EDGAR, BLS, Treasury, the Federal Reserve, ECB, New York Fed, BEA, BOJ, Japan's Statistical Dashboard/MOF, EDINET, JPX, IMF, OECD, RBA, Eurostat, ONS, Census, ABS, StatCan and World Bank. Generic FRED retrieval preserves original producer conditions. Seven optional Yahoo daily/intraday price, action, analytics and futures datasets remain disabled by default for personal-use access under separate terms.
 
 [European and Korean market data](docs/europe-korea-equities.md) covers KOSPI/KOSDAQ and sixteen European countries through the existing price/action, intraday and analytics datasets. British pound/pence quote units remain explicit. The optional time-series connector supports the same national markets with a separately selected ETF proxy; local standardized company financial readers remain unavailable.
 
 [Commodities and futures](docs/commodities-futures.md) add eighteen IMF monthly reference-price series, thirty Yahoo futures families, explicit dated contracts and same-date calendar spreads. [Credit ratings](docs/credit-ratings.md) imports operator-owned or licensed issuer/issue observations on S&P, Moody’s and Fitch global long-term scales, with private source versions; no automatic agency feed is supplied.
+
+[Selected country macro and bond rates](docs/country-macro-bonds.md) add IMF CPI and monetary-policy-related statistics plus IMF/OECD government rates for South Africa, Türkiye, Malaysia, Thailand, Singapore, New Zealand and China, with explicit per-country gaps. Annual WDI now covers Malaysia, Thailand, Singapore and New Zealand alongside the existing G20 selections.
 
 [Original filing research](docs/filing-research.md) adds exact TTM flows and margins, issuer-bound SEC document inventories, scoped numeric XBRL facts, standard-axis segment selections, visible Item/document text and reported HTML cells. Raw custom tags and release text retain their original meaning; they are not a standardized KPI or guidance database. [Policy rates](docs/policy-rates.md) adds the ECB's three policy instruments and the RBA cash rate target, with exact CSV-cell evidence.
 
@@ -65,7 +67,7 @@ Use `us_activity_extended`, `us_trade_overview`, `japan_external_corporate`, `au
 
 [Japanese company readers](docs/japan-companies.md) retain dated EDINET document metadata, original numeric XBRL contexts/units and current JPX reference cells. EDINET needs a free private API key and remains unverified live; JPX reuse requires the applicable permission. [Local source history](docs/source-history.md) retains raw versions, observation events and exact JSON differences. Its `as_of` selects locally captured bytes and does not establish publisher PIT data.
 
-[G20 annual macro coverage](docs/g20-macro.md) adds fourteen WDI indicators for nineteen countries and the overlapping EU aggregate through `global_economics`, plus the ten-item `g20_country_overview` preset. The 280 templates retain annual definitions, modeled-estimate status, debt scope and missingness. The African Union has no selected aggregate. Existing monthly/quarterly sources remain separate.
+[G20 annual macro coverage](docs/g20-macro.md) covers fourteen WDI indicators for 23 countries and the overlapping EU aggregate through `global_economics`, plus the ten-item `g20_country_overview` preset. The 336 templates retain annual definitions, modeled-estimate status, debt scope and missingness. The African Union has no selected aggregate. Existing monthly/quarterly sources remain separate.
 
 Series search filters registered macro/FX templates by text, country, frequency, source and unit. IMF/OECD/ABS metadata discovery retrieves new series without indicator-specific adapters; macro panels align observations with explicit aggregation, gaps and source evidence. [Discovery and panel guide](docs/international-macro.md).
 
