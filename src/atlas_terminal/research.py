@@ -123,6 +123,11 @@ FAMILIES = {
     "institutional_holdings": {"13F-HR", "13F-HR/A"},
 }
 DATASETS = {
+    "interest_spreads": (
+        "Simple latest/history yield-curve spreads with exact original rate inputs",
+        "multiple",
+        "derived_observations",
+    ),
     "country_economics": (
         "Selected country CPI and monetary-policy-related statistics",
         "imf",
@@ -457,6 +462,7 @@ def research_catalog(
     from atlas_terminal.research_discovery import event_catalog, screen_catalog
     from atlas_terminal.research_price_analytics import price_analytics_catalog
     from atlas_terminal.series_catalog import series_catalog
+    from atlas_terminal.spread_catalog import SPREADS
 
     try:
         filters = CatalogQuery(
@@ -540,6 +546,8 @@ def research_catalog(
                 if name == "japan_economics"
                 else ["imf", "oecd"]
                 if name == "country_bond_yields"
+                else ["treasury", "japan_mof", "ecb", "rba"]
+                if name == "interest_spreads"
                 else [source],
                 "output_type": kind,
                 "implementation": "implemented",
@@ -605,6 +613,12 @@ def research_catalog(
         ],
         "statement_metrics": metric_catalog(),
         "country_series": country_series_catalog(),
+        "interest_spreads": {
+            "series": SPREADS,
+            "default_limit": 1,
+            "direction": "long_minus_short",
+            "unit": "basis_points",
+        },
         "trailing_financials": {
             "flow_metrics": list(TTM_FLOW_METRICS),
             "methods": [
@@ -956,6 +970,7 @@ class ResearchService:
 
             result = macro_panel(q, self.get)
         elif q.dataset in {
+            "interest_spreads",
             "country_economics",
             "country_bond_yields",
             "japan_disclosures",
@@ -1534,6 +1549,10 @@ class ResearchService:
 
     def public_data(self, q: ResearchQuery) -> dict[str, Any]:
         assert self.public is not None
+        if q.dataset == "interest_spreads":
+            from atlas_terminal.research_spreads import interest_spreads
+
+            return interest_spreads(self.public, q)
         if q.dataset in {"country_economics", "country_bond_yields"}:
             from atlas_terminal.research_country_macro import country_macro
 

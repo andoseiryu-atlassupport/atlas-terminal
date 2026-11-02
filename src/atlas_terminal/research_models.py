@@ -54,8 +54,10 @@ from atlas_terminal.regional_economic_catalog import EUROPE_SERIES, UK_SERIES
 from atlas_terminal.research_discovery import ScreenFilter
 from atlas_terminal.research_quality import ResearchRequirements
 from atlas_terminal.sdmx_sources import CODE_PATTERN, FLOW_PATTERN
+from atlas_terminal.spread_catalog import SPREADS
 
 Dataset = Literal[
+    "interest_spreads",
     "country_economics",
     "country_bond_yields",
     "commodity_prices",
@@ -118,6 +120,7 @@ Dataset = Literal[
 ]
 
 FIELDS = {
+    "interest_spreads": {"series", "year", "start_date", "end_date", "limit"},
     "country_economics": {"country", "series", "limit", "start_date", "end_date"},
     "country_bond_yields": {"country", "series", "limit", "start_date", "end_date"},
     "commodity_prices": {"series", "start_date", "end_date", "limit"},
@@ -196,6 +199,8 @@ FIELDS = {
 
 
 def dataset_required(name: str) -> list[str]:
+    if name == "interest_spreads":
+        return ["series"]
     if name in {"country_economics", "country_bond_yields"}:
         return ["country", "series"]
     if name == "futures_curve":
@@ -352,6 +357,9 @@ def dataset_schema(schema: dict[str, Any]) -> None:
             properties["series"] = {"type": "string", "enum": list(POLICY_SERIES)}
         if name == "commodity_prices":
             properties["series"] = {"type": "string", "enum": list(COMMODITIES)}
+        if name == "interest_spreads":
+            properties["series"] = {"type": "string", "enum": list(SPREADS)}
+            properties["limit"]["default"] = 1
         if name in {"country_economics", "country_bond_yields"}:
             properties["country"] = {"type": "string", "enum": list(COUNTRIES)}
             properties["series"] = {
@@ -442,6 +450,34 @@ def dataset_schema(schema: dict[str, Any]) -> None:
             "required": ["dataset", *dataset_required(name)],
             "additionalProperties": False,
         }
+        if name == "interest_spreads":
+            branch["allOf"] = [
+                {
+                    "if": {
+                        "properties": {
+                            "series": {
+                                "enum": [
+                                    key
+                                    for key, spec in SPREADS.items()
+                                    if spec["source_id"] == source
+                                ]
+                            }
+                        },
+                        "required": ["series"],
+                    },
+                    "then": {
+                        "properties": {
+                            "year": {
+                                "anyOf": [
+                                    {"type": "integer", "minimum": minimum, "maximum": 2100},
+                                    {"type": "null"},
+                                ]
+                            }
+                        }
+                    },
+                }
+                for source, minimum in (("ecb", 2004), ("rba", 2013))
+            ]
         if name == "macro_analytics":
             real_series = [
                 key
@@ -586,6 +622,16 @@ class ResearchQuery(Model):
 
     @model_validator(mode="after")
     def check_dataset(self) -> "ResearchQuery":
+        if self.dataset == "interest_spreads":
+            if self.series not in SPREADS:
+                raise AtlasError(
+                    "INVALID_INPUT", "Choose a registered short spread name.", fields=["series"]
+                )
+            if "limit" not in self.model_fields_set:
+                object.__setattr__(self, "limit", 1)
+            from atlas_terminal.research_spreads import underlying_query
+
+            underlying_query(self)
         if self.dataset in {"country_economics", "country_bond_yields"} and (
             self.country not in COUNTRIES
             or self.series

@@ -4,6 +4,18 @@ Recorded on 2026-11-03 (JST) for the source checkout following Atlas Terminal 0.
 
 Version 0.7.0 includes the experimental native factor risk extension and installed walkthroughs described below. The prior 0.6.0 release did not include risk estimation. Local wheel checks remain separate evidence from a published GitHub release.
 
+## Convenient interest spreads
+
+The `interest_spreads` dataset adds fifteen short names for existing source-local government-curve differences, bringing the catalog to **60 datasets**, with 26 presets and 24 upstream source families. The short CLI command and SDK `get_spread` use the same research service as MCP/HTTP. A default request returns one latest source observation within the current/prior source-local calendar years; missing latest tenors remain unavailable. Explicit years/date bounds and limits select history. Original `macro_analytics` names and arithmetic remain available.
+
+On **2026-11-03 JST**, `uv run --offline python scripts/verify_spreads_live.py --allow-network --output build/spreads-live` verified all **15 selections** and **30 input-cell comparisons**, including independently recomputed basis points and percentage points. The newest returned Treasury, MOF and ECB observations were dated **2026-10-30**; RBA observations were dated **2026-10-28**. The script preserved raw bytes, hashes and normalized responses only in private ignored output/cache. These are dated retrieval/calculation checks, not a real-time or ongoing-delivery guarantee. No cross-country, corporate OAS or cross-currency basis series is implied.
+
+The applied environment reported current observations, spec/observed revisions **5/5** and enforced network policy. Actual normal-proxy, TLS-verified reads across nine fixed source URLs returned **eight HTTP 200 responses and one conditional HTTP 304** using retained MOF history. No cache/counter reset, proxy bypass, alternate host or fresh BLS request was used. This distinguishes live source access from configuration inspection alone.
+
+Regression coverage includes all short-name definitions, hand-calculated negative/zero values, latest-null retention, source-local New Year boundaries, previous-year selection, explicit date/limit behavior, exact decimals under caller precision/traps, original evidence, invalid-query rejection before reads, catalog/schema defaults, compact paging, offline listing and shared SDK/CLI/HTTP contracts. Daily macro-panel reads split at calendar-year boundaries to avoid truncating multi-year history and retain spread direction/curve context. Installed-wheel checks also exercise all four source families through SDK/CLI/official stdio MCP/actual loopback HTTP, plus the short CLI command. The isolated installation reuses locked dependencies through a `.pth` file and verifies the package import outside the checkout; it does not certify fresh dependency resolution.
+
+The final offline suite passed **2,518 tests**, with two opt-in live tests deselected; **44** cases are in the new spread regression file. Ruff/format, mypy (**102 sources**), regenerated schemas, wheel/sdist validation, **62-page** documentation, distribution preparation, public-file scanning and BLS/showcase offline replay checks passed. Local package verification is separate from GitHub Actions; existing release assets and deployments were not changed.
+
 ## Seven-country macro and government-rate coverage
 
 `global_economics` now accepts Malaysia, Thailand, Singapore and New Zealand alongside the original nineteen G20 countries/EU: **23 countries plus the EU, 336 templates**. `G20_AREAS` and the original G20 preset retain their membership restriction; the new `country_macro_overview` preset accepts all registered geographies. Two named datasets add **29 IMF/OECD selections**, bringing the catalog to **59 datasets and 26 presets** within the existing **24 upstream source families**. [Exact country/series coverage](country-macro-bonds.md).
@@ -86,11 +98,11 @@ Wheel-payload SDK and CLI smoke reads loaded the packaged fictional WDI template
 | --------------------------------------------------------- | ------------------------------------------------------------------- |
 | `uv run --offline ruff check .`                           | PASS                                                                |
 | `uv run --offline ruff format --check .`                  | PASS                                                                |
-| `uv run --offline mypy`                                   | PASS; 100 source files                                              |
-| `uv run --offline pytest`                                 | PASS; 2,472 tests, 2 live tests deselected                          |
+| `uv run --offline mypy`                                   | PASS; 102 source files                                              |
+| `uv run --offline pytest`                                 | PASS; 2,518 tests, 2 live tests deselected                          |
 | `uv run --offline python -m build --no-isolation`         | PASS; wheel and source distribution                                 |
 | `uv run --offline python scripts/verify_distribution.py`  | PASS; metadata, required contents and forbidden paths               |
-| `uv run --offline python scripts/build_docs.py`           | PASS; 61 HTML pages and internal file/section links                 |
+| `uv run --offline python scripts/build_docs.py`           | PASS; 62 HTML pages and internal file/section links                 |
 | `uv run --offline python scripts/verify_showcases.py`     | PASS; both recorded versions, data modes and checksums              |
 | `uv run --offline python scripts/verify_bls_capture.py`   | PASS; offline audit/replay of 14 captured responses and 168 records |
 | `uv run --offline python scripts/prepare_distribution.py` | PREPARED; versioned plugin ZIP and Registry draft                   |

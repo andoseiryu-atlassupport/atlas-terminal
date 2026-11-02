@@ -22,6 +22,10 @@ from atlas_terminal.util import canonical, digest
 QUERY = parse_query({"identifier": "ATLASDEMO", "metrics": ["revenue", "net_income"], "count": 3})
 expected = Atlas("fixture").get_financials(QUERY).model_dump(mode="json")
 MACRO_QUERIES = [
+    {"dataset": "interest_spreads", "series": "us_10y_2y", "year": 2025},
+    {"dataset": "interest_spreads", "series": "jp_10y_2y", "year": 2026},
+    {"dataset": "interest_spreads", "series": "ea_aaa_10y_2y", "year": 2026},
+    {"dataset": "interest_spreads", "series": "au_10y_2y", "year": 2026},
     {
         "dataset": "global_economics",
         "country": "SG",
@@ -341,6 +345,33 @@ with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
         verify_preset_result(atlas.get_research_preset(PRESET_QUERY))
         assert atlas.get_research_preset(PRESET_QUERY | {"preview": True})["batch"] is None
         assert not atlas.research_diagnostics()["network_checks_executed"]
+        for spread_query in MACRO_QUERIES:
+            if spread_query["dataset"] == "interest_spreads":
+                short = atlas.get_spread(spread_query["series"], year=spread_query["year"])
+                full = macro_expected[json.dumps(spread_query, sort_keys=True)]
+                assert short["records"] == full["records"]
+        short_expected = atlas.get_spread("us_10y_2y", year=2025)
+    short_cli = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "atlas_terminal",
+            "research",
+            "spread",
+            "us_10y_2y",
+            "--year",
+            "2025",
+            "--provider",
+            "fixture",
+            "--json",
+        ],
+        cwd=root,
+        capture_output=True,
+        text=True,
+        timeout=20,
+        check=True,
+    )
+    assert json.loads(short_cli.stdout) == short_expected
     preset_cli = subprocess.run(
         [
             sys.executable,
@@ -609,6 +640,7 @@ with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
                 "wheel_europe_korea_cli_sdk_mcp_http": "PASS",
                 "wheel_commodities_futures_credit_cli_sdk_mcp_http": "PASS",
                 "wheel_seven_country_macro_bonds_cli_sdk_mcp_http": "PASS",
+                "wheel_interest_spreads_cli_sdk_mcp_http": "PASS",
                 "wheel_market_discovery_funds_fred_cli_sdk_mcp_http": "PASS",
                 "wheel_quality_batch_cli_sdk_mcp_http": "PASS",
                 "wheel_presets_cli_sdk_mcp_http": "PASS",

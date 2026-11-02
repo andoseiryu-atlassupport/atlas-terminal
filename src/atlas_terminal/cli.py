@@ -156,6 +156,45 @@ def research_catalog(
     )
 
 
+@research_app.command("spread")
+def research_spread(
+    series: str | None = typer.Argument(None),
+    list_series: bool = typer.Option(False, "--list"),
+    year: int | None = None,
+    start_date: str | None = None,
+    end_date: str | None = None,
+    limit: int = 1,
+    provider: str = "public",
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """One short name returns a latest spread; --limit selects history, --list is offline."""
+    if list_series:
+        from atlas_terminal.spread_catalog import SPREADS
+
+        output({"series": SPREADS, "default_limit": 1, "unit": "basis_points"})
+        return
+    if series is None:
+        raise AtlasError("INVALID_INPUT", "Choose a spread name or use --list.")
+    with Atlas(provider) as atlas:
+        result = atlas.get_spread(
+            series, year=year, start_date=start_date, end_date=end_date, limit=limit
+        )
+    if json_output:
+        output(result)
+        return
+    if result["is_synthetic"]:
+        typer.echo("SYNTHETIC: fictional source observations")
+    typer.echo(result["spread_definition"]["title"])
+    for row in result["records"]:
+        shown = "unavailable" if row["value"] is None else row["value"] + " bp"
+        typer.echo(f"{row['date']}  {shown}")
+        if row.get("reason"):
+            typer.echo(row["reason"])
+    typer.echo(
+        "Long minus short; observation date, not a real-time quote. Use --json for evidence."
+    )
+
+
 @research_app.command("get")
 def research_get(
     dataset: str,

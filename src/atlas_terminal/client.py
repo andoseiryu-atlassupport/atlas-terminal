@@ -95,6 +95,34 @@ class Atlas:
                 status=502,
             ) from None
 
+    def get_spread(
+        self,
+        series: str,
+        *,
+        year: int | None = None,
+        start_date: str | None = None,
+        end_date: str | None = None,
+        limit: int = 1,
+        response: dict[str, Any] | None = None,
+        requirements: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Get one latest yield-curve spread, or a bounded history, through shared research."""
+        options = {
+            "year": year,
+            "start_date": start_date,
+            "end_date": end_date,
+            "limit": limit,
+            "response": response,
+            "requirements": requirements,
+        }
+        return self.get_research(
+            {
+                "dataset": "interest_spreads",
+                "series": series,
+                **{key: value for key, value in options.items() if value is not None},
+            }
+        )
+
     def risk(self, query: RiskQuery | dict[str, Any]) -> dict[str, Any]:
         """Import supplied observations, fit an independent model or analyze a saved portfolio.
 

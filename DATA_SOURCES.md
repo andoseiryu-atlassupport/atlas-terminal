@@ -101,6 +101,10 @@ IMF, OECD and ABS public SDMX endpoints provide dataflow metadata and single-ser
 
 SDMX observations retain original XML bytes/hashes and metadata references. Decimal values are not silently rescaled; missing unit, scale or adjustment metadata remains null. Publisher status can identify provisional values or forecasts. [International discovery and panel methodology](docs/international-macro.md). Official API documentation was inspected; actual source responses and final dataset-specific redistribution checks remain unverified.
 
+## Convenient government interest spreads
+
+`interest_spreads` provides fifteen short names for existing Treasury, Japan MOF, ECB AAA/all-rating and RBA curve differences. Source conditions, units and curve conventions remain unchanged. One latest source observation is the default; null latest tenors stay unavailable. This adds no upstream vendor or API key requirement. [Definitions and evidence](docs/interest-spreads.md).
+
 ## Japan government bond curves
 
 `jgb_yields` uses the Ministry of Finance Japan's fixed English [historical CSV](https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/historical/jgbcme_all.csv) and [current-month CSV](https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/jgbcme.csv), with [MOF public-data terms and exceptions](https://www.mof.go.jp/about_mof/notice/index.html). Attribute MOF, identify Atlas processing and retain source-specific conditions. Dates and tenor labels are normalized; values stay in percent per annum. Original hashes and logical CSV row/column positions remain available. Complete current rows replace overlapping historical rows, including nulls; no older value fills a missing current tenor. Atlas calculates slopes, butterflies and changes separately from reported yields.
