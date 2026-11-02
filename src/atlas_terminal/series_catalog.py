@@ -17,6 +17,7 @@ from atlas_terminal.policy_sources import POLICY_SERIES
 from atlas_terminal.public_sources import BLS_DETAILS, BLS_SERIES, SOURCE_CATALOG
 from atlas_terminal.regional_economic_catalog import EUROPE_SERIES, UK_SERIES
 from atlas_terminal.research_models import CatalogQuery
+from atlas_terminal.spread_catalog import SPREADS
 
 
 def series_catalog(filters: CatalogQuery) -> dict[str, Any]:
@@ -70,6 +71,10 @@ def series_catalog(filters: CatalogQuery) -> dict[str, Any]:
                 aliases.extend(words)
         if dataset == "fx_rates":
             aliases.extend(["exchange rate", "為替"])
+        if dataset == "interest_spreads":
+            aliases.extend(
+                ["interest spread", "yield curve", "金利差", "金利スプレッド", "長短金利差"]
+            )
         rows.append(
             {
                 "id": dataset + ":" + key,
@@ -252,6 +257,24 @@ def series_catalog(filters: CatalogQuery) -> dict[str, Any]:
                 seasonally_adjusted=False,
                 annualized=False,
             )
+    for alias, spread in SPREADS.items():
+        add(
+            "interest_spreads",
+            alias,
+            spread["title"],
+            spread["source_id"],
+            spread["country"],
+            "daily",
+            "basis_points",
+            {"series": alias},
+            underlying_series=spread["legacy_series"],
+            spread_type="yield_curve",
+            long_maturity=spread["long_maturity"],
+            short_maturity=spread["short_maturity"],
+            default_limit=1,
+            direction="long_minus_short",
+            derived=True,
+        )
     for key, spec_macro in MACRO_SERIES.items():
         add(
             "macro_analytics",

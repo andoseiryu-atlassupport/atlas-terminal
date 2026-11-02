@@ -35,6 +35,8 @@ Limits count records, not complete curves. `limit=15` returns the latest Japanes
 
 ## Calculations in basis points
 
+For one latest spread, use `atlas research spread us_10y_2y` or `jp_10y_2y`. The [short-name spread interface](interest-spreads.md) supports fifteen source-local differences, defaults to one source observation and retains the existing calculator/evidence.
+
 Use `macro_analytics` and an exact registered `series`. Full catalog output includes `curve_series` with terms and interpretation.
 
 | Series                                                                                | Calculation                                                                               |

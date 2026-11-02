@@ -13,6 +13,7 @@ from atlas_terminal.research_models import ResearchQuery, parse_research
 from atlas_terminal.util import canonical
 
 SUPPORTED = {
+    "interest_spreads",
     "country_economics",
     "country_bond_yields",
     "commodity_prices",
@@ -31,6 +32,13 @@ SUPPORTED = {
 }
 MAX_PANEL_BYTES = 4 * 1024 * 1024
 CONTEXT = (
+    "underlying_series",
+    "spread_type",
+    "curve",
+    "long_maturity",
+    "short_maturity",
+    "direction",
+    "negative_means",
     "benchmark_tenor_years",
     "benchmark_tenor_basis",
     "rate_period_basis",
@@ -106,7 +114,7 @@ def panel_queries(q: ResearchQuery) -> list[list[dict[str, Any]]]:
             )
         japan = JAPAN_SERIES.get(str(data.get("series")))
         daily = (
-            dataset == "fx_rates"
+            dataset in {"fx_rates", "interest_spreads"}
             or (dataset == "macro_analytics" and data.get("series") in CURVE_SERIES)
             or (
                 dataset == "japan_economics" and japan is not None and japan["frequency"] == "DAILY"
