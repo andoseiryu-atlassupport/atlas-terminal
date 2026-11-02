@@ -42,6 +42,7 @@ class YahooRiskSpec(RiskBase):
             if (
                 other["asset_class"] != "security"
                 or other["currency"] != profile["currency"]
+                or other["market"] != profile["market"]
                 or other["timezone"] != profile["timezone"]
             ):
                 raise ValueError("Use securities from one supported currency and market")
@@ -61,10 +62,21 @@ def panel_from_prices(spec: YahooRiskSpec, results: list[dict[str, Any]]) -> "Ri
     if len(results) != len(symbols):
         raise AtlasError("RISK_INPUT_INCOMPLETE", "Supply every selected price result.")
     series, sources, documents = {}, [], []
+    quote_units: dict[str, Any] = {}
     for symbol, result in zip(symbols, results, strict=True):
+        instrument = result["instrument"]
+        try:
+            quoted = yahoo_profile(symbol, instrument["currency"])
+        except AtlasError:
+            raise AtlasError(
+                "RISK_INPUT_INCOMPLETE", "Source price currency differs from the selected market."
+            ) from None
         if (
             result["instrument"]["symbol"] != symbol
-            or result["instrument"]["currency"] != currency
+            or quoted["denomination_currency"] != currency
+            or instrument.get("denomination_currency", instrument["currency"]) != currency
+            or instrument.get("quote_unit_scale", "1") != quoted["quote_unit_scale"]
+            or instrument.get("price_unit") != quoted["price_unit"]
             or result["instrument"].get("exchange_timezone") != profile["timezone"]
             or result["instrument"]["source_instrument_type"] not in {"EQUITY", "ETF"}
             or result["coverage"]["truncated"]
@@ -76,6 +88,13 @@ def panel_from_prices(spec: YahooRiskSpec, results: list[dict[str, Any]]) -> "Ri
             raise AtlasError(
                 "INVALID_INPUT", "The observed factor must be a source-identified ETF."
             )
+        quote_units[symbol] = {
+            "quote_currency": instrument["currency"],
+            "denomination_currency": currency,
+            "quote_unit_scale": quoted["quote_unit_scale"],
+            "price_unit": quoted["price_unit"],
+            "return_scale_cancels": True,
+        }
         prices_by_date: dict[str, Any] = {}
         for row in result["records"]:
             try:
@@ -87,6 +106,8 @@ def panel_from_prices(spec: YahooRiskSpec, results: list[dict[str, Any]]) -> "Ri
             if (
                 row["date"] in prices_by_date
                 or not spec.start_date <= observed.isoformat() <= spec.end_date
+                or row.get("currency") != quoted["currency"]
+                or row.get("unit") != quoted["price_unit"]
                 or row["adjusted_close"] is None
                 or row["price_basis"] != "yahoo_split_adjusted"
                 or row["adjusted_close_basis"] != "yahoo_split_and_dividend_adjusted"
@@ -195,6 +216,10 @@ def panel_from_prices(spec: YahooRiskSpec, results: list[dict[str, Any]]) -> "Ri
         documents=documents,
         snapshot_atomic=False,
         normalization={
+            "quote_units": quote_units,
+            "currency_basis": (
+                "registered denomination currency; per-series quote scales cancel in return ratios"
+            ),
             "formula": "adjusted_close[t] / adjusted_close[t-1] - 1",
             "rounding": "18 decimal places, ROUND_HALF_EVEN",
             "session_boundary_basis": profile["timezone"]

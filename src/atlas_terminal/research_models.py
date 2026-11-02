@@ -17,8 +17,6 @@ from atlas_terminal.activity_catalog import ACTIVITY_SERIES
 from atlas_terminal.economic_catalog import JAPAN_SERIES, NATIONAL_ACCOUNTS
 from atlas_terminal.equity_sources import (
     EQUITY_DATASETS,
-    TOKYO_SYMBOL_PATTERN,
-    US_SYMBOL_PATTERN,
     YAHOO_SYMBOL_PATTERN,
     yahoo_profile,
     yahoo_symbol,
@@ -40,6 +38,7 @@ from atlas_terminal.macro_catalog import (
     REFERENCE_SERIES,
     Currency,
 )
+from atlas_terminal.market_catalog import SECURITY_SYMBOL_PATTERN
 from atlas_terminal.models import Model, identifier
 from atlas_terminal.policy_sources import POLICY_SERIES
 from atlas_terminal.regional_bond_sources import EURO_SERIES
@@ -316,9 +315,7 @@ def dataset_schema(schema: dict[str, Any]) -> None:
                 ),
             }
         if name == "equity_actions":
-            properties["identifier"]["pattern"] = (
-                "^(?:" + TOKYO_SYMBOL_PATTERN + "|" + US_SYMBOL_PATTERN + ")$"
-            )
+            properties["identifier"]["pattern"] = "^" + SECURITY_SYMBOL_PATTERN + "$"
         if name in {"trailing_financials", "segment_financials"}:
             properties["metrics"]["items"] = {
                 "type": "string",
@@ -337,7 +334,7 @@ def dataset_schema(schema: dict[str, Any]) -> None:
             properties["identifiers"]["uniqueItems"] = True
             properties["identifiers"]["items"] = {
                 "type": "string",
-                "pattern": "^(?:" + TOKYO_SYMBOL_PATTERN + "|" + US_SYMBOL_PATTERN + ")$",
+                "pattern": "^" + SECURITY_SYMBOL_PATTERN + "$",
             }
         if name == "company_screen":
             properties["filters"]["minItems"] = 1

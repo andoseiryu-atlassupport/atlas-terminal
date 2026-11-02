@@ -1,0 +1,68 @@
+{
+  "chart": {
+    "result": [
+      {
+        "meta": {
+          "symbol": "005930.KS",
+          "currency": "KRW",
+          "exchangeName": "KSC",
+          "exchangeTimezoneName": "Asia/Seoul",
+          "instrumentType": "EQUITY",
+          "dataGranularity": "5m",
+          "shortName": "FICTIONAL Atlas market fixture",
+          "currentTradingPeriod": {
+            "regular": {
+              "start": 1793149200,
+              "end": 1793152800
+            }
+          },
+          "tradingPeriods": [
+            [
+              {
+                "start": 1793149200,
+                "end": 1793152800
+              }
+            ]
+          ]
+        },
+        "timestamp": [
+          1793149200,
+          1793149500,
+          1793149800
+        ],
+        "indicators": {
+          "quote": [
+            {
+              "open": [
+                100,
+                101,
+                102
+              ],
+              "high": [
+                102,
+                103,
+                104
+              ],
+              "low": [
+                99,
+                100,
+                101
+              ],
+              "close": [
+                101,
+                102,
+                103
+              ],
+              "volume": [
+                10,
+                0,
+                null
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "error": null
+  }
+}

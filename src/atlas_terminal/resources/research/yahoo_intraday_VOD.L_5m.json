@@ -1,0 +1,68 @@
+{
+  "chart": {
+    "result": [
+      {
+        "meta": {
+          "symbol": "VOD.L",
+          "currency": "GBp",
+          "exchangeName": "LSE",
+          "exchangeTimezoneName": "Europe/London",
+          "instrumentType": "EQUITY",
+          "dataGranularity": "5m",
+          "shortName": "FICTIONAL Atlas market fixture",
+          "currentTradingPeriod": {
+            "regular": {
+              "start": 1793181600,
+              "end": 1793185200
+            }
+          },
+          "tradingPeriods": [
+            [
+              {
+                "start": 1793181600,
+                "end": 1793185200
+              }
+            ]
+          ]
+        },
+        "timestamp": [
+          1793181600,
+          1793181900,
+          1793182200
+        ],
+        "indicators": {
+          "quote": [
+            {
+              "open": [
+                100,
+                101,
+                102
+              ],
+              "high": [
+                102,
+                103,
+                104
+              ],
+              "low": [
+                99,
+                100,
+                101
+              ],
+              "close": [
+                101,
+                102,
+                103
+              ],
+              "volume": [
+                10,
+                0,
+                null
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "error": null
+  }
+}

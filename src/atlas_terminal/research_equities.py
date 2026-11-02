@@ -6,7 +6,7 @@ from fractions import Fraction
 from typing import Any, cast
 
 from atlas_terminal.economic_dates import window_metadata, within
-from atlas_terminal.equity_sources import yahoo_profile, yahoo_timezone, yahoo_url
+from atlas_terminal.equity_sources import quote_context, yahoo_profile, yahoo_timezone, yahoo_url
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.providers import Snapshot, Transport
 from atlas_terminal.research_financials import reference
@@ -56,17 +56,23 @@ def chart_result(snapshot: Snapshot, symbol: str) -> tuple[dict[str, Any], dict[
     meta = result.get("meta")
     if (
         not isinstance(meta, dict)
+        or not isinstance(meta.get("symbol"), str)
         or meta.get("symbol") not in ({symbol, "CAD=X"} if symbol == "USDCAD=X" else {symbol})
-        or meta.get("currency") != profile["currency"]
+        or not isinstance(meta.get("currency"), str)
+        or meta.get("currency") not in profile["quote_currencies"]
         or meta.get("exchangeTimezoneName") != profile["timezone"]
+        or not isinstance(meta.get("exchangeName"), str)
         or meta.get("exchangeName") not in profile["exchanges"]
+        or not isinstance(meta.get("instrumentType"), str)
         or meta.get("instrumentType") not in profile["types"]
         or meta.get("dataGranularity") != "1d"
     ):
         raise source_error(
             "Yahoo symbol, currency, exchange, instrument type or daily frequency differs."
         )
+    profile = yahoo_profile(symbol, meta["currency"])
     instrument = {
+        **quote_context(profile),
         "symbol": symbol,
         "source_symbol": meta["symbol"],
         "currency": profile["currency"],
@@ -89,7 +95,7 @@ def chart_result(snapshot: Snapshot, symbol: str) -> tuple[dict[str, Any], dict[
 def price_rows(
     result: dict[str, Any], snapshot: Snapshot, q: ResearchQuery
 ) -> tuple[list[dict[str, Any]], int]:
-    profile = yahoo_profile(q.identifier or "")
+    profile = yahoo_profile(q.identifier or "", result["meta"]["currency"])
     timezone = yahoo_timezone(q.identifier or "")
     security = profile["asset_class"] == "security"
     times = result.get("timestamp")
@@ -185,6 +191,7 @@ def price_rows(
         rows.append(
             {
                 **values,
+                **quote_context(profile),
                 "identifier": q.identifier,
                 "date": date,
                 "observation_at": observed.isoformat().replace("+00:00", "Z"),
@@ -219,7 +226,7 @@ def price_rows(
 def action_rows(
     result: dict[str, Any], snapshot: Snapshot, q: ResearchQuery
 ) -> list[dict[str, Any]]:
-    profile = yahoo_profile(q.identifier or "")
+    profile = yahoo_profile(q.identifier or "", result["meta"]["currency"])
     timezone = yahoo_timezone(q.identifier or "")
     events = result.get("events", {})
     if not isinstance(events, dict):
@@ -290,6 +297,7 @@ def action_rows(
             rows.append(
                 {
                     **value,
+                    **quote_context(profile),
                     "identifier": q.identifier,
                     "date": day,
                     "observation_at": observed.isoformat().replace("+00:00", "Z"),

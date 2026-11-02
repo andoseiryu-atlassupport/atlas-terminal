@@ -38,3 +38,5 @@ Python 3.12+, uv, Pydantic, httpx, Typer, FastAPI, the official MCP and x402 SDK
 Consolidated equity prices, order books, options, analyst consensus, newswire articles, earnings-call transcripts, complete corporate-action or security-master datasets, PIT, trading and built-in LLM analysis are unavailable. Free access does not imply unrestricted redistribution rights for third-party content.
 
 See the [research guide](research.md) for queries and limits, [capabilities](../IMPLEMENTATION_STATUS.md) for the feature overview, [sources and terms](../DATA_SOURCES.md) for data conditions, and [validation scope](verification.md) for verified and unverified behavior.
+
+Optional [Korean and European market observations](europe-korea-equities.md) extend the existing price/action/analytics datasets to KOSPI/KOSDAQ and sixteen European countries, preserving exact units, local dates and source evidence. Their time-series ETF-proxy connection remains separate from supplied fundamental cross-sectional data.

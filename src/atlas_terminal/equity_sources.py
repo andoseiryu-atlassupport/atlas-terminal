@@ -8,12 +8,20 @@ from urllib.parse import parse_qs, quote, unquote, urlencode
 from zoneinfo import ZoneInfo
 
 from atlas_terminal.errors import AtlasError
+from atlas_terminal.market_catalog import (
+    SECURITY_MARKETS,
+    SECURITY_SYMBOL_PATTERN,
+)
+from atlas_terminal.market_catalog import (
+    TOKYO_SYMBOL_PATTERN as TOKYO_SYMBOL_PATTERN,
+)
+from atlas_terminal.market_catalog import (
+    US_SYMBOL_PATTERN as US_SYMBOL_PATTERN,
+)
 
 YAHOO_BASE = "https://query1.finance.yahoo.com/v8/finance/chart/"
-TOKYO_SYMBOL_PATTERN = r"[0-9][0-9A-Z]{3}\.T"
-US_SYMBOL_PATTERN = r"[A-Z][A-Z0-9]{0,5}(?:-[A-Z])?"
 # Only the explicitly identified reference instruments below are accepted outside
-# US/Tokyo stocks and ETFs. A symbol spelling alone never establishes identity.
+# registered stocks and ETFs. A symbol spelling alone never establishes identity.
 REFERENCE_INSTRUMENTS: dict[str, tuple[str, str, str, str, str, str]] = {
     "^GSPC": ("INDEX", "USD", "America/New_York", "SNP", "index_points", "source_reported_volume"),
     "^DJI": ("INDEX", "USD", "America/New_York", "DJI", "index_points", "source_reported_volume"),
@@ -87,9 +95,7 @@ REFERENCE_INSTRUMENTS: dict[str, tuple[str, str, str, str, str, str]] = {
     "NQ=F": ("FUTURE", "USD", "America/New_York", "CME", "index_points", "contracts"),
 }
 YAHOO_SYMBOL_PATTERN = (
-    "(?:"
-    + "|".join([TOKYO_SYMBOL_PATTERN, US_SYMBOL_PATTERN, *map(re.escape, REFERENCE_INSTRUMENTS)])
-    + ")"
+    "(?:" + "|".join([SECURITY_SYMBOL_PATTERN, *map(re.escape, REFERENCE_INSTRUMENTS)]) + ")"
 )
 YAHOO_ENABLE_ENV = "ATLAS_ENABLE_YAHOO_FINANCE"
 TOKYO = ZoneInfo("Asia/Tokyo")
@@ -111,7 +117,8 @@ YAHOO_SOURCE: dict[str, Any] = {
         "No Yahoo! JAPAN endpoint, cookie/crumb harvesting or authentication bypass."
     ),
     "cadence": (
-        "US/Tokyo daily/intraday securities, selected indexes, FX, crypto and futures; "
+        "US, Tokyo, Korean and registered European daily/intraday securities, "
+        "selected indexes, FX, crypto and futures;"
         "reported security dividend/split events. Daily requests default to the latest month "
         "and allow at most ten calendar years. Intraday requests require explicit dates "
         "within recent retention bounds, with 7-day (1m) or 31-day maximum windows. "
@@ -138,13 +145,13 @@ def yahoo_symbol(value: str) -> str:
     if not re.fullmatch(YAHOO_SYMBOL_PATTERN, value):
         raise AtlasError(
             "INVALID_INPUT",
-            "Use an explicit US/Tokyo security symbol or a supported reference symbol.",
+            "Use an explicit registered security symbol or a supported reference symbol.",
             fields=["identifier"],
         )
     return value
 
 
-def yahoo_profile(symbol: str) -> dict[str, Any]:
+def yahoo_profile(symbol: str, quote_currency: str | None = None) -> dict[str, Any]:
     """Expected identity and units; upstream metadata must agree with this policy."""
     yahoo_symbol(symbol)
     if symbol in REFERENCE_INSTRUMENTS:
@@ -152,6 +159,7 @@ def yahoo_profile(symbol: str) -> dict[str, Any]:
         return {
             "types": {kind},
             "currency": currency,
+            "quote_currencies": {currency},
             "timezone": timezone,
             "exchanges": {exchange},
             "price_unit": unit,
@@ -163,15 +171,39 @@ def yahoo_profile(symbol: str) -> dict[str, Any]:
                 "FUTURE": "futures",
             }[kind],
         }
-    tokyo = re.fullmatch(TOKYO_SYMBOL_PATTERN, symbol) is not None
+    for venue, spec in SECURITY_MARKETS.items():
+        if not re.fullmatch(spec.pattern, symbol):
+            continue
+        allowed = {"GBP", "GBp", "GBX"} if spec.currency == "GBP" else {spec.currency}
+        quoted = quote_currency if quote_currency is not None else spec.currency
+        if quoted not in allowed:
+            raise AtlasError(
+                "SOURCE_UNAVAILABLE", "Unsupported source quote currency for this venue."
+            )
+        return {
+            "types": {"EQUITY", "ETF"},
+            "currency": quoted,
+            "quote_currencies": allowed,
+            "denomination_currency": spec.currency,
+            "quote_unit_scale": "0.01" if quoted in {"GBp", "GBX"} else "1",
+            "market": spec.country,
+            "listing_venue": venue,
+            "timezone": spec.timezone,
+            "exchanges": set(spec.exchanges),
+            "price_unit": quoted + "_per_share",
+            "volume_unit": "shares",
+            "asset_class": "security",
+        }
+    raise AtlasError("INVALID_INPUT", "No registered security venue for this symbol.")
+
+
+def quote_context(profile: dict[str, Any]) -> dict[str, Any]:
+    """Raw price values keep source units; scale is explicit metadata, not a price conversion."""
+    if profile["asset_class"] != "security":
+        return {}
     return {
-        "types": {"EQUITY", "ETF"},
-        "currency": "JPY" if tokyo else "USD",
-        "timezone": "Asia/Tokyo" if tokyo else "America/New_York",
-        "exchanges": {"JPX", "TYO"} if tokyo else {"NMS", "NGM", "NCM", "NYQ", "PCX", "ASE", "BTS"},
-        "price_unit": "JPY_per_share" if tokyo else "USD_per_share",
-        "volume_unit": "shares",
-        "asset_class": "security",
+        key: profile[key]
+        for key in ("market", "listing_venue", "denomination_currency", "quote_unit_scale")
     }
 
 

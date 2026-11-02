@@ -61,3 +61,5 @@ See [market research and company discovery](market-research.md) for price indica
 [Intraday prices](intraday-prices.md), [offline series statistics](time-series-statistics.md) and a [local research workbench](research-workbench.md) extend the source checkout with timestamped bars, explicit stationarity diagnostics and multiple evidence-backed panels.
 
 [TTM and original filing research](filing-research.md) covers explicit SEC document selections, scoped facts, standard segment axes and visible text/tables. [Official policy rates](policy-rates.md) provides three ECB instruments and the RBA cash rate target. These additions are available in the latest source checkout.
+
+[Korean and European stocks/ETFs](europe-korea-equities.md) are available through the existing optional daily/intraday, action and analytics datasets, with explicit pound/pence units and same-market time-series risk inputs.

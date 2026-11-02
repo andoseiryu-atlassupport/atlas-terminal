@@ -6,7 +6,7 @@
 
 Atlas Terminal gives AI agents company financials, US/Japan and international macro indicators and reference FX through one MCP connection, using free public primary sources. The same retrieval, calculation and evidence services are available through a CLI, Python SDK and HTTP API.
 
-Optional [native factor risk models](docs/risk-model.md) analyze supplied [US, Japanese, Korean and British stock histories](docs/equity-markets.md). One request reads a named JSON, CSV or SQLite connection, validates inputs, fits a cross-sectional or time-series model and analyzes a portfolio. The models are experimental; a historical equity database and verified vintages are not included. A separate optional [international Yahoo Finance reader](docs/yahoo-finance.md) supplies US/Tokyo daily security prices/actions and selected index, FX, crypto and futures observations for personal use, with explicit operator enablement. A [named Yahoo time-series connection](docs/data-connections.md#optional-yahoo-time-series-connection) can fit real adjusted-price returns against a separately chosen ETF proxy.
+Optional [native factor risk models](docs/risk-model.md) analyze supplied [US, Japanese, Korean and British stock histories](docs/equity-markets.md). One request reads a named JSON, CSV or SQLite connection, validates inputs, fits a cross-sectional or time-series model and analyzes a portfolio. The models are experimental; a historical equity database and verified vintages are not included. A separate optional [international Yahoo Finance reader](docs/yahoo-finance.md) supplies US, Tokyo, Korean and registered European daily security prices/actions and selected index, FX, crypto and futures observations for personal use, with explicit operator enablement. A [named Yahoo time-series connection](docs/data-connections.md#optional-yahoo-time-series-connection) can fit real adjusted-price returns against a separately chosen ETF proxy.
 
 [Documentation website](https://atlas-terminal-docs.citrus-genet-7815.chatgpt.site) · [Connect Codex](docs/codex.md) · [Reproducible examples](docs/research-examples.md) · [Capabilities](IMPLEMENTATION_STATUS.md) · [Data sources](DATA_SOURCES.md)
 
@@ -31,27 +31,29 @@ Run `atlas showcase research --provider public --allow-network` for actual ECB/N
 
 Atlas provides 53 research datasets, including private local source history, with data from 24 upstream source families. Official sources include SEC EDGAR, BLS, Treasury, the Federal Reserve, ECB, New York Fed, BEA, BOJ, Japan's Statistical Dashboard/MOF, EDINET, JPX, IMF, OECD, RBA, Eurostat, ONS, Census, ABS, StatCan and World Bank. Generic FRED retrieval preserves original producer conditions. Five optional Yahoo daily/intraday price, action and analytics datasets remain disabled by default for personal-use access under separate terms.
 
+[European and Korean market data](docs/europe-korea-equities.md) covers KOSPI/KOSDAQ and sixteen European countries through the existing price/action, intraday and analytics datasets. British pound/pence quote units remain explicit. The optional time-series connector supports the same national markets with a separately selected ETF proxy; local standardized company financial readers remain unavailable.
+
 [Original filing research](docs/filing-research.md) adds exact TTM flows and margins, issuer-bound SEC document inventories, scoped numeric XBRL facts, standard-axis segment selections, visible Item/document text and reported HTML cells. Raw custom tags and release text retain their original meaning; they are not a standardized KPI or guidance database. [Policy rates](docs/policy-rates.md) adds the ECB's three policy instruments and the RBA cash rate target, with exact CSV-cell evidence.
 
 [Market research](docs/market-research.md) adds 14 trailing price indicators, same-market performance/correlation comparison, financial screening over up to ten named issuers, classified historical filing events, selected N-PORT fund holdings, generic FRED series and offline HTML chart export. Each retains source evidence and explicit missingness. [Intraday prices](docs/intraday-prices.md) add explicit 1/5/15/30/60-minute bars. Saved results support [offline time-series statistics](docs/time-series-statistics.md), including ADF/KPSS diagnostics, and a [local research workbench](docs/research-workbench.md) with multiple independent panels.
 
-| Area         | Information                                                                                                                           |
-| ------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
-| Companies    | Current US ticker / CIK directory and issuer profiles; Japanese EDINET disclosures/XBRL and current JPX securities/industry reference |
-| Financials   | 37 US-GAAP concepts covering income, balance sheets, cash flow, EPS, shares and dividends; annual, reported discrete quarters and YTD |
-| Analysis     | Six ratios, five year-over-year growth rates, free cash flow and FCF margin; comparison of up to ten issuers at a common period       |
-| XBRL         | Concept inventory and raw observations with their taxonomy, units and contexts                                                        |
-| Disclosures  | All-form filing discovery, including ownership, fund, proxy, offering and corporate-action filings                                    |
-| Ownership    | Form 3/4/5 transactions and positions; a selected manager's 13F information table                                                     |
-| Macro        | Twenty-two BLS price/labor/cost/productivity series, CPI/core CPI YoY, payroll changes, government curves and federal debt            |
-| Rates / FX   | EFFR and SOFR overnight rates; ECB daily reference FX for 31 currencies, with traceable inverse and cross calculations                |
-| US accounts  | Sixteen BEA GDP, demand-component, PCE/income and saving-rate series                                                                  |
-| US activity  | Retail, housing, durable goods, industrial production, weekly claims and goods/services trade                                         |
-| AU / CA / CN | Four Australian, three Canadian and four Chinese GDP/price/labour selections, with distinct source frequencies                        |
-| Japan        | Twenty-nine selections including machinery orders, trade, current account, corporate statistics and BOJ financial series              |
-| Market data  | Optional US/Tokyo securities and selected indexes/FX/crypto/futures; price analytics, comparison and original source-cell evidence    |
-| Europe / UK  | Eurostat GDP, HICP, unemployment, production and retail for six regions; five ONS CPI/GDP/rolling-unemployment series                 |
-| Policy       | Federal Reserve release headlines, publication times and original links                                                               |
+| Area         | Information                                                                                                                                                         |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Companies    | Current US ticker / CIK directory and issuer profiles; Japanese EDINET disclosures/XBRL and current JPX securities/industry reference                               |
+| Financials   | 37 US-GAAP concepts covering income, balance sheets, cash flow, EPS, shares and dividends; annual, reported discrete quarters and YTD                               |
+| Analysis     | Six ratios, five year-over-year growth rates, free cash flow and FCF margin; comparison of up to ten issuers at a common period                                     |
+| XBRL         | Concept inventory and raw observations with their taxonomy, units and contexts                                                                                      |
+| Disclosures  | All-form filing discovery, including ownership, fund, proxy, offering and corporate-action filings                                                                  |
+| Ownership    | Form 3/4/5 transactions and positions; a selected manager's 13F information table                                                                                   |
+| Macro        | Twenty-two BLS price/labor/cost/productivity series, CPI/core CPI YoY, payroll changes, government curves and federal debt                                          |
+| Rates / FX   | EFFR and SOFR overnight rates; ECB daily reference FX for 31 currencies, with traceable inverse and cross calculations                                              |
+| US accounts  | Sixteen BEA GDP, demand-component, PCE/income and saving-rate series                                                                                                |
+| US activity  | Retail, housing, durable goods, industrial production, weekly claims and goods/services trade                                                                       |
+| AU / CA / CN | Four Australian, three Canadian and four Chinese GDP/price/labour selections, with distinct source frequencies                                                      |
+| Japan        | Twenty-nine selections including machinery orders, trade, current account, corporate statistics and BOJ financial series                                            |
+| Market data  | Optional US, Tokyo, Korean and registered European securities and selected indexes/FX/crypto/futures; price analytics, comparison and original source-cell evidence |
+| Europe / UK  | Eurostat GDP, HICP, unemployment, production and retail for six regions; five ONS CPI/GDP/rolling-unemployment series                                               |
+| Policy       | Federal Reserve release headlines, publication times and original links                                                                                             |
 
 Values retain their units, periods, source hashes, retrieval times and JSON pointers, XML paths, CSV cells or fixed-width text positions. Missing or ambiguous values are explicit. Derived metrics include their formulas and reported inputs.
 

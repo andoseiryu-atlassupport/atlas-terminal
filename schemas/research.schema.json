@@ -1540,7 +1540,7 @@
             },
             "identifier": {
               "description": "Explicit supported Yahoo symbol; source metadata validates its market.",
-              "pattern": "^(?:[0-9][0-9A-Z]{3}\\.T|[A-Z][A-Z0-9]{0,5}(?:-[A-Z])?|\\^GSPC|\\^DJI|\\^IXIC|\\^RUT|\\^VIX|\\^N225|EURUSD=X|GBPUSD=X|AUDUSD=X|NZDUSD=X|USDJPY=X|USDCHF=X|USDCAD=X|BTC\\-USD|ETH\\-USD|GC=F|SI=F|CL=F|NG=F|ES=F|NQ=F)$",
+              "pattern": "^(?:(?:[A-Z][A-Z0-9]{0,5}(?:-[A-Z])?|[0-9][0-9A-Z]{3}\\.T|[0-9A-Z]{6}\\.KS|[0-9A-Z]{6}\\.KQ|[A-Z0-9][A-Z0-9-]{0,19}\\.L|[A-Z0-9][A-Z0-9-]{0,19}\\.DE|[A-Z0-9][A-Z0-9-]{0,19}\\.PA|[A-Z0-9][A-Z0-9-]{0,19}\\.AS|[A-Z0-9][A-Z0-9-]{0,19}\\.MI|[A-Z0-9][A-Z0-9-]{0,19}\\.MC|[A-Z0-9][A-Z0-9-]{0,19}\\.SW|[A-Z0-9][A-Z0-9-]{0,19}\\.ST|[A-Z0-9][A-Z0-9-]{0,19}\\.CO|[A-Z0-9][A-Z0-9-]{0,19}\\.OL|[A-Z0-9][A-Z0-9-]{0,19}\\.HE|[A-Z0-9][A-Z0-9-]{0,19}\\.BR|[A-Z0-9][A-Z0-9-]{0,19}\\.VI|[A-Z0-9][A-Z0-9-]{0,19}\\.IR|[A-Z0-9][A-Z0-9-]{0,19}\\.LS|[A-Z0-9][A-Z0-9-]{0,19}\\.WA)|\\^GSPC|\\^DJI|\\^IXIC|\\^RUT|\\^VIX|\\^N225|EURUSD=X|GBPUSD=X|AUDUSD=X|NZDUSD=X|USDJPY=X|USDCHF=X|USDCAD=X|BTC\\-USD|ETH\\-USD|GC=F|SI=F|CL=F|NG=F|ES=F|NQ=F)$",
               "type": "string"
             },
             "interval": {
@@ -1599,7 +1599,7 @@
             },
             "identifiers": {
               "items": {
-                "pattern": "^(?:[0-9][0-9A-Z]{3}\\.T|[A-Z][A-Z0-9]{0,5}(?:-[A-Z])?)$",
+                "pattern": "^(?:[A-Z][A-Z0-9]{0,5}(?:-[A-Z])?|[0-9][0-9A-Z]{3}\\.T|[0-9A-Z]{6}\\.KS|[0-9A-Z]{6}\\.KQ|[A-Z0-9][A-Z0-9-]{0,19}\\.L|[A-Z0-9][A-Z0-9-]{0,19}\\.DE|[A-Z0-9][A-Z0-9-]{0,19}\\.PA|[A-Z0-9][A-Z0-9-]{0,19}\\.AS|[A-Z0-9][A-Z0-9-]{0,19}\\.MI|[A-Z0-9][A-Z0-9-]{0,19}\\.MC|[A-Z0-9][A-Z0-9-]{0,19}\\.SW|[A-Z0-9][A-Z0-9-]{0,19}\\.ST|[A-Z0-9][A-Z0-9-]{0,19}\\.CO|[A-Z0-9][A-Z0-9-]{0,19}\\.OL|[A-Z0-9][A-Z0-9-]{0,19}\\.HE|[A-Z0-9][A-Z0-9-]{0,19}\\.BR|[A-Z0-9][A-Z0-9-]{0,19}\\.VI|[A-Z0-9][A-Z0-9-]{0,19}\\.IR|[A-Z0-9][A-Z0-9-]{0,19}\\.LS|[A-Z0-9][A-Z0-9-]{0,19}\\.WA)$",
                 "type": "string"
               },
               "maxItems": 10,
@@ -1663,7 +1663,7 @@
             },
             "identifier": {
               "description": "Explicit supported Yahoo symbol; source metadata validates its market.",
-              "pattern": "^(?:[0-9][0-9A-Z]{3}\\.T|[A-Z][A-Z0-9]{0,5}(?:-[A-Z])?|\\^GSPC|\\^DJI|\\^IXIC|\\^RUT|\\^VIX|\\^N225|EURUSD=X|GBPUSD=X|AUDUSD=X|NZDUSD=X|USDJPY=X|USDCHF=X|USDCAD=X|BTC\\-USD|ETH\\-USD|GC=F|SI=F|CL=F|NG=F|ES=F|NQ=F)$",
+              "pattern": "^(?:(?:[A-Z][A-Z0-9]{0,5}(?:-[A-Z])?|[0-9][0-9A-Z]{3}\\.T|[0-9A-Z]{6}\\.KS|[0-9A-Z]{6}\\.KQ|[A-Z0-9][A-Z0-9-]{0,19}\\.L|[A-Z0-9][A-Z0-9-]{0,19}\\.DE|[A-Z0-9][A-Z0-9-]{0,19}\\.PA|[A-Z0-9][A-Z0-9-]{0,19}\\.AS|[A-Z0-9][A-Z0-9-]{0,19}\\.MI|[A-Z0-9][A-Z0-9-]{0,19}\\.MC|[A-Z0-9][A-Z0-9-]{0,19}\\.SW|[A-Z0-9][A-Z0-9-]{0,19}\\.ST|[A-Z0-9][A-Z0-9-]{0,19}\\.CO|[A-Z0-9][A-Z0-9-]{0,19}\\.OL|[A-Z0-9][A-Z0-9-]{0,19}\\.HE|[A-Z0-9][A-Z0-9-]{0,19}\\.BR|[A-Z0-9][A-Z0-9-]{0,19}\\.VI|[A-Z0-9][A-Z0-9-]{0,19}\\.IR|[A-Z0-9][A-Z0-9-]{0,19}\\.LS|[A-Z0-9][A-Z0-9-]{0,19}\\.WA)|\\^GSPC|\\^DJI|\\^IXIC|\\^RUT|\\^VIX|\\^N225|EURUSD=X|GBPUSD=X|AUDUSD=X|NZDUSD=X|USDJPY=X|USDCHF=X|USDCAD=X|BTC\\-USD|ETH\\-USD|GC=F|SI=F|CL=F|NG=F|ES=F|NQ=F)$",
               "type": "string"
             },
             "limit": {
@@ -2304,7 +2304,7 @@
             },
             "identifier": {
               "description": "Explicit supported Yahoo symbol; source metadata validates its market.",
-              "pattern": "^(?:[0-9][0-9A-Z]{3}\\.T|[A-Z][A-Z0-9]{0,5}(?:-[A-Z])?|\\^GSPC|\\^DJI|\\^IXIC|\\^RUT|\\^VIX|\\^N225|EURUSD=X|GBPUSD=X|AUDUSD=X|NZDUSD=X|USDJPY=X|USDCHF=X|USDCAD=X|BTC\\-USD|ETH\\-USD|GC=F|SI=F|CL=F|NG=F|ES=F|NQ=F)$",
+              "pattern": "^(?:(?:[A-Z][A-Z0-9]{0,5}(?:-[A-Z])?|[0-9][0-9A-Z]{3}\\.T|[0-9A-Z]{6}\\.KS|[0-9A-Z]{6}\\.KQ|[A-Z0-9][A-Z0-9-]{0,19}\\.L|[A-Z0-9][A-Z0-9-]{0,19}\\.DE|[A-Z0-9][A-Z0-9-]{0,19}\\.PA|[A-Z0-9][A-Z0-9-]{0,19}\\.AS|[A-Z0-9][A-Z0-9-]{0,19}\\.MI|[A-Z0-9][A-Z0-9-]{0,19}\\.MC|[A-Z0-9][A-Z0-9-]{0,19}\\.SW|[A-Z0-9][A-Z0-9-]{0,19}\\.ST|[A-Z0-9][A-Z0-9-]{0,19}\\.CO|[A-Z0-9][A-Z0-9-]{0,19}\\.OL|[A-Z0-9][A-Z0-9-]{0,19}\\.HE|[A-Z0-9][A-Z0-9-]{0,19}\\.BR|[A-Z0-9][A-Z0-9-]{0,19}\\.VI|[A-Z0-9][A-Z0-9-]{0,19}\\.IR|[A-Z0-9][A-Z0-9-]{0,19}\\.LS|[A-Z0-9][A-Z0-9-]{0,19}\\.WA)|\\^GSPC|\\^DJI|\\^IXIC|\\^RUT|\\^VIX|\\^N225|EURUSD=X|GBPUSD=X|AUDUSD=X|NZDUSD=X|USDJPY=X|USDCHF=X|USDCAD=X|BTC\\-USD|ETH\\-USD|GC=F|SI=F|CL=F|NG=F|ES=F|NQ=F)$",
               "type": "string"
             },
             "limit": {
@@ -2371,7 +2371,7 @@
             },
             "identifier": {
               "description": "Explicit supported Yahoo symbol; source metadata validates its market.",
-              "pattern": "^(?:[0-9][0-9A-Z]{3}\\.T|[A-Z][A-Z0-9]{0,5}(?:-[A-Z])?)$",
+              "pattern": "^(?:[A-Z][A-Z0-9]{0,5}(?:-[A-Z])?|[0-9][0-9A-Z]{3}\\.T|[0-9A-Z]{6}\\.KS|[0-9A-Z]{6}\\.KQ|[A-Z0-9][A-Z0-9-]{0,19}\\.L|[A-Z0-9][A-Z0-9-]{0,19}\\.DE|[A-Z0-9][A-Z0-9-]{0,19}\\.PA|[A-Z0-9][A-Z0-9-]{0,19}\\.AS|[A-Z0-9][A-Z0-9-]{0,19}\\.MI|[A-Z0-9][A-Z0-9-]{0,19}\\.MC|[A-Z0-9][A-Z0-9-]{0,19}\\.SW|[A-Z0-9][A-Z0-9-]{0,19}\\.ST|[A-Z0-9][A-Z0-9-]{0,19}\\.CO|[A-Z0-9][A-Z0-9-]{0,19}\\.OL|[A-Z0-9][A-Z0-9-]{0,19}\\.HE|[A-Z0-9][A-Z0-9-]{0,19}\\.BR|[A-Z0-9][A-Z0-9-]{0,19}\\.VI|[A-Z0-9][A-Z0-9-]{0,19}\\.IR|[A-Z0-9][A-Z0-9-]{0,19}\\.LS|[A-Z0-9][A-Z0-9-]{0,19}\\.WA)$",
               "type": "string"
             },
             "limit": {
@@ -6789,7 +6789,7 @@
             "identifier": {
               "maxLength": 100,
               "minLength": 1,
-              "pattern": "^(?:[0-9][0-9A-Z]{3}\\.T|[A-Z][A-Z0-9]{0,5}(?:-[A-Z])?|\\^GSPC|\\^DJI|\\^IXIC|\\^RUT|\\^VIX|\\^N225|EURUSD=X|GBPUSD=X|AUDUSD=X|NZDUSD=X|USDJPY=X|USDCHF=X|USDCAD=X|BTC\\-USD|ETH\\-USD|GC=F|SI=F|CL=F|NG=F|ES=F|NQ=F)$",
+              "pattern": "^(?:(?:[A-Z][A-Z0-9]{0,5}(?:-[A-Z])?|[0-9][0-9A-Z]{3}\\.T|[0-9A-Z]{6}\\.KS|[0-9A-Z]{6}\\.KQ|[A-Z0-9][A-Z0-9-]{0,19}\\.L|[A-Z0-9][A-Z0-9-]{0,19}\\.DE|[A-Z0-9][A-Z0-9-]{0,19}\\.PA|[A-Z0-9][A-Z0-9-]{0,19}\\.AS|[A-Z0-9][A-Z0-9-]{0,19}\\.MI|[A-Z0-9][A-Z0-9-]{0,19}\\.MC|[A-Z0-9][A-Z0-9-]{0,19}\\.SW|[A-Z0-9][A-Z0-9-]{0,19}\\.ST|[A-Z0-9][A-Z0-9-]{0,19}\\.CO|[A-Z0-9][A-Z0-9-]{0,19}\\.OL|[A-Z0-9][A-Z0-9-]{0,19}\\.HE|[A-Z0-9][A-Z0-9-]{0,19}\\.BR|[A-Z0-9][A-Z0-9-]{0,19}\\.VI|[A-Z0-9][A-Z0-9-]{0,19}\\.IR|[A-Z0-9][A-Z0-9-]{0,19}\\.LS|[A-Z0-9][A-Z0-9-]{0,19}\\.WA)|\\^GSPC|\\^DJI|\\^IXIC|\\^RUT|\\^VIX|\\^N225|EURUSD=X|GBPUSD=X|AUDUSD=X|NZDUSD=X|USDJPY=X|USDCHF=X|USDCAD=X|BTC\\-USD|ETH\\-USD|GC=F|SI=F|CL=F|NG=F|ES=F|NQ=F)$",
               "type": "string"
             },
             "include": {

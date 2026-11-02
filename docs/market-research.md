@@ -16,7 +16,7 @@ Run `atlas research catalog --json` for current metrics, selectors and validated
 
 ## Daily market prices and trailing indicators
 
-The [optional Yahoo reader](yahoo-finance.md) supports US/Tokyo securities plus an explicit list of reference indexes, FX pairs, cryptocurrencies and futures. Source identity, currency, timezone, instrument type and daily frequency must agree. Exact supported symbols appear in the catalog; the list does not establish permission to redistribute the data.
+The [optional Yahoo reader](yahoo-finance.md) supports US, Tokyo, Korean and registered European securities plus an explicit list of reference indexes, FX pairs, cryptocurrencies and futures. Source identity, currency, timezone, instrument type and daily frequency must agree. Exact supported symbols appear in the catalog; the list does not establish permission to redistribute the data.
 
 Set `ATLAS_ENABLE_YAHOO_FINANCE=1` in the operator environment for personal use before a public Yahoo read. Query arguments cannot enable it. Ordinary CLI research reads perform network access through the configured public provider; diagnostic and live-verification scripts have their own explicit network flags.
 
