@@ -50,7 +50,9 @@ def research_documentation(dataset: str) -> dict[str, str]:
     japan = dataset in {"japan_disclosures", "japan_filing_facts", "japan_securities"}
     history = dataset == "source_history"
     methodology = (
-        "credit-ratings"
+        "country-macro-bonds"
+        if dataset in {"country_economics", "country_bond_yields"}
+        else "credit-ratings"
         if dataset == "credit_ratings"
         else "commodities-futures"
         if dataset in {"commodity_prices", "futures_prices", "futures_curve"}

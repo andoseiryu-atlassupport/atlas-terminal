@@ -1,6 +1,6 @@
 # European and Korean market observations
 
-The latest source checkout extends the existing five optional Yahoo datasets to Korean KOSPI/KOSDAQ and selected venues in sixteen European countries. Use `equity_prices`, `equity_actions`, `intraday_prices`, `price_analytics` or `price_comparison` through the same CLI, SDK, MCP and HTTP research service. These markets use the five security/analytics datasets; the full catalog now contains 57 datasets, including separate commodity, futures and operator-supplied credit-rating readers.
+The latest source checkout extends the existing five optional Yahoo datasets to Korean KOSPI/KOSDAQ and selected venues in sixteen European countries. Use `equity_prices`, `equity_actions`, `intraday_prices`, `price_analytics` or `price_comparison` through the same CLI, SDK, MCP and HTTP research service. These markets use the five security/analytics datasets; the full catalog now contains 59 datasets, including separate commodity, futures and operator-supplied credit-rating readers.
 
 | Trading market          | Suffix | Quote denomination | Example     |
 | ----------------------- | ------ | ------------------ | ----------- |

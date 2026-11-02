@@ -18,7 +18,7 @@ from atlas_terminal.economic_catalog import JAPAN_SERIES, NATIONAL_ACCOUNTS
 from atlas_terminal.equity_sources import EQUITY_DATASETS, require_yahoo_enabled
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.filing_catalog import TTM_FLOW_METRICS
-from atlas_terminal.global_macro_sources import G20_AREAS, GLOBAL_INDICATORS
+from atlas_terminal.global_macro_sources import GLOBAL_AREAS, GLOBAL_INDICATORS
 from atlas_terminal.macro_catalog import CURVE_SERIES, FX_CURRENCIES, MACRO_SERIES, REFERENCE_SERIES
 from atlas_terminal.normalize import number
 from atlas_terminal.providers import (
@@ -123,6 +123,16 @@ FAMILIES = {
     "institutional_holdings": {"13F-HR", "13F-HR/A"},
 }
 DATASETS = {
+    "country_economics": (
+        "Selected country CPI and monetary-policy-related statistics",
+        "imf",
+        "observations",
+    ),
+    "country_bond_yields": (
+        "Selected country government/bill and OECD long-term rates",
+        "multiple",
+        "observations",
+    ),
     "commodity_prices": (
         "Metadata-checked monthly IMF commodity reference prices",
         "imf",
@@ -439,6 +449,7 @@ def research_catalog(
 
     from pydantic import ValidationError
 
+    from atlas_terminal.country_macro_catalog import country_series_catalog
     from atlas_terminal.credit_catalog import credit_scale_catalog
     from atlas_terminal.equity_sources import REFERENCE_INSTRUMENTS
     from atlas_terminal.futures_catalog import FUTURES, MONTH_CODES
@@ -527,6 +538,8 @@ def research_catalog(
                 if name == "macro_analytics"
                 else ["boj", "estat"]
                 if name == "japan_economics"
+                else ["imf", "oecd"]
+                if name == "country_bond_yields"
                 else [source],
                 "output_type": kind,
                 "implementation": "implemented",
@@ -545,7 +558,7 @@ def research_catalog(
                 ),
                 **(
                     {
-                        "countries": G20_AREAS,
+                        "countries": GLOBAL_AREAS,
                         "indicators": GLOBAL_INDICATORS,
                         "unsupported_regional_members": ["African Union"],
                         "geography_note": (
@@ -591,6 +604,7 @@ def research_catalog(
             for name, (title, source, kind) in DATASETS.items()
         ],
         "statement_metrics": metric_catalog(),
+        "country_series": country_series_catalog(),
         "trailing_financials": {
             "flow_metrics": list(TTM_FLOW_METRICS),
             "methods": [
@@ -942,6 +956,8 @@ class ResearchService:
 
             result = macro_panel(q, self.get)
         elif q.dataset in {
+            "country_economics",
+            "country_bond_yields",
             "japan_disclosures",
             "japan_filing_facts",
             "japan_securities",
@@ -1518,6 +1534,10 @@ class ResearchService:
 
     def public_data(self, q: ResearchQuery) -> dict[str, Any]:
         assert self.public is not None
+        if q.dataset in {"country_economics", "country_bond_yields"}:
+            from atlas_terminal.research_country_macro import country_macro
+
+            return country_macro(self.public, q)
         if q.dataset == "commodity_prices":
             from atlas_terminal.research_commodities import commodity_prices
 

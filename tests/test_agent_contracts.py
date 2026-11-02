@@ -81,6 +81,17 @@ def query(dataset="statements", **extra):
         }
     if dataset == "credit_ratings":
         return {"dataset": dataset, "identifier": "ATLASDEMO", **extra}
+    if dataset in {"country_economics", "country_bond_yields"}:
+        return {
+            "dataset": dataset,
+            "country": "ZA",
+            "series": "cpi_index"
+            if dataset == "country_economics"
+            else "long_term_government_yield",
+            "start_date": "2026-01-01",
+            "end_date": "2026-09-30",
+            **extra,
+        }
     if dataset == "global_economics":
         return {"dataset": dataset, "country": "IN", "series": "gdp_growth", **extra}
     if dataset == "intraday_prices":

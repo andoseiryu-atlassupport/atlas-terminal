@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Extend annual WDI to Malaysia, Thailand, Singapore and New Zealand. Add 29 named IMF CPI/rate and OECD government-rate selections across seven countries, preserving native frequencies, index bases, source definitions and explicit bond-coverage gaps.
 - Add fourteen annual World Bank WDI indicators for nineteen G20 countries and the EU aggregate, with 280 searchable templates and an explicit-country overview preset. Preserve source definitions, fiscal-year labels, estimates, missingness, exact source cells and local observation history through CLI, SDK, MCP and HTTP.
 
 - Add explicitly bounded optional Yahoo intraday bars with source timestamps, elapsed-interval/session evidence, nulls and short-session intervals, separate from adjusted daily prices.

@@ -151,6 +151,14 @@ CREATE TABLE IF NOT EXISTS research_evidence (
 # Field selection never strips context needed to interpret a selected value.
 # Reported inputs/formulas and per-issuer coverage remain intact too.
 CONTEXT_FIELDS = {
+    "benchmark_tenor_years",
+    "benchmark_tenor_basis",
+    "source_derivation_label",
+    "rate_period_basis",
+    "source_maturity",
+    "source_currency",
+    "common_reference_period",
+    "g20_member",
     "underlying_root",
     "future_sector",
     "contract_month",

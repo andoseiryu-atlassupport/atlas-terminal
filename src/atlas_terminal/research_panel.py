@@ -13,6 +13,8 @@ from atlas_terminal.research_models import ResearchQuery, parse_research
 from atlas_terminal.util import canonical
 
 SUPPORTED = {
+    "country_economics",
+    "country_bond_yields",
     "commodity_prices",
     "policy_rates",
     "economics",
@@ -29,6 +31,12 @@ SUPPORTED = {
 }
 MAX_PANEL_BYTES = 4 * 1024 * 1024
 CONTEXT = (
+    "benchmark_tenor_years",
+    "benchmark_tenor_basis",
+    "rate_period_basis",
+    "source_maturity",
+    "source_currency",
+    "common_reference_period",
     "unit",
     "unit_multiplier",
     "seasonally_adjusted",

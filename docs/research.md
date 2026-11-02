@@ -8,7 +8,7 @@ Results include missing-data status, periods, coverage and source terms. Discove
 
 ## Datasets
 
-`global_economics` accepts required `country` and `series`, plus optional paired date bounds and `limit`. Fourteen annual WDI indicators cover nineteen G20 countries and the EU aggregate. [Countries, units, missingness and examples](g20-macro.md).
+`global_economics` accepts required `country` and `series`, plus optional paired date bounds and `limit`. Fourteen annual WDI indicators cover 23 countries and the EU aggregate, including the nineteen G20 countries. [Countries, units, missingness and examples](g20-macro.md).
 
 | ID                         | Content                                                             | Query fields                                                 | Output                                |
 | -------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------- |
@@ -44,7 +44,9 @@ Results include missing-data status, periods, coverage and source terms. Discove
 
 [Commodities/futures](commodities-futures.md) add `commodity_prices` (`series`, optional paired dates), `futures_prices` (`identifier`, optional paired dates) and `futures_curve` (`identifiers`, required `observation_date`, optional `allow_partial`). [Credit ratings](credit-ratings.md) add `credit_ratings` (`identifier`, optional `agency` and `limit`) from a configured operator-owned/licensed JSON book. All use the shared research operation. Credit input paths are operator settings, not query arguments; no automatic agency feed is supplied.
 
-The catalog contains 57 datasets, including seven optional Yahoo selections, generic FRED and local source history. [Japanese company queries](japan-companies.md) add `japan_disclosures` (`filing_date`), `japan_filing_facts` (`filing_date`, `document_id`, optional `concept`) and `japan_securities` (optional JPX `.T` identifier). [Source history](source-history.md) accepts an approved `source_url`, `history_action` and action-specific hashes or a timezone-aware local-observation `as_of`. These query fields work through `research get` flags or `research run --input`.
+[Country macro and bond rates](country-macro-bonds.md) add `country_economics` and `country_bond_yields`, each requiring `country` and a registered `series`, with paired dates and `limit`. Their 29 exact bindings expose original CPI bases, New Zealand quarterly frequency, national rate definitions and explicit country gaps. `country_macro_overview` extends annual WDI overviews to every registered country while preserving the G20 preset’s original membership.
+
+The catalog contains 59 datasets, including seven optional Yahoo selections, generic FRED and local source history. [Japanese company queries](japan-companies.md) add `japan_disclosures` (`filing_date`), `japan_filing_facts` (`filing_date`, `document_id`, optional `concept`) and `japan_securities` (optional JPX `.T` identifier). [Source history](source-history.md) accepts an approved `source_url`, `history_action` and action-specific hashes or a timezone-aware local-observation `as_of`. These query fields work through `research get` flags or `research run --input`.
 
 `identifier` accepts a ticker, CIK or company name. For 13F, use the **reporting manager's CIK**. An issuer CIK does not reverse-search every manager holding that issuer. Insider reports are likewise limited to the resolved filing history. For `insider_transactions` and `institutional_holdings`, omitting `accession` selects the latest matching filing. Original-document datasets require an explicit accession. Original filings and amendments are not merged automatically.
 

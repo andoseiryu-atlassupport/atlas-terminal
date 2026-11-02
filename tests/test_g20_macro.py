@@ -213,7 +213,7 @@ def test_catalog_schemas_preset_preview_and_runtime_require_an_explicit_supporte
     schema = Draft202012Validator(ResearchQuery.model_json_schema())
     preset_schema = Draft202012Validator(ResearchPresetQuery.model_json_schema())
     for bad in [
-        query(country="SG"),
+        query(country="XX"),
         query(country=None),
         query(series="policy_rate"),
         {"dataset": "global_economics", "country": "IN"},
@@ -238,7 +238,7 @@ def test_catalog_schemas_preset_preview_and_runtime_require_an_explicit_supporte
         dataset = catalog["datasets"][0]
         assert dataset["unsupported_regional_members"] == ["African Union"]
         assert dataset["countries"]["AU"]["iso3"] == "AUS"
-        assert len(dataset["countries"]) == 20
+        assert len(dataset["countries"]) == 24
         preview = atlas.get_research_preset(
             {"preset": "g20_country_overview", "country": "IN", "preview": True}
         )
@@ -267,7 +267,7 @@ def test_url_allowlist_rejects_country_substitution_unselected_codes_and_extra_p
                 PublicTransport.validate_url(bad)
     data = wdi_data_url("IN", "gdp_growth", 1996, 2025)
     for bad in [
-        data.replace("IND/", "SGP/"),
+        data.replace("IND/", "KAZ/"),
         data.replace("source=2", "source=11"),
         data.replace("1996%3A2025", "1995%3A2025"),
         data + "&date=2020:2025",

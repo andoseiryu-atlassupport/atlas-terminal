@@ -1,4 +1,4 @@
-"""Annual G20 WDI observations with checked identities and original source cells."""
+"""Annual registered-country WDI observations with checked identities and original source cells."""
 
 import re
 from datetime import date
@@ -7,7 +7,7 @@ from typing import Any
 
 from atlas_terminal.economic_dates import within, years
 from atlas_terminal.global_macro_sources import (
-    G20_AREAS,
+    GLOBAL_AREAS,
     GLOBAL_INDICATORS,
     wdi_country_url,
     wdi_data_url,
@@ -41,8 +41,8 @@ def metadata_row(snapshot: Snapshot) -> dict[str, Any]:
 
 
 def global_economics(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
-    assert q.country in G20_AREAS and q.series in GLOBAL_INDICATORS
-    area, spec = G20_AREAS[q.country], GLOBAL_INDICATORS[q.series]
+    assert q.country in GLOBAL_AREAS and q.series in GLOBAL_INDICATORS
+    area, spec = GLOBAL_AREAS[q.country], GLOBAL_INDICATORS[q.series]
     first, last = years(q.start_date, q.end_date)
     if q.start_date is None:
         first, last = date.today().year - 3, date.today().year - 1
@@ -190,7 +190,8 @@ def global_economics(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
             "a current ISO currency is not assigned to historical observations.",
             "All nonempty observation status flags and future reference years stay unavailable; "
             "source cells are retained. Missing years are not filled or replaced.",
-            "Coverage is nineteen G20 countries plus the publisher's EU aggregate. The African "
+            "Coverage includes nineteen G20 countries, four additional economies and the EU. "
+            "The African "
             "Union is also a G20 member but has no selected WDI aggregate; Africa and "
             "Sub-Saharan Africa are not substitutes. EU and member countries overlap.",
             "Dataset lastupdated is not an observation publication timestamp. Historical requests "

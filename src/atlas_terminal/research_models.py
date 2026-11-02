@@ -15,6 +15,7 @@ from pydantic import (
 
 from atlas_terminal.activity_catalog import ACTIVITY_SERIES
 from atlas_terminal.commodity_catalog import COMMODITIES
+from atlas_terminal.country_macro_catalog import BOND_SERIES, COUNTRIES, ECONOMIC_SERIES
 from atlas_terminal.economic_catalog import JAPAN_SERIES, NATIONAL_ACCOUNTS
 from atlas_terminal.equity_sources import (
     EQUITY_DATASETS,
@@ -37,7 +38,7 @@ from atlas_terminal.futures_catalog import (
     FUTURES_SYMBOL_PATTERN,
     future_identity,
 )
-from atlas_terminal.global_macro_sources import G20_AREAS, GLOBAL_INDICATORS
+from atlas_terminal.global_macro_sources import GLOBAL_AREAS, GLOBAL_INDICATORS
 from atlas_terminal.macro_catalog import (
     CURVE_SERIES,
     FX_CURRENCIES,
@@ -55,6 +56,8 @@ from atlas_terminal.research_quality import ResearchRequirements
 from atlas_terminal.sdmx_sources import CODE_PATTERN, FLOW_PATTERN
 
 Dataset = Literal[
+    "country_economics",
+    "country_bond_yields",
     "commodity_prices",
     "futures_prices",
     "futures_curve",
@@ -115,6 +118,8 @@ Dataset = Literal[
 ]
 
 FIELDS = {
+    "country_economics": {"country", "series", "limit", "start_date", "end_date"},
+    "country_bond_yields": {"country", "series", "limit", "start_date", "end_date"},
     "commodity_prices": {"series", "start_date", "end_date", "limit"},
     "futures_prices": {"identifier", "start_date", "end_date", "limit"},
     "futures_curve": {"identifiers", "observation_date", "allow_partial", "limit"},
@@ -191,6 +196,8 @@ FIELDS = {
 
 
 def dataset_required(name: str) -> list[str]:
+    if name in {"country_economics", "country_bond_yields"}:
+        return ["country", "series"]
     if name == "futures_curve":
         return ["identifiers", "observation_date"]
     if name == "commodity_prices":
@@ -345,6 +352,12 @@ def dataset_schema(schema: dict[str, Any]) -> None:
             properties["series"] = {"type": "string", "enum": list(POLICY_SERIES)}
         if name == "commodity_prices":
             properties["series"] = {"type": "string", "enum": list(COMMODITIES)}
+        if name in {"country_economics", "country_bond_yields"}:
+            properties["country"] = {"type": "string", "enum": list(COUNTRIES)}
+            properties["series"] = {
+                "type": "string",
+                "enum": sorted(ECONOMIC_SERIES if name == "country_economics" else BOND_SERIES),
+            }
         if name == "futures_prices":
             properties["identifier"]["pattern"] = "^" + FUTURES_SYMBOL_PATTERN + "$"
         if name == "futures_curve":
@@ -409,7 +422,7 @@ def dataset_schema(schema: dict[str, Any]) -> None:
         if name == "activity_economics":
             properties["series"]["enum"] = sorted(ACTIVITY_SERIES)
         if name == "global_economics":
-            properties["country"] = {"type": "string", "enum": sorted(G20_AREAS)}
+            properties["country"] = {"type": "string", "enum": sorted(GLOBAL_AREAS)}
             properties["series"] = {"type": "string", "enum": sorted(GLOBAL_INDICATORS)}
         if name == "fx_rates":
             for key in ("base_currency", "quote_currency"):
@@ -573,6 +586,14 @@ class ResearchQuery(Model):
 
     @model_validator(mode="after")
     def check_dataset(self) -> "ResearchQuery":
+        if self.dataset in {"country_economics", "country_bond_yields"} and (
+            self.country not in COUNTRIES
+            or self.series
+            not in (ECONOMIC_SERIES if self.dataset == "country_economics" else BOND_SERIES)
+        ):
+            raise AtlasError(
+                "INVALID_INPUT", "Choose a registered country and economic/bond series."
+            )
         if self.dataset == "commodity_prices" and self.series not in COMMODITIES:
             raise AtlasError("INVALID_INPUT", "Choose a registered monthly commodity series.")
         if self.dataset == "futures_prices" and future_identity(self.identifier or "") is None:
@@ -749,11 +770,11 @@ class ResearchQuery(Model):
                 "INVALID_INPUT", "Choose an activity series from the catalog.", fields=["series"]
             )
         if self.dataset == "global_economics" and (
-            self.country not in G20_AREAS or self.series not in GLOBAL_INDICATORS
+            self.country not in GLOBAL_AREAS or self.series not in GLOBAL_INDICATORS
         ):
             raise AtlasError(
                 "INVALID_INPUT",
-                "Choose a supported G20 country/EU and annual WDI indicator.",
+                "Choose a registered country/EU and annual WDI indicator.",
                 fields=["country", "series"],
             )
         if self.dataset == "fx_rates" and (
