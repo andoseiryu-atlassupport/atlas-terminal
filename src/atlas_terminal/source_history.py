@@ -47,6 +47,7 @@ def history_time(value: str) -> str:
 
 class SourceHistoryQuery(Model):
     action: Literal["list", "get", "as_of", "diff"] = "list"
+    scope: Literal["public", "news"] = "public"
     url: str = Field(min_length=1, max_length=2048)
     sha256: Hash | None = None
     before_sha256: Hash | None = None
@@ -151,7 +152,11 @@ def source_history(query: SourceHistoryQuery | dict[str, Any], directory: Path) 
         ) from None
     from atlas_terminal.credit_catalog import CREDIT_RATINGS_URL
 
-    if q.url == CREDIT_RATINGS_URL:
+    if q.scope == "news":
+        from atlas_terminal.news_sources import NewsTransport
+
+        NewsTransport.validate_url(q.url)
+    elif q.url == CREDIT_RATINGS_URL:
         import os
 
         if not os.environ.get("ATLAS_CREDIT_RATINGS_FILE"):
@@ -163,7 +168,9 @@ def source_history(query: SourceHistoryQuery | dict[str, Any], directory: Path) 
         PublicTransport.validate_url(q.url)
     if yahoo_identity(q.url) is not None:
         require_yahoo_enabled()
-    store = Database(directory / "public-cache.sqlite3", SCHEMA)
+    store = Database(
+        directory / ("news-cache.sqlite3" if q.scope == "news" else "public-cache.sqlite3"), SCHEMA
+    )
     with store.connect() as conn:
         rows = conn.execute(
             "SELECT * FROM source_versions WHERE url=? ORDER BY first_seen,sha256", (q.url,)
@@ -182,6 +189,7 @@ def source_history(query: SourceHistoryQuery | dict[str, Any], directory: Path) 
     result: dict[str, Any] = {
         "schema_version": "0.1.0",
         "action": q.action,
+        "archive_scope": q.scope,
         "url": q.url,
         "point_in_time": False,
         "source_text_is_untrusted": True,

@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='utf-8'?>
+<rss version="2.0">
+  <channel>
+    <title>SYNTHETIC fictional ecb_statistics headlines; no actual announcements</title>
+    <link>https://fixtures.atlas.invalid/</link>
+    <description>Every headline and publication label in this fixture is fictional.</description>
+    <item>
+      <title>SYNTHETIC: Fictional monetary statistics release</title>
+      <link>https://fixtures.atlas.invalid/releases/ecb-shared.html</link>
+      <guid>fixture:ecb-shared</guid>
+      <pubDate>Mon, 19 Oct 2026 10:00:00 +0200</pubDate>
+      <description>SYNTHETIC_BODY_NOT_RETURNED. Fictional article description is intentionally excluded.</description>
+    </item>
+    <item>
+      <title>SYNTHETIC: Fictional bank statistics publication</title>
+      <link>https://fixtures.atlas.invalid/releases/ecb-statistics.html</link>
+      <guid>fixture:ecb-statistics</guid>
+      <pubDate>Thu, 15 Oct 2026 10:00:00 +0200</pubDate>
+      <description>SYNTHETIC_BODY_NOT_RETURNED. Fictional article description is intentionally excluded.</description>
+    </item>
+  </channel>
+</rss>

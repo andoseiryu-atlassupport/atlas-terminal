@@ -4,6 +4,20 @@ Recorded on 2026-11-03 (JST) for the source checkout following Atlas Terminal 0.
 
 Version 0.7.0 includes the experimental native factor risk extension and installed walkthroughs described below. The prior 0.6.0 release did not include risk estimation. Local wheel checks remain separate evidence from a published GitHub release.
 
+## Official headline feeds and briefings
+
+`news_feed` and `news_digest` add five fixed official feeds across four existing publishers, bringing the catalog to **62 datasets**, with 26 presets and 24 upstream source families. CLI/SDK/MCP/HTTP share selection and original-field evidence. The deterministic briefing groups original headlines by publisher; it uses no article reader or external AI provider. Foreground JSONL polling and an RSS HTTP route provide read delivery without a hosted notification worker.
+
+On **2026-11-03 JST**, `uv run --offline python scripts/verify_news_live.py --allow-network --output build/news-live` passed for all five feeds: **151 retained headlines and 453 original title/date/link comparisons**. Counts were Federal Reserve 20, ECB general 15, ECB statistics 15, RBA 1 and Japan MOF 100. The aggregate retained 151 distinct publisher/article identities and four briefing sections. Final normal-proxy/TLS reads returned **two HTTP 200 responses and three conditional HTTP 304 validations**. Original bytes, hashes, raw field comparisons, normalized results, RSS and the report remain in private ignored storage. The report does not count the aggregate's repeated comparisons as additional distinct source fields.
+
+The newest checked publication labels were Federal Reserve **2026-10-29**, ECB/MOF **2026-11-02**, and RBA **2026-10-14**. These are the inspected RSS windows, not assertions about all announcements on the publishers' websites or ongoing latency. The RBA feed uses RSS 1.0/RDF with Dublin Core dates; the other four checked feeds use RSS 2.0. Atom behavior is fixture-tested rather than live-verified. An HTML parser finalization bug that dropped a `Q&A` headline was corrected, with punctuation regressions added. Publisher-local date filtering, unknown-time handling, metadata conflicts and revision IDs remain explicit.
+
+The existing public macro archive/counters were preserved. News uses a separate private archive and an explicit `source_history` news scope; raw XML editions may contain fields excluded from normalized headlines. No fresh BLS request, cache/counter reset, article/linked-PDF request, proxy bypass or TLS-verification change was used. Current Fed, ECB, RBA and MOF source conditions were inspected; the older ECB disclaimer URL redirected to the current same-host path. Publisher conditions and third-party exceptions remain separate from code licensing.
+
+The full offline suite passed **2,596 tests**, with two opt-in live tests deselected. **74 news regressions** cover original fields, RSS 1.0/2.0 and Atom, timezones, unknown/future labels, punctuation/HTML, bounded XML, safe links, duplicate/conflicting metadata, partial errors, separate archives, polling revisions/replays/Retry-After, schemas, compact evidence and shared interfaces. Ruff/format, mypy (**106 sources**), schema generation and locked dependency setup passed. Wheel/sdist validation passed with **404 wheel files and 692 source files**; documentation passed for **63 pages**. Distribution preparation, npm checks, public-file scanning and BLS/showcase offline replays passed.
+
+The final wheel was installed outside the checkout into an isolated runtime reusing locked dependencies through a `.pth` file. SDK/CLI/official stdio MCP/actual loopback HTTP exercised headlines and briefings from all four publishers; the short news command, one-poll JSONL watch and RSS HTTP response also passed. This does not certify fresh dependency resolution, continuous polling, broad newswire coverage or a public deployment. Local and subsequent GitHub Actions evidence remain separate; release assets were not changed.
+
 ## Convenient interest spreads
 
 The `interest_spreads` dataset adds fifteen short names for existing source-local government-curve differences, bringing the catalog to **60 datasets**, with 26 presets and 24 upstream source families. The short CLI command and SDK `get_spread` use the same research service as MCP/HTTP. A default request returns one latest source observation within the current/prior source-local calendar years; missing latest tenors remain unavailable. Explicit years/date bounds and limits select history. Original `macro_analytics` names and arithmetic remain available.
@@ -98,11 +112,11 @@ Wheel-payload SDK and CLI smoke reads loaded the packaged fictional WDI template
 | --------------------------------------------------------- | ------------------------------------------------------------------- |
 | `uv run --offline ruff check .`                           | PASS                                                                |
 | `uv run --offline ruff format --check .`                  | PASS                                                                |
-| `uv run --offline mypy`                                   | PASS; 102 source files                                              |
-| `uv run --offline pytest`                                 | PASS; 2,518 tests, 2 live tests deselected                          |
+| `uv run --offline mypy`                                   | PASS; 106 source files                                              |
+| `uv run --offline pytest`                                 | PASS; 2,596 tests, 2 live tests deselected                          |
 | `uv run --offline python -m build --no-isolation`         | PASS; wheel and source distribution                                 |
 | `uv run --offline python scripts/verify_distribution.py`  | PASS; metadata, required contents and forbidden paths               |
-| `uv run --offline python scripts/build_docs.py`           | PASS; 62 HTML pages and internal file/section links                 |
+| `uv run --offline python scripts/build_docs.py`           | PASS; 63 HTML pages and internal file/section links                 |
 | `uv run --offline python scripts/verify_showcases.py`     | PASS; both recorded versions, data modes and checksums              |
 | `uv run --offline python scripts/verify_bls_capture.py`   | PASS; offline audit/replay of 14 captured responses and 168 records |
 | `uv run --offline python scripts/prepare_distribution.py` | PREPARED; versioned plugin ZIP and Registry draft                   |

@@ -1073,6 +1073,208 @@
       "oneOf": [
         {
           "additionalProperties": false,
+          "dependentRequired": {
+            "end_date": ["start_date"],
+            "start_date": ["end_date"]
+          },
+          "properties": {
+            "dataset": {
+              "const": "news_feed",
+              "type": "string"
+            },
+            "allow_partial": {
+              "default": true,
+              "title": "Allow Partial",
+              "type": "boolean"
+            },
+            "country": {
+              "enum": ["US", "JP", "EA", "AU", null],
+              "type": ["string", "null"]
+            },
+            "end_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "End Date"
+            },
+            "feeds": {
+              "items": {
+                "enum": [
+                  "fed_press",
+                  "ecb_press",
+                  "ecb_statistics",
+                  "rba_media",
+                  "mof_news"
+                ],
+                "type": "string"
+              },
+              "maxItems": 5,
+              "title": "Feeds",
+              "type": "array",
+              "uniqueItems": true
+            },
+            "limit": {
+              "default": 20,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "search": {
+              "anyOf": [
+                {
+                  "maxLength": 100,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Search"
+            },
+            "start_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Start Date"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": ["dataset"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "dependentRequired": {
+            "end_date": ["start_date"],
+            "start_date": ["end_date"]
+          },
+          "properties": {
+            "dataset": {
+              "const": "news_digest",
+              "type": "string"
+            },
+            "allow_partial": {
+              "default": true,
+              "title": "Allow Partial",
+              "type": "boolean"
+            },
+            "country": {
+              "enum": ["US", "JP", "EA", "AU", null],
+              "type": ["string", "null"]
+            },
+            "end_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "End Date"
+            },
+            "feeds": {
+              "items": {
+                "enum": [
+                  "fed_press",
+                  "ecb_press",
+                  "ecb_statistics",
+                  "rba_media",
+                  "mof_news"
+                ],
+                "type": "string"
+              },
+              "maxItems": 5,
+              "title": "Feeds",
+              "type": "array",
+              "uniqueItems": true
+            },
+            "limit": {
+              "default": 20,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "search": {
+              "anyOf": [
+                {
+                  "maxLength": 100,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Search"
+            },
+            "start_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Start Date"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": ["dataset"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
           "allOf": [
             {
               "if": {
@@ -2974,6 +3176,12 @@
               "default": "list",
               "enum": ["list", "get", "as_of", "diff"],
               "title": "History Action",
+              "type": "string"
+            },
+            "history_scope": {
+              "default": "public",
+              "enum": ["public", "news"],
+              "title": "History Scope",
               "type": "string"
             },
             "limit": {
@@ -5914,6 +6122,8 @@
       "properties": {
         "dataset": {
           "enum": [
+            "news_feed",
+            "news_digest",
             "interest_spreads",
             "country_economics",
             "country_bond_yields",
@@ -6094,6 +6304,12 @@
           "default": "list",
           "enum": ["list", "get", "as_of", "diff"],
           "title": "History Action",
+          "type": "string"
+        },
+        "history_scope": {
+          "default": "public",
+          "enum": ["public", "news"],
+          "title": "History Scope",
           "type": "string"
         },
         "sha256": {
@@ -6471,6 +6687,14 @@
           ],
           "default": null,
           "title": "Search"
+        },
+        "feeds": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 5,
+          "title": "Feeds",
+          "type": "array"
         },
         "dimension": {
           "anyOf": [
@@ -6882,6 +7106,8 @@
         },
         "dataset": {
           "enum": [
+            "news_feed",
+            "news_digest",
             "interest_spreads",
             "country_economics",
             "country_bond_yields",

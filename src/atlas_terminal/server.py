@@ -9,7 +9,7 @@ from urllib.parse import urlsplit
 
 from fastapi import FastAPI, Header, Query, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 
 from atlas_terminal import __version__
 from atlas_terminal.client import Atlas, catalog
@@ -237,6 +237,43 @@ def create_app(
             frequency=frequency,
             source_id=source_id,
             unit=unit,
+        )
+
+    @app.get(
+        "/v1/news/rss",
+        response_class=Response,
+        responses={200: {"content": {"application/rss+xml": {"schema": {"type": "string"}}}}},
+    )
+    def get_news_rss(
+        feeds: str | None = None,
+        country: str | None = None,
+        search: str | None = None,
+        start_date: str | None = None,
+        end_date: str | None = None,
+        limit: int = 20,
+        allow_partial: bool = True,
+    ) -> Response:
+        from atlas_terminal.research_news import rss_document
+
+        result = orders.atlas.get_news(
+            feeds=feeds.split(",") if feeds is not None else None,
+            country=country,
+            search=search,
+            start_date=start_date,
+            end_date=end_date,
+            limit=limit,
+            allow_partial=allow_partial,
+        )
+        return Response(
+            rss_document(result),
+            media_type="application/rss+xml",
+            headers={
+                "Cache-Control": "no-store",
+                "X-Atlas-Source-Coverage": "partial"
+                if result["coverage"]["partial"]
+                else "selected-feeds",
+                "X-Content-Type-Options": "nosniff",
+            },
         )
 
     @app.post(

@@ -48,6 +48,7 @@ from atlas_terminal.macro_catalog import (
 )
 from atlas_terminal.market_catalog import SECURITY_SYMBOL_PATTERN
 from atlas_terminal.models import Model, identifier
+from atlas_terminal.news_catalog import FEEDS, NEWS_DATASETS, selected_feeds
 from atlas_terminal.policy_sources import POLICY_SERIES
 from atlas_terminal.regional_bond_sources import EURO_SERIES
 from atlas_terminal.regional_economic_catalog import EUROPE_SERIES, UK_SERIES
@@ -57,6 +58,8 @@ from atlas_terminal.sdmx_sources import CODE_PATTERN, FLOW_PATTERN
 from atlas_terminal.spread_catalog import SPREADS
 
 Dataset = Literal[
+    "news_feed",
+    "news_digest",
     "interest_spreads",
     "country_economics",
     "country_bond_yields",
@@ -120,6 +123,16 @@ Dataset = Literal[
 ]
 
 FIELDS = {
+    "news_feed": {"feeds", "country", "search", "start_date", "end_date", "limit", "allow_partial"},
+    "news_digest": {
+        "feeds",
+        "country",
+        "search",
+        "start_date",
+        "end_date",
+        "limit",
+        "allow_partial",
+    },
     "interest_spreads": {"series", "year", "start_date", "end_date", "limit"},
     "country_economics": {"country", "series", "limit", "start_date", "end_date"},
     "country_bond_yields": {"country", "series", "limit", "start_date", "end_date"},
@@ -152,7 +165,15 @@ FIELDS = {
     "japan_disclosures": {"filing_date", "identifier", "limit"},
     "japan_filing_facts": {"filing_date", "document_id", "concept", "limit"},
     "japan_securities": {"identifier", "limit"},
-    "source_history": {"source_url", "history_action", "sha256", "before_sha256", "as_of", "limit"},
+    "source_history": {
+        "source_url",
+        "history_action",
+        "history_scope",
+        "sha256",
+        "before_sha256",
+        "as_of",
+        "limit",
+    },
     "equity_prices": {"identifier", "limit", "start_date", "end_date"},
     "equity_actions": {"identifier", "limit", "start_date", "end_date"},
     "companies": {"identifier", "limit"},
@@ -199,6 +220,8 @@ FIELDS = {
 
 
 def dataset_required(name: str) -> list[str]:
+    if name in NEWS_DATASETS:
+        return []
     if name == "interest_spreads":
         return ["series"]
     if name in {"country_economics", "country_bond_yields"}:
@@ -360,6 +383,15 @@ def dataset_schema(schema: dict[str, Any]) -> None:
         if name == "interest_spreads":
             properties["series"] = {"type": "string", "enum": list(SPREADS)}
             properties["limit"]["default"] = 1
+        if name in NEWS_DATASETS:
+            properties["feeds"]["items"] = {"type": "string", "enum": list(FEEDS)}
+            properties["feeds"]["uniqueItems"] = True
+            properties["country"] = {
+                "type": ["string", "null"],
+                "enum": ["US", "JP", "EA", "AU", None],
+            }
+            properties["limit"]["default"] = 20
+            properties["allow_partial"]["default"] = True
         if name in {"country_economics", "country_bond_yields"}:
             properties["country"] = {"type": "string", "enum": list(COUNTRIES)}
             properties["series"] = {
@@ -548,6 +580,7 @@ class ResearchQuery(Model):
     document_id: str | None = Field(default=None, pattern=r"^S[0-9A-Z]{7}$")
     source_url: str | None = Field(default=None, min_length=1, max_length=2048)
     history_action: Literal["list", "get", "as_of", "diff"] = "list"
+    history_scope: Literal["public", "news"] = "public"
     sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
     before_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
     as_of: str | None = Field(default=None, max_length=64)
@@ -577,6 +610,7 @@ class ResearchQuery(Model):
     dataflow: str | None = Field(default=None, pattern="^" + FLOW_PATTERN + "$", max_length=250)
     dimensions: dict[str, str] = Field(default_factory=dict, max_length=32)
     search: str | None = Field(default=None, min_length=1, max_length=100)
+    feeds: list[str] = Field(default_factory=list, max_length=5)
     dimension: str | None = Field(default=None, pattern="^" + CODE_PATTERN + "$")
     frequency: Literal["monthly", "quarterly", "annual"] = "monthly"
     items: list[PanelItem] = Field(default_factory=list, max_length=10)
@@ -622,6 +656,16 @@ class ResearchQuery(Model):
 
     @model_validator(mode="after")
     def check_dataset(self) -> "ResearchQuery":
+        if self.dataset in NEWS_DATASETS:
+            selected_feeds(self.feeds, self.country)
+            if self.search is not None and not self.search.strip():
+                raise AtlasError(
+                    "INVALID_INPUT", "Use a nonempty literal headline search.", fields=["search"]
+                )
+            if "limit" not in self.model_fields_set:
+                object.__setattr__(self, "limit", 20)
+            if "allow_partial" not in self.model_fields_set:
+                object.__setattr__(self, "allow_partial", True)
         if self.dataset == "interest_spreads":
             if self.series not in SPREADS:
                 raise AtlasError(
@@ -707,6 +751,7 @@ class ResearchQuery(Model):
 
             SourceHistoryQuery(
                 action=self.history_action,
+                scope=self.history_scope,
                 url=self.source_url or "",
                 sha256=self.sha256,
                 before_sha256=self.before_sha256,

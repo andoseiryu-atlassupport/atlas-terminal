@@ -51,6 +51,8 @@ def application(*, facts=None, submissions=None, index=None, documents=None, max
 
 
 def query(dataset, **extra):
+    if dataset in {"news_feed", "news_digest"}:
+        return {"dataset": dataset, **extra}
     if dataset == "interest_spreads":
         return {"dataset": dataset, "series": "us_10y_2y", "year": 2025, **extra}
     if dataset in {
@@ -218,7 +220,7 @@ def query(dataset, **extra):
 
 def test_catalog_reports_actual_scope_zero_cost_sources_and_coverage_gaps():
     catalog = Atlas.research_catalog()
-    assert len(catalog["datasets"]) == 60
+    assert len(catalog["datasets"]) == 62
     assert len(catalog["analytics_metrics"]) == 7
     assert len(catalog["sources"]) == 24
     assert len(catalog["statement_metrics"]) == 37
@@ -671,7 +673,7 @@ def test_cli_and_http_research_match_sdk_and_never_require_payment(tmp_path):
         r = client.post("/v1/research", json=q)
         assert r.status_code == 200 and r.json() == expected
         assert "PAYMENT-REQUIRED" not in r.headers and "Atlas-Recovery-Token" not in r.headers
-        assert len(client.get("/v1/research/catalog").json()["datasets"]) == 60
+        assert len(client.get("/v1/research/catalog").json()["datasets"]) == 62
         bad = client.post("/v1/research", json=q | {"as_of": "2020-01-01"})
         assert (
             bad.status_code == 400 and bad.json()["error"]["code"] == "UNSUPPORTED_HISTORICAL_QUERY"
@@ -690,7 +692,7 @@ async def test_mcp_research_schema_catalog_get_and_pit_rejection(tmp_path):
     ):
         await session.initialize()
         catalog = await session.call_tool("atlas_research_catalog", {})
-        assert len(catalog.structured_content["datasets"]) == 60
+        assert len(catalog.structured_content["datasets"]) == 62
         result = await session.call_tool(
             "atlas_get_research", {"query": {"dataset": "economics", "series": "cpi"}}
         )

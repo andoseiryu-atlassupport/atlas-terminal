@@ -1,6 +1,6 @@
 # Local source versions and revision differences
 
-`source_history` reads private retained responses from `ATLAS_STATE_DIR/public-cache.sqlite3` without making a source request. Public-source HTTP 200 captures and conditional 304 validations append observation events; ordinary cache hits do not. Distinct versions are keyed by canonical credential-free URL and SHA-256. An unchanged response reuses its bytes while recording the new validation time.
+`source_history` reads private retained responses from `ATLAS_STATE_DIR/public-cache.sqlite3` without making a source request. Select `history_scope=news` for the separate `news-cache.sqlite3` archive of fixed official headline feeds; the default scope remains `public`. The same actions and independent per-archive quotas apply. [News scope and delivery](news.md#separate-private-news-history). Public-source HTTP 200 captures and conditional 304 validations append observation events; ordinary cache hits do not. Distinct versions are keyed by canonical credential-free URL and SHA-256. An unchanged response reuses its bytes while recording the new validation time.
 
 | `history_action` | Additional arguments      | Result                                                                            |
 | ---------------- | ------------------------- | --------------------------------------------------------------------------------- |
