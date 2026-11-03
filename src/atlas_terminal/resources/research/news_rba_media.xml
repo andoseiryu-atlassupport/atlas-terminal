@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='utf-8'?>
+<rdf:RDF xmlns="http://purl.org/rss/1.0/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <channel rdf:about="https://fixtures.atlas.invalid/news/rba">
+    <title>SYNTHETIC fictional RBA RSS 1.0; no actual announcements</title>
+  </channel>
+  <item rdf:about="https://fixtures.atlas.invalid/releases/rba-policy.html">
+    <title>SYNTHETIC: Fictional monetary policy decision</title>
+    <link>https://fixtures.atlas.invalid/releases/rba-policy.html</link>
+    <description>SYNTHETIC_BODY_NOT_RETURNED. Fictional article description is intentionally excluded.</description>
+    <dc:date>2026-10-19T14:30:00+11:00</dc:date>
+  </item>
+  <item rdf:about="https://fixtures.atlas.invalid/releases/rba-review.html">
+    <title>SYNTHETIC: Fictional financial stability review</title>
+    <link>https://fixtures.atlas.invalid/releases/rba-review.html</link>
+    <description>SYNTHETIC_BODY_NOT_RETURNED. Fictional article description is intentionally excluded.</description>
+    <dc:date>2026-10-16T14:30:00+11:00</dc:date>
+  </item>
+</rdf:RDF>

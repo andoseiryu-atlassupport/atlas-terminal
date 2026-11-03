@@ -17,11 +17,17 @@ from mcp.client.stdio import StdioServerParameters, stdio_client
 from atlas_terminal.client import Atlas
 from atlas_terminal.hosted import HostedClient
 from atlas_terminal.models import parse_query
+from atlas_terminal.research_news import rss_document
 from atlas_terminal.util import canonical, digest
 
 QUERY = parse_query({"identifier": "ATLASDEMO", "metrics": ["revenue", "net_income"], "count": 3})
 expected = Atlas("fixture").get_financials(QUERY).model_dump(mode="json")
 MACRO_QUERIES = [
+    {"dataset": "news_feed", "feeds": ["mof_news"]},
+    {
+        "dataset": "news_digest",
+        "feeds": ["fed_press", "ecb_press", "ecb_statistics", "rba_media", "mof_news"],
+    },
     {"dataset": "interest_spreads", "series": "us_10y_2y", "year": 2025},
     {"dataset": "interest_spreads", "series": "jp_10y_2y", "year": 2026},
     {"dataset": "interest_spreads", "series": "ea_aaa_10y_2y", "year": 2026},
@@ -351,6 +357,8 @@ with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
                 full = macro_expected[json.dumps(spread_query, sort_keys=True)]
                 assert short["records"] == full["records"]
         short_expected = atlas.get_spread("us_10y_2y", year=2025)
+        news_expected = atlas.get_news(feeds=["mof_news"])
+        assert news_expected["records"] == dataset_expected["news_feed"]["records"]
     short_cli = subprocess.run(
         [
             sys.executable,
@@ -372,6 +380,48 @@ with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
         check=True,
     )
     assert json.loads(short_cli.stdout) == short_expected
+    news_cli = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "atlas_terminal",
+            "research",
+            "news",
+            "--feeds",
+            "mof_news",
+            "--provider",
+            "fixture",
+            "--json",
+        ],
+        cwd=root,
+        capture_output=True,
+        text=True,
+        timeout=20,
+        check=True,
+    )
+    assert json.loads(news_cli.stdout) == news_expected
+    news_watch_cli = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "atlas_terminal",
+            "research",
+            "news",
+            "--feeds",
+            "mof_news",
+            "--provider",
+            "fixture",
+            "--watch",
+            "--max-polls",
+            "1",
+        ],
+        cwd=root,
+        capture_output=True,
+        text=True,
+        timeout=20,
+        check=True,
+    )
+    assert len(json.loads(news_watch_cli.stdout)["added"]) == 3
     preset_cli = subprocess.run(
         [
             sys.executable,
@@ -546,6 +596,9 @@ with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
                 macro_http = probe.post(base + "/v1/research", json=query)
                 assert macro_http.status_code == 200
                 assert macro_http.json() == macro_expected[json.dumps(query, sort_keys=True)]
+            rss_http = probe.get(base + "/v1/news/rss", params={"feeds": "mof_news"})
+            assert rss_http.status_code == 200 and rss_http.text == rss_document(news_expected)
+            assert rss_http.headers["content-type"].startswith("application/rss+xml")
             research_http = probe.post(
                 base + "/v1/research",
                 json={"dataset": "insider_transactions", "identifier": "ATLASDEMO"},
@@ -641,6 +694,7 @@ with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
                 "wheel_commodities_futures_credit_cli_sdk_mcp_http": "PASS",
                 "wheel_seven_country_macro_bonds_cli_sdk_mcp_http": "PASS",
                 "wheel_interest_spreads_cli_sdk_mcp_http": "PASS",
+                "wheel_official_news_briefing_rss_cli_sdk_mcp_http": "PASS",
                 "wheel_market_discovery_funds_fred_cli_sdk_mcp_http": "PASS",
                 "wheel_quality_batch_cli_sdk_mcp_http": "PASS",
                 "wheel_presets_cli_sdk_mcp_http": "PASS",

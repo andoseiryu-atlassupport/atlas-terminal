@@ -123,6 +123,16 @@ FAMILIES = {
     "institutional_holdings": {"13F-HR", "13F-HR/A"},
 }
 DATASETS = {
+    "news_feed": (
+        "Official headline feeds with original publication labels, links and evidence",
+        "multiple",
+        "headline_metadata",
+    ),
+    "news_digest": (
+        "Official headlines grouped by publisher into a source-backed briefing",
+        "multiple",
+        "headline_briefing",
+    ),
     "interest_spreads": (
         "Simple latest/history yield-curve spreads with exact original rate inputs",
         "multiple",
@@ -459,6 +469,7 @@ def research_catalog(
     from atlas_terminal.equity_sources import REFERENCE_INSTRUMENTS
     from atlas_terminal.futures_catalog import FUTURES, MONTH_CODES
     from atlas_terminal.market_catalog import SECURITY_MARKETS
+    from atlas_terminal.news_catalog import news_catalog
     from atlas_terminal.research_discovery import event_catalog, screen_catalog
     from atlas_terminal.research_price_analytics import price_analytics_catalog
     from atlas_terminal.series_catalog import series_catalog
@@ -548,6 +559,8 @@ def research_catalog(
                 if name == "country_bond_yields"
                 else ["treasury", "japan_mof", "ecb", "rba"]
                 if name == "interest_spreads"
+                else ["federal_reserve", "ecb", "rba", "japan_mof"]
+                if name in {"news_feed", "news_digest"}
                 else [source],
                 "output_type": kind,
                 "implementation": "implemented",
@@ -619,6 +632,7 @@ def research_catalog(
             "direction": "long_minus_short",
             "unit": "basis_points",
         },
+        "news": news_catalog(),
         "trailing_financials": {
             "flow_metrics": list(TTM_FLOW_METRICS),
             "methods": [
@@ -881,6 +895,7 @@ class ResearchService:
         self.sec_factory = sec
         self.synthetic = synthetic
         self.public = public
+        self.news: Transport | None = None
         self._views: ResearchViews | None = None
         self.view_path = (directory or state_dir()) / "research-responses.sqlite3"
 
@@ -891,6 +906,8 @@ class ResearchService:
         return self._views
 
     def close(self) -> None:
+        if self.news:
+            self.news.close()
         if self.public:
             self.public.close()
 
@@ -924,6 +941,7 @@ class ResearchService:
             history = source_history(
                 {
                     "action": q.history_action,
+                    "scope": q.history_scope,
                     "url": q.source_url,
                     "sha256": q.sha256,
                     "before_sha256": q.before_sha256,
@@ -947,6 +965,16 @@ class ResearchService:
                 "history": history,
                 "limitations": history.pop("limitations"),
             }
+        elif q.dataset in {"news_feed", "news_digest"}:
+            from atlas_terminal.news_sources import NewsFixtures, NewsTransport
+            from atlas_terminal.research_news import news_result
+
+            self.news = self.news or (
+                NewsFixtures()
+                if self.synthetic
+                else NewsTransport(cache_path=self.view_path.parent / "news-cache.sqlite3")
+            )
+            result = news_result(self.news, q)
         elif q.dataset == "trailing_financials":
             from atlas_terminal.research_trailing import trailing_financials
 

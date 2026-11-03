@@ -156,6 +156,79 @@ def research_catalog(
     )
 
 
+@research_app.command("news")
+def research_news(
+    feeds: str | None = None,
+    country: str | None = None,
+    search: str | None = None,
+    start_date: str | None = None,
+    end_date: str | None = None,
+    limit: int = 20,
+    allow_partial: bool = typer.Option(True, "--allow-partial/--strict"),
+    digest: bool = False,
+    watch: bool = False,
+    interval_seconds: int = 900,
+    max_polls: int | None = None,
+    rss: bool = False,
+    list_feeds: bool = typer.Option(False, "--list"),
+    provider: str = "public",
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """Official headlines, publisher-grouped briefings, RSS or foreground JSONL updates."""
+    from atlas_terminal.news_catalog import news_catalog
+    from atlas_terminal.research_news import rss_document
+
+    if list_feeds:
+        output(news_catalog())
+        return
+    if rss and (watch or json_output or digest):
+        raise AtlasError("INVALID_INPUT", "Choose RSS, a briefing or JSON/JSONL output.")
+    if max_polls is not None and not watch:
+        raise AtlasError("INVALID_INPUT", "Use --max-polls with --watch.")
+    options = {
+        "feeds": feeds.split(",") if feeds is not None else None,
+        "country": country,
+        "search": search,
+        "start_date": start_date,
+        "end_date": end_date,
+        "limit": limit,
+        "allow_partial": allow_partial,
+    }
+    data = {
+        "dataset": "news_digest" if digest else "news_feed",
+        **{k: v for k, v in options.items() if v is not None},
+    }
+    with Atlas(provider) as atlas:
+        if watch:
+            for event in atlas.watch_news(
+                data, interval_seconds=interval_seconds, max_polls=max_polls
+            ):
+                output(event)
+            return
+        result = atlas.get_research(data)
+    if rss:
+        typer.echo(rss_document(result))
+    elif json_output:
+        output(result)
+    else:
+        if result["is_synthetic"]:
+            typer.echo("SYNTHETIC: fictional official headlines")
+        if digest:
+            typer.echo(result["briefing_text"])
+        else:
+            for row in result["records"]:
+                date = row["published_at"] or row["published_date"] or "date unavailable"
+                typer.echo(f"{date}  {row['publisher']}")
+                typer.echo(row["title"])
+                typer.echo(row["url"])
+        if result["feed_errors"]:
+            typer.echo("Partial source coverage:")
+            for error in result["feed_errors"]:
+                typer.echo(f"{error['feed']}: {error['error']['code']}")
+        if result["coverage"]["truncated"]:
+            typer.echo("More retained headlines exist; increase --limit or narrow the filters.")
+
+
 @research_app.command("spread")
 def research_spread(
     series: str | None = typer.Argument(None),
@@ -223,6 +296,7 @@ def research_get(
     table_index: int | None = None,
     source_url: str | None = None,
     history_action: str | None = None,
+    history_scope: str | None = None,
     sha256: str | None = None,
     before_sha256: str | None = None,
     as_of: str | None = None,
@@ -236,6 +310,7 @@ def research_get(
     source_id: str | None = None,
     dataflow: str | None = None,
     search: str | None = None,
+    feeds: str | None = None,
     dimension: str | None = None,
     dimensions: str | None = None,
     max_source_age_seconds: int | None = None,
@@ -274,6 +349,7 @@ def research_get(
         "table_index": table_index,
         "source_url": source_url,
         "history_action": history_action,
+        "history_scope": history_scope,
         "sha256": sha256,
         "before_sha256": before_sha256,
         "as_of": as_of,
@@ -310,6 +386,8 @@ def research_get(
         data["metrics"] = metrics.split(",")
     if identifiers is not None:
         data["identifiers"] = identifiers.split(",")
+    if feeds is not None:
+        data["feeds"] = feeds.split(",")
     if allow_partial:
         data["allow_partial"] = True
     requirements = {

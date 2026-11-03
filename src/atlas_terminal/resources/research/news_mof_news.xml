@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='utf-8'?>
+<rss version="2.0">
+  <channel>
+    <title>SYNTHETIC fictional mof_news headlines; no actual announcements</title>
+    <link>https://fixtures.atlas.invalid/</link>
+    <description>Every headline and publication label in this fixture is fictional.</description>
+    <item>
+      <title>SYNTHETIC：架空の国債発行のお知らせ</title>
+      <link>https://fixtures.atlas.invalid/releases/mof-debt.html</link>
+      <guid>fixture:mof-debt</guid>
+      <pubDate>Mon, 19 Oct 2026 00:30:00 +0900</pubDate>
+      <description>SYNTHETIC_BODY_NOT_RETURNED. Fictional article description is intentionally excluded.</description>
+    </item>
+    <item>
+      <title>SYNTHETIC：架空の財政統計の公表</title>
+      <link>https://fixtures.atlas.invalid/releases/mof-statistics.html</link>
+      <guid>fixture:mof-statistics</guid>
+      <pubDate>Fri, 16 Oct 2026 16:00:00 +0900</pubDate>
+      <description>SYNTHETIC_BODY_NOT_RETURNED. Fictional article description is intentionally excluded.</description>
+    </item>
+    <item>
+      <title>SYNTHETIC：架空の入札のお知らせ</title>
+      <link>https://fixtures.atlas.invalid/releases/mof-auction.html</link>
+      <guid>fixture:mof-auction</guid>
+      <pubDate>Thu, 15 Oct 2026 16:00:00 +0900</pubDate>
+      <description>SYNTHETIC_BODY_NOT_RETURNED. Fictional article description is intentionally excluded.</description>
+    </item>
+  </channel>
+</rss>

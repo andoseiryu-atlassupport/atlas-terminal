@@ -32,6 +32,8 @@ def private_state(tmp_path, monkeypatch):
 
 
 def query(dataset="statements", **extra):
+    if dataset in {"news_feed", "news_digest"}:
+        return {"dataset": dataset, **extra}
     if dataset == "interest_spreads":
         return {"dataset": dataset, "series": "us_10y_2y", "year": 2025, **extra}
     if dataset in {

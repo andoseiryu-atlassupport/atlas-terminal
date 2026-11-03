@@ -29,7 +29,7 @@ Run `atlas showcase research --provider public --allow-network` for actual ECB/N
 
 ## Available data
 
-Atlas provides 60 research datasets, including private local source history, with data from 24 upstream source families. Official sources include SEC EDGAR, BLS, Treasury, the Federal Reserve, ECB, New York Fed, BEA, BOJ, Japan's Statistical Dashboard/MOF, EDINET, JPX, IMF, OECD, RBA, Eurostat, ONS, Census, ABS, StatCan and World Bank. Generic FRED retrieval preserves original producer conditions. Seven optional Yahoo daily/intraday price, action, analytics and futures datasets remain disabled by default for personal-use access under separate terms.
+Atlas provides 62 research datasets, including private local source history, with data from 24 upstream source families. Official sources include SEC EDGAR, BLS, Treasury, the Federal Reserve, ECB, New York Fed, BEA, BOJ, Japan's Statistical Dashboard/MOF, EDINET, JPX, IMF, OECD, RBA, Eurostat, ONS, Census, ABS, StatCan and World Bank. Generic FRED retrieval preserves original producer conditions. Seven optional Yahoo daily/intraday price, action, analytics and futures datasets remain disabled by default for personal-use access under separate terms.
 
 [European and Korean market data](docs/europe-korea-equities.md) covers KOSPI/KOSDAQ and sixteen European countries through the existing price/action, intraday and analytics datasets. British pound/pence quote units remain explicit. The optional time-series connector supports the same national markets with a separately selected ETF proxy; local standardized company financial readers remain unavailable.
 
@@ -70,6 +70,8 @@ Use `us_activity_extended`, `us_trade_overview`, `japan_external_corporate`, `au
 [G20 annual macro coverage](docs/g20-macro.md) covers fourteen WDI indicators for 23 countries and the overlapping EU aggregate through `global_economics`, plus the ten-item `g20_country_overview` preset. The 336 templates retain annual definitions, modeled-estimate status, debt scope and missingness. The African Union has no selected aggregate. Existing monthly/quarterly sources remain separate.
 
 Series search filters registered macro/FX templates by text, country, frequency, source and unit. IMF/OECD/ABS metadata discovery retrieves new series without indicator-specific adapters; macro panels align observations with explicit aggregation, gaps and source evidence. [Discovery and panel guide](docs/international-macro.md).
+
+Read free official announcements with `atlas research news`, `--digest` for a source-linked publisher briefing, or `--watch` for foreground updates. Five Federal Reserve/ECB/RBA/Japan MOF feeds share the CLI/SDK/MCP/HTTP service and an optional RSS endpoint, with separate private news history. [News guide](docs/news.md).
 
 Use `atlas research spread us_10y_2y` or `jp_10y_2y` to retrieve a latest dated spread in basis points. Fifteen short names cover US, Japan, ECB AAA/all-rating and Australia curves; `--limit` selects history and `--json` retains original yields and evidence. [Interest-spread guide](docs/interest-spreads.md).
 

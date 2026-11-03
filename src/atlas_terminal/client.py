@@ -1,6 +1,7 @@
 """The shared application service and the public Python SDK."""
 
 import os
+from collections.abc import Iterator
 from dataclasses import asdict
 from pathlib import Path
 from typing import Any, Literal
@@ -121,6 +122,56 @@ class Atlas:
                 "series": series,
                 **{key: value for key, value in options.items() if value is not None},
             }
+        )
+
+    def get_news(
+        self,
+        *,
+        feeds: list[str] | None = None,
+        country: str | None = None,
+        search: str | None = None,
+        start_date: str | None = None,
+        end_date: str | None = None,
+        limit: int = 20,
+        allow_partial: bool = True,
+        digest: bool = False,
+        response: dict[str, Any] | None = None,
+        requirements: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Official headline metadata or a deterministic source-linked briefing."""
+        options = {
+            "feeds": feeds,
+            "country": country,
+            "search": search,
+            "start_date": start_date,
+            "end_date": end_date,
+            "limit": limit,
+            "allow_partial": allow_partial,
+            "response": response,
+            "requirements": requirements,
+        }
+        return self.get_research(
+            {
+                "dataset": "news_digest" if digest else "news_feed",
+                **{key: value for key, value in options.items() if value is not None},
+            }
+        )
+
+    def watch_news(
+        self,
+        query: dict[str, Any] | None = None,
+        *,
+        interval_seconds: int = 900,
+        max_polls: int | None = None,
+    ) -> Iterator[dict[str, Any]]:
+        """Foreground polling with stable IDs; restarting replays the initial selection."""
+        from atlas_terminal.news_stream import watch_news
+
+        return watch_news(
+            self.get_research,
+            query or {"dataset": "news_feed"},
+            interval_seconds=interval_seconds,
+            max_polls=max_polls,
         )
 
     def risk(self, query: RiskQuery | dict[str, Any]) -> dict[str, Any]:

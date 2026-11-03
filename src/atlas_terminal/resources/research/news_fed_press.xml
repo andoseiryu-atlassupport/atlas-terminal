@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='utf-8'?>
+<rss version="2.0">
+  <channel>
+    <title>SYNTHETIC fictional fed_press headlines; no actual announcements</title>
+    <link>https://fixtures.atlas.invalid/</link>
+    <description>Every headline and publication label in this fixture is fictional.</description>
+    <item>
+      <title>SYNTHETIC: Policy committee publishes its decision</title>
+      <link>https://fixtures.atlas.invalid/releases/fed-policy.html</link>
+      <guid>fixture:fed-policy</guid>
+      <pubDate>Mon, 19 Oct 2026 20:30:00 GMT</pubDate>
+      <description>SYNTHETIC_BODY_NOT_RETURNED. Fictional article description is intentionally excluded.</description>
+    </item>
+    <item>
+      <title>SYNTHETIC: Financial supervision announcement</title>
+      <link>https://fixtures.atlas.invalid/releases/fed-supervision.html</link>
+      <guid>fixture:fed-supervision</guid>
+      <pubDate>Fri, 16 Oct 2026 18:00:00 GMT</pubDate>
+      <description>SYNTHETIC_BODY_NOT_RETURNED. Fictional article description is intentionally excluded.</description>
+    </item>
+    <item>
+      <title>SYNTHETIC: Fictional banking announcement</title>
+      <link>https://fixtures.atlas.invalid/releases/fed-banking.html</link>
+      <guid>fixture:fed-banking</guid>
+      <pubDate>Thu, 15 Oct 2026 18:00:00 GMT</pubDate>
+      <description>SYNTHETIC_BODY_NOT_RETURNED. Fictional article description is intentionally excluded.</description>
+    </item>
+  </channel>
+</rss>
