@@ -3,9 +3,11 @@
 import io
 import json
 import subprocess
+from concurrent.futures import ThreadPoolExecutor
 from copy import deepcopy
 from decimal import ROUND_UP, Decimal, localcontext
 from importlib.resources import files
+from threading import Barrier
 
 import httpx
 import pytest
@@ -313,6 +315,14 @@ def test_report_directory_selects_english_alphanumeric_codes_and_keeps_dates():
         assert not rows[0]["body_available"] and rows[0]["analyst"] is None
         assert "research" not in rows[0].get("recommendation", "")
         assert atlas.get_reports(identifier="NONEXISTENT")["records"] == []
+        projected = atlas.get_research(
+            {
+                "dataset": "analyst_reports",
+                "identifier": "123A",
+                "response": {"fields": ["language"]},
+            }
+        )["records"][0]
+        assert projected["language"] == "en" and not projected["language_verified_for_document"]
 
 
 def test_directory_ignores_unapproved_links_and_does_not_borrow_previous_date():
@@ -368,10 +378,35 @@ def test_pdf_import_keeps_original_bytes_and_page_evidence_across_sdk_cli(tmp_pa
         assert atlas.get_evidence(evidence_id)["evidence"]["pdf_page"] == 2
     repeated = reports.import_report(path, metadata, state_dir())
     assert repeated["report_id"] == receipt["report_id"] and repeated["already_imported"]
+    assert repeated["imported_at"] == receipt["imported_at"]
     cli = CliRunner().invoke(
         app, ["research", "report-text", receipt["report_id"], "--search", "second"]
     )
     assert cli.exit_code == 0 and json.loads(cli.stdout)["records"][0]["page"] == 2
+
+
+def test_concurrent_identical_imports_return_the_same_first_import_time(tmp_path, monkeypatch):
+    path, meta = tmp_path / "document.txt", tmp_path / "metadata.json"
+    path.write_bytes(b"SYNTHETIC concurrent import")
+    meta.write_bytes(canonical(META))
+    original_extract, barrier = reports.extract_document, Barrier(2)
+
+    def extract(body, file_type):
+        pages = original_extract(body, file_type)
+        barrier.wait(timeout=10)
+        return pages
+
+    monkeypatch.setattr(reports, "extract_document", extract)
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        futures = [
+            pool.submit(reports.import_report, path, meta, tmp_path, file_type="text")
+            for _ in range(2)
+        ]
+        receipts = [f.result(timeout=15) for f in futures]
+    stored = reports.read_report(tmp_path, receipts[0]["report_id"])
+    assert {r["report_id"] for r in receipts} == {stored["report_id"]}
+    assert sum(r["already_imported"] for r in receipts) == 1
+    assert {r["imported_at"] for r in receipts} == {stored["imported_at"]}
 
 
 def test_report_revisions_are_immutable_and_integrity_checked(tmp_path):

@@ -167,6 +167,8 @@ CONTEXT_FIELDS = {
     "metadata_origin",
     "rights_basis",
     "sponsorship_verified_for_document",
+    "language",
+    "language_verified_for_document",
     "side",
     "level",
     "venue",

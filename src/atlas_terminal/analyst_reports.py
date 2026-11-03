@@ -292,8 +292,14 @@ def import_report(
     with db.connect() as conn:
         old = conn.execute("SELECT id FROM analyst_documents WHERE id=?", (report_id,)).fetchone()
     if old:
-        read_report(directory, report_id)
-        return {"report_id": report_id, "already_imported": True, "raw_sha256": raw_sha}
+        stored = read_report(directory, report_id)
+        return {
+            "report_id": report_id,
+            "already_imported": True,
+            "raw_sha256": raw_sha,
+            "imported_at": stored["imported_at"],
+            "pages": len(stored["pages"]),
+        }
     pages = canonical(extract_document(body, file_type))
     when = stamp()
     with db.connect(write=True) as conn:
@@ -314,11 +320,12 @@ def import_report(
                 "INSERT INTO analyst_documents VALUES (?,?,?,?,?,?,?,?)",
                 (report_id, body, raw_sha, meta, meta_sha, pages, digest(pages), when),
             )
+    stored = read_report(directory, report_id)
     return {
         "report_id": report_id,
         "raw_sha256": raw_sha,
-        "imported_at": when,
-        "pages": len(json.loads(pages)),
+        "imported_at": stored["imported_at"],
+        "pages": len(stored["pages"]),
         "already_imported": bool(old),
     }
 
