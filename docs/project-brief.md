@@ -4,9 +4,11 @@ Atlas Terminal retrieves company financials, US/Japan and international macro da
 
 ## Capabilities
 
+- One-venue bitbank crypto books and permitted local snapshots retain price levels, units and exact spread/depth formulas. Public FISCO report links and a private permitted PDF/text library expose discovery metadata and page evidence without a paid report feed or automatic PDF download. [Books and reports](order-books-reports.md).
+
 - G20 annual WDI coverage adds fourteen indicators for 23 countries and the EU aggregate, with exact units, modeled-estimate definitions, missingness and original country/indicator metadata. The African Union has no selected aggregate. [G20 definitions and examples](g20-macro.md).
 
-- Sixty-two research datasets across 24 upstream source families. Official company, financial, ownership, macro and reference-rate sources include SEC, EDINET, JPX, BLS, Treasury, Federal Reserve, ECB, New York Fed, BEA, BOJ, Japan's Statistical Dashboard/MOF, IMF, OECD, RBA, Eurostat, ONS, Census, ABS, StatCan and World Bank. FRED distributes explicitly selected government and third-party series with their original conditions. Optional Yahoo daily/intraday security/market prices, actions, trailing indicators and same-market comparisons remain disabled by default for personal use. Local source history retains original responses and local observation events.
+- Sixty-five research datasets across 26 upstream source families. Official company, financial, ownership, macro and reference-rate sources include SEC, EDINET, JPX, BLS, Treasury, Federal Reserve, ECB, New York Fed, BEA, BOJ, Japan's Statistical Dashboard/MOF, IMF, OECD, RBA, Eurostat, ONS, Census, ABS, StatCan and World Bank. FRED distributes explicitly selected government and third-party series with their original conditions. Optional Yahoo daily/intraday security/market prices, actions, trailing indicators and same-market comparisons remain disabled by default for personal use. Local source history retains original responses and local observation events.
 - Eighteen IMF monthly commodity references and thirty optional Yahoo future families with explicit dated contracts and same-date calendar spreads. An operator-owned/licensed credit-rating book preserves issuer/issue subjects, agency scale and source versions; no automatic agency feed is supplied. [Commodities/futures](commodities-futures.md) and [credit ratings](credit-ratings.md).
 - Seven-country IMF CPI/rate and OECD long-term-government-rate selections preserve source frequency, base periods, national definitions and per-country gaps. New Zealand CPI stays quarterly; recent Turkish and Singaporean bond selections remain unavailable. [Coverage](country-macro-bonds.md).
 - Offline source-backed ADF/KPSS and descriptive statistics analyze one complete saved series with explicit assumptions. A local HTML workbench displays independent full captures, searchable tables and optional charts; no browser framework or running service is required.
@@ -39,7 +41,7 @@ Python 3.12+, uv, Pydantic, httpx, Typer, FastAPI, the official MCP and x402 SDK
 
 ## Scope
 
-Consolidated equity prices, order books, options, analyst consensus, newswire articles, earnings-call transcripts, complete corporate-action or security-master datasets, PIT, trading and built-in LLM analysis are unavailable. Free access does not imply unrestricted redistribution rights for third-party content.
+Consolidated equity prices, consolidated equity order books, options, analyst consensus, newswire articles, earnings-call transcripts, complete corporate-action or security-master datasets, PIT, trading and built-in LLM analysis are unavailable. Free access does not imply unrestricted redistribution rights for third-party content.
 
 See the [research guide](research.md) for queries and limits, [capabilities](../IMPLEMENTATION_STATUS.md) for the feature overview, [sources and terms](../DATA_SOURCES.md) for data conditions, and [validation scope](verification.md) for verified and unverified behavior.
 

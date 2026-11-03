@@ -268,9 +268,92 @@ def research_spread(
     )
 
 
+@research_app.command("book")
+def research_book(
+    identifier: str,
+    depth: int = 10,
+    source: str = "bitbank",
+    provider: str = "public",
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """Read one venue's price-level snapshot or an operator-configured local book."""
+    with Atlas(provider) as atlas:
+        result = atlas.get_order_book(identifier, depth=depth, source=source)
+    if json_output:
+        output(result)
+        return
+    label = "fictional snapshot" if result["is_synthetic"] else "snapshot"
+    typer.echo(f"{identifier}  {result['snapshot']['observed_at']}  ({label})")
+    stats = result["book_analytics"]
+    quantity_unit = (
+        result["records"][0].get("base_asset") if result["records"] else None
+    ) or stats["quantity_unit"]
+    typer.echo(f"Price: {stats['quote_currency']} per {quantity_unit}; quantity: {quantity_unit}")
+    for row in result["records"]:
+        typer.echo(f"{row['side']:4} {row['level']:3}  {row['price']}  x {row['quantity']}")
+    typer.echo(
+        f"Spread: {stats['spread']} {stats['quote_currency']}  "
+        f"Imbalance: {stats['quantity_imbalance']}"
+    )
+    typer.echo("One venue; selected depth only. Use --json for units, coverage and evidence.")
+
+
+@research_app.command("reports")
+def research_reports(
+    identifier: str | None = None,
+    source: str = "fisco",
+    search: str | None = None,
+    limit: int = 100,
+    provider: str = "public",
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """Find public report links or metadata from privately imported documents."""
+    with Atlas(provider) as atlas:
+        result = atlas.get_reports(source=source, identifier=identifier, search=search, limit=limit)
+    if json_output:
+        output(result)
+        return
+    if result["is_synthetic"]:
+        typer.echo("Fictional report metadata.")
+    if source == "fisco":
+        typer.echo("Company-commissioned research; individual document disclosures unverified.")
+    for row in result["records"]:
+        typer.echo(f"{row['published_date']}  {row['identifier'] or 'unlisted'}  {row['title']}")
+        typer.echo(row["original_source_url"])
+        if row["body_available"]:
+            typer.echo("Imported document: " + row["report_id"])
+    typer.echo(
+        f"{len(result['records'])} selected reports. Original links; no remote PDF extraction."
+    )
+
+
+@research_app.command("import-report")
+def research_import_report(
+    document: Path, metadata: Annotated[Path, typer.Option()], file_type: str = "pdf"
+) -> None:
+    """Import a permitted local PDF/text and explicit metadata into private storage."""
+    from atlas_terminal.analyst_reports import import_report
+    from atlas_terminal.util import state_dir
+
+    output(import_report(document, metadata, state_dir(), file_type=file_type))
+
+
+@research_app.command("report-text")
+def research_report_text(
+    report_id: str, search: str | None = None, provider: str = "public"
+) -> None:
+    """Read source-addressed pages from a privately imported report."""
+    with Atlas(provider) as atlas:
+        output(atlas.get_report_text(report_id, search=search))
+
+
 @research_app.command("get")
 def research_get(
     dataset: str,
+    book_source: str | None = None,
+    depth: int | None = None,
+    report_source: str | None = None,
+    report_id: str | None = None,
     country: str | None = None,
     agency: str | None = None,
     observation_date: str | None = None,
@@ -328,6 +411,10 @@ def research_get(
     """Fetch free public research. Dataset-specific options are in research catalog."""
     data: dict[str, Any] = {"dataset": dataset}
     options = {
+        "book_source": book_source,
+        "depth": depth,
+        "report_source": report_source,
+        "report_id": report_id,
         "identifier": identifier,
         "country": country,
         "agency": agency,

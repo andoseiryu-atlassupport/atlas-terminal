@@ -123,6 +123,21 @@ FAMILIES = {
     "institutional_holdings": {"13F-HR", "13F-HR/A"},
 }
 DATASETS = {
+    "order_book": (
+        "Single-venue price-level snapshots and depth analytics; public bitbank or local input",
+        "multiple",
+        "order_book_snapshot",
+    ),
+    "analyst_reports": (
+        "Public FISCO report links or privately imported report metadata",
+        "multiple",
+        "report_metadata",
+    ),
+    "analyst_report_text": (
+        "Page-addressed text from explicitly imported permitted PDF or text reports",
+        "multiple",
+        "operator_imported_text",
+    ),
     "news_feed": (
         "Official headline feeds with original publication labels, links and evidence",
         "multiple",
@@ -523,7 +538,13 @@ def research_catalog(
                 "id": name,
                 "description": title,
                 "source": source,
-                "source_ids": ["ecb", "rba"]
+                "source_ids": ["bitbank"]
+                if name == "order_book"
+                else ["fisco"]
+                if name == "analyst_reports"
+                else []
+                if name == "analyst_report_text"
+                else ["ecb", "rba"]
                 if name == "policy_rates"
                 else ["imf", "oecd", "abs"]
                 if name in {"sdmx_catalog", "international_economics"}
@@ -896,6 +917,8 @@ class ResearchService:
         self.synthetic = synthetic
         self.public = public
         self.news: Transport | None = None
+        self.books: Transport | None = None
+        self.reports: Transport | None = None
         self._views: ResearchViews | None = None
         self.view_path = (directory or state_dir()) / "research-responses.sqlite3"
 
@@ -906,6 +929,10 @@ class ResearchService:
         return self._views
 
     def close(self) -> None:
+        if self.books:
+            self.books.close()
+        if self.reports:
+            self.reports.close()
         if self.news:
             self.news.close()
         if self.public:
@@ -929,6 +956,11 @@ class ResearchService:
 
             if not os.environ.get("ATLAS_CREDIT_RATINGS_FILE"):
                 raise AtlasError("CONFIG_REQUIRED", "Configure ATLAS_CREDIT_RATINGS_FILE.")
+        if q.dataset == "order_book" and q.book_source == "local" and not self.synthetic:
+            import os
+
+            if not os.environ.get("ATLAS_ORDER_BOOK_FILE"):
+                raise AtlasError("CONFIG_REQUIRED", "Configure ATLAS_ORDER_BOOK_FILE.")
         if q.dataset in {"japan_disclosures", "japan_filing_facts"} and not self.synthetic:
             from atlas_terminal.japan_company_sources import edinet_key
 
@@ -965,6 +997,34 @@ class ResearchService:
                 "history": history,
                 "limitations": history.pop("limitations"),
             }
+        elif q.dataset == "order_book":
+            from atlas_terminal.order_books import BookFixtures, BookTransport, order_book
+
+            if q.book_source == "bitbank":
+                self.books = self.books or (
+                    BookFixtures()
+                    if self.synthetic
+                    else BookTransport(
+                        cache_path=self.view_path.parent / "order-books-cache.sqlite3"
+                    )
+                )
+            result = order_book(q, self.books, self.view_path.parent, synthetic=self.synthetic)
+        elif q.dataset in {"analyst_reports", "analyst_report_text"}:
+            from atlas_terminal.analyst_reports import (
+                ReportFixtures,
+                ReportTransport,
+                reports_result,
+            )
+
+            if q.dataset == "analyst_reports" and q.report_source == "fisco":
+                self.reports = self.reports or (
+                    ReportFixtures()
+                    if self.synthetic
+                    else ReportTransport(cache_path=self.view_path.parent / "reports-cache.sqlite3")
+                )
+            result = reports_result(
+                q, self.reports, self.view_path.parent, synthetic=self.synthetic
+            )
         elif q.dataset in {"news_feed", "news_digest"}:
             from atlas_terminal.news_sources import NewsFixtures, NewsTransport
             from atlas_terminal.research_news import news_result

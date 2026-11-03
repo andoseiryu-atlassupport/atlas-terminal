@@ -4,6 +4,8 @@ Atlas Terminal retrieves US equity research, macro data and reference FX from fr
 
 ## Datasets
 
+[Order books and analyst reports](docs/order-books-reports.md) add three datasets, bringing the catalog to 65 datasets across 26 upstream source families. `order_book` reads one bitbank crypto venue or a configured permitted local equity/crypto/futures snapshot, preserving quantity units, timestamps, original levels and exact spread/depth calculations. `analyst_reports` discovers FISCO directory metadata and original PDF links, or lists the operator's private library. `analyst_report_text` reads explicitly imported PDF pages or text with original hashes and rights metadata. No broker login, remote PDF download, recommendation extraction or analyst consensus is supplied. New-source live access remains unverified; see [verification](docs/verification.md#order-books-and-analyst-reports).
+
 [Filing research](docs/filing-research.md) adds six datasets: TTM monetary flows/margins, explicit-accession document inventories, scoped XBRL numeric facts, standard US-GAAP segment selections, visible Item/document text and reported HTML table cells. Exact operands, periods, namespaces, dimensions, units, nils and original coordinates remain inspectable. TTM does not synthesize Q4 statements, and source tables do not establish a presentation hierarchy. Custom facts and releases are not automatically standardized into operational KPIs, guidance or non-GAAP earnings. SEC live retrieval remains unverified under the current destination policy and missing contact configuration.
 
 [Policy rates](docs/policy-rates.md) adds four official instruments from ECB/RBA, searchable templates and explicit macro-panel aggregation. Normal-proxy live checks matched the source identities and parsed 304 observations per ECB instrument plus 212 RBA observations in the selected 2026 window. Current source snapshots are not announcement-time PIT data.
@@ -28,7 +30,7 @@ Atlas Terminal retrieves US equity research, macro data and reference FX from fr
 
 US national accounts add sixteen BEA series; Japanese macro adds twenty-nine BOJ/Statistical Dashboard series. Eurostat adds 48 exact European selections and ONS adds five UK series. Five activity/global presets join the existing macro presets through shared batches with dates, source IDs and per-item failures. [Series and statistical definitions](docs/economic-indicators.md).
 
-Run `atlas research catalog --json` for identifiers, query fields, units and limits for all 62 datasets, including seven optional Yahoo datasets, generic FRED observations and private local history. The [research guide](docs/research.md) includes examples for each dataset.
+Run `atlas research catalog --json` for identifiers, query fields, units and limits for all 65 datasets, including seven optional Yahoo datasets, generic FRED observations and private local history. The [research guide](docs/research.md) includes examples for each dataset.
 
 `japan_disclosures`, `japan_filing_facts` and `japan_securities` add dated EDINET document lists, original numeric XBRL facts and current JPX reference rows. Actual XBRL contexts, scoped QNames, divided units, consolidation dimensions, share facts and original ZIP/member evidence remain explicit. JPX supports current XLSX and retained XLS, alphanumeric/class codes and per-field worksheet coordinates. EDINET needs a private free API key and is not live-verified; JPX rights require the applicable permission. [Japanese company coverage](docs/japan-companies.md).
 
@@ -133,7 +135,7 @@ Optional task `intent_id` values bind an exact validated annual query to one quo
 
 ## Coverage limits
 
-Consolidated real-time equity prices, order books, options, analyst consensus, newswire articles, earnings-call transcripts, a complete security master or corporate-action history, PIT and trading are unavailable. The optional Yahoo reader supplies the documented daily/intraday market observations and daily actions for personal use; it does not grant public-service data redistribution rights.
+Consolidated real-time equity prices, consolidated equity order books, options, analyst consensus, newswire articles, earnings-call transcripts, a complete security master or corporate-action history, PIT and trading are unavailable. The optional Yahoo reader supplies the documented daily/intraday market observations and daily actions for personal use; it does not grant public-service data redistribution rights.
 
 FX uses the full published ECB history for 31 currencies with per-currency gaps. BLS observation-date queries span up to 30 calendar years in ten-year requests; the default remains the latest three years. Sixteen BEA national-account series and twenty-nine Japanese macro series use explicit units and periods. EFFR/SOFR still covers the latest 90 effective observations. Real Treasury yields cover one selected year from 2003 onward. No holiday filling, real-time FX, term SOFR or historical release vintages are provided. See [macro coverage](docs/macro.md).
 

@@ -15,6 +15,7 @@ dependencies = [
   "httpx==0.28.1",
   "mcp==2.3.0",
   "pydantic==2.14.1",
+  "pypdf==6.21.4",
   "typer==0.27.3",
   "uvicorn==0.54.0",
   "x402[evm,httpx]==2.25.0",

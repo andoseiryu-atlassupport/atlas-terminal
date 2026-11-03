@@ -4,6 +4,20 @@ Recorded on 2026-11-03 (JST) for the source checkout following Atlas Terminal 0.
 
 Version 0.7.0 includes the experimental native factor risk extension and installed walkthroughs described below. The prior 0.6.0 release did not include risk estimation. Local wheel checks remain separate evidence from a published GitHub release.
 
+## Order books and analyst reports
+
+`order_book`, `analyst_reports` and `analyst_report_text` bring the catalog to **65 datasets**, **26 upstream source families** and 26 presets. Shared research queries expose bitbank's three registered JPY crypto books, operator-supplied permitted books, FISCO report-directory links and a private PDF/text library. No consolidated equity depth, broker login, remote PDF download, analyst consensus or public report-body distribution is supplied.
+
+On **2026-11-03 JST**, normal-proxy, TLS-verified requests to `public.bitbank.cc` and `www.fisco.co.jp` failed with **`httpx.ProxyError: 403 Forbidden`**. Both hosts were absent from this runtime's effective allowlist while its policy reported current and enforced. The opt-in `uv run --offline python scripts/verify_books_reports_live.py --allow-network --output build/books-reports-live` therefore recorded failures for all three pairs and the report directory. These are environment access blocks, not verified upstream outages. **No live book or FISCO directory parsing success is claimed.** The original-field comparison script remains available for a permitted environment; current directory layout and API availability still need live validation.
+
+Official bitbank API documentation and service conditions, FISCO service/copyright descriptions and Coinbase's current market-data terms were reviewed separately. Coinbase is excluded because its terms restrict AI-agent use. FISCO discovery preserves company-commissioned-service context, with document-level sponsorship and language explicitly unverified. Imported files require operator-supplied rights metadata and are processed locally without an external AI provider.
+
+Offline regressions use fictional source bytes and generated PDFs. They cover exact decimal depth/spread arithmetic, missing/crossed/future books, instrument quantity units, malformed levels, destination/redirect/credential restrictions, independent caches, local-configuration revocation, directory dates and alphanumeric codes, immutable report revisions, concurrent import timestamps, projected language context, page evidence, hash checks, capacity limits, encrypted/image-only PDFs, extraction deadlines and shared query contracts. These checks do not establish live connectivity or document redistribution rights. Existing BLS captures, counters and offline verification are preserved.
+
+The complete offline suite passed **2,674 tests**, with two opt-in live tests deselected; the focused new module passed **72 regressions**. Ruff/format, mypy (**110 source files**), schema generation, locked dependency setup and npm checks passed. Wheel/sdist validation passed with **413 wheel files and 704 source files**; documentation passed for **64 pages**. Public-file scanning, distribution preparation and BLS/showcase offline replays also passed. `pypdf==6.21.4` is pinned with its BSD-3-Clause notice.
+
+The wheel was installed outside the checkout in a separate runtime using the locked dependency environment through a `.pth` file. `scripts/verify_installed.py` passed SDK/CLI/official stdio MCP/actual loopback HTTP queries for all three new datasets, plus CLI import of a generated two-page PDF and subsequent CLI/SDK page-2 hash/citation checks. This does not certify fresh dependency resolution, live APIs or a public deployment. Existing 0.7.0 release assets are unchanged.
+
 ## Official headline feeds and briefings
 
 `news_feed` and `news_digest` add five fixed official feeds across four existing publishers, bringing the catalog to **62 datasets**, with 26 presets and 24 upstream source families. CLI/SDK/MCP/HTTP share selection and original-field evidence. The deterministic briefing groups original headlines by publisher; it uses no article reader or external AI provider. Foreground JSONL polling and an RSS HTTP route provide read delivery without a hosted notification worker.
@@ -112,11 +126,11 @@ Wheel-payload SDK and CLI smoke reads loaded the packaged fictional WDI template
 | --------------------------------------------------------- | ------------------------------------------------------------------- |
 | `uv run --offline ruff check .`                           | PASS                                                                |
 | `uv run --offline ruff format --check .`                  | PASS                                                                |
-| `uv run --offline mypy`                                   | PASS; 106 source files                                              |
-| `uv run --offline pytest`                                 | PASS; 2,596 tests, 2 live tests deselected                          |
+| `uv run --offline mypy`                                   | PASS; 110 source files                                              |
+| `uv run --offline pytest`                                 | PASS; 2,674 tests, 2 live tests deselected                          |
 | `uv run --offline python -m build --no-isolation`         | PASS; wheel and source distribution                                 |
 | `uv run --offline python scripts/verify_distribution.py`  | PASS; metadata, required contents and forbidden paths               |
-| `uv run --offline python scripts/build_docs.py`           | PASS; 63 HTML pages and internal file/section links                 |
+| `uv run --offline python scripts/build_docs.py`           | PASS; 64 HTML pages and internal file/section links                 |
 | `uv run --offline python scripts/verify_showcases.py`     | PASS; both recorded versions, data modes and checksums              |
 | `uv run --offline python scripts/verify_bls_capture.py`   | PASS; offline audit/replay of 14 captured responses and 168 records |
 | `uv run --offline python scripts/prepare_distribution.py` | PREPARED; versioned plugin ZIP and Registry draft                   |

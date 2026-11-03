@@ -65,6 +65,7 @@ Recorded on 2026-10-20 from installed metadata for dependencies resolved by uv.l
 | Pygments                  | 2.21.0       | BSD-2-Clause                                                    |
 | PyJWT                     | 2.15.1       | MIT                                                             |
 | pyproject_hooks           | 1.3.3        | MIT                                                             |
+| pypdf                     | 6.21.4       | BSD-3-Clause                                                    |
 | pytest                    | 9.1.1        | MIT                                                             |
 | pytest-asyncio            | 1.4.0        | Apache-2.0                                                      |
 | pytest-socket             | 0.8.1        | MIT                                                             |

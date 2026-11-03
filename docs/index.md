@@ -1,12 +1,14 @@
 # Financial data for AI agents through one MCP connection
 
-Atlas Terminal connects AI agents to company financials, US/Japan and international macro indicators and reference foreign exchange data from free public primary sources. One MCP connection exposes 62 datasets, twenty-six research presets and traceable evidence, including seven optional [international Yahoo daily/intraday price, action, analytics and futures selections](yahoo-finance.md) for operator-enabled personal use. A Python SDK, CLI and HTTP API use the same services. Research needs no data subscription, wallet or built-in LLM. BEA, Census, FRED and EDINET require separate free registered API keys. Yahoo is a secondary-source exception and grants no public-service data redistribution rights.
+Atlas Terminal connects AI agents to company financials, US/Japan and international macro indicators and reference foreign exchange data from free public primary sources. One MCP connection exposes 65 datasets, twenty-six research presets and traceable evidence, including seven optional [international Yahoo daily/intraday price, action, analytics and futures selections](yahoo-finance.md) for operator-enabled personal use. A Python SDK, CLI and HTTP API use the same services. Research needs no data subscription, wallet or built-in LLM. BEA, Census, FRED and EDINET require separate free registered API keys. Yahoo is a secondary-source exception and grants no public-service data redistribution rights.
 
 [Seven-country macro and government rates](country-macro-bonds.md) cover named IMF/OECD series and four additional annual WDI countries, with exact source definitions, native frequencies and explicit gaps.
 
 [Commodities and futures](commodities-futures.md) include IMF monthly references, dated Yahoo contracts and same-date spreads. [Credit-rating observations](credit-ratings.md) support operator-owned/licensed issuer and issue inputs with private source history; automatic agency feeds are unavailable.
 
 [Official headlines and briefings](news.md) combine five primary-source RSS feeds, source-linked publisher briefings, foreground polling and RSS output without a paid news or AI provider.
+
+[Order books and analyst reports](order-books-reports.md) provide one-venue crypto depth, permitted local books, public report-link discovery and a private PDF/text library with page citations. `atlas research book BTC_JPY` and `atlas research reports` use the shared research service.
 
 [One-command interest spreads](interest-spreads.md) return fifteen source-local government curve differences, with exact basis points and original dated inputs.
 

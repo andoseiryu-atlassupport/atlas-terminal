@@ -179,6 +179,8 @@ def assess_quality(
 ) -> ResearchQuality:
     now = now or utcnow()
     rows = list(dictionaries(result["records"]))
+    if result["dataset"] == "order_book":
+        rows.extend(dictionaries(result.get("book_analytics", {})))
     # Include older calculation inputs and every issuer's source, not just the newest root time.
     sources = [
         row

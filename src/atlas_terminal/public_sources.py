@@ -341,6 +341,32 @@ SOURCE_CATALOG = {
     },
 }
 SOURCE_CATALOG.update(ECONOMIC_SOURCES)
+SOURCE_CATALOG.update(
+    {
+        "bitbank": {
+            "optional": True,
+            "name": "bitbank public price-level order book",
+            "upstream_price": "0",
+            "api_key_required": False,
+            "contact_user_agent_required": False,
+            "documentation": "https://github.com/bitbankinc/bitbank-api-docs/blob/master/public-api_JP.md",
+            "terms": "https://bitbank.cc/doc/tos",
+            "use": "Single-venue snapshots; retain source conditions. No redistribution grant.",
+            "cadence": "On-demand bounded snapshot, five-second cache; no guaranteed live stream.",
+        },
+        "fisco": {
+            "optional": True,
+            "name": "FISCO public company report directory",
+            "upstream_price": "0",
+            "api_key_required": False,
+            "contact_user_agent_required": False,
+            "documentation": "https://www.fisco.co.jp/service/report/",
+            "terms": "https://www.fisco.co.jp/copyright/",
+            "use": "Discovery metadata/links only. No remote PDF extraction or redistribution.",
+            "cadence": "Rolling directory, one-hour cache; no archive completeness guarantee.",
+        },
+    }
+)
 SOURCE_CATALOG.update(SDMX_SOURCES)
 SOURCE_CATALOG.update(REGIONAL_ECONOMIC_SOURCES)
 SOURCE_CATALOG.update(ACTIVITY_SOURCES)
