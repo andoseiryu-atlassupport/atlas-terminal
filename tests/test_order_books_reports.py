@@ -325,6 +325,20 @@ def test_report_directory_selects_english_alphanumeric_codes_and_keeps_dates():
         assert projected["language"] == "en" and not projected["language_verified_for_document"]
 
 
+@pytest.mark.parametrize("edition,language", [("", "ja"), ("英語版", "en"), ("中国語版", "zh")])
+def test_directory_list_item_language_hints_preserve_original_label(edition, language):
+    label = f"SYNTHETIC Company({edition})<123A>"
+    body = (
+        '<div id="report123"></div><li>2026年10月19日 公開 '
+        f'<a href="/synthetic.pdf">{label}<img src="/pdf.gif" alt="PDF"></a></li>'
+    ).encode()
+    row = reports.report_links(Snapshot(body, reports.FISCO_URL, "2026-10-20T00:00:00Z"))[0]
+    assert row["language"] == language and not row["language_verified_for_document"]
+    assert row["title_raw"] == label and row["identifier"] == "123A"
+    assert row["published_date"] == "2026-10-19"
+    assert row["source"]["xml_local_path"] == "//a[1]"
+
+
 def test_directory_ignores_unapproved_links_and_does_not_borrow_previous_date():
     html = '<div>2026年10月19日<a href="https://www.fisco.co.jp/a.pdf">Alpha&lt;1234&gt;</a></div>'
     html += '<a href="https://www.fisco.co.jp/b.pdf">Undated&lt;2345&gt;</a>'

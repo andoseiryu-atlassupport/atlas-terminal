@@ -137,7 +137,7 @@ def report_links(snapshot: Snapshot) -> list[dict[str, Any]]:
                 "research_type": "company_commissioned_research",
                 "sponsored": True,
                 "sponsorship_verified_for_document": False,
-                "language": "en" if "英語版" in label else "ja",
+                "language": "zh" if "中国語版" in label else "en" if "英語版" in label else "ja",
                 "language_verified_for_document": False,
                 "body_available": False,
                 "status": "ambiguous" if future else "reported",
