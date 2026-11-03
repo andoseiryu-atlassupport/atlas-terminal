@@ -50,7 +50,9 @@ def research_documentation(dataset: str) -> dict[str, str]:
     japan = dataset in {"japan_disclosures", "japan_filing_facts", "japan_securities"}
     history = dataset == "source_history"
     methodology = (
-        "news"
+        "order-books-reports"
+        if dataset in {"order_book", "analyst_reports", "analyst_report_text"}
+        else "news"
         if dataset in {"news_feed", "news_digest"}
         else "interest-spreads"
         if dataset == "interest_spreads"
@@ -77,7 +79,9 @@ def research_documentation(dataset: str) -> dict[str, str]:
         else "methodology"
     )
     guide = (
-        "news"
+        "order-books-reports"
+        if dataset in {"order_book", "analyst_reports", "analyst_report_text"}
+        else "news"
         if dataset in {"news_feed", "news_digest"}
         else "credit-ratings"
         if dataset == "credit_ratings"

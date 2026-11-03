@@ -1,0 +1,1 @@
+{"schema_version":"0.1.0","is_synthetic":true,"identifier":"ATLASDEMO","venue":"SYNTHETIC_TOKYO","asset_class":"equity","quote_currency":"JPY","quantity_unit":"shares","observed_at":"2026-10-20T00:00:00Z","original_source_url":"https://broker.example.invalid/quotes/ATLASDEMO","rights_basis":"owned","bids":[["1000","200"],["999","300"]],"asks":[["1001","100"],["1002","400"]]}

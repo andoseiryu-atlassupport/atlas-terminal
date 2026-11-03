@@ -58,6 +58,9 @@ from atlas_terminal.sdmx_sources import CODE_PATTERN, FLOW_PATTERN
 from atlas_terminal.spread_catalog import SPREADS
 
 Dataset = Literal[
+    "order_book",
+    "analyst_reports",
+    "analyst_report_text",
     "news_feed",
     "news_digest",
     "interest_spreads",
@@ -123,6 +126,9 @@ Dataset = Literal[
 ]
 
 FIELDS = {
+    "order_book": {"identifier", "book_source", "depth"},
+    "analyst_reports": {"identifier", "report_source", "start_date", "end_date", "search", "limit"},
+    "analyst_report_text": {"report_id", "search", "limit"},
     "news_feed": {"feeds", "country", "search", "start_date", "end_date", "limit", "allow_partial"},
     "news_digest": {
         "feeds",
@@ -220,6 +226,10 @@ FIELDS = {
 
 
 def dataset_required(name: str) -> list[str]:
+    if name == "analyst_reports":
+        return []
+    if name == "analyst_report_text":
+        return ["report_id"]
     if name in NEWS_DATASETS:
         return []
     if name == "interest_spreads":
@@ -570,6 +580,10 @@ def dataset_schema(schema: dict[str, Any]) -> None:
 class ResearchQuery(Model):
     model_config = ConfigDict(extra="forbid", json_schema_extra=dataset_schema)
     dataset: Dataset
+    book_source: Literal["bitbank", "local"] = "bitbank"
+    depth: int = Field(default=10, ge=1, le=200, strict=True)
+    report_source: Literal["fisco", "local"] = "fisco"
+    report_id: str | None = Field(default=None, pattern=r"^rp_[0-9a-f]{64}$")
     country: str | None = Field(default=None, pattern=r"^[A-Z]{2}$")
     agency: Literal["sp_global", "moodys", "fitch"] | None = None
     observation_date: str | None = Field(default=None, pattern=r"^[0-9]{4}-[0-9]{2}-[0-9]{2}$")
@@ -580,7 +594,7 @@ class ResearchQuery(Model):
     document_id: str | None = Field(default=None, pattern=r"^S[0-9A-Z]{7}$")
     source_url: str | None = Field(default=None, min_length=1, max_length=2048)
     history_action: Literal["list", "get", "as_of", "diff"] = "list"
-    history_scope: Literal["public", "news"] = "public"
+    history_scope: Literal["public", "news", "order_books", "reports"] = "public"
     sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
     before_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
     as_of: str | None = Field(default=None, max_length=64)
@@ -656,6 +670,15 @@ class ResearchQuery(Model):
 
     @model_validator(mode="after")
     def check_dataset(self) -> "ResearchQuery":
+        if self.dataset == "order_book" and self.book_source == "bitbank":
+            from atlas_terminal.order_books import book_url
+
+            book_url(self.identifier or "")
+        if self.dataset == "analyst_report_text" and self.report_id is None:
+            raise AtlasError("INVALID_INPUT", "Select an explicitly imported report_id.")
+        if self.dataset in {"analyst_reports", "analyst_report_text"}:
+            if self.search is not None and not self.search.strip():
+                raise AtlasError("INVALID_INPUT", "Use a nonempty literal report search.")
         if self.dataset in NEWS_DATASETS:
             selected_feeds(self.feeds, self.country)
             if self.search is not None and not self.search.strip():

@@ -1,5 +1,7 @@
 # Dependency and specification audit
 
+On 2026-11-03, pypdf 6.21.4 was checked against PyPI and installed metadata, pinned in the runtime dependencies and locked with uv. Its declared license is BSD-3-Clause. Local tests exercise `PdfReader`, encrypted/image-only rejection and page text extraction in a bounded subprocess. This check does not certify all PDF layouts or constitute a vulnerability-database audit.
+
 Recorded on 2026-10-21 with Python 3.12.14, uv 0.12.23 and Node.js 24.19.0. Python versions were checked against PyPI metadata, the resolver and installed distributions, then locked in `pyproject.toml` and `uv.lock`. TypeScript interoperability dependencies were checked against npm metadata and installed exports, and locked in `package-lock.json`. Package-name availability and publication eligibility have not been checked.
 
 ## Direct dependencies

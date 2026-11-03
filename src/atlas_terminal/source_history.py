@@ -47,7 +47,7 @@ def history_time(value: str) -> str:
 
 class SourceHistoryQuery(Model):
     action: Literal["list", "get", "as_of", "diff"] = "list"
-    scope: Literal["public", "news"] = "public"
+    scope: Literal["public", "news", "order_books", "reports"] = "public"
     url: str = Field(min_length=1, max_length=2048)
     sha256: Hash | None = None
     before_sha256: Hash | None = None
@@ -152,7 +152,23 @@ def source_history(query: SourceHistoryQuery | dict[str, Any], directory: Path) 
         ) from None
     from atlas_terminal.credit_catalog import CREDIT_RATINGS_URL
 
-    if q.scope == "news":
+    if q.scope == "order_books":
+        from atlas_terminal.order_books import LOCAL_BOOK_URL, BookTransport
+
+        if q.url == LOCAL_BOOK_URL:
+            import os
+
+            if not os.environ.get("ATLAS_ORDER_BOOK_FILE"):
+                raise AtlasError(
+                    "CONFIG_REQUIRED", "Configure ATLAS_ORDER_BOOK_FILE for retained local books."
+                )
+        else:
+            BookTransport.validate_url(q.url)
+    elif q.scope == "reports":
+        from atlas_terminal.analyst_reports import ReportTransport
+
+        ReportTransport.validate_url(q.url)
+    elif q.scope == "news":
         from atlas_terminal.news_sources import NewsTransport
 
         NewsTransport.validate_url(q.url)
@@ -169,7 +185,14 @@ def source_history(query: SourceHistoryQuery | dict[str, Any], directory: Path) 
     if yahoo_identity(q.url) is not None:
         require_yahoo_enabled()
     store = Database(
-        directory / ("news-cache.sqlite3" if q.scope == "news" else "public-cache.sqlite3"), SCHEMA
+        directory
+        / {
+            "public": "public-cache.sqlite3",
+            "news": "news-cache.sqlite3",
+            "order_books": "order-books-cache.sqlite3",
+            "reports": "reports-cache.sqlite3",
+        }[q.scope],
+        SCHEMA,
     )
     with store.connect() as conn:
         rows = conn.execute(

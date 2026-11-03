@@ -124,6 +124,48 @@ class Atlas:
             }
         )
 
+    def get_order_book(
+        self, identifier: str, *, depth: int = 10, source: str = "bitbank"
+    ) -> dict[str, Any]:
+        return self.get_research(
+            {
+                "dataset": "order_book",
+                "identifier": identifier,
+                "depth": depth,
+                "book_source": source,
+            }
+        )
+
+    def get_reports(
+        self,
+        *,
+        source: str = "fisco",
+        identifier: str | None = None,
+        search: str | None = None,
+        limit: int = 100,
+    ) -> dict[str, Any]:
+        options = {"identifier": identifier, "search": search}
+        return self.get_research(
+            {
+                "dataset": "analyst_reports",
+                "report_source": source,
+                "limit": limit,
+                **{k: v for k, v in options.items() if v is not None},
+            }
+        )
+
+    def get_report_text(
+        self, report_id: str, *, search: str | None = None, limit: int = 100
+    ) -> dict[str, Any]:
+        return self.get_research(
+            {
+                "dataset": "analyst_report_text",
+                "report_id": report_id,
+                "limit": limit,
+                **({"search": search} if search is not None else {}),
+            }
+        )
+
     def get_news(
         self,
         *,

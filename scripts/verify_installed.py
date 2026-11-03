@@ -7,6 +7,7 @@ import socket
 import subprocess
 import sys
 import time
+from importlib.resources import files
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -23,6 +24,10 @@ from atlas_terminal.util import canonical, digest
 QUERY = parse_query({"identifier": "ATLASDEMO", "metrics": ["revenue", "net_income"], "count": 3})
 expected = Atlas("fixture").get_financials(QUERY).model_dump(mode="json")
 MACRO_QUERIES = [
+    {"dataset": "order_book", "identifier": "BTC_JPY", "depth": 2},
+    {"dataset": "analyst_reports", "identifier": "123A"},
+    {"dataset": "analyst_reports", "report_source": "local"},
+    {"dataset": "analyst_report_text", "report_id": "rp_" + "0" * 64},
     {"dataset": "news_feed", "feeds": ["mof_news"]},
     {
         "dataset": "news_digest",
@@ -256,6 +261,64 @@ async def payment_planning_mcp(root, env, quote_id):
         assert denied.is_error and denied.structured_content["error"]["code"] == "BUDGET_EXCEEDED"
 
 
+def verify_report_import(root):
+    from pypdf import PdfWriter
+    from pypdf.generic import DecodedStreamObject, DictionaryObject, NameObject
+
+    document = root / "synthetic-report.pdf"
+    metadata = root / "synthetic-report-metadata.json"
+    metadata.write_bytes(
+        files("atlas_terminal")
+        .joinpath("resources/research/analyst_report_metadata.json")
+        .read_bytes()
+    )
+    writer = PdfWriter()
+    font = DictionaryObject(
+        {
+            NameObject("/Type"): NameObject("/Font"),
+            NameObject("/Subtype"): NameObject("/Type1"),
+            NameObject("/BaseFont"): NameObject("/Helvetica"),
+        }
+    )
+    for label in ("SYNTHETIC first page", "SYNTHETIC second page"):
+        page = writer.add_blank_page(width=600, height=800)
+        page[NameObject("/Resources")] = DictionaryObject(
+            {NameObject("/Font"): DictionaryObject({NameObject("/F1"): writer._add_object(font)})}
+        )
+        stream = DecodedStreamObject()
+        stream.set_data(f"BT /F1 12 Tf 50 700 Td ({label}) Tj ET".encode())
+        page[NameObject("/Contents")] = writer._add_object(stream)
+    writer.write(document)
+    state = root / "report-library"
+    env = dict(os.environ, ATLAS_STATE_DIR=str(state))
+
+    def run(*args):
+        result = subprocess.run(
+            [sys.executable, "-m", "atlas_terminal", "research", *args],
+            cwd=root,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=True,
+        )
+        return json.loads(result.stdout)
+
+    receipt = run("import-report", str(document), "--metadata", str(metadata))
+    result = run("report-text", receipt["report_id"], "--search", "second")
+    assert len(result["records"]) == 1
+    evidence = result["records"][0]["source"]
+    assert evidence["pdf_page"] == 2 and evidence["raw_sha256"] == digest(document.read_bytes())
+    with Atlas("public", directory=state) as atlas:
+        assert (
+            atlas.get_report_text(receipt["report_id"], search="second")["records"]
+            == result["records"]
+        )
+        assert len(atlas.get_reports(source="local")["records"]) == 1
+    assert run("book", "BTC_JPY", "--provider", "fixture", "--json")["records"]
+    assert run("reports", "--provider", "fixture", "--json")["records"]
+
+
 async def mcp_smoke(root, macro_expected):
     params = StdioServerParameters(
         command=sys.executable,
@@ -311,6 +374,7 @@ async def mcp_smoke(root, macro_expected):
 
 with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
     root = Path(temporary)
+    verify_report_import(root)
     demo = subprocess.run(
         [sys.executable, "-m", "atlas_terminal", "demo", "--json"],
         cwd=root,
@@ -695,6 +759,8 @@ with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
                 "wheel_seven_country_macro_bonds_cli_sdk_mcp_http": "PASS",
                 "wheel_interest_spreads_cli_sdk_mcp_http": "PASS",
                 "wheel_official_news_briefing_rss_cli_sdk_mcp_http": "PASS",
+                "wheel_books_reports_cli_sdk_mcp_http": "PASS",
+                "wheel_pdf_import_page_evidence_cli_sdk": "PASS",
                 "wheel_market_discovery_funds_fred_cli_sdk_mcp_http": "PASS",
                 "wheel_quality_batch_cli_sdk_mcp_http": "PASS",
                 "wheel_presets_cli_sdk_mcp_http": "PASS",

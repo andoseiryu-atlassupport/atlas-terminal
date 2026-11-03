@@ -9,6 +9,8 @@
 | `as_of`          | Timezone-aware `as_of`    | Latest locally observed version at or before the inclusive cutoff                 |
 | `diff`           | `before_sha256`, `sha256` | Raw-hash change and up to 500 exact JSON-cell changes                             |
 
+`history_scope=order_books` selects `order-books-cache.sqlite3` for the three registered bitbank depth URLs and the configured local book at `https://local.atlas.invalid/order-book`. Local-book history requires `ATLAS_ORDER_BOOK_FILE` to remain configured. `history_scope=reports` selects `reports-cache.sqlite3` for the fixed FISCO directory. These scopes have independent quotas and never query the default macro/BLS cache. Imported PDF/text revisions live in the separate report library and are not exposed through raw-URL history. [Books and reports](order-books-reports.md).
+
 All actions require `source_url` to be an exact approved public-source URL. The operator credit-rating book also supports the reserved local namespace `https://local.atlas.invalid/credit-ratings` while `ATLAS_CREDIT_RATINGS_FILE` is set; those bytes come from the configured file, never an HTTP fetch. Copy it from returned provenance; credential-bearing or arbitrary URLs are rejected. Yahoo history also requires `ATLAS_ENABLE_YAHOO_FINANCE=1`. SEC's separate cache is not queried through this dataset.
 
 ```json

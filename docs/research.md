@@ -8,6 +8,8 @@ Results include missing-data status, periods, coverage and source terms. Discove
 
 ## Datasets
 
+[Order books and analyst reports](order-books-reports.md) add `order_book` (required identifier, optional `book_source` and `depth`), `analyst_reports` (public FISCO directory or `report_source=local`) and `analyst_report_text` (required imported `report_id`). Local PDF/text import is an explicit CLI action, not a remote filesystem operation. All three reads support compact evidence and the shared interfaces.
+
 `global_economics` accepts required `country` and `series`, plus optional paired date bounds and `limit`. Fourteen annual WDI indicators cover 23 countries and the EU aggregate, including the nineteen G20 countries. [Countries, units, missingness and examples](g20-macro.md).
 
 | ID                         | Content                                                             | Query fields                                                 | Output                                |
@@ -46,7 +48,7 @@ Results include missing-data status, periods, coverage and source terms. Discove
 
 [Country macro and bond rates](country-macro-bonds.md) add `country_economics` and `country_bond_yields`, each requiring `country` and a registered `series`, with paired dates and `limit`. Their 29 exact bindings expose original CPI bases, New Zealand quarterly frequency, national rate definitions and explicit country gaps. `country_macro_overview` extends annual WDI overviews to every registered country while preserving the G20 preset’s original membership.
 
-The catalog contains 62 datasets, including seven optional Yahoo selections, generic FRED and local source history. [Japanese company queries](japan-companies.md) add `japan_disclosures` (`filing_date`), `japan_filing_facts` (`filing_date`, `document_id`, optional `concept`) and `japan_securities` (optional JPX `.T` identifier). [Source history](source-history.md) accepts an approved `source_url`, `history_action` and action-specific hashes or a timezone-aware local-observation `as_of`. These query fields work through `research get` flags or `research run --input`.
+The catalog contains 65 datasets, including seven optional Yahoo selections, generic FRED and local source history. [Japanese company queries](japan-companies.md) add `japan_disclosures` (`filing_date`), `japan_filing_facts` (`filing_date`, `document_id`, optional `concept`) and `japan_securities` (optional JPX `.T` identifier). [Source history](source-history.md) accepts an approved `source_url`, `history_action` and action-specific hashes or a timezone-aware local-observation `as_of`. These query fields work through `research get` flags or `research run --input`.
 
 `identifier` accepts a ticker, CIK or company name. For 13F, use the **reporting manager's CIK**. An issuer CIK does not reverse-search every manager holding that issuer. Insider reports are likewise limited to the resolved filing history. For `insider_transactions` and `institutional_holdings`, omitting `accession` selects the latest matching filing. Original-document datasets require an explicit accession. Original filings and amendments are not merged automatically.
 
@@ -193,7 +195,7 @@ Raw bytes stay in a private cache. Values carry `raw_sha256`, `retrieved_at` and
 
 Retrieving an observation for an earlier year does not establish what was available then. `as_of` / `pit` requests are rejected. Comparisons require common actual periods; issuers with different fiscal calendars may have no comparable values.
 
-Consolidated prices, daily prices and adjustment factors, order books, options, consensus estimates, complete news/transcript coverage, a historical security master and PIT are unavailable. Private APIs or scraping with unclear terms do not fill those gaps. See [DATA_SOURCES](../DATA_SOURCES.md) for source conditions and [validation scope](verification.md) for test evidence. Catalog `live_verified=false` distinguishes offline validation from live access.
+Consolidated prices and complete adjustment-factor histories, consolidated equity order books, options, consensus estimates, complete news/transcript coverage, a historical security master and PIT are unavailable. Private APIs or scraping with unclear terms do not fill those gaps. See [DATA_SOURCES](../DATA_SOURCES.md) for source conditions and [validation scope](verification.md) for test evidence. Catalog `live_verified=false` distinguishes offline validation from live access.
 
 ## National accounts and Japanese macro
 

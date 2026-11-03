@@ -29,7 +29,7 @@ Run `atlas showcase research --provider public --allow-network` for actual ECB/N
 
 ## Available data
 
-Atlas provides 62 research datasets, including private local source history, with data from 24 upstream source families. Official sources include SEC EDGAR, BLS, Treasury, the Federal Reserve, ECB, New York Fed, BEA, BOJ, Japan's Statistical Dashboard/MOF, EDINET, JPX, IMF, OECD, RBA, Eurostat, ONS, Census, ABS, StatCan and World Bank. Generic FRED retrieval preserves original producer conditions. Seven optional Yahoo daily/intraday price, action, analytics and futures datasets remain disabled by default for personal-use access under separate terms.
+Atlas provides 65 research datasets, including private local source history, with data from 26 upstream source families. Official sources include SEC EDGAR, BLS, Treasury, the Federal Reserve, ECB, New York Fed, BEA, BOJ, Japan's Statistical Dashboard/MOF, EDINET, JPX, IMF, OECD, RBA, Eurostat, ONS, Census, ABS, StatCan and World Bank. Generic FRED retrieval preserves original producer conditions. Seven optional Yahoo daily/intraday price, action, analytics and futures datasets remain disabled by default for personal-use access under separate terms.
 
 [European and Korean market data](docs/europe-korea-equities.md) covers KOSPI/KOSDAQ and sixteen European countries through the existing price/action, intraday and analytics datasets. British pound/pence quote units remain explicit. The optional time-series connector supports the same national markets with a separately selected ETF proxy; local standardized company financial readers remain unavailable.
 
@@ -59,7 +59,9 @@ Atlas provides 62 research datasets, including private local source history, wit
 | Europe / UK  | Eurostat GDP, HICP, unemployment, production and retail for six regions; five ONS CPI/GDP/rolling-unemployment series                                               |
 | Policy       | Federal Reserve release headlines, publication times and original links                                                                                             |
 
-Values retain their units, periods, source hashes, retrieval times and JSON pointers, XML paths, CSV cells or fixed-width text positions. Missing or ambiguous values are explicit. Derived metrics include their formulas and reported inputs.
+[Order books and analyst reports](docs/order-books-reports.md) add public bitbank crypto depth snapshots, permitted local equity/futures books, FISCO report-link discovery and a private PDF/text library. `atlas research book BTC_JPY` returns price levels and exact spread/depth calculations; `atlas research reports` discovers original report links. Imported documents retain page citations and rights metadata. Consolidated equity depth and contracted broker-report feeds remain unavailable; live source access is distinct from offline validation.
+
+Values retain their units, periods, source hashes, retrieval times and JSON pointers, XML paths, CSV cells, PDF pages or fixed-width text positions. Missing or ambiguous values are explicit. Derived metrics include their formulas and reported inputs.
 
 Use `japan_activity_overview`, `us_activity_overview`, `euro_area_macro_overview`, `uk_macro_overview` or `global_macro_overview` to retrieve selected economic context through one connection. [Series, definitions, source requirements and examples](docs/economic-indicators.md). These additions are in the latest source checkout; the existing `v0.7.0` release remains unchanged.
 
@@ -194,7 +196,7 @@ Use a stable `intent_id` when preparing a quote to recover the same order after 
 
 Filing discovery returns document metadata and links. Structured ownership results describe one selected filing, with amendment, reporting-lag and coverage limits. Current snapshots and revised economic observations are not point-in-time historical data.
 
-Consolidated equity prices, order books, option chains, analyst consensus, newswire articles and earnings-call transcripts are not provided. Source access limits and third-party content terms apply independently of the code license.
+Consolidated equity prices, consolidated equity order books, option chains, analyst consensus, newswire articles and earnings-call transcripts are not provided. Source access limits and third-party content terms apply independently of the code license.
 
 [Source terms](DATA_SOURCES.md) · [Financial methodology](docs/methodology.md) · [Validation scope](docs/verification.md) · [Security](SECURITY.md) · [Contributing](CONTRIBUTING.md)
 

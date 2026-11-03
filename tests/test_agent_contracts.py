@@ -32,6 +32,12 @@ def private_state(tmp_path, monkeypatch):
 
 
 def query(dataset="statements", **extra):
+    if dataset == "order_book":
+        return {"dataset": dataset, "identifier": "BTC_JPY", **extra}
+    if dataset == "analyst_reports":
+        return {"dataset": dataset, **extra}
+    if dataset == "analyst_report_text":
+        return {"dataset": dataset, "report_id": "rp_" + "0" * 64, **extra}
     if dataset in {"news_feed", "news_digest"}:
         return {"dataset": dataset, **extra}
     if dataset == "interest_spreads":

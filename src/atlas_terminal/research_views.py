@@ -23,6 +23,10 @@ class SourceEvidence(BaseModel):
         extra="allow",
         json_schema_extra={
             "anyOf": [
+                {
+                    "required": ["pdf_page"],
+                    "properties": {"pdf_page": {"type": "integer", "minimum": 1}},
+                },
                 {"required": ["worksheet", "cell_row", "cell_column"]},
                 {"required": ["json_pointer"], "properties": {"json_pointer": {"type": "string"}}},
                 {
@@ -44,6 +48,7 @@ class SourceEvidence(BaseModel):
         },
     )
     worksheet: str | None = None
+    pdf_page: int | None = Field(default=None, ge=1, le=100, strict=True)
     cell_row: int | None = Field(default=None, ge=1, strict=True)
     cell_column: int | None = Field(default=None, ge=1, strict=True)
     raw_source_url: str = Field(json_schema_extra={"format": "uri"})
@@ -67,6 +72,7 @@ class SourceEvidence(BaseModel):
             or retrieved.tzinfo is None
             or (
                 self.cell_row is None
+                and self.pdf_page is None
                 and self.json_pointer is None
                 and self.xml_local_path is None
                 and (self.csv_row is None or self.csv_column is None)
@@ -151,6 +157,27 @@ CREATE TABLE IF NOT EXISTS research_evidence (
 # Field selection never strips context needed to interpret a selected value.
 # Reported inputs/formulas and per-issuer coverage remain intact too.
 CONTEXT_FIELDS = {
+    "report_id",
+    "page",
+    "analyst",
+    "sponsored",
+    "research_type",
+    "body_available",
+    "original_source_url",
+    "metadata_origin",
+    "rights_basis",
+    "sponsorship_verified_for_document",
+    "side",
+    "level",
+    "venue",
+    "observed_at",
+    "future_observation",
+    "quantity_unit",
+    "base_asset",
+    "cumulative_formula",
+    "derived",
+    "cumulative_quantity",
+    "cumulative_notional",
     "id",
     "revision_id",
     "source_guid",
@@ -216,7 +243,6 @@ CONTEXT_FIELDS = {
     "rating_date",
     "outlook",
     "watch",
-    "original_source_url",
     "origin_verified",
     "currentness_verified",
     "investment_grade",
@@ -410,7 +436,6 @@ CONTEXT_FIELDS = {
     "amount_type",
     "status",
     "reason",
-    "derived",
     "formula",
     "decimal_precision",
     "comparable",

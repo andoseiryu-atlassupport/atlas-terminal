@@ -16,6 +16,8 @@ from atlas_terminal.public_sources import SOURCE_CATALOG
 from atlas_terminal.util import stamp
 
 SourceId = Literal[
+    "bitbank",
+    "fisco",
     "yahoo_finance",
     "edinet",
     "jpx",

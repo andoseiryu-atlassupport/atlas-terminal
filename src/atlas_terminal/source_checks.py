@@ -32,6 +32,8 @@ from atlas_terminal.research_quality import (
 from atlas_terminal.util import Database, canonical, digest, stamp, state_dir
 
 PROBES: dict[str, tuple[str, dict[str, Any]]] = {
+    "bitbank_book": ("bitbank", {"dataset": "order_book", "identifier": "BTC_JPY", "depth": 5}),
+    "fisco_reports": ("fisco", {"dataset": "analyst_reports", "limit": 5}),
     "jpx_securities": ("jpx", {"dataset": "japan_securities", "limit": 5}),
     "edinet_documents": (
         "edinet",
@@ -165,7 +167,16 @@ class RecordingTransport:
 
 
 def check_client(directory: Path, snapshots: list[Snapshot]) -> Atlas:
+    from atlas_terminal.analyst_reports import ReportTransport
+    from atlas_terminal.order_books import BookTransport
+
     atlas = Atlas("public", directory=directory)
+    atlas._research.books = RecordingTransport(
+        BookTransport(cache_path=directory / "order-books-cache.sqlite3"), snapshots
+    )
+    atlas._research.reports = RecordingTransport(
+        ReportTransport(cache_path=directory / "reports-cache.sqlite3"), snapshots
+    )
     atlas._research.public = RecordingTransport(
         PublicTransport(cache_path=directory / "public-cache.sqlite3"),
         snapshots,
@@ -227,6 +238,8 @@ def xml_shape(node: Any, depth: int = 0) -> dict[str, Any]:
 
 
 def source_shapes(snapshots: list[Snapshot]) -> list[dict[str, Any]]:
+    from atlas_terminal.analyst_reports import FISCO_URL, report_links
+
     rows = {}
     for snapshot in snapshots:
         is_xml = snapshot.body.removeprefix(b"\xef\xbb\xbf").lstrip().startswith(b"<")
@@ -236,7 +249,11 @@ def source_shapes(snapshots: list[Snapshot]) -> list[dict[str, Any]]:
         )
         is_workbook = snapshot.body.startswith((b"PK", bytes.fromhex("d0cf11e0a1b11ae1")))
         structure: dict[str, Any]
-        if is_workbook:
+        is_report_directory = snapshot.url == FISCO_URL
+        if is_report_directory:
+            records = report_links(snapshot)
+            structure = {"format": "report_directory", "fields": sorted(records[0])}
+        elif is_workbook:
             worksheet, locator, table = workbook_table(snapshot.body)
             structure = {"worksheet": worksheet, "columns": table[0], "locator": locator}
         elif is_text:
@@ -275,7 +292,9 @@ def source_shapes(snapshots: list[Snapshot]) -> list[dict[str, Any]]:
             "raw_source_url": snapshot.url,
             "raw_sha256": snapshot.sha256,
             "retrieved_at": snapshot.retrieved_at,
-            "format": "workbook"
+            "format": "html"
+            if is_report_directory
+            else "workbook"
             if is_workbook
             else "text"
             if is_text

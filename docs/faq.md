@@ -18,7 +18,7 @@ Local stdio MCP can be configured in compatible Codex and desktop clients. A res
 
 ## Does Atlas provide live prices or real-time FX?
 
-No. Atlas does not provide consolidated equity quotes, trading, order books or executable currency prices. Its FX connector uses ECB daily reference rates for 31 currencies from the full published history, with per-currency availability. EFFR and SOFR cover the latest 90 effective observations. See [macro and FX limits](macro.md).
+No. Atlas does not provide consolidated equity quotes, trading, consolidated equity order books or executable currency prices. Its FX connector uses ECB daily reference rates for 31 currencies from the full published history, with per-currency availability. EFFR and SOFR cover the latest 90 effective observations. See [macro and FX limits](macro.md).
 
 ## Can I query what was known at a past date?
 
