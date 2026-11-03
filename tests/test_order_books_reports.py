@@ -389,6 +389,8 @@ def test_concurrent_identical_imports_return_the_same_first_import_time(tmp_path
     path, meta = tmp_path / "document.txt", tmp_path / "metadata.json"
     path.write_bytes(b"SYNTHETIC concurrent import")
     meta.write_bytes(canonical(META))
+    # Initialize the library before synchronizing the two concurrent insertions.
+    assert reports.local_reports(tmp_path, synthetic=False) == []
     original_extract, barrier = reports.extract_document, Barrier(2)
 
     def extract(body, file_type):
