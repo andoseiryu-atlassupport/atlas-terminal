@@ -1,0 +1,16 @@
+{
+  "events": [
+    {
+      "id": "fictional-event-1",
+      "slug": "fictional-anthropic-event",
+      "title": "FICTIONAL Anthropic research event",
+      "active": true,
+      "closed": false,
+      "archived": false
+    }
+  ],
+  "pagination": {
+    "hasMore": false,
+    "totalResults": 1
+  }
+}

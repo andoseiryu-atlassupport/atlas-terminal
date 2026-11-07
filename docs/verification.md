@@ -4,6 +4,20 @@ Recorded on 2026-11-08 (JST) for the source checkout following Atlas Terminal 0.
 
 Version 0.7.0 includes the experimental native factor risk extension and installed walkthroughs described below. The prior 0.6.0 release did not include risk estimation. Local wheel checks remain separate evidence from a published GitHub release.
 
+## Polymarket event prices
+
+`prediction_markets` adds optional, read-only Gamma event discovery and outcome prices, bringing the catalog to **68 datasets, 27 upstream source families and 26 presets**. Search terms or exact event slugs share CLI/SDK/MCP/HTTP retrieval, with event details fetched separately from previews. Reported outcome labels, prices, public token IDs, status flags and exact percentage formulas retain original hashes and JSON/embedded-JSON pointers. Inactive prices remain references, and actual quote timestamps are unverified.
+
+On **2026-11-08 JST**, managed-environment observations showed enforced restricted egress with `gamma-api.polymarket.com` absent from the effective host list. A normal inherited-proxy/TLS request to the official public-search endpoint failed with **`httpx.ProxyError: 403 Forbidden`**. The opt-in production-adapter check (`uv run --offline python scripts/verify_predictions_live.py --allow-network --limit 1 --output build/predictions-live-2026-11-08`) independently recorded **`SOURCE_UNAVAILABLE`**, a null HTTP status and **`ProxyError`**. No source body or actual Anthropic price was retrieved; live probability verification remains blocked. The implementation does not substitute a web-search price, fixture, alternate host or disabled TLS.
+
+Official Gamma search/event specifications, Polymarket's price explanation, research-data guide and current terms were inspected separately. The terms restrict Capital Market Clients and market-data distributors without written agreement and do not grant unrestricted redistribution rights. No wallet, order, funding, CLOB or geographic-restriction bypass was added. The optional source is excluded from default probes; an explicitly selected source-health probe uses the same read-only adapter.
+
+Fictional regressions cover search/detail identity, aliases, exact array ordering, missing/zero prices, ended and unknown-status markets, malformed arrays, token identity, decimal precision, timestamps, pagination, limits, canonical URLs, redirect refusal, source pointers, compact evidence, quality requirements and identical shared-interface responses. An independent Fraction-based audit rejects corrupted source fields or percentages. These checks do not establish live connectivity, current Anthropic odds or forecast calibration.
+
+The local suite passed **2,971 tests**, with two live tests deselected, including **61 focused prediction-market and verifier regressions**. Ruff/format (**307 files**), mypy (**121 source files**), regenerated contracts, npm checks and the **68-page** documentation build passed. Wheel/sdist validation passed with **428 / 739 files** and no private/runtime paths. The public-file/history scan found no matching credential patterns. Existing BLS offline replay still matched **14 captures / 168 records**, and both showcase checksums passed without new source reads.
+
+The built wheel was reinstalled outside the checkout into the existing isolated environment with **74 hash-locked runtime dependencies**; all **75 packages** passed compatibility checks. `scripts/verify_installed.py` passed fictional event search and exact-slug/closed-reference queries through SDK, CLI, official stdio MCP and actual loopback HTTP. These package checks made no external requests or real transfers and do not establish Gamma connectivity. No new dependency, release or deployment was introduced.
+
 ## Buffett-inspired scoring
 
 `buffett_score` adds a deterministic, versioned 100-point rubric: 80 points for annual business-quality proxies and 20 for an explicit cash-flow-proxy valuation scenario. The catalog now contains **67 datasets, 26 upstream source families and 26 presets**. Scores retain rules, exact inputs, source evidence and fixed-weight bounds; missing data is not reweighted. Qualitative business understanding, management integrity and durable moat remain manual-review items. General-company thresholds do not score financial businesses.
@@ -216,11 +230,11 @@ Wheel-payload SDK and CLI smoke reads loaded the packaged fictional WDI template
 | --------------------------------------------------------- | ------------------------------------------------------------------- |
 | `uv run --offline ruff check .`                           | PASS                                                                |
 | `uv run --offline ruff format --check .`                  | PASS                                                                |
-| `uv run --offline mypy`                                   | PASS; 119 source files                                              |
-| `uv run --offline pytest`                                 | PASS; 2,908 tests, 2 live tests deselected                          |
+| `uv run --offline mypy`                                   | PASS; 121 source files                                              |
+| `uv run --offline pytest`                                 | PASS; 2,971 tests, 2 live tests deselected                          |
 | `uv run --offline python -m build --no-isolation`         | PASS; wheel and source distribution                                 |
 | `uv run --offline python scripts/verify_distribution.py`  | PASS; metadata, required contents and forbidden paths               |
-| `uv run --offline python scripts/build_docs.py`           | PASS; 67 HTML pages and internal file/section links                 |
+| `uv run --offline python scripts/build_docs.py`           | PASS; 68 HTML pages and internal file/section links                 |
 | `uv run --offline python scripts/verify_showcases.py`     | PASS; both recorded versions, data modes and checksums              |
 | `uv run --offline python scripts/verify_bls_capture.py`   | PASS; offline audit/replay of 14 captured responses and 168 records |
 | `uv run --offline python scripts/prepare_distribution.py` | PREPARED; versioned plugin ZIP and Registry draft                   |

@@ -157,6 +157,16 @@ CREATE TABLE IF NOT EXISTS research_evidence (
 # Field selection never strips context needed to interpret a selected value.
 # Reported inputs/formulas and per-issuer coverage remain intact too.
 CONTEXT_FIELDS = {
+    "markets",
+    "event_id",
+    "event_slug",
+    "event_url",
+    "metadata_updated_at",
+    "price_observed_at",
+    "snapshot_retrieved_at",
+    "filtered_closed_markets",
+    "available_markets",
+    "markets_truncated",
     "model_version",
     "reported_inputs",
     "components",

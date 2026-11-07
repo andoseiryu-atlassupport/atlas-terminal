@@ -165,6 +165,8 @@ def query(dataset="statements", **extra):
         return {"dataset": dataset, "filing_date": "2026-06-25", **extra}
     if dataset == "japan_filing_facts":
         return {"dataset": dataset, "filing_date": "2026-06-25", "document_id": "S100DEMO", **extra}
+    if dataset == "prediction_markets":
+        return {"dataset": dataset, "search": "Anthropic", **extra}
     if dataset == "buffett_score":
         return {"dataset": dataset, "identifier": "ATLASDEMO", **extra}
     if dataset == "margin_balances":

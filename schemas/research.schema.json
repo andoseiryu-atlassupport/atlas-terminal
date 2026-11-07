@@ -1240,6 +1240,96 @@
       "oneOf": [
         {
           "additionalProperties": false,
+          "oneOf": [
+            {
+              "properties": {
+                "search": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "event_slug": {
+                  "type": "null"
+                }
+              },
+              "required": ["search"]
+            },
+            {
+              "properties": {
+                "event_slug": {
+                  "type": "string"
+                },
+                "search": {
+                  "type": "null"
+                }
+              },
+              "required": ["event_slug"]
+            }
+          ],
+          "properties": {
+            "dataset": {
+              "const": "prediction_markets",
+              "type": "string"
+            },
+            "event_slug": {
+              "anyOf": [
+                {
+                  "maxLength": 200,
+                  "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Event Slug"
+            },
+            "include_closed": {
+              "default": false,
+              "title": "Include Closed",
+              "type": "boolean"
+            },
+            "limit": {
+              "default": 3,
+              "maximum": 5,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "search": {
+              "anyOf": [
+                {
+                  "maxLength": 100,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Search"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": ["dataset"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
           "properties": {
             "dataset": {
               "const": "buffett_score",
@@ -6630,6 +6720,7 @@
       "properties": {
         "dataset": {
           "enum": [
+            "prediction_markets",
             "buffett_score",
             "order_book",
             "analyst_reports",
@@ -6907,6 +6998,25 @@
           ],
           "default": null,
           "title": "Identifier"
+        },
+        "event_slug": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Event Slug"
+        },
+        "include_closed": {
+          "default": false,
+          "title": "Include Closed",
+          "type": "boolean"
         },
         "financial_input": {
           "anyOf": [
@@ -7679,6 +7789,7 @@
         },
         "dataset": {
           "enum": [
+            "prediction_markets",
             "buffett_score",
             "order_book",
             "analyst_reports",
@@ -11991,6 +12102,7 @@
             {
               "items": {
                 "enum": [
+                  "polymarket",
                   "bitbank",
                   "fisco",
                   "yahoo_finance",

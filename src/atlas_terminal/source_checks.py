@@ -32,6 +32,10 @@ from atlas_terminal.research_quality import (
 from atlas_terminal.util import Database, canonical, digest, stamp, state_dir
 
 PROBES: dict[str, tuple[str, dict[str, Any]]] = {
+    "polymarket_events": (
+        "polymarket",
+        {"dataset": "prediction_markets", "search": "Anthropic", "limit": 1},
+    ),
     "bitbank_book": ("bitbank", {"dataset": "order_book", "identifier": "BTC_JPY", "depth": 5}),
     "fisco_reports": ("fisco", {"dataset": "analyst_reports", "limit": 5}),
     "jpx_securities": ("jpx", {"dataset": "japan_securities", "limit": 5}),

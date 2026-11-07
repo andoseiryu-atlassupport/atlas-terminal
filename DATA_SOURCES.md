@@ -181,3 +181,7 @@ Companies, CIKs, amounts and observations under `resources/sec_like`, `resources
 ## Buffett-inspired calculations
 
 `buffett_score` reuses SEC primary annual facts or explicitly supplied financial inputs. The rubric and DCF assumptions are Atlas editorial choices inspired by public Berkshire letters; they are not another data provider or Buffett endorsement. Supplied values and market capitalization retain canonical request-document hashes and declared attribution, with publisher verification explicitly false. No source URL is fetched for operator inputs, and no paid API, LLM or new data package is required. [Methods, philosophy and OSS review](docs/buffett-scoring.md).
+
+## Optional Polymarket event data
+
+The public [Gamma API](https://docs.polymarket.com/market-data/discover-markets) provides publisher-owned event and market records without an API key. Atlas selects fixed read-only search/event endpoints and retains original outcome-price evidence; it does not trade or supply verified live quotes. [Polymarket terms](https://polymarket.com/tos) restrict Capital Market Clients and market-data distributors without a written agreement and restrict commercial redistribution. Public access does not grant an open-data license. Actual data stays private; fixtures are fictional. [Semantics, access and current verification limits](docs/prediction-markets.md).

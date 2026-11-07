@@ -157,6 +157,12 @@ MACRO_QUERIES = [
         "start_date": "2026-10-28",
         "end_date": "2026-10-28",
     },
+    {"dataset": "prediction_markets", "search": "Anthropic"},
+    {
+        "dataset": "prediction_markets",
+        "event_slug": "fictional-anthropic-event",
+        "include_closed": True,
+    },
     {"dataset": "buffett_score", "identifier": "ATLASDEMO"},
     {
         "dataset": "buffett_score",
@@ -905,6 +911,7 @@ with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
                 "wheel_books_reports_cli_sdk_mcp_http": "PASS",
                 "wheel_margin_balances_cli_sdk_mcp_http": "PASS",
                 "wheel_buffett_score_cli_sdk_mcp_http": "PASS",
+                "wheel_prediction_markets_cli_sdk_mcp_http": "PASS",
                 "wheel_pdf_import_page_evidence_cli_sdk": "PASS",
                 "wheel_market_discovery_funds_fred_cli_sdk_mcp_http": "PASS",
                 "wheel_quality_batch_cli_sdk_mcp_http": "PASS",
