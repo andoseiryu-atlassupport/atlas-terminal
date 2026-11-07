@@ -117,7 +117,7 @@ Research needs no data subscription, wallet or LLM. BEA, Census, FRED and EDINET
 
 Growth matches actual prior-year periods; `0.25` means 25%. Free cash flow is reported operating cash flow minus PP&E acquisition payments. Comparisons select the latest shared reported period end and suppress values with different actual input dates. Missing quarters and nonpositive growth baselines remain unavailable. [Calculation rules](docs/research.md#growth-and-cash-flow-analytics).
 
-FX observations are daily reference rates for information purposes. ECB retrieval uses the full published history, with optional observation-date bounds; EFFR/SOFR retrieval covers the latest 90 observations. Cross rates use inputs from the same date. Missing dates and macro baselines are not filled. [Macro and FX guide](docs/macro.md).
+FX observations are daily reference rates for information purposes. ECB retrieval uses the full published history, with optional observation-date bounds. EFFR/SOFR default to the latest 90 observations and support explicit historical observation dates through annual source requests. Cross rates use inputs from the same date. Missing dates and macro baselines are not filled. [Macro and FX guide](docs/macro.md).
 
 ## Python, MCP and HTTP
 

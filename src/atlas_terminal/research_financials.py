@@ -99,6 +99,47 @@ def eligible_period(raw: dict[str, Any], spec: MetricSpec, period: str) -> bool:
     return low <= days <= high
 
 
+def missing_statement_reason(
+    taxonomy: dict[str, Any],
+    spec: MetricSpec,
+    end: str,
+    period: str,
+    filings: dict[str, Filing],
+) -> tuple[str, str]:
+    concepts = [taxonomy[tag] for tag in spec.tags if tag in taxonomy]
+    if not concepts:
+        return (
+            "STANDARD_CONCEPT_UNAVAILABLE",
+            "No supported US-GAAP concept for this metric; custom filing facts may differ.",
+        )
+    if not any(spec.unit in concept.get("units", {}) for concept in concepts):
+        return "SUPPORTED_UNIT_UNAVAILABLE", f"No supported {spec.unit} facts for this metric."
+    if period == "quarterly" and not spec.instant:
+        primary_rows = []
+        for concept in concepts:
+            for raw in concept.get("units", {}).get(spec.unit, []):
+                filing = filings.get(raw.get("accn"))
+                if (
+                    filing
+                    and raw.get("end") == end == filing.report_date
+                    and raw.get("form") == filing.form
+                    and raw.get("filed") == filing.filed_on
+                ):
+                    primary_rows.append(raw)
+        if not any(eligible_period(raw, spec, "quarterly") for raw in primary_rows) and any(
+            eligible_period(raw, spec, "annual") or eligible_period(raw, spec, "ytd")
+            for raw in primary_rows
+        ):
+            return (
+                "NO_PRIMARY_DISCRETE_QUARTER",
+                "Only annual or YTD primary durations match; no discrete quarter derived.",
+            )
+    return (
+        "NO_ELIGIBLE_PRIMARY_FACT",
+        "No eligible primary-filing fact with matching period, unit and filing metadata.",
+    )
+
+
 def statement_data(
     source: SECProvider,
     query: ResearchQuery,
@@ -171,7 +212,15 @@ def statement_data(
     requested_periods = len(ends) if include_history else query.count
     if not ends:
         raise AtlasError(
-            "INCOMPLETE_COVERAGE", "No eligible reported periods; no quarter was derived."
+            "INCOMPLETE_COVERAGE",
+            "No eligible reported periods; no quarter was derived.",
+            details={
+                "reason_code": "NO_REPORTED_DURATION_ANCHOR",
+                "period": query.period,
+                "supported_tags": {
+                    metric: list(STATEMENT_METRICS[metric].tags) for metric in metrics
+                },
+            },
         )
     records: list[dict[str, Any]] = []
     for end in ends:
@@ -206,6 +255,16 @@ def statement_data(
                 else None
             )
             status = "reported" if selected else ("ambiguous" if choices else "unavailable")
+            reason_code, reason = (None, None)
+            if choices and not selected:
+                reason_code, reason = (
+                    "CONFLICTING_PRIMARY_FACTS",
+                    "Eligible primary-filing values or durations conflict; no value selected.",
+                )
+            elif not selected:
+                reason_code, reason = missing_statement_reason(
+                    taxonomy, spec, end, query.period, index
+                )
             records.append(
                 {
                     "metric": metric,
@@ -218,9 +277,8 @@ def statement_data(
                         "end": end,
                     },
                     "source": selected["source"] if selected else None,
-                    "reason": None
-                    if selected
-                    else "No unique eligible primary-filing fact; no value imputed.",
+                    "reason": reason,
+                    "reason_code": reason_code,
                 }
             )
     reported = sum(r["status"] == "reported" for r in records)
@@ -232,6 +290,18 @@ def statement_data(
         "reported_cells": reported,
         "history_truncated": truncated,
         "partial": partial,
+        "period_selection_basis": "reported_duration_anchors_not_consecutive_calendar_periods",
+        "omitted_filing_periods": [
+            {
+                "period_end": end,
+                "reason_code": "NO_REPORTED_DISCRETE_QUARTER_ANCHOR"
+                if query.period == "quarterly"
+                else "NO_REPORTED_DURATION_ANCHOR",
+                "forms": sorted({f.form for f in index.values() if f.report_date == end}),
+            }
+            for end in sorted({f.report_date for f in index.values()}, reverse=True)
+            if end >= ends[-1] and end not in anchors
+        ],
     }
     if partial and not query.allow_partial:
         raise AtlasError(

@@ -39,9 +39,10 @@ from atlas_terminal.japan_company_sources import (
     company_identity,
     edinet_key,
 )
-from atlas_terminal.macro_catalog import REFERENCE_SERIES
 from atlas_terminal.policy_sources import parse_policy, policy_identity
 from atlas_terminal.providers import CachedHTTPTransport, Snapshot, decode_json
+from atlas_terminal.reference_rate_sources import NYFED_RATES as NYFED_RATES
+from atlas_terminal.reference_rate_sources import nyfed_identity
 from atlas_terminal.regional_bond_sources import (
     ECB_CURVE_BASE,
     RBA_URL,
@@ -70,11 +71,6 @@ ECB_FX_URL = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist.xml"
 TREASURY_REAL_BASE = TREASURY_BASE.replace(
     "daily_treasury_yield_curve", "daily_treasury_real_yield_curve"
 )
-NYFED_RATES = {
-    name: f"https://markets.newyorkfed.org/api/rates/{kind}/{name}/last/90.json"
-    for name, kind in [("effr", "unsecured"), ("sofr", "secured")]
-}
-
 # V1 is registration-free: three years by default, at most ten years per dated POST.
 BLS_SERIES = {
     "cpi": ("CUUR0000SA0", "Consumer price index, all urban consumers", "index_1982_84_100", False),
@@ -273,7 +269,7 @@ SOURCE_CATALOG = {
         ),
         "cadence": (
             "Business-day effective observations with possible revisions; "
-            "last 90 observations for EFFR or SOFR."
+            "latest 90 by default; explicit observation dates use annual source requests."
         ),
     },
     "sec": {
@@ -450,7 +446,8 @@ class PublicTransport(CachedHTTPTransport):
     @staticmethod
     def validate_url(url: str) -> None:
         if (
-            url in {DEBT_URL, FED_NEWS, ECB_FX_URL, RBA_URL, *NYFED_RATES.values(), *JGB_URLS}
+            url in {DEBT_URL, FED_NEWS, ECB_FX_URL, RBA_URL, *JGB_URLS}
+            or nyfed_identity(url) is not None
             or policy_identity(url) is not None
             or ecb_curve_identity(url) is not None
             or valid_bls_url(url)
@@ -553,7 +550,7 @@ class PublicTransport(CachedHTTPTransport):
             url.startswith((BLS_BASE, BEA_BASE + "?", BOJ_BASE + "?"))
             or regional_economic_identity(url) is not None
             or url == DEBT_URL
-            or url in NYFED_RATES.values()
+            or nyfed_identity(url) is not None
         ):
             if not isinstance(decode_json(body), dict):
                 raise ValueError("Expected JSON object")
@@ -947,8 +944,8 @@ class PublicFixtures:
                 name = "estat_" + key + ".xml"
         elif url == ECB_FX_URL:
             name = "fx.xml"
-        elif url in NYFED_RATES.values():
-            series = next(name for name in REFERENCE_SERIES if NYFED_RATES[name] == url)
+        elif (nyfed := nyfed_identity(url)) is not None:
+            series = nyfed[0]
             name = series + ".json"
         elif url.startswith(TREASURY_REAL_BASE):
             if not url.endswith(("2025", "2026")):
@@ -978,6 +975,14 @@ class PublicFixtures:
         else:
             name = "fed.xml"
         body = files("atlas_terminal").joinpath("resources", "research", name).read_bytes()
+        if (nyfed := nyfed_identity(url)) is not None and nyfed[1] is not None:
+            assert nyfed[2] is not None
+            data = decode_json(body)
+            data["refRates"] = [
+                row for row in data["refRates"] if nyfed[1] <= row["effectiveDate"] <= nyfed[2]
+            ]
+            # Dated synthetic responses preserve decoded Decimal spellings as strings.
+            body = json.dumps(data, default=str, separators=(",", ":")).encode()
         return Snapshot(
             body, "https://fixtures.atlas.invalid/research/" + name, "2026-10-20T00:00:00Z"
         )

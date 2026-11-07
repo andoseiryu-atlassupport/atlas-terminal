@@ -24,6 +24,20 @@ from atlas_terminal.util import canonical, digest
 QUERY = parse_query({"identifier": "ATLASDEMO", "metrics": ["revenue", "net_income"], "count": 3})
 expected = Atlas("fixture").get_financials(QUERY).model_dump(mode="json")
 MACRO_QUERIES = [
+    {
+        "dataset": "reference_rates",
+        "series": "effr",
+        "start_date": "2026-10-16",
+        "end_date": "2026-10-19",
+        "limit": 500,
+    },
+    {
+        "dataset": "statements",
+        "identifier": "ATLASDEMO",
+        "metrics": ["revenue"],
+        "period": "quarterly",
+        "count": 3,
+    },
     {"dataset": "order_book", "identifier": "BTC_JPY", "depth": 2},
     {"dataset": "analyst_reports", "identifier": "123A"},
     {"dataset": "analyst_reports", "report_source": "local"},

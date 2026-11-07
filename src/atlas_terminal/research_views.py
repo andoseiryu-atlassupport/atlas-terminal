@@ -438,6 +438,7 @@ CONTEXT_FIELDS = {
     "amount_type",
     "status",
     "reason",
+    "reason_code",
     "formula",
     "decimal_precision",
     "comparable",

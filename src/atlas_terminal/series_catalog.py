@@ -200,7 +200,7 @@ def series_catalog(filters: CatalogQuery) -> dict[str, Any]:
             "daily",
             "percent_per_annum",
             {"series": key},
-            history="latest_90_observations",
+            history="latest_90_by_default_or_explicit_observation_dates",
         )
     for key, european in EUROPE_SERIES.items():
         add(

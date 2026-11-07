@@ -13,12 +13,12 @@ from atlas_terminal.normalize import number
 from atlas_terminal.providers import Snapshot, Transport
 from atlas_terminal.public_sources import (
     ECB_FX_URL,
-    NYFED_RATES,
     SOURCE_CATALOG,
     TREASURY_REAL_BASE,
     local_name,
     xml_root,
 )
+from atlas_terminal.reference_rate_sources import nyfed_url
 from atlas_terminal.research_analytics import exact_difference
 from atlas_terminal.research_financials import reference
 from atlas_terminal.research_models import ResearchQuery
@@ -219,14 +219,14 @@ def fx_rates(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
     return result
 
 
-def reference_rates(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
-    assert q.series in REFERENCE_SERIES
-    spec = REFERENCE_SERIES[q.series]
-    snapshot = transport.get(NYFED_RATES[q.series], 3600)
+def reference_rate_rows(
+    snapshot: Snapshot, series: str, start: str | None = None, end: str | None = None
+) -> list[dict[str, Any]]:
+    spec = REFERENCE_SERIES[series]
     raw = snapshot.data
     if not isinstance(raw, dict) or not isinstance(raw.get("refRates"), list):
         raise source_error("Expected New York Fed reference-rate records.")
-    if len(raw["refRates"]) > 90:
+    if len(raw["refRates"]) > (366 if start else 90):
         raise source_error("Reference-rate window exceeds the requested bounds.")
     rows: list[dict[str, Any]] = []
     dates: set[str] = set()
@@ -237,6 +237,8 @@ def reference_rates(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
         if not declared or any(value != spec["type"] for value in declared):
             raise source_error("Reference-rate series does not match the request.")
         observed = observation_date(row.get("effectiveDate"))
+        if not within(observed, start, end):
+            raise source_error("Reference-rate observation is outside the requested dates.")
         if observed in dates:
             raise source_error("Duplicate reference-rate effective date.")
         dates.add(observed)
@@ -246,7 +248,7 @@ def reference_rates(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
             raise source_error("Invalid reference-rate revision indicator.")
         rows.append(
             {
-                "series": q.series,
+                "series": series,
                 "source_series": spec["type"],
                 "date": observed,
                 "value": value,
@@ -259,18 +261,47 @@ def reference_rates(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
                 "source": reference(snapshot, f"/refRates/{index}/percentRate"),
             }
         )
+    return rows
+
+
+def reference_rates(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
+    assert q.series in REFERENCE_SERIES
+    spec = REFERENCE_SERIES[q.series]
+    windows: list[tuple[str | None, str | None]] = [(None, None)]
+    if q.start_date and q.end_date:
+        windows = [
+            (max(q.start_date, f"{year}-01-01"), min(q.end_date, f"{year}-12-31"))
+            for year in range(int(q.start_date[:4]), int(q.end_date[:4]) + 1)
+        ]
+    rows, sources, snapshots, source_windows = [], [], [], []
+    for start, end in windows:
+        snapshot = transport.get(nyfed_url(q.series, start, end), 3600)
+        selected = reference_rate_rows(snapshot, q.series, start, end)
+        rows.extend(selected)
+        sources.append(reference(snapshot, ""))
+        snapshots.append(snapshot)
+        source_windows.append(
+            {"start_date": start, "end_date": end, "observed_records": len(selected)}
+        )
     rows.sort(key=lambda row: row["date"], reverse=True)
-    year = datetime.fromisoformat(snapshot.retrieved_at.replace("Z", "+00:00")).year
+    if len({row["date"] for row in rows}) != len(rows):
+        raise source_error("Duplicate reference-rate dates across source windows.")
+    year = max(
+        datetime.fromisoformat(s.retrieved_at.replace("Z", "+00:00")).year for s in snapshots
+    )
     name = spec["type"]
-    return result_page(
+    result = result_page(
         rows,
-        [reference(snapshot, "")],
+        sources,
         q.limit,
-        window="New York Fed last 90 observations",
+        window="New York Fed inclusive observation dates in annual requests"
+        if q.start_date
+        else "New York Fed last 90 observations",
         limitations=[
             "Effective date is the observation date, not a publication timestamp.",
             "Rates can be revised; current response is not a release-time vintage.",
             "New York Fed overnight SOFR is distinct from forward-looking Term SOFR.",
+            "Source history and methodology differ by series; missing dates are not filled.",
         ],
         attributions=[
             {
@@ -299,6 +330,10 @@ def reference_rates(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
             }
         ],
     )
+    if q.start_date:
+        result["coverage"].update(window_metadata(rows, q.start_date, q.end_date))
+        result["coverage"]["source_windows"] = source_windows
+    return result
 
 
 def treasury_rows(snapshot: Snapshot, year: int, *, real: bool) -> list[dict[str, Any]]:
