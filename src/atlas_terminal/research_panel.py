@@ -114,7 +114,7 @@ def panel_queries(q: ResearchQuery) -> list[list[dict[str, Any]]]:
             )
         japan = JAPAN_SERIES.get(str(data.get("series")))
         daily = (
-            dataset in {"fx_rates", "interest_spreads"}
+            dataset in {"fx_rates", "interest_spreads", "reference_rates"}
             or (dataset == "macro_analytics" and data.get("series") in CURVE_SERIES)
             or (
                 dataset == "japan_economics" and japan is not None and japan["frequency"] == "DAILY"
@@ -129,8 +129,7 @@ def panel_queries(q: ResearchQuery) -> list[list[dict[str, Any]]]:
         reads = []
         for start, end in spans:
             read = {**data, "limit": 500}
-            if dataset != "reference_rates":
-                read.update(start_date=start, end_date=end)
+            read.update(start_date=start, end_date=end)
             # Validate every item before the first source read. Recursion is excluded above.
             parse_research(read)
             reads.append(read)

@@ -2,7 +2,7 @@
 
 ## What is Atlas Terminal?
 
-Atlas Terminal is an open-source financial-data toolkit for AI agents. One MCP connection provides company financials, US/Japan macro indicators and reference FX from free primary sources. A Python SDK, CLI and HTTP API share the same services. It has 32 datasets and twenty-three research presets.
+Atlas Terminal is an open-source financial-data toolkit for AI agents. One MCP connection provides company financials, US/Japan macro indicators and reference FX from free primary sources. A Python SDK, CLI and HTTP API share the same services. It has 65 datasets and twenty-six research presets.
 
 ## Is the research data free?
 
@@ -18,7 +18,7 @@ Local stdio MCP can be configured in compatible Codex and desktop clients. A res
 
 ## Does Atlas provide live prices or real-time FX?
 
-No. Atlas does not provide consolidated equity quotes, trading, consolidated equity order books or executable currency prices. Its FX connector uses ECB daily reference rates for 31 currencies from the full published history, with per-currency availability. EFFR and SOFR cover the latest 90 effective observations. See [macro and FX limits](macro.md).
+No. Atlas does not provide consolidated equity quotes, trading, consolidated equity order books or executable currency prices. Its FX connector uses ECB daily reference rates for 31 currencies from the full published history, with per-currency availability. EFFR and SOFR default to the latest 90 effective observations and support explicit historical date windows. See [macro and FX limits](macro.md).
 
 ## Can I query what was known at a past date?
 

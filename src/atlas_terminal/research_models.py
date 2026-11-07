@@ -200,7 +200,7 @@ FIELDS = {
     "policy_news": {"limit"},
     "compare": {"identifiers", "metrics", "period", "allow_partial"},
     "fx_rates": {"base_currency", "quote_currency", "limit", "start_date", "end_date"},
-    "reference_rates": {"series", "limit"},
+    "reference_rates": {"series", "start_date", "end_date", "limit"},
     "treasury_real_yields": {"year", "limit"},
     "jgb_yields": {"year", "limit", "start_date", "end_date"},
     "euro_area_yields": {"series", "year", "limit", "start_date", "end_date"},

@@ -2,15 +2,15 @@
 
 The CLI, Python SDK, MCP and HTTP API share the same macro datasets, date rules and source evidence. All upstream data are free. BEA national accounts require a free registered `BEA_API_KEY`; the other macro sources require no registration, wallet or SEC contact setting.
 
-| Dataset                | Required query fields             | Source window                                                              | Units                                           |
-| ---------------------- | --------------------------------- | -------------------------------------------------------------------------- | ----------------------------------------------- |
-| `economics`            | BLS `series`                      | Latest three years by default; dated requests in ten-year chunks           | Published index, percentage or employment units |
-| `national_accounts`    | BEA `series`                      | Current and prior two years by default; dated requests in five-year chunks | Source `CL_UNIT`, `UNIT_MULT` and `Metric_Name` |
-| `japan_economics`      | Japanese `series`                 | Current and prior two years by default; optional dates                     | Source units and adjustment metadata            |
-| `fx_rates`             | `base_currency`, `quote_currency` | Full published ECB history; optional dates                                 | Quote currency per one base currency            |
-| `reference_rates`      | `series`: `effr` or `sofr`        | New York Fed latest 90 effective observations                              | Percent per annum                               |
-| `treasury_real_yields` | None; optional `year`             | Treasury selected calendar year, from 2003                                 | Percent per annum                               |
-| `macro_analytics`      | `series`                          | BLS date window or Treasury selected year                                  | Ratio, thousand persons or basis points         |
+| Dataset                | Required query fields                             | Source window                                                              | Units                                           |
+| ---------------------- | ------------------------------------------------- | -------------------------------------------------------------------------- | ----------------------------------------------- |
+| `economics`            | BLS `series`                                      | Latest three years by default; dated requests in ten-year chunks           | Published index, percentage or employment units |
+| `national_accounts`    | BEA `series`                                      | Current and prior two years by default; dated requests in five-year chunks | Source `CL_UNIT`, `UNIT_MULT` and `Metric_Name` |
+| `japan_economics`      | Japanese `series`                                 | Current and prior two years by default; optional dates                     | Source units and adjustment metadata            |
+| `fx_rates`             | `base_currency`, `quote_currency`                 | Full published ECB history; optional dates                                 | Quote currency per one base currency            |
+| `reference_rates`      | `series`: `effr` or `sofr`; optional paired dates | Latest 90 by default; dated New York Fed history in annual requests        | Percent per annum                               |
+| `treasury_real_yields` | None; optional `year`                             | Treasury selected calendar year, from 2003                                 | Percent per annum                               |
+| `macro_analytics`      | `series`                                          | BLS date window or Treasury selected year                                  | Ratio, thousand persons or basis points         |
 
 All accept `limit` from 1–500 and shared `response` options. A limit selects the newest records after filtering; response pagination traverses that selection, not unlimited source history. Split long daily histories into smaller date queries to retrieve more than 500 records. Source coverage can start later or end earlier than the requested window; dates and limits never invent missing observations.
 
@@ -57,6 +57,15 @@ Retain the `attributions` entries identifying the ECB, its conditions and Atlas 
 ## Overnight and real rates
 
 `reference_rates` selects EFFR (overnight unsecured) or SOFR (overnight secured). It verifies the declared series identity and preserves the source's `percentRate` value as a decimal string. A value of `"1.30"` means 1.30% per annum. SOFR here is the overnight benchmark, distinct from forward-looking Term SOFR.
+
+Omitting dates retains the latest-90-observation request. Provide both `start_date` and `end_date` for inclusive historical observations, spanning at most 30 calendar years. Each source request stays within one year, with at most 366 distinct dates; series identities, dates, duplicates and original JSON pointers remain validated. A direct research response still has a maximum `limit` of 500. Use one calendar year at a time to export longer daily histories, or use a calendar panel for explicit monthly/quarterly/annual aggregation. Saved response pagination does not expand a query's selected limit. Check `coverage.truncated`, actual observation bounds and `source_windows` before treating a result as complete.
+
+```sh
+atlas research get reference_rates --series effr --start-date 2000-01-01 --end-date 2000-12-31 --limit 500 --json
+atlas research get reference_rates --series sofr --start-date 2018-01-01 --end-date 2018-12-31 --limit 500 --json
+```
+
+Dated live reads found the EFFR API window beginning **2000-07-03** and the SOFR window beginning **2018-04-02**. An EFFR 1999 query returned an empty source window and explicit `INCOMPLETE_COVERAGE`; no newer rate replaced it. Those checks do not establish availability before the observed starting dates or continuous delivery. Source definitions and methodology changes are not harmonized across history. A calendar aggregate uses supplied daily dates without certifying a complete business-day calendar. See [actual checks](verification.md#historical-reference-rates-and-financial-missingness).
 
 `date` is the source effective date. `revision_indicator` retains the source flag when present. `published_at` is null: neither effective date nor retrieval time is presented as the publication time. Current source corrections may change observations; no historical release vintage is reconstructed. Preserve the New York Fed copyright, required reference-rate notice, disclaimer, terms and normalization disclosure in `attributions`, including for compact output.
 

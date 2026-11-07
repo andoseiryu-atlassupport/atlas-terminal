@@ -507,6 +507,12 @@ async def test_real_mcp_discovers_new_query_schemas_and_returns_all_four_macro_d
         queries = [
             FX_QUERY,
             {"dataset": "reference_rates", "series": "effr"},
+            {
+                "dataset": "reference_rates",
+                "series": "effr",
+                "start_date": "2026-10-16",
+                "end_date": "2026-10-19",
+            },
             {"dataset": "treasury_real_yields", "year": 2026},
             {"dataset": "macro_analytics", "series": "payrolls_change_mom"},
         ]
