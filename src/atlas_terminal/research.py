@@ -268,6 +268,11 @@ DATASETS = {
         "jpx",
         "reference_metadata",
     ),
+    "margin_balances": (
+        "JPX daily issue margin buy/sell balances and exact share-based ratios",
+        "jpx",
+        "reported_market_balances",
+    ),
     "source_history": (
         "Private retained source versions and exact changes",
         "multiple",
@@ -666,6 +671,21 @@ def research_catalog(
         "ratios": RATIOS,
         "analytics_metrics": analytics_catalog(),
         "price_analytics_metrics": price_analytics_catalog(),
+        "margin_trading": {
+            "dataset": "margin_balances",
+            "source_id": "jpx",
+            "country": "JP",
+            "frequency": "daily",
+            "daily_convention_start": "2026-09-25",
+            "selection": "One exact currently linked application date; latest linked by default",
+            "identifier": "Four/five-character JPX code with .T; four maps to trailing-zero class",
+            "units": ["share", "JPY"],
+            "ratio": "buy_balance_shares / sell_balance_shares",
+            "directory": "https://www.jpx.co.jp/markets/statistics-equities/margin/01.html",
+            "publication_timestamp_available": False,
+            "account_positions_available": False,
+            "jsf_financing_lending_balances_available": False,
+        },
         "credit_rating_scales": credit_scale_catalog(),
         "futures_contracts": {
             "families": {
@@ -1064,6 +1084,7 @@ class ResearchService:
             "japan_disclosures",
             "japan_filing_facts",
             "japan_securities",
+            "margin_balances",
             "equity_prices",
             "intraday_prices",
             "equity_actions",
@@ -1637,6 +1658,10 @@ class ResearchService:
 
     def public_data(self, q: ResearchQuery) -> dict[str, Any]:
         assert self.public is not None
+        if q.dataset == "margin_balances":
+            from atlas_terminal.research_margin import margin_balances
+
+            return margin_balances(self.public, q)
         if q.dataset == "interest_spreads":
             from atlas_terminal.research_spreads import interest_spreads
 

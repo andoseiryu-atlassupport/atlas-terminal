@@ -4,6 +4,20 @@ Recorded on 2026-11-08 (JST) for the source checkout following Atlas Terminal 0.
 
 Version 0.7.0 includes the experimental native factor risk extension and installed walkthroughs described below. The prior 0.6.0 release did not include risk estimation. Local wheel checks remain separate evidence from a published GitHub release.
 
+## Japanese margin balances
+
+`margin_balances` adds one JPX source-backed dataset, bringing the catalog to **66 datasets, 26 upstream source families and 26 presets**. The shared CLI/SDK/MCP/HTTP service selects one currently linked daily application date and keeps its separately printed publication date. It preserves one-share/one-JPY units, general/standardized balances and daily changes, original PDF-cell spans and exact share-ratio operands. Unknown dates/issues and changed units, columns or inconsistent components fail explicitly. Actual PDFs and observations remain private ignored output; bundled inputs are fictional.
+
+On **2026-11-08 JST**, `uv run --offline python scripts/verify_margin_live.py --allow-network --report-count 2 --output build/margin-live-2026-11-08` completed through the normal inherited proxy/TLS path and existing private source cache. JPX's official all-issue directory and two **109-page PDFs** supplied application dates **2026-11-05 and 2026-11-04**, with separately printed publication dates **2026-11-06 and 2026-11-05**. Toyota, Honda and Sony passed **six issue-date checks and 168 original numeric-cell comparisons**, all reported component totals and six independent integer/Fraction half-even ratio calculations. The private CSV retains the balances, changes, ratios, original URLs, hashes and PDF pages. This validates those selected issues rather than the full issuer universe. The directory currently linked five application dates: 2026-11-05, 11-04, 11-02, 10-30 and 10-29. Historical links are never guessed.
+
+Extraction initially exceeded the worker's 512 MiB memory cap. The dedicated worker now processes copied pages independently and releases parsed page objects; it retains that memory cap, a 160-page/8 MiB document bound and a bounded execution deadline. Writer-page font context is set explicitly for pinned pypdf 6.21.4. The separate analyst-report importer still rejects documents exceeding 100 pages. This is a daily report reader, not a broker account, JSF financing/lending feed, complete long-term archive or intraday source. The default JPX source-health probe remains the listed-company workbook.
+
+Offline regressions cover dates, canonical links, code classes, exact integers, negative changes, zero sell balances, missing cells, units, numeric column order, duplicate rows, ISIN consistency, share/JPY separation, component arithmetic, rotated/encrypted/oversized PDFs, compact evidence, quality requirements and identical CLI/SDK/MCP/HTTP responses. The private verification script independently rejects corrupted observations, ratio inputs/formulas, units, hashes and text spans. Existing BLS audit/replay preserves all **14 captures and 168 matched records**, without a new BLS request or quota reset. Recorded showcase checksums pass unchanged.
+
+The complete offline suite passed **2,848 tests**, with two opt-in live tests deselected; **74 focused margin/audit cases** passed. Ruff/format (**296 files**), mypy (**116 source files**), regenerated schemas, npm/whitespace and the **66-page** documentation/internal-link build passed. Wheel/sdist validation passed with **421 / 724 files** and no private/runtime paths. Public-file/history credential-pattern scanning found no matches.
+
+The built wheel was reinstalled outside the checkout in the existing isolated environment containing **74 hash-locked runtime dependencies** from the preceding installation. No new dependency download was needed; compatibility checks passed for all **75 installed packages**. Isolated imports resolved to that installed package, and `scripts/verify_installed.py` passed margin queries through SDK, CLI, official stdio MCP and an actual loopback HTTP server, together with existing installed workflows. This offline package check is distinct from the six dated JPX reads above. No release or service deployment was performed.
+
 ## Technical indicators and offline history calculations
 
 `price_analytics` now exposes **23 indicators**, adding SMA5/25/75/200, EMA20/50 and Bollinger20 middle/bandwidth/percent B to the original fourteen. The chosen `price_field` is close or adjusted close; the existing adjusted-close default is retained. Formulas, units, warm-up and exact field evidence use that choice consistently through CLI/SDK/MCP/HTTP. SMA/EMA, Wilder RSI14, population-sigma Bollinger20 and MACD use Decimal precision 256 and half-even output rounding to 18 decimal places.
@@ -190,11 +204,11 @@ Wheel-payload SDK and CLI smoke reads loaded the packaged fictional WDI template
 | --------------------------------------------------------- | ------------------------------------------------------------------- |
 | `uv run --offline ruff check .`                           | PASS                                                                |
 | `uv run --offline ruff format --check .`                  | PASS                                                                |
-| `uv run --offline mypy`                                   | PASS; 111 source files                                              |
-| `uv run --offline pytest`                                 | PASS; 2,716 tests, 2 live tests deselected                          |
+| `uv run --offline mypy`                                   | PASS; 116 source files                                              |
+| `uv run --offline pytest`                                 | PASS; 2,848 tests, 2 live tests deselected                          |
 | `uv run --offline python -m build --no-isolation`         | PASS; wheel and source distribution                                 |
 | `uv run --offline python scripts/verify_distribution.py`  | PASS; metadata, required contents and forbidden paths               |
-| `uv run --offline python scripts/build_docs.py`           | PASS; 64 HTML pages and internal file/section links                 |
+| `uv run --offline python scripts/build_docs.py`           | PASS; 66 HTML pages and internal file/section links                 |
 | `uv run --offline python scripts/verify_showcases.py`     | PASS; both recorded versions, data modes and checksums              |
 | `uv run --offline python scripts/verify_bls_capture.py`   | PASS; offline audit/replay of 14 captured responses and 168 records |
 | `uv run --offline python scripts/prepare_distribution.py` | PREPARED; versioned plugin ZIP and Registry draft                   |

@@ -48,7 +48,7 @@ class SourceEvidence(BaseModel):
         },
     )
     worksheet: str | None = None
-    pdf_page: int | None = Field(default=None, ge=1, le=100, strict=True)
+    pdf_page: int | None = Field(default=None, ge=1, le=160, strict=True)
     cell_row: int | None = Field(default=None, ge=1, strict=True)
     cell_column: int | None = Field(default=None, ge=1, strict=True)
     raw_source_url: str = Field(json_schema_extra={"format": "uri"})

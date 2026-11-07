@@ -96,6 +96,18 @@ class Atlas:
                 status=502,
             ) from None
 
+    def get_margin_status(
+        self, identifier: str, *, observation_date: str | None = None
+    ) -> dict[str, Any]:
+        """Read one exact JPX daily report; omitting the date selects the latest linked one."""
+        return self.get_research(
+            {
+                "dataset": "margin_balances",
+                "identifier": identifier,
+                **({"observation_date": observation_date} if observation_date is not None else {}),
+            }
+        )
+
     def get_spread(
         self,
         series: str,

@@ -6,6 +6,13 @@ PROJECT_TAGLINE = "Free financial data for AI agents through one MCP connection.
 
 
 def research_documentation(dataset: str) -> dict[str, str]:
+    if dataset == "margin_balances":
+        return {
+            "guide": f"{DOCUMENTATION_ORIGIN}/docs/margin-trading.md",
+            "methodology": f"{DOCUMENTATION_ORIGIN}/docs/margin-trading.md",
+            "sources_and_terms": f"{DOCUMENTATION_ORIGIN}/DATA_SOURCES.md",
+            "citation_guidance": f"{DOCUMENTATION_ORIGIN}/docs/citations.md",
+        }
     filing = dataset in {
         "trailing_financials",
         "filing_documents",
