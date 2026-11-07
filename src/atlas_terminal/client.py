@@ -124,6 +124,37 @@ class Atlas:
             }
         )
 
+    def iter_price_history(
+        self, identifier: str, *, start_date: str, end_date: str
+    ) -> Iterator[dict[str, Any]]:
+        """Read complete annual stock/ETF results, preserving each shared query and evidence."""
+        from atlas_terminal.equity_history import iter_price_history, price_history_queries
+
+        return iter_price_history(
+            price_history_queries(identifier, start_date, end_date), self.get_research
+        )
+
+    def export_price_history(
+        self, identifier: str, *, start_date: str, end_date: str, output: Path
+    ) -> dict[str, Any]:
+        """Save a private multi-year CSV, original annual results and matching source bytes."""
+        from atlas_terminal.equity_history import export_price_history, price_history_queries
+        from atlas_terminal.equity_sources import yahoo_url
+
+        def read_raw(result: dict[str, Any]) -> bytes:
+            assert self._research.public is not None
+            query = result["query"]
+            return self._research.public.get(
+                yahoo_url(query["identifier"], query["start_date"], query["end_date"]), 900
+            ).body
+
+        return export_price_history(
+            price_history_queries(identifier, start_date, end_date),
+            output,
+            self.get_research,
+            read_raw,
+        )
+
     def get_order_book(
         self, identifier: str, *, depth: int = 10, source: str = "bitbank"
     ) -> dict[str, Any]:
