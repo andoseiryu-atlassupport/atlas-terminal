@@ -24,6 +24,13 @@ from atlas_terminal.util import canonical, digest
 QUERY = parse_query({"identifier": "ATLASDEMO", "metrics": ["revenue", "net_income"], "count": 3})
 expected = Atlas("fixture").get_financials(QUERY).model_dump(mode="json")
 MACRO_QUERIES = [
+    {
+        "dataset": "equity_prices",
+        "identifier": "7203.T",
+        "start_date": "2026-01-01",
+        "end_date": "2026-12-31",
+        "limit": 500,
+    },
     {"dataset": "futures_prices", "identifier": "GC=F", "allow_partial": True},
     {
         "dataset": "reference_rates",
@@ -387,9 +394,54 @@ async def mcp_smoke(root, macro_expected):
     return "PASS"
 
 
+def verify_price_history(root):
+    with Atlas("fixture") as atlas:
+        parts = list(
+            atlas.iter_price_history("7203.T", start_date="2026-10-19", end_date="2026-10-26")
+        )
+        assert len(parts) == 1 and len(parts[0]["records"]) == 6
+        sdk = atlas.export_price_history(
+            "7203.T",
+            start_date="2026-10-19",
+            end_date="2026-10-26",
+            output=root / "history-sdk",
+        )
+    cli = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "atlas_terminal",
+            "research",
+            "price-history",
+            "7203.T",
+            "--start-date",
+            "2026-10-19",
+            "--end-date",
+            "2026-10-26",
+            "--output",
+            str(root / "history-cli"),
+            "--provider",
+            "fixture",
+            "--json",
+        ],
+        cwd=root,
+        capture_output=True,
+        text=True,
+        check=True,
+        timeout=20,
+    )
+    actual = json.loads(cli.stdout)
+    assert actual["download_complete"] and sdk["download_complete"]
+    assert actual["records"] == sdk["records"] == 6 and actual["is_synthetic"]
+    assert (root / "history-cli/prices.csv").read_bytes() == (
+        root / "history-sdk/prices.csv"
+    ).read_bytes()
+
+
 with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
     root = Path(temporary)
     verify_report_import(root)
+    verify_price_history(root)
     demo = subprocess.run(
         [sys.executable, "-m", "atlas_terminal", "demo", "--json"],
         cwd=root,
@@ -773,6 +825,7 @@ with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
             {
                 "wheel_demo": "PASS",
                 "wheel_research_cli_mcp_http": "PASS",
+                "wheel_multiyear_price_history_sdk_cli": "PASS",
                 "wheel_macro_fx_cli_sdk_mcp_http": "PASS",
                 "wheel_filing_ttm_policy_cli_sdk_mcp_http": "PASS",
                 "wheel_europe_korea_cli_sdk_mcp_http": "PASS",

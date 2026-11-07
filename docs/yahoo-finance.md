@@ -53,6 +53,49 @@ The returned source symbol, currency, exchange/timezone, instrument type and dai
 
 Without dates, requests select the latest month. Supply both inclusive dates for up to ten calendar years. They become Unix timestamp boundaries at midnight in the declared source timezone, accounting for daylight saving, with the upper boundary moved to the following day because Yahoo uses an exclusive end. These are observation filters, not historical availability dates. `limit` is 1–500; inspect truncation for longer histories. The Japanese preset selects at most 100 prices and 100 actions per item.
 
+## Multi-year stock history
+
+`atlas research price-history` retrieves more than 500 daily stock/ETF observations by splitting an explicit date range into nonoverlapping calendar years. Each read uses the shared `equity_prices` service with `limit=500` and `requirements.allow_truncated=false`. The range may cover **up to thirty calendar years** within 1900–2100, subject to source availability and the instrument's listing history. US, Tokyo, Korean and registered European stock/ETF identifiers use the same identity and unit checks.
+
+```sh
+# Plan the exact annual reads without network access or source enablement.
+uv run --offline atlas research price-history 7203.T --start-date 2021-01-01 --end-date 2026-11-06 --preview --json
+
+# Retrieve and save actual observations in a new private directory.
+ATLAS_ENABLE_YAHOO_FINANCE=1 uv run --offline atlas research price-history 7203.T --start-date 2021-01-01 --end-date 2026-11-06 --output build/toyota-history --json
+
+# A short fictional export; no network or source setting required.
+uv run --offline atlas research price-history 7203.T --start-date 2026-10-19 --end-date 2026-10-26 --output build/fictional-history --provider fixture --json
+```
+
+The output contains `prices.csv`, `manifest.json`, original annual source bytes under `raw/` and complete normalized annual results under `results/`. CSV dates are ascending. Units, adjustment bases, zero values, nulls and quality flags retain their source meanings; missing CSV cells are blank. Original results retain every field's JSON pointer. Raw, result and CSV SHA-256 hashes support offline auditing. Files are private, and an existing output directory is never overwritten.
+
+Source adjusted closes can differ between requested windows or retrievals. `cross_window_adjustment_verified=false` records that their consistency is not independently certified; the exporter retains the exact value from each saved annual response without rounding or repair. In the checked Toyota overlap, OHLC/volume agreed across both query shapes, while 153 adjusted-close values differed by at most 0.00048828125 JPY. These source differences are distinct from missing fields.
+
+An upstream failure, empty entire year, truncated result, changed instrument/quote units or mismatched original bytes stops the export. Its manifest remains `download_complete=false`, recording completed windows and an error code. Inspect the saved prefix and choose a new output directory for a retry. Successful downloads can still contain explicitly unavailable fields: `partial` and per-window coverage expose them. `download_complete=true` means all planned reads finished; it does not certify a complete exchange calendar. No price is filled or re-adjusted across years.
+
+```python
+from pathlib import Path
+from atlas_terminal.client import Atlas
+
+with Atlas("public") as atlas:
+    exported = atlas.export_price_history(
+        "7203.T",
+        start_date="2021-01-01",
+        end_date="2026-11-06",
+        output=Path("build/toyota-history"),
+    )
+    # Alternatively, process each bounded original result without a CSV export.
+    for annual in atlas.iter_price_history(
+        "7203.T", start_date="2021-01-01", end_date="2026-11-06"
+    ):
+        print(annual["coverage"])
+```
+
+MCP and HTTP clients can execute each query returned by `--preview` through `atlas_get_research` or `POST /v1/research`. Execute the windows separately to respect the batch response budget. Source enablement remains an operator setting. Existing direct-query, saved-result pagination, chart/workbench and risk-input limits retain their own bounds; snapshot pagination only traverses the result already selected by a query.
+
+A private live check retrieved **2021-01-04 through 2026-11-06** for Toyota (`7203.T`), Honda (`7267.T`) and Sony (`6758.T`), with **1,428 daily rows each**, plus **1,469 AAPL rows**. These are current revised observations with the adjustment conventions below. [Recorded validation](verification.md#multi-year-equity-price-history).
+
 ## Values, dates and adjustment conventions
 
 Security OHLC values are **already split-adjusted**. They are not a verified unadjusted trade-price history. Adjusted close additionally reflects dividends. Records preserve `price_basis="yahoo_split_adjusted"` and `adjusted_close_basis="yahoo_split_and_dividend_adjusted"`, including under field projection. The [yfinance adjustment guide](https://ranaroussi.github.io/yfinance/advanced/price_adjustment.html) explains this distinction; Atlas preserves chart JSON without adding a yfinance runtime dependency.

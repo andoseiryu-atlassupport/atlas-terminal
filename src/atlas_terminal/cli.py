@@ -347,6 +347,37 @@ def research_report_text(
         output(atlas.get_report_text(report_id, search=search))
 
 
+@research_app.command("price-history")
+def research_price_history(
+    identifier: str,
+    start_date: Annotated[str, typer.Option()],
+    end_date: Annotated[str, typer.Option()],
+    output_directory: Annotated[Path | None, typer.Option("--output")] = None,
+    preview: bool = False,
+    provider: str = "public",
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """Export multi-year daily stock/ETF prices using bounded annual research reads."""
+    from atlas_terminal.equity_history import price_history_queries
+
+    if preview:
+        output(
+            {
+                "queries": price_history_queries(identifier, start_date, end_date),
+                "network_used": False,
+            }
+        )
+        return
+    if output_directory is None:
+        raise AtlasError("INVALID_INPUT", "Choose a new private directory with --output.")
+    with Atlas(provider) as atlas:
+        output(
+            atlas.export_price_history(
+                identifier, start_date=start_date, end_date=end_date, output=output_directory
+            )
+        )
+
+
 @research_app.command("get")
 def research_get(
     dataset: str,
