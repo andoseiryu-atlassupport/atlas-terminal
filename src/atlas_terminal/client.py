@@ -96,6 +96,25 @@ class Atlas:
                 status=502,
             ) from None
 
+    def get_buffett_score(
+        self,
+        identifier: str,
+        *,
+        years: int = 5,
+        financial_input: dict[str, Any] | None = None,
+        valuation: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Score reported annual fundamentals or explicitly supplied, declared inputs."""
+        return self.get_research(
+            {
+                "dataset": "buffett_score",
+                "identifier": identifier,
+                "count": years,
+                **({"financial_input": financial_input} if financial_input is not None else {}),
+                **({"valuation": valuation} if valuation is not None else {}),
+            }
+        )
+
     def get_margin_status(
         self, identifier: str, *, observation_date: str | None = None
     ) -> dict[str, Any]:

@@ -14,6 +14,7 @@ from pydantic import (
 )
 
 from atlas_terminal.activity_catalog import ACTIVITY_SERIES
+from atlas_terminal.buffett_models import ScoreFinancials, ScoreValuation
 from atlas_terminal.commodity_catalog import COMMODITIES
 from atlas_terminal.country_macro_catalog import BOND_SERIES, COUNTRIES, ECONOMIC_SERIES
 from atlas_terminal.economic_catalog import JAPAN_SERIES, NATIONAL_ACCOUNTS
@@ -58,6 +59,7 @@ from atlas_terminal.sdmx_sources import CODE_PATTERN, FLOW_PATTERN
 from atlas_terminal.spread_catalog import SPREADS
 
 Dataset = Literal[
+    "buffett_score",
     "order_book",
     "analyst_reports",
     "analyst_report_text",
@@ -127,6 +129,7 @@ Dataset = Literal[
 ]
 
 FIELDS = {
+    "buffett_score": {"identifier", "count", "financial_input", "valuation"},
     "order_book": {"identifier", "book_source", "depth"},
     "analyst_reports": {"identifier", "report_source", "start_date", "end_date", "search", "limit"},
     "analyst_report_text": {"report_id", "search", "limit"},
@@ -382,6 +385,8 @@ def dataset_schema(schema: dict[str, Any]) -> None:
             }
         if name == "equity_actions":
             properties["identifier"]["pattern"] = "^" + SECURITY_SYMBOL_PATTERN + "$"
+        if name == "buffett_score":
+            properties["count"].update({"default": 5, "minimum": 3, "maximum": 10})
         if name == "margin_balances":
             properties["identifier"]["pattern"] = r"^[0-9][0-9A-Z]{3,4}\.T$"
             properties["observation_date"]["description"] = (
@@ -607,6 +612,8 @@ class ResearchQuery(Model):
     before_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
     as_of: str | None = Field(default=None, max_length=64)
     identifier: str | None = None
+    financial_input: ScoreFinancials | None = None
+    valuation: ScoreValuation | None = None
     identifiers: list[str] = Field(default_factory=list, max_length=10)
     filters: list[ScreenFilter] = Field(default_factory=list, max_length=10)
     sort_by: str | None = Field(default=None, min_length=1, max_length=80)
@@ -679,6 +686,16 @@ class ResearchQuery(Model):
 
     @model_validator(mode="after")
     def check_dataset(self) -> "ResearchQuery":
+        if self.dataset == "buffett_score":
+            if "count" in self.model_fields_set and not 3 <= self.count <= 10:
+                raise AtlasError("INVALID_INPUT", "Scoring needs three to ten annual periods.")
+            if (
+                self.financial_input is not None
+                and self.financial_input.identifier != self.identifier
+            ):
+                raise AtlasError(
+                    "INVALID_INPUT", "Supplied financials must match the requested issuer."
+                )
         if self.dataset == "order_book" and self.book_source == "bitbank":
             from atlas_terminal.order_books import book_url
 

@@ -177,3 +177,7 @@ Companies, CIKs, amounts and observations under `resources/sec_like`, `resources
 `trailing_financials` derives additive USD windows and margins from reported SEC company facts joined to submissions. It retains every operand and does not create unreported quarterly statements or historical availability timestamps. Current amended inputs do not establish a consistent historical restatement basis. No market-valuation multiple is inferred from incompatible shares and historical price adjustments.
 
 `policy_rates` selects official ECB deposit, main-refinancing and marginal-lending rates through the FM API, plus the RBA F1 cash-target column. ECB/RBA attribution and reuse conditions above continue to apply. RBA interbank rates and third-party F1 columns are not selected. [Instrument definitions and verification](docs/policy-rates.md).
+
+## Buffett-inspired calculations
+
+`buffett_score` reuses SEC primary annual facts or explicitly supplied financial inputs. The rubric and DCF assumptions are Atlas editorial choices inspired by public Berkshire letters; they are not another data provider or Buffett endorsement. Supplied values and market capitalization retain canonical request-document hashes and declared attribution, with publisher verification explicitly false. No source URL is fetched for operator inputs, and no paid API, LLM or new data package is required. [Methods, philosophy and OSS review](docs/buffett-scoring.md).

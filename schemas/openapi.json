@@ -451,6 +451,7 @@
               "anyOf": [
                 {
                   "enum": [
+                    "buffett_score",
                     "order_book",
                     "analyst_reports",
                     "analyst_report_text",
@@ -4535,6 +4536,7 @@
           "dataset": {
             "type": "string",
             "enum": [
+              "buffett_score",
               "order_book",
               "analyst_reports",
               "analyst_report_text",
@@ -5389,6 +5391,173 @@
           }
         },
         "title": "ResponseOptions",
+        "type": "object"
+      },
+      "ScoreFinancials": {
+        "additionalProperties": false,
+        "properties": {
+          "is_synthetic": {
+            "title": "Is Synthetic",
+            "type": "boolean"
+          },
+          "identifier": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Identifier",
+            "type": "string"
+          },
+          "currency": {
+            "pattern": "^[A-Z]{3}$",
+            "title": "Currency",
+            "type": "string"
+          },
+          "business_type": {
+            "enum": ["nonfinancial", "financial", "unspecified"],
+            "title": "Business Type",
+            "type": "string"
+          },
+          "captured_at": {
+            "maxLength": 64,
+            "title": "Captured At",
+            "type": "string"
+          },
+          "original_source_url": {
+            "maxLength": 2048,
+            "title": "Original Source Url",
+            "type": "string"
+          },
+          "annual": {
+            "items": {
+              "$ref": "#/components/schemas/ScoreYear"
+            },
+            "maxItems": 11,
+            "minItems": 1,
+            "title": "Annual",
+            "type": "array"
+          }
+        },
+        "required": [
+          "is_synthetic",
+          "identifier",
+          "currency",
+          "business_type",
+          "captured_at",
+          "original_source_url",
+          "annual"
+        ],
+        "title": "ScoreFinancials",
+        "type": "object"
+      },
+      "ScoreValuation": {
+        "additionalProperties": false,
+        "properties": {
+          "is_synthetic": {
+            "title": "Is Synthetic",
+            "type": "boolean"
+          },
+          "market_cap": {
+            "pattern": "^-?(?:0|[1-9][0-9]{0,29})(?:\\.[0-9]{1,18})?$",
+            "title": "Market Cap",
+            "type": "string"
+          },
+          "currency": {
+            "pattern": "^[A-Z]{3}$",
+            "title": "Currency",
+            "type": "string"
+          },
+          "observed_on": {
+            "title": "Observed On",
+            "type": "string"
+          },
+          "captured_at": {
+            "maxLength": 64,
+            "title": "Captured At",
+            "type": "string"
+          },
+          "growth_rate": {
+            "default": "0.03",
+            "pattern": "^-?(?:0|[1-9][0-9]{0,29})(?:\\.[0-9]{1,18})?$",
+            "title": "Growth Rate",
+            "type": "string"
+          },
+          "discount_rate": {
+            "default": "0.10",
+            "pattern": "^-?(?:0|[1-9][0-9]{0,29})(?:\\.[0-9]{1,18})?$",
+            "title": "Discount Rate",
+            "type": "string"
+          },
+          "terminal_growth_rate": {
+            "default": "0.02",
+            "pattern": "^-?(?:0|[1-9][0-9]{0,29})(?:\\.[0-9]{1,18})?$",
+            "title": "Terminal Growth Rate",
+            "type": "string"
+          },
+          "projection_years": {
+            "default": 10,
+            "maximum": 20,
+            "minimum": 1,
+            "title": "Projection Years",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "is_synthetic",
+          "market_cap",
+          "currency",
+          "observed_on",
+          "captured_at"
+        ],
+        "title": "ScoreValuation",
+        "type": "object"
+      },
+      "ScoreYear": {
+        "additionalProperties": false,
+        "properties": {
+          "start": {
+            "title": "Start",
+            "type": "string"
+          },
+          "end": {
+            "title": "End",
+            "type": "string"
+          },
+          "available_on": {
+            "title": "Available On",
+            "type": "string"
+          },
+          "values": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "pattern": "^-?(?:0|[1-9][0-9]{0,29})(?:\\.[0-9]{1,18})?$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "maxProperties": 10,
+            "propertyNames": {
+              "enum": [
+                "revenue",
+                "net_income",
+                "operating_income",
+                "operating_cash_flow",
+                "capital_expenditure",
+                "stockholders_equity",
+                "assets",
+                "liabilities",
+                "interest_expense",
+                "stock_based_compensation"
+              ]
+            },
+            "title": "Values",
+            "type": "object"
+          }
+        },
+        "required": ["start", "end", "available_on", "values"],
+        "title": "ScoreYear",
         "type": "object"
       },
       "ScreenFilter": {
@@ -6330,6 +6499,65 @@
       "ResearchQuery": {
         "additionalProperties": false,
         "oneOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "dataset": {
+                "const": "buffett_score",
+                "type": "string"
+              },
+              "count": {
+                "default": 5,
+                "maximum": 10,
+                "minimum": 3,
+                "title": "Count",
+                "type": "integer"
+              },
+              "financial_input": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ScoreFinancials"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              },
+              "identifier": {
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string"
+              },
+              "valuation": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ScoreValuation"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              },
+              "response": {
+                "$ref": "#/components/schemas/ResponseOptions"
+              },
+              "requirements": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ResearchRequirements"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              }
+            },
+            "required": ["dataset", "identifier"],
+            "type": "object"
+          },
           {
             "additionalProperties": false,
             "properties": {
@@ -11663,6 +11891,7 @@
         "properties": {
           "dataset": {
             "enum": [
+              "buffett_score",
               "order_book",
               "analyst_reports",
               "analyst_report_text",
@@ -11939,6 +12168,28 @@
             ],
             "default": null,
             "title": "Identifier"
+          },
+          "financial_input": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ScoreFinancials"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "valuation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ScoreValuation"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
           },
           "identifiers": {
             "items": {

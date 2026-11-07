@@ -298,6 +298,64 @@ def research_book(
     typer.echo("One venue; selected depth only. Use --json for units, coverage and evidence.")
 
 
+@research_app.command("buffett")
+def research_buffett(
+    identifier: str,
+    years: int = 5,
+    financial_input: Annotated[Path | None, typer.Option("--input")] = None,
+    valuation_input: Annotated[Path | None, typer.Option("--valuation-input")] = None,
+    provider: str = "public",
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """Score annual business fundamentals with explicit valuation assumptions."""
+
+    def read_input(path: Path | None) -> dict | None:
+        if path is None:
+            return None
+        try:
+            with path.open("rb") as stream:
+                body = stream.read(1024 * 1024 + 1)
+            if len(body) > 1024 * 1024:
+                raise ValueError("Input exceeds its bound")
+            value = json.loads(body)
+            if not isinstance(value, dict):
+                raise ValueError("Input must be a JSON object")
+            return value
+        except (OSError, ValueError):
+            raise AtlasError(
+                "INVALID_INPUT", "Provide a bounded JSON financial/valuation file."
+            ) from None
+
+    with Atlas(provider) as atlas:
+        result = atlas.get_buffett_score(
+            identifier,
+            years=years,
+            financial_input=read_input(financial_input),
+            valuation=read_input(valuation_input),
+        )
+    if json_output:
+        output(result)
+        return
+    row = result["records"][0]
+    if result["is_synthetic"]:
+        typer.echo("Fictional fundamentals.")
+    typer.echo(f"{identifier}  Buffett-inspired score  {row['period_end']}  {row['model_version']}")
+    typer.echo(
+        f"Total: {row['score'] or 'unavailable'}/100  "
+        f"Quality: {row['quality_score'] or 'unavailable'}/80"
+    )
+    typer.echo(
+        f"Fixed-weight bounds: {row['score_bounds']['lower']} to {row['score_bounds']['upper']}"
+    )
+    for component in row["components"]:
+        typer.echo(
+            f"{component['metric']}: {component['points'] or 'unavailable'}"
+            f"/{component['max_points']}"
+            + (f" ({component['reason']})" if component["reason"] else "")
+        )
+    typer.echo("Quantitative proxies; business understanding, moat and management require review.")
+
+
 @research_app.command("margin")
 def research_margin(
     identifier: str,
