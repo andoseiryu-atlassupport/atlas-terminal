@@ -29,9 +29,11 @@ Run `atlas showcase research --provider public --allow-network` for actual ECB/N
 
 ## Available data
 
+[Buffett-inspired scoring](docs/buffett-scoring.md) evaluates annual business quality and an explicit price-versus-value scenario, retaining fixed weights, missing-point bounds, formulas and original inputs. `atlas research buffett AAPL` uses SEC facts; supplied annual data supports declared currencies including JPY. Qualitative judgment remains manual.
+
 Japanese credit trading status is available through `atlas research margin 7203.T`: daily JPX buy/sell balances, daily changes, general/standardized components and a share-based margin ratio. Application and publication dates, currently linked dates and exact PDF-cell evidence remain explicit. [Margin trading guide](docs/margin-trading.md).
 
-Atlas provides 66 research datasets, including private local source history, with data from 26 upstream source families. Official sources include SEC EDGAR, BLS, Treasury, the Federal Reserve, ECB, New York Fed, BEA, BOJ, Japan's Statistical Dashboard/MOF, EDINET, JPX, IMF, OECD, RBA, Eurostat, ONS, Census, ABS, StatCan and World Bank. Generic FRED retrieval preserves original producer conditions. Seven optional Yahoo daily/intraday price, action, analytics and futures datasets remain disabled by default for personal-use access under separate terms.
+Atlas provides 67 research datasets, including private local source history, with data from 26 upstream source families. Official sources include SEC EDGAR, BLS, Treasury, the Federal Reserve, ECB, New York Fed, BEA, BOJ, Japan's Statistical Dashboard/MOF, EDINET, JPX, IMF, OECD, RBA, Eurostat, ONS, Census, ABS, StatCan and World Bank. Generic FRED retrieval preserves original producer conditions. Seven optional Yahoo daily/intraday price, action, analytics and futures datasets remain disabled by default for personal-use access under separate terms.
 
 [European and Korean market data](docs/europe-korea-equities.md) covers KOSPI/KOSDAQ and sixteen European countries through the existing price/action, intraday and analytics datasets. British pound/pence quote units remain explicit. The optional time-series connector supports the same national markets with a separately selected ETF proxy; local standardized company financial readers remain unavailable.
 

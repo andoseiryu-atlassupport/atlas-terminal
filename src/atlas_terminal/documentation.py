@@ -6,6 +6,13 @@ PROJECT_TAGLINE = "Free financial data for AI agents through one MCP connection.
 
 
 def research_documentation(dataset: str) -> dict[str, str]:
+    if dataset == "buffett_score":
+        return {
+            "guide": f"{DOCUMENTATION_ORIGIN}/docs/buffett-scoring.md",
+            "methodology": f"{DOCUMENTATION_ORIGIN}/docs/buffett-scoring.md",
+            "sources_and_terms": f"{DOCUMENTATION_ORIGIN}/DATA_SOURCES.md",
+            "citation_guidance": f"{DOCUMENTATION_ORIGIN}/docs/citations.md",
+        }
     if dataset == "margin_balances":
         return {
             "guide": f"{DOCUMENTATION_ORIGIN}/docs/margin-trading.md",

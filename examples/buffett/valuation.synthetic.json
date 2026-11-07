@@ -1,0 +1,11 @@
+{
+  "is_synthetic": true,
+  "market_cap": "2000",
+  "currency": "USD",
+  "observed_on": "2026-10-29",
+  "captured_at": "2026-10-30T12:00:00Z",
+  "growth_rate": "0.03",
+  "discount_rate": "0.10",
+  "terminal_growth_rate": "0.02",
+  "projection_years": 10
+}

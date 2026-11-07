@@ -2,7 +2,9 @@
 
 Atlas Terminal retrieves US equity research, macro data and reference FX from free public primary sources. Optional international Yahoo Finance market prices/actions are a secondary-source exception, disabled by default for operator-enabled personal use. Its CLI, Python SDK, stdio MCP server and HTTP API share the same datasets and selection rules.
 
-[Japanese margin balances](docs/margin-trading.md) add `margin_balances` and `atlas research margin`: JPX daily buy/sell balances, daily changes, general/standardized components, JPY rows and a share-based ratio with exact operands and PDF-cell evidence. One currently linked application date is selected per query, with a separate printed publication date. This brings the catalog to **66 datasets across 26 upstream source families**. Own-account positions and JSF financing/lending balances are separate and unavailable.
+[Japanese margin balances](docs/margin-trading.md) add `margin_balances` and `atlas research margin`: JPX daily buy/sell balances, daily changes, general/standardized components, JPY rows and a share-based ratio with exact operands and PDF-cell evidence. One currently linked application date is selected per query, with a separate printed publication date. The current catalog contains **67 datasets across 26 upstream source families**. Own-account positions and JSF financing/lending balances are separate and unavailable.
+
+[Buffett-inspired scoring](docs/buffett-scoring.md) adds a versioned 100-point quantitative rubric, with 80 quality points and 20 optional valuation-scenario points. SEC annual primary facts or explicit supplied fundamentals retain exact inputs, formulas, classification, missing-point bounds and evidence. Japanese supplied data can use JPY without conversion. Qualitative judgment is unscored; no paid data/LLM dependency or verified return prediction is supplied.
 
 ## Datasets
 
@@ -32,7 +34,7 @@ Atlas Terminal retrieves US equity research, macro data and reference FX from fr
 
 US national accounts add sixteen BEA series; Japanese macro adds twenty-nine BOJ/Statistical Dashboard series. Eurostat adds 48 exact European selections and ONS adds five UK series. Five activity/global presets join the existing macro presets through shared batches with dates, source IDs and per-item failures. [Series and statistical definitions](docs/economic-indicators.md).
 
-Run `atlas research catalog --json` for identifiers, query fields, units and limits for all 66 datasets, including seven optional Yahoo datasets, generic FRED observations and private local history. The [research guide](docs/research.md) includes examples for each dataset.
+Run `atlas research catalog --json` for identifiers, query fields, units and limits for all 67 datasets, including seven optional Yahoo datasets, generic FRED observations and private local history. The [research guide](docs/research.md) includes examples for each dataset.
 
 `japan_disclosures`, `japan_filing_facts` and `japan_securities` add dated EDINET document lists, original numeric XBRL facts and current JPX reference rows. Actual XBRL contexts, scoped QNames, divided units, consolidation dimensions, share facts and original ZIP/member evidence remain explicit. JPX supports current XLSX and retained XLS, alphanumeric/class codes and per-field worksheet coordinates. EDINET needs a private free API key and is not live-verified; JPX rights require the applicable permission. [Japanese company coverage](docs/japan-companies.md).
 

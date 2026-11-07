@@ -4,6 +4,18 @@ Recorded on 2026-11-08 (JST) for the source checkout following Atlas Terminal 0.
 
 Version 0.7.0 includes the experimental native factor risk extension and installed walkthroughs described below. The prior 0.6.0 release did not include risk estimation. Local wheel checks remain separate evidence from a published GitHub release.
 
+## Buffett-inspired scoring
+
+`buffett_score` adds a deterministic, versioned 100-point rubric: 80 points for annual business-quality proxies and 20 for an explicit cash-flow-proxy valuation scenario. The catalog now contains **67 datasets, 26 upstream source families and 26 presets**. Scores retain rules, exact inputs, source evidence and fixed-weight bounds; missing data is not reweighted. Qualitative business understanding, management integrity and durable moat remain manual-review items. General-company thresholds do not score financial businesses.
+
+The official Berkshire 1977, 1986 and 1992 letters and the current AI Hedge Fund Buffett-agent implementation and FinanceToolkit Piotroski module/licenses were inspected. The former currently uses an LLM checklist; the latter exposes separate financial criteria. The new implementation uses original deterministic code with no added dependency. Its default rates and thresholds are editorial assumptions, not Buffett's published numerical rules. Maintenance capex and true owner earnings remain unavailable.
+
+Fictional regressions verify an independent Fraction-based DCF, exact weights, opening/closing equity, missing middle years, negative equity, zero interest, financial-business exclusions, declared JPY scale invariance, valuation date/currency constraints, invalid inputs, preserved source hashes/pointers, synthetic flags, Decimal-context isolation, compact evidence and identical CLI/SDK/HTTP/official stdio MCP results. Supplied data works without SEC/Yahoo requests and retains canonical request-document evidence; publisher values remain unverified. Live SEC scoring was not performed because this environment lacks a configured private `SEC_USER_AGENT`; no source fallback was used. Existing source fixtures and recorded BLS captures remain unchanged.
+
+The final local suite passed **2,908 tests**, with two live tests deselected, including **58 focused scorecard tests**. Ruff/format (**301 files**), mypy (**119 source files**), regenerated contracts, npm checks and the **67-page** documentation build passed. Wheel/sdist validation passed with **424 / 731 files** and no private/runtime paths. The public-file/history scan found no matching credential patterns. Existing BLS offline replay still matched **14 captures / 168 records**, and both showcase checksums passed without new source reads.
+
+The built wheel was reinstalled outside the checkout into the existing isolated environment with **74 hash-locked runtime dependencies**. All **75 packages** passed compatibility checks. `scripts/verify_installed.py` passed both incomplete automatic-source and complete supplied-input scorecards through SDK, CLI, official stdio MCP and actual loopback HTTP, with synthetic flags preserved. Package checks were offline and made no real transfer. This verifies arithmetic, provenance and interfaces rather than investment performance or publisher-data accuracy; no strategy backtest, release or deployment was performed.
+
 ## Japanese margin balances
 
 `margin_balances` adds one JPX source-backed dataset, bringing the catalog to **66 datasets, 26 upstream source families and 26 presets**. The shared CLI/SDK/MCP/HTTP service selects one currently linked daily application date and keeps its separately printed publication date. It preserves one-share/one-JPY units, general/standardized balances and daily changes, original PDF-cell spans and exact share-ratio operands. Unknown dates/issues and changed units, columns or inconsistent components fail explicitly. Actual PDFs and observations remain private ignored output; bundled inputs are fictional.
@@ -204,11 +216,11 @@ Wheel-payload SDK and CLI smoke reads loaded the packaged fictional WDI template
 | --------------------------------------------------------- | ------------------------------------------------------------------- |
 | `uv run --offline ruff check .`                           | PASS                                                                |
 | `uv run --offline ruff format --check .`                  | PASS                                                                |
-| `uv run --offline mypy`                                   | PASS; 116 source files                                              |
-| `uv run --offline pytest`                                 | PASS; 2,848 tests, 2 live tests deselected                          |
+| `uv run --offline mypy`                                   | PASS; 119 source files                                              |
+| `uv run --offline pytest`                                 | PASS; 2,908 tests, 2 live tests deselected                          |
 | `uv run --offline python -m build --no-isolation`         | PASS; wheel and source distribution                                 |
 | `uv run --offline python scripts/verify_distribution.py`  | PASS; metadata, required contents and forbidden paths               |
-| `uv run --offline python scripts/build_docs.py`           | PASS; 66 HTML pages and internal file/section links                 |
+| `uv run --offline python scripts/build_docs.py`           | PASS; 67 HTML pages and internal file/section links                 |
 | `uv run --offline python scripts/verify_showcases.py`     | PASS; both recorded versions, data modes and checksums              |
 | `uv run --offline python scripts/verify_bls_capture.py`   | PASS; offline audit/replay of 14 captured responses and 168 records |
 | `uv run --offline python scripts/prepare_distribution.py` | PREPARED; versioned plugin ZIP and Registry draft                   |

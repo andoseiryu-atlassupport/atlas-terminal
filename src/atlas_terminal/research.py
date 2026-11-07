@@ -13,6 +13,7 @@ from urllib.parse import urlsplit
 from xml.etree.ElementTree import Element
 
 from atlas_terminal.activity_catalog import ACTIVITY_SERIES
+from atlas_terminal.buffett_catalog import buffett_catalog
 from atlas_terminal.documentation import DOCUMENTATION_ORIGIN, research_documentation
 from atlas_terminal.economic_catalog import JAPAN_SERIES, NATIONAL_ACCOUNTS
 from atlas_terminal.equity_sources import EQUITY_DATASETS, require_yahoo_enabled
@@ -123,6 +124,11 @@ FAMILIES = {
     "institutional_holdings": {"13F-HR", "13F-HR/A"},
 }
 DATASETS = {
+    "buffett_score": (
+        "Buffett-inspired quantitative business quality and explicit valuation scenarios",
+        "sec",
+        "derived_scorecard",
+    ),
     "order_book": (
         "Single-venue price-level snapshots and depth analytics; public bitbank or local input",
         "multiple",
@@ -671,6 +677,7 @@ def research_catalog(
         "ratios": RATIOS,
         "analytics_metrics": analytics_catalog(),
         "price_analytics_metrics": price_analytics_catalog(),
+        "buffett_scoring": buffett_catalog(),
         "margin_trading": {
             "dataset": "margin_balances",
             "source_id": "jpx",
@@ -1135,6 +1142,10 @@ class ResearchService:
             result = analytics_data(self.sec_factory(), q)
         elif q.dataset == "compare":
             result = self.compare(q)
+        elif q.dataset == "buffett_score":
+            from atlas_terminal.research_buffett import buffett_score
+
+            result = buffett_score(self.sec_factory() if q.financial_input is None else None, q)
         elif q.dataset == "company_screen":
             from atlas_terminal.research_discovery import screen_data
 

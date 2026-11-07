@@ -1,0 +1,112 @@
+{
+  "is_synthetic": true,
+  "identifier": "BUFFETTDEMO",
+  "currency": "USD",
+  "business_type": "nonfinancial",
+  "captured_at": "2026-10-30T12:00:00Z",
+  "original_source_url": "https://issuer.example.invalid/fictional-annual-data",
+  "annual": [
+    {
+      "start": "2020-01-01",
+      "end": "2020-12-31",
+      "available_on": "2021-02-15",
+      "values": {
+        "revenue": "1000",
+        "net_income": "220",
+        "operating_income": "250",
+        "operating_cash_flow": "300",
+        "capital_expenditure": "30",
+        "stockholders_equity": "1100",
+        "assets": "1500",
+        "liabilities": "400",
+        "interest_expense": "10",
+        "stock_based_compensation": "10"
+      }
+    },
+    {
+      "start": "2021-01-01",
+      "end": "2021-12-31",
+      "available_on": "2022-02-15",
+      "values": {
+        "revenue": "1000",
+        "net_income": "220",
+        "operating_income": "250",
+        "operating_cash_flow": "300",
+        "capital_expenditure": "30",
+        "stockholders_equity": "1100",
+        "assets": "1500",
+        "liabilities": "400",
+        "interest_expense": "10",
+        "stock_based_compensation": "10"
+      }
+    },
+    {
+      "start": "2022-01-01",
+      "end": "2022-12-31",
+      "available_on": "2023-02-15",
+      "values": {
+        "revenue": "1000",
+        "net_income": "220",
+        "operating_income": "250",
+        "operating_cash_flow": "300",
+        "capital_expenditure": "30",
+        "stockholders_equity": "1100",
+        "assets": "1500",
+        "liabilities": "400",
+        "interest_expense": "10",
+        "stock_based_compensation": "10"
+      }
+    },
+    {
+      "start": "2023-01-01",
+      "end": "2023-12-31",
+      "available_on": "2024-02-15",
+      "values": {
+        "revenue": "1000",
+        "net_income": "220",
+        "operating_income": "250",
+        "operating_cash_flow": "300",
+        "capital_expenditure": "30",
+        "stockholders_equity": "1100",
+        "assets": "1500",
+        "liabilities": "400",
+        "interest_expense": "10",
+        "stock_based_compensation": "10"
+      }
+    },
+    {
+      "start": "2024-01-01",
+      "end": "2024-12-31",
+      "available_on": "2025-02-15",
+      "values": {
+        "revenue": "1000",
+        "net_income": "220",
+        "operating_income": "250",
+        "operating_cash_flow": "300",
+        "capital_expenditure": "30",
+        "stockholders_equity": "1100",
+        "assets": "1500",
+        "liabilities": "400",
+        "interest_expense": "10",
+        "stock_based_compensation": "10"
+      }
+    },
+    {
+      "start": "2025-01-01",
+      "end": "2025-12-31",
+      "available_on": "2026-02-15",
+      "values": {
+        "revenue": "1000",
+        "net_income": "220",
+        "operating_income": "250",
+        "operating_cash_flow": "300",
+        "capital_expenditure": "30",
+        "stockholders_equity": "1100",
+        "assets": "1500",
+        "liabilities": "400",
+        "interest_expense": "10",
+        "stock_based_compensation": "10"
+      }
+    }
+  ]
+}

@@ -157,6 +157,17 @@ CREATE TABLE IF NOT EXISTS research_evidence (
 # Field selection never strips context needed to interpret a selected value.
 # Reported inputs/formulas and per-issuer coverage remain intact too.
 CONTEXT_FIELDS = {
+    "model_version",
+    "reported_inputs",
+    "components",
+    "score_bounds",
+    "available_weight",
+    "quality_max_points",
+    "valuation",
+    "selected_periods",
+    "manual_review",
+    "business_type",
+    "max_points",
     "report_id",
     "page",
     "analyst",

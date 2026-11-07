@@ -157,6 +157,22 @@ MACRO_QUERIES = [
         "start_date": "2026-10-28",
         "end_date": "2026-10-28",
     },
+    {"dataset": "buffett_score", "identifier": "ATLASDEMO"},
+    {
+        "dataset": "buffett_score",
+        "identifier": "BUFFETTDEMO",
+        "count": 5,
+        "financial_input": json.loads(
+            (
+                Path(__file__).resolve().parents[1] / "examples/buffett/financials.synthetic.json"
+            ).read_text()
+        ),
+        "valuation": json.loads(
+            (
+                Path(__file__).resolve().parents[1] / "examples/buffett/valuation.synthetic.json"
+            ).read_text()
+        ),
+    },
     {"dataset": "margin_balances", "identifier": "7203.T"},
     {"dataset": "price_analytics", "identifier": "AAPL", "metrics": ["rsi_14"], "limit": 3},
     {
@@ -662,6 +678,7 @@ with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
     )
     assert source_check.returncode == 4 and json.loads(source_check.stdout)["status"] == "NOT_RUN"
     assert dataset_expected["fx_rates"]["records"][0]["value"] == "120"
+    assert dataset_expected["buffett_score"]["records"][0]["score"] == "100.000000000000000000"
     assert dataset_expected["reference_rates"]["records"][0]["value"] == "1.30"
     assert any(
         row["value"] == "-0.10" for row in dataset_expected["treasury_real_yields"]["records"]
@@ -887,6 +904,7 @@ with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
                 "wheel_official_news_briefing_rss_cli_sdk_mcp_http": "PASS",
                 "wheel_books_reports_cli_sdk_mcp_http": "PASS",
                 "wheel_margin_balances_cli_sdk_mcp_http": "PASS",
+                "wheel_buffett_score_cli_sdk_mcp_http": "PASS",
                 "wheel_pdf_import_page_evidence_cli_sdk": "PASS",
                 "wheel_market_discovery_funds_fred_cli_sdk_mcp_http": "PASS",
                 "wheel_quality_batch_cli_sdk_mcp_http": "PASS",
