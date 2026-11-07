@@ -9,7 +9,7 @@ atlas research margin 7267.T --observation-date 2026-11-05 --json
 ```
 
 ```python
-from atlas_terminal import Atlas
+from atlas_terminal.client import Atlas
 
 with Atlas("public") as atlas:
     result = atlas.get_margin_status("7203.T")
