@@ -1861,6 +1861,11 @@
               "const": "futures_prices",
               "type": "string"
             },
+            "allow_partial": {
+              "default": false,
+              "title": "Allow Partial",
+              "type": "boolean"
+            },
             "end_date": {
               "anyOf": [
                 {

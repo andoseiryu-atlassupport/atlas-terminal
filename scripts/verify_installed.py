@@ -24,6 +24,7 @@ from atlas_terminal.util import canonical, digest
 QUERY = parse_query({"identifier": "ATLASDEMO", "metrics": ["revenue", "net_income"], "count": 3})
 expected = Atlas("fixture").get_financials(QUERY).model_dump(mode="json")
 MACRO_QUERIES = [
+    {"dataset": "futures_prices", "identifier": "GC=F", "allow_partial": True},
     {
         "dataset": "reference_rates",
         "series": "effr",
@@ -571,8 +572,14 @@ with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
         else:
             args.extend(["get", query["dataset"]])
             for key, value in query.items():
-                if key != "dataset":
-                    args.extend(["--" + key.replace("_", "-"), str(value)])
+                if key == "dataset":
+                    continue
+                option = "--" + key.replace("_", "-")
+                if isinstance(value, bool):
+                    if value:
+                        args.append(option)
+                else:
+                    args.extend([option, str(value)])
         macro_cli = subprocess.run(
             [*args, "--provider", "fixture"],
             cwd=root,

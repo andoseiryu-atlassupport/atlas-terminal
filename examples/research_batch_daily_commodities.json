@@ -1,0 +1,114 @@
+{
+  "items": [
+    {
+      "id": "gold",
+      "query": {
+        "dataset": "futures_prices",
+        "identifier": "GC=F",
+        "start_date": "2026-10-01",
+        "end_date": "2026-10-30",
+        "limit": 500,
+        "allow_partial": true
+      }
+    },
+    {
+      "id": "silver",
+      "query": {
+        "dataset": "futures_prices",
+        "identifier": "SI=F",
+        "start_date": "2026-10-01",
+        "end_date": "2026-10-30",
+        "limit": 500,
+        "allow_partial": true
+      }
+    },
+    {
+      "id": "copper",
+      "query": {
+        "dataset": "futures_prices",
+        "identifier": "HG=F",
+        "start_date": "2026-10-01",
+        "end_date": "2026-10-30",
+        "limit": 500,
+        "allow_partial": true
+      }
+    },
+    {
+      "id": "wti",
+      "query": {
+        "dataset": "futures_prices",
+        "identifier": "CL=F",
+        "start_date": "2026-10-01",
+        "end_date": "2026-10-30",
+        "limit": 500,
+        "allow_partial": true
+      }
+    },
+    {
+      "id": "brent",
+      "query": {
+        "dataset": "futures_prices",
+        "identifier": "BZ=F",
+        "start_date": "2026-10-01",
+        "end_date": "2026-10-30",
+        "limit": 500,
+        "allow_partial": true
+      }
+    },
+    {
+      "id": "natural_gas_us",
+      "query": {
+        "dataset": "futures_prices",
+        "identifier": "NG=F",
+        "start_date": "2026-10-01",
+        "end_date": "2026-10-30",
+        "limit": 500,
+        "allow_partial": true
+      }
+    },
+    {
+      "id": "corn",
+      "query": {
+        "dataset": "futures_prices",
+        "identifier": "ZC=F",
+        "start_date": "2026-10-01",
+        "end_date": "2026-10-30",
+        "limit": 500,
+        "allow_partial": true
+      }
+    },
+    {
+      "id": "wheat",
+      "query": {
+        "dataset": "futures_prices",
+        "identifier": "ZW=F",
+        "start_date": "2026-10-01",
+        "end_date": "2026-10-30",
+        "limit": 500,
+        "allow_partial": true
+      }
+    },
+    {
+      "id": "soybeans",
+      "query": {
+        "dataset": "futures_prices",
+        "identifier": "ZS=F",
+        "start_date": "2026-10-01",
+        "end_date": "2026-10-30",
+        "limit": 500,
+        "allow_partial": true
+      }
+    },
+    {
+      "id": "coffee_arabica",
+      "query": {
+        "dataset": "futures_prices",
+        "identifier": "KC=F",
+        "start_date": "2026-10-01",
+        "end_date": "2026-10-30",
+        "limit": 500,
+        "allow_partial": true
+      }
+    }
+  ]
+}

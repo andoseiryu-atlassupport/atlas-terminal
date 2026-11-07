@@ -169,7 +169,7 @@ DATASETS = {
         "observations",
     ),
     "futures_prices": (
-        "Optional Yahoo front references and explicit dated futures quotes",
+        "Optional Yahoo daily front references and explicit dated futures quotes",
         "yahoo_finance",
         "secondary_market_observations",
     ),

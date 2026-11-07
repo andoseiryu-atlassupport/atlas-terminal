@@ -288,7 +288,8 @@ def test_cent_quotes_remain_unconverted_and_curve_rejects_mixed_denominations():
     assert exc.value.code == "INCOMPLETE_COVERAGE"
 
 
-def test_source_type_alias_or_wrong_currency_does_not_become_a_future():
+@pytest.mark.parametrize("allow_partial", [False, True])
+def test_source_type_alias_or_wrong_currency_does_not_become_a_future(allow_partial):
     for field, value in [("instrumentType", "ALTSYMBOL"), ("currency", "EUR")]:
 
         def mutate(url, body, field=field, value=value):
@@ -297,8 +298,52 @@ def test_source_type_alias_or_wrong_currency_does_not_become_a_future():
             return json.dumps(data).encode()
 
         with app(mutate) as atlas, pytest.raises(AtlasError) as exc:
-            atlas.get_research({"dataset": "futures_prices", "identifier": "GC=F"})
+            atlas.get_research(
+                {"dataset": "futures_prices", "identifier": "GC=F", "allow_partial": allow_partial}
+            )
         assert exc.value.code == "SOURCE_UNAVAILABLE"
+
+
+@pytest.mark.parametrize(
+    "field,value", [("high", "-100"), ("low", "100000"), ("open", "100000"), ("close", "-100")]
+)
+def test_partial_future_bars_preserve_conflicts_and_evidence_without_repair(field, value):
+    def mutate(url, body):
+        data = json.loads(body)
+        data["chart"]["result"][0]["indicators"]["quote"][0][field][1] = value
+        return json.dumps(data).encode()
+
+    query = {"dataset": "futures_prices", "identifier": "GC=F"}
+    with app(mutate) as atlas:
+        with pytest.raises(AtlasError) as strict:
+            atlas.get_research(query)
+        assert strict.value.code == "SOURCE_UNAVAILABLE"
+        result = atlas.get_research(query | {"allow_partial": True})
+        bad = next(r for r in result["records"] if r["status"] == "ambiguous")
+        assert bad[field] == value and bad["ohlc_consistent"] is False
+        assert bad["quality_flags"] == ["ohlc_bounds_conflict"]
+        assert any(r["status"] == "reported" for r in result["records"])
+        assert (
+            result["coverage"]["partial"] and result["coverage"]["inconsistent_ohlc_records"] == 1
+        )
+        assert result["coverage"]["ambiguous_ohlc_allowed"]
+        assert not bad["roll_adjusted"] and not bad["settlement_price_verified"]
+        original = atlas._research.public.get(yahoo_url("GC=F"), 900)
+        evidence = bad["field_sources"][field]
+        assert evidence["raw_sha256"] == original.sha256
+        raw = original.data
+        for part in evidence["json_pointer"].split("/")[1:]:
+            raw = raw[int(part)] if isinstance(raw, list) else raw[part]
+        assert Decimal(str(raw)) == Decimal(value)
+        compact = atlas.get_research(
+            query | {"allow_partial": True, "response": {"view": "compact", "fields": ["close"]}}
+        )
+        assert any(r["quality_flags"] == ["ohlc_bounds_conflict"] for r in compact["records"])
+        with pytest.raises(AtlasError) as quality:
+            atlas.get_research(
+                query | {"allow_partial": True, "requirements": {"allow_missing": False}}
+            )
+        assert quality.value.code == "QUALITY_NOT_MET"
 
 
 def test_invalid_future_ohlc_fails_even_when_partial_curve_is_requested():
