@@ -6,7 +6,7 @@ Atlas Terminal retrieves US equity research, macro data and reference FX from fr
 
 [Buffett-inspired scoring](docs/buffett-scoring.md) adds a versioned 100-point quantitative rubric, with 80 quality points and 20 optional valuation-scenario points. SEC annual primary facts or explicit supplied fundamentals retain exact inputs, formulas, classification, missing-point bounds and evidence. Japanese supplied data can use JPY without conversion. Qualitative judgment is unscored; no paid data/LLM dependency or verified return prediction is supplied.
 
-[Polymarket event prices](docs/prediction-markets.md) add keyword/exact-slug Gamma reads, outcome-aligned prices and percentages, lifecycle handling and source evidence through all research interfaces. No API key, wallet or trading SDK is used. The optional source is excluded from default probes. Runtime live verification is blocked by the current proxy/host policy; fictional tests are separate evidence.
+[Polymarket event prices](docs/prediction-markets.md) add keyword/exact-slug Gamma reads, outcome-aligned prices and percentages, lifecycle handling and source evidence through all research interfaces. No API key, wallet or trading SDK is used. The optional source is excluded from default probes. [Dated live verification](docs/verification.md#polymarket-event-prices) matched three Anthropic events, 29 open markets and 58 outcome prices/percentages to original Gamma responses through normal proxy/TLS access. Closed-market reference handling also passed. Search coverage is bounded and actual quote timestamps remain unverified; fictional tests are separate evidence.
 
 ## Datasets
 
