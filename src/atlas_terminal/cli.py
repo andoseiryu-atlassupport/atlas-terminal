@@ -298,6 +298,30 @@ def research_book(
     typer.echo("One venue; selected depth only. Use --json for units, coverage and evidence.")
 
 
+@research_app.command("margin")
+def research_margin(
+    identifier: str,
+    observation_date: str | None = None,
+    provider: str = "public",
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """Read JPX daily credit buy/sell balances and a share-based margin ratio."""
+    with Atlas(provider) as atlas:
+        result = atlas.get_margin_status(identifier, observation_date=observation_date)
+    if json_output:
+        output(result)
+        return
+    row = result["records"][0]
+    if result["is_synthetic"]:
+        typer.echo("Fictional margin balances.")
+    typer.echo(f"{identifier}  Application: {row['date']}  Published: {row['publication_date']}")
+    shares = row["shares"]
+    typer.echo(f"Buy balance: {shares['buy_balance']} shares  Change: {shares['buy_change']}")
+    typer.echo(f"Sell balance: {shares['sell_balance']} shares  Change: {shares['sell_change']}")
+    typer.echo(f"Margin ratio (buy / sell shares): {row['margin_ratio']['value'] or 'unavailable'}")
+    typer.echo("JPX exchange margin balances; recent linked reports. Use --json for details.")
+
+
 @research_app.command("reports")
 def research_reports(
     identifier: str | None = None,

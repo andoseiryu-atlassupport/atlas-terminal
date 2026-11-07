@@ -116,6 +116,7 @@ Dataset = Literal[
     "japan_disclosures",
     "japan_filing_facts",
     "japan_securities",
+    "margin_balances",
     "source_history",
     "price_analytics",
     "price_comparison",
@@ -171,6 +172,7 @@ FIELDS = {
     "japan_disclosures": {"filing_date", "identifier", "limit"},
     "japan_filing_facts": {"filing_date", "document_id", "concept", "limit"},
     "japan_securities": {"identifier", "limit"},
+    "margin_balances": {"identifier", "observation_date"},
     "source_history": {
         "source_url",
         "history_action",
@@ -380,6 +382,12 @@ def dataset_schema(schema: dict[str, Any]) -> None:
             }
         if name == "equity_actions":
             properties["identifier"]["pattern"] = "^" + SECURITY_SYMBOL_PATTERN + "$"
+        if name == "margin_balances":
+            properties["identifier"]["pattern"] = r"^[0-9][0-9A-Z]{3,4}\.T$"
+            properties["observation_date"]["description"] = (
+                "Exact JPX application date currently linked by the official daily directory; "
+                "omitting selects its latest linked report. Daily convention starts 2026-09-25."
+            )
         if name in {"trailing_financials", "segment_financials"}:
             properties["metrics"]["items"] = {
                 "type": "string",
@@ -766,10 +774,14 @@ class ResearchQuery(Model):
             edinet_list_url(self.filing_date or "")
             if self.dataset == "japan_filing_facts" and self.document_id is None:
                 raise AtlasError("INVALID_INPUT", "Provide the selected EDINET document ID.")
-        if self.dataset == "japan_securities" and self.identifier is not None:
+        if self.dataset in {"japan_securities", "margin_balances"} and self.identifier is not None:
             from atlas_terminal.japan_company_sources import jpx_identifier
 
             jpx_identifier(self.identifier)
+        if self.dataset == "margin_balances" and self.observation_date is not None:
+            from atlas_terminal.margin_sources import margin_report_url
+
+            margin_report_url(self.observation_date)
         if self.dataset == "source_history":
             from atlas_terminal.source_history import SourceHistoryQuery
 

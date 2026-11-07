@@ -26,7 +26,7 @@ COMPANY_SOURCES: dict[str, Any] = {
         ),
     },
     "jpx": {
-        "name": "Japan Exchange Group listed-company information",
+        "name": "Japan Exchange Group listed-company and margin information",
         "source_kind": "primary",
         "upstream_price": "0",
         "api_key_required": False,
@@ -37,7 +37,10 @@ COMPANY_SOURCES: dict[str, Any] = {
             "JPX consent is required for commercial collection, secondary use and retransmission. "
             "Public access is not a redistribution license; no historical security master inferred."
         ),
-        "cadence": "Current listed-company XLSX reference table; cached for six hours.",
+        "cadence": (
+            "Current listed-company XLSX cached for six hours; daily all-issue margin PDFs "
+            "selected from the current official directory, cached for one hour."
+        ),
     },
 }
 

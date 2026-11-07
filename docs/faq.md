@@ -2,7 +2,7 @@
 
 ## What is Atlas Terminal?
 
-Atlas Terminal is an open-source financial-data toolkit for AI agents. One MCP connection provides company financials, US/Japan macro indicators and reference FX from free primary sources. A Python SDK, CLI and HTTP API share the same services. It has 65 datasets and twenty-six research presets.
+Atlas Terminal is an open-source financial-data toolkit for AI agents. One MCP connection provides company financials, US/Japan macro indicators and reference FX from free primary sources. A Python SDK, CLI and HTTP API share the same services. It has 66 datasets and twenty-six research presets.
 
 ## Is the research data free?
 

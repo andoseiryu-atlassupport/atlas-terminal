@@ -39,6 +39,7 @@ from atlas_terminal.japan_company_sources import (
     company_identity,
     edinet_key,
 )
+from atlas_terminal.margin_sources import MAX_PDF_BYTES, margin_identity, margin_reports
 from atlas_terminal.policy_sources import parse_policy, policy_identity
 from atlas_terminal.providers import CachedHTTPTransport, Snapshot, decode_json
 from atlas_terminal.reference_rate_sources import NYFED_RATES as NYFED_RATES
@@ -458,6 +459,7 @@ class PublicTransport(CachedHTTPTransport):
             or global_wdi_identity(url) is not None
             or fred_series_identity(url) is not None
             or company_identity(url) is not None
+            or margin_identity(url) is not None
             or yahoo_identity(url) is not None
             or intraday_identity(url) is not None
             or re.fullmatch(re.escape(TREASURY_BASE) + r"(?:199[0-9]|20[0-9]{2}|2100)", url)
@@ -468,6 +470,12 @@ class PublicTransport(CachedHTTPTransport):
 
     @staticmethod
     def validate_body(url: str, body: bytes) -> None:
+        if margin := margin_identity(url):
+            if margin == "index":
+                margin_reports(Snapshot(body, url, stamp()))
+            elif len(body) > MAX_PDF_BYTES or not body.startswith(b"%PDF-"):
+                raise ValueError("Expected bounded JPX margin PDF")
+            return
         if url.startswith(BEA_BASE + "?"):
             value = decode_json(body)
             if (
@@ -726,6 +734,13 @@ class PublicFixtures:
     synthetic = True
 
     def get(self, url: str, ttl: int) -> Snapshot:
+        if margin := margin_identity(url):
+            name = "margin_index.html" if margin == "index" else "margin_daily.pdf"
+            return Snapshot(
+                files("atlas_terminal").joinpath("resources", "research", name).read_bytes(),
+                "https://fixtures.atlas.invalid/research/" + name,
+                "2026-11-07T12:00:00Z",
+            )
         if company := company_identity(url):
             name = {
                 "securities": "jpx_companies.xls",
