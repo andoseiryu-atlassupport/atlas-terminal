@@ -159,6 +159,21 @@ MACRO_QUERIES = [
     },
     {"dataset": "price_analytics", "identifier": "AAPL", "metrics": ["rsi_14"], "limit": 3},
     {
+        "dataset": "price_analytics",
+        "identifier": "7203.T",
+        "price_field": "close",
+        "metrics": [
+            "sma_5",
+            "sma_25",
+            "sma_75",
+            "bollinger_middle_20",
+            "bollinger_upper_20",
+            "bollinger_lower_20",
+            "rsi_14",
+        ],
+        "limit": 7,
+    },
+    {
         "dataset": "price_comparison",
         "identifiers": ["AAPL", "MSFT"],
         "start_date": "2026-04-01",
@@ -435,6 +450,41 @@ def verify_price_history(root):
     assert actual["records"] == sdk["records"] == 6 and actual["is_synthetic"]
     assert (root / "history-cli/prices.csv").read_bytes() == (
         root / "history-sdk/prices.csv"
+    ).read_bytes()
+    with Atlas("fixture") as atlas:
+        technical = atlas.export_technicals(
+            root / "history-sdk",
+            output=root / "technicals-sdk",
+            metrics=["sma_5", "rsi_14"],
+            price_field="close",
+        )
+    assert technical["calculation_records"] == 12 and not technical["network_used"]
+    cli = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "atlas_terminal",
+            "research",
+            "technicals",
+            "--input",
+            str(root / "history-cli"),
+            "--output",
+            str(root / "technicals-cli"),
+            "--metrics",
+            "sma_5,rsi_14",
+            "--price-field",
+            "close",
+            "--json",
+        ],
+        cwd=root,
+        capture_output=True,
+        text=True,
+        check=True,
+        timeout=20,
+    )
+    assert json.loads(cli.stdout)["calculation_records"] == 12
+    assert (root / "technicals-sdk/technicals.csv").read_bytes() == (
+        root / "technicals-cli/technicals.csv"
     ).read_bytes()
 
 
@@ -826,6 +876,7 @@ with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
                 "wheel_demo": "PASS",
                 "wheel_research_cli_mcp_http": "PASS",
                 "wheel_multiyear_price_history_sdk_cli": "PASS",
+                "wheel_technical_indicators_sdk_cli": "PASS",
                 "wheel_macro_fx_cli_sdk_mcp_http": "PASS",
                 "wheel_filing_ttm_policy_cli_sdk_mcp_http": "PASS",
                 "wheel_europe_korea_cli_sdk_mcp_http": "PASS",

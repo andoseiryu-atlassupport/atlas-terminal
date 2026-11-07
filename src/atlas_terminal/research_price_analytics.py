@@ -19,6 +19,7 @@ if TYPE_CHECKING:
 DECIMAL_PLACES = 18
 CALCULATION_PRECISION = 256
 QUANTUM = Decimal("1e-18")
+MAX_OFFLINE_PRICE_OBSERVATIONS = 11000
 
 
 @dataclass(frozen=True)
@@ -35,6 +36,12 @@ PRICE_METRICS: dict[str, PriceIndicator] = {
     "cumulative_return": PriceIndicator("P[t] / P[first_selected] - 1", 1),
     "sma_20": PriceIndicator("sum(P[t-19:t]) / 20", 20, "price", 20),
     "sma_50": PriceIndicator("sum(P[t-49:t]) / 50", 50, "price", 50),
+    **{
+        f"sma_{length}": PriceIndicator(
+            f"sum(P[t-{length - 1}:t]) / {length}", length, "price", length
+        )
+        for length in (5, 25, 75, 200)
+    },
     "ema_12": PriceIndicator(
         "seed = mean(first 12 consecutive P); EMA[t] = (2*P[t] + 11*EMA[t-1]) / 13",
         12,
@@ -47,6 +54,16 @@ PRICE_METRICS: dict[str, PriceIndicator] = {
         "price",
         recursive=True,
     ),
+    **{
+        f"ema_{length}": PriceIndicator(
+            f"seed = mean(first {length} consecutive P); "
+            f"EMA[t] = (2*P[t] + {length - 1}*EMA[t-1]) / {length + 1}",
+            length,
+            "price",
+            recursive=True,
+        )
+        for length in (20, 50)
+    },
     "rsi_14": PriceIndicator(
         "d=P[t]-P[t-1]; seed gains/losses=mean(first 14 positive/negative d); "
         "G[t]=(13*G[t-1]+max(d,0))/14; L[t]=(13*L[t-1]+max(-d,0))/14; "
@@ -76,21 +93,43 @@ PRICE_METRICS: dict[str, PriceIndicator] = {
     "bollinger_lower_20": PriceIndicator(
         "mean(last 20 P) - 2*sqrt(sum((P-mean(last 20 P))^2)/20)", 20, "price", 20
     ),
+    "bollinger_middle_20": PriceIndicator("mean(last 20 P)", 20, "price", 20),
+    "bollinger_bandwidth_20": PriceIndicator(
+        "(upper20 - lower20) / middle20; population sigma, multiplier 2", 20, "ratio", 20
+    ),
+    "bollinger_percent_b_20": PriceIndicator(
+        "(P[t] - lower20) / (upper20 - lower20); null for a zero-width band", 20, "ratio", 20
+    ),
 }
 DEFAULT_PRICE_METRICS = ["return_1d", "cumulative_return", "sma_20", "rsi_14", "drawdown"]
+DEFAULT_TECHNICAL_METRICS = [
+    "sma_5",
+    "sma_25",
+    "sma_75",
+    "bollinger_middle_20",
+    "bollinger_upper_20",
+    "bollinger_lower_20",
+    "rsi_14",
+    "macd",
+    "macd_signal",
+    "macd_histogram",
+]
 PRICE_ANALYTICS_LIMITATIONS = [
     "Optional unofficial international Yahoo access is for personal use; no data redistribution "
     "or commercial license is granted. Source availability is not guaranteed.",
-    "Indicators use the source adjusted-close field only. They do not substitute close, "
-    "reconstruct total returns, repair prices or establish an investable futures roll strategy.",
+    "Indicators use the explicitly selected source price field (adjusted_close by default, "
+    "or close). They do not substitute another field, reconstruct total returns, repair prices "
+    "or establish an investable futures roll strategy.",
     "Windows count consecutive returned observations, not verified trading sessions. Missing "
     "calendar dates are not inserted; return_1d means the preceding reported observation.",
-    "Null, nonpositive or source-ambiguous adjusted prices invalidate affected calculations. "
+    "Null, nonpositive or source-ambiguous selected prices invalidate affected calculations. "
     "Rolling and "
     "recursive indicators restart after such an observation; cumulative return and drawdown "
     "remain unavailable after a gap because their scope starts at the first selected row.",
     "EMA uses a simple-average seed; Wilder RSI uses 14 price changes and returns 50 for a "
     "flat seed/history. Bollinger bands use population standard deviation and multiplier 2. "
+    "Bollinger bandwidth and percent B are ratios, not percentages; percent B is undefined "
+    "for a zero-width band and can lie outside 0–1. "
     "Volatility uses sample standard deviation of 20 simple returns and is not annualized.",
     "Only the selected window is used, with no hidden warm-up request. Recursive values depend "
     "on that window and the last reset. Dates are observation dates, not publication times; "
@@ -100,7 +139,12 @@ PRICE_ANALYTICS_LIMITATIONS = [
 
 def price_analytics_catalog() -> dict[str, Any]:
     return {
-        name: {**asdict(spec), "price_input": "adjusted_close", "annualization_factor": None}
+        name: {
+            **asdict(spec),
+            "price_input": "adjusted_close",
+            "price_input_options": ["adjusted_close", "close"],
+            "annualization_factor": None,
+        }
         for name, spec in PRICE_METRICS.items()
     }
 
@@ -132,7 +176,11 @@ def _ema(values: list[Decimal], previous: Decimal | None, length: int) -> Decima
 
 
 def indicator_records(
-    prices: list[dict[str, Any]], metrics: list[str]
+    prices: list[dict[str, Any]],
+    metrics: list[str],
+    *,
+    price_field: str = "adjusted_close",
+    max_observations: int = 4000,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     """Compute ascending rows; input indices address the returned price_inputs table.
 
@@ -141,28 +189,36 @@ def indicator_records(
     """
     if not metrics or len(set(metrics)) != len(metrics) or set(metrics) - PRICE_METRICS.keys():
         raise AtlasError("INVALID_INPUT", "Choose unique supported price analytics metrics.")
-    if len(prices) > 4000:
-        raise AtlasError("INVALID_INPUT", "Price analytics accepts at most 4000 observations.")
+    if price_field not in {"adjusted_close", "close"}:
+        raise AtlasError("INVALID_INPUT", "Choose adjusted_close or close as the price field.")
+    if (
+        type(max_observations) is not int
+        or not 1 <= max_observations <= MAX_OFFLINE_PRICE_OBSERVATIONS
+        or len(prices) > max_observations
+    ):
+        raise AtlasError("INVALID_INPUT", "Price analytics input exceeds its observation bound.")
     if any(a["date"] >= b["date"] for a, b in zip(prices, prices[1:], strict=False)):
         raise AtlasError("SOURCE_UNAVAILABLE", "Price analytics requires unique ascending dates.")
-    if len({(row["unit"], row["adjusted_close_basis"]) for row in prices}) > 1:
+    basis = "adjusted_close_basis" if price_field == "adjusted_close" else "price_basis"
+    if len({(row["unit"], row[basis]) for row in prices}) > 1:
         raise AtlasError("SOURCE_UNAVAILABLE", "Price units or adjustment bases changed.")
     with localcontext(Context(prec=CALCULATION_PRECISION, rounding=ROUND_HALF_EVEN)):
-        return _indicator_records(prices, metrics)
+        return _indicator_records(prices, metrics, price_field)
 
 
 def _indicator_records(
-    prices: list[dict[str, Any]], metrics: list[str]
+    prices: list[dict[str, Any]], metrics: list[str], price_field: str
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     inputs, records = [], []
     segment: list[Decimal] = []
     segment_start = 0
     complete_history = True
     maximum: Decimal | None = None
-    ema12 = ema26 = gain = loss = signal = None
+    ema12 = ema26 = ema20 = ema50 = gain = loss = signal = None
     macds: list[Decimal] = []
+    price_label = price_field.replace("_", " ")
     for index, row in enumerate(prices):
-        raw = row["adjusted_close"]
+        raw = row[price_field]
         value = Decimal(raw) if raw is not None else None
         valid = (
             value is not None
@@ -175,16 +231,19 @@ def _indicator_records(
                 "index": index,
                 "date": row["date"],
                 "value": raw,
+                "price_field": price_field,
                 "unit": row["unit"],
-                "price_basis": row["adjusted_close_basis"],
+                "price_basis": row["adjusted_close_basis"]
+                if price_field == "adjusted_close"
+                else row["price_basis"],
                 "status": "reported" if valid else "unavailable",
                 "reason": None
                 if valid
-                else "A finite positive adjusted close without ambiguous source data is required.",
+                else f"A finite positive {price_label} without ambiguous source data is required.",
                 "source_status": row.get("status"),
                 "quality_flags": row.get("quality_flags", []),
                 "ohlc_consistent": row.get("ohlc_consistent"),
-                "source": row["field_sources"].get("adjusted_close"),
+                "source": row["field_sources"].get(price_field),
                 "date_source": row["field_sources"]["date"],
             }
         )
@@ -193,7 +252,7 @@ def _indicator_records(
             segment = []
             segment_start = index + 1
             complete_history = False
-            ema12 = ema26 = gain = loss = signal = None
+            ema12 = ema26 = ema20 = ema50 = gain = loss = signal = None
             macds = []
         else:
             assert value is not None
@@ -204,11 +263,12 @@ def _indicator_records(
                 maximum = value if maximum is None else max(value, maximum)
                 values["cumulative_return"] = value / segment[0] - 1
                 values["drawdown"] = value / maximum - 1
-            for length in (20, 50):
+            for length in (5, 20, 25, 50, 75, 200):
                 if len(segment) >= length:
                     values[f"sma_{length}"] = _mean(segment[-length:])
             ema12, ema26 = _ema(segment, ema12, 12), _ema(segment, ema26, 26)
-            values.update(ema_12=ema12, ema_26=ema26)
+            ema20, ema50 = _ema(segment, ema20, 20), _ema(segment, ema50, 50)
+            values.update(ema_12=ema12, ema_26=ema26, ema_20=ema20, ema_50=ema50)
             if len(segment) >= 15:
                 if gain is None or loss is None:
                     differences = [
@@ -238,6 +298,11 @@ def _indicator_records(
                 deviation = _deviation(segment[-20:])
                 values["bollinger_upper_20"] = average + 2 * deviation
                 values["bollinger_lower_20"] = average - 2 * deviation
+                values["bollinger_middle_20"] = average
+                values["bollinger_bandwidth_20"] = 4 * deviation / average
+                values["bollinger_percent_b_20"] = (
+                    (value - (average - 2 * deviation)) / (4 * deviation) if deviation else None
+                )
         for metric in metrics:
             spec = PRICE_METRICS[metric]
             computed = values[metric]
@@ -252,17 +317,20 @@ def _indicator_records(
             if computed is None:
                 if not valid:
                     reason = (
-                        "The current adjusted close is missing, nonpositive or source-ambiguous."
+                        f"The current {price_label} is missing, nonpositive or source-ambiguous."
                     )
                 elif metric in {"cumulative_return", "drawdown"} and not complete_history:
                     reason = (
-                        "A selected earlier adjusted close is missing, nonpositive "
+                        f"A selected earlier {price_label} is missing, nonpositive "
                         "or source-ambiguous."
                     )
+                elif metric == "bollinger_percent_b_20" and len(segment) >= 20:
+                    reason = "Percent B is undefined because the Bollinger band has zero width."
                 else:
                     reason = (
-                        f"At least {spec.minimum_observations} consecutive positive adjusted "
-                        "closes are required after the window start or last missing value."
+                        f"At least {spec.minimum_observations} consecutive positive "
+                        f"{price_label} values are required after the window start "
+                        "or last missing value."
                     )
             records.append(
                 {
@@ -276,7 +344,10 @@ def _indicator_records(
                     "derived": True,
                     "reason": reason,
                     "formula": spec.formula,
-                    "price_basis": row["adjusted_close_basis"],
+                    "price_field": price_field,
+                    "price_basis": row["adjusted_close_basis"]
+                    if price_field == "adjusted_close"
+                    else row["price_basis"],
                     "input_range": {"table": "price_inputs", "first": first, "last": index},
                     "rounding": "half_even_18_decimal_places",
                     "decimal_precision": CALCULATION_PRECISION,
@@ -299,7 +370,7 @@ def price_analytics(transport: Transport, query: "ResearchQuery") -> dict[str, A
     prices, excluded = price_rows(result, snapshot, query)
     if not prices:
         raise AtlasError("INCOMPLETE_COVERAGE", "No completed daily prices in the selected window.")
-    inputs, records = indicator_records(prices, metrics)
+    inputs, records = indicator_records(prices, metrics, price_field=query.price_field)
     # A stable sort retains caller metric order within each descending date.
     records.sort(key=lambda row: row["date"], reverse=True)
     selected = records[: query.limit]
@@ -310,8 +381,11 @@ def price_analytics(transport: Transport, query: "ResearchQuery") -> dict[str, A
         "price_inputs": inputs,
         "sources": [reference(snapshot, "")],
         "calculation": {
-            "metrics": {metric: price_analytics_catalog()[metric] for metric in metrics},
-            "price_input": "adjusted_close",
+            "metrics": {
+                metric: {**price_analytics_catalog()[metric], "price_input": query.price_field}
+                for metric in metrics
+            },
+            "price_input": query.price_field,
             "input_range": "inclusive zero-based indices in price_inputs, ordered oldest first",
             "input_count": len(inputs),
             "hidden_warmup_requests": False,

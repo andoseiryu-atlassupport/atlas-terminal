@@ -347,6 +347,27 @@ def research_report_text(
         output(atlas.get_report_text(report_id, search=search))
 
 
+@research_app.command("technicals")
+def research_technicals(
+    input_directory: Annotated[Path, typer.Option("--input")],
+    output_directory: Annotated[Path, typer.Option("--output")],
+    metrics: str | None = None,
+    price_field: str = "adjusted_close",
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """Calculate indicators offline from a completed stock-history export."""
+    from atlas_terminal.technical_indicators import export_technicals
+
+    output(
+        export_technicals(
+            input_directory,
+            output_directory,
+            metrics=metrics.split(",") if metrics is not None else None,
+            price_field=price_field,
+        )
+    )
+
+
 @research_app.command("price-history")
 def research_price_history(
     identifier: str,
@@ -394,6 +415,7 @@ def research_get(
     sort_by: str | None = None,
     sort_order: str | None = None,
     metrics: str | None = None,
+    price_field: str | None = None,
     period: str | None = None,
     count: int | None = None,
     limit: int | None = None,
@@ -455,6 +477,7 @@ def research_get(
         "period": period,
         "count": count,
         "limit": limit,
+        "price_field": price_field,
         "taxonomy": taxonomy,
         "concept": concept,
         "unit": unit,

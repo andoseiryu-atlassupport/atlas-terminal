@@ -155,7 +155,7 @@ FIELDS = {
     "policy_rates": {"series", "start_date", "end_date", "limit"},
     "intraday_prices": {"identifier", "start_date", "end_date", "interval", "limit"},
     "price_comparison": {"identifiers", "start_date", "end_date", "limit"},
-    "price_analytics": {"identifier", "start_date", "end_date", "metrics", "limit"},
+    "price_analytics": {"identifier", "start_date", "end_date", "metrics", "limit", "price_field"},
     "company_screen": {
         "identifiers",
         "metrics",
@@ -604,6 +604,7 @@ class ResearchQuery(Model):
     sort_by: str | None = Field(default=None, min_length=1, max_length=80)
     sort_order: Literal["asc", "desc"] = "desc"
     metrics: list[str] = Field(default_factory=list, max_length=40)
+    price_field: Literal["adjusted_close", "close"] = "adjusted_close"
     period: Literal["annual", "quarterly", "ytd"] = "annual"
     count: int = Field(default=3, ge=1, le=20, strict=True)
     limit: int = Field(default=100, ge=1, le=500, strict=True)

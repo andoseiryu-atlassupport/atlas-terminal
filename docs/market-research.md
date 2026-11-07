@@ -38,9 +38,9 @@ For indicators, use `price_analytics` with one symbol and selected metrics:
 }
 ```
 
-Available indicators include simple consecutive-observation returns, cumulative return, 20/50-observation SMA, 12/26-observation EMA, Wilder RSI 14, 20-return sample volatility, drawdown, MACD/signal/histogram and 20-observation Bollinger bands. Formulas, required observations, source input ranges and units are returned. Calculations use adjusted close with explicit half-even rounding to 18 decimal places.
+The [technical-indicator guide](technical-indicators.md) lists all 23 calculations, including SMA5/20/25/50/75/200, EMA12/20/26/50, Wilder RSI14, Bollinger20 lines/bandwidth/percent B and MACD. Formulas, required observations, source input ranges and units are returned. `price_field` selects `close` or the existing `adjusted_close` default, with half-even rounding to 18 decimal places. The guide also covers full-history offline CSV export with `atlas research technicals`.
 
-Windows count returned observations, not verified exchange sessions. No hidden earlier history is fetched for warm-up. Null/nonpositive adjusted prices make affected calculations unavailable. Rolling and recursive indicators restart after those observations; cumulative return and drawdown remain unavailable after a gap because they start at the first selected row. Volatility is per observation and is not annualized. Index/FX/crypto/futures observations retain source-specific units and adjustment meaning; futures prices do not establish a tradable roll strategy or contract return.
+Windows count returned observations, not verified exchange sessions. No hidden earlier history is fetched for warm-up. Null/nonpositive or source-ambiguous chosen prices make affected calculations unavailable. Rolling and recursive indicators restart after those observations; cumulative return and drawdown remain unavailable after a gap because they start at the first selected row. Volatility is per observation and is not annualized. Index/FX/crypto/futures observations retain source-specific units and adjustment meaning; futures prices do not establish a tradable roll strategy or contract return.
 
 ## Comparing price histories
 

@@ -8068,19 +8068,28 @@
               "metrics": {
                 "items": {
                   "enum": [
+                    "bollinger_bandwidth_20",
                     "bollinger_lower_20",
+                    "bollinger_middle_20",
+                    "bollinger_percent_b_20",
                     "bollinger_upper_20",
                     "cumulative_return",
                     "drawdown",
                     "ema_12",
+                    "ema_20",
                     "ema_26",
+                    "ema_50",
                     "macd",
                     "macd_histogram",
                     "macd_signal",
                     "return_1d",
                     "rsi_14",
                     "sma_20",
+                    "sma_200",
+                    "sma_25",
+                    "sma_5",
                     "sma_50",
+                    "sma_75",
                     "volatility_20"
                   ],
                   "type": "string"
@@ -8089,6 +8098,12 @@
                 "title": "Metrics",
                 "type": "array",
                 "uniqueItems": true
+              },
+              "price_field": {
+                "default": "adjusted_close",
+                "enum": ["adjusted_close", "close"],
+                "title": "Price Field",
+                "type": "string"
               },
               "start_date": {
                 "anyOf": [
@@ -11920,6 +11935,12 @@
             "maxItems": 40,
             "title": "Metrics",
             "type": "array"
+          },
+          "price_field": {
+            "default": "adjusted_close",
+            "enum": ["adjusted_close", "close"],
+            "title": "Price Field",
+            "type": "string"
           },
           "period": {
             "default": "annual",

@@ -99,7 +99,7 @@ def test_fixed_rolling_and_seeded_recursive_indicators_on_a_linear_price_path():
 @pytest.mark.parametrize("metric", list(PRICE_METRICS))
 def test_warmup_is_explicit_and_does_not_use_future_prices(metric):
     required = PRICE_METRICS[metric].minimum_observations
-    records = result_for(range(1, 72), [metric])
+    records = result_for(range(1, max(72, required + 2)), [metric])
     assert all(row["value"] is None for row in records[: required - 1])
     assert all(row["status"] == "unavailable" and row["reason"] for row in records[: required - 1])
     assert records[required - 1]["value"] is not None
@@ -305,9 +305,92 @@ def test_selected_date_boundaries_and_unconfirmed_session_are_not_used_as_warmup
 
 def test_catalog_exposes_all_formulas_and_annualization_choice():
     catalog = price_analytics_catalog()
-    assert len(catalog) == 14
+    assert len(catalog) == 23
     assert all(spec["formula"] and spec["minimum_observations"] > 0 for spec in catalog.values())
     assert all(spec["annualization_factor"] is None for spec in catalog.values())
+
+
+@pytest.mark.parametrize("length", [5, 25, 75, 200])
+def test_additional_sma_windows_match_independent_arithmetic_means(length):
+    records = result_for(range(1, 222), [f"sma_{length}"])
+    assert Decimal(value(records, f"sma_{length}", length - 1)) == Decimal(length + 1) / 2
+    assert Decimal(value(records, f"sma_{length}")) == (Decimal(221) + Decimal(222 - length)) / 2
+
+
+@pytest.mark.parametrize("length", [20, 50])
+def test_additional_ema_windows_seed_once_and_follow_a_linear_price_path(length):
+    records = result_for(range(1, 222), [f"ema_{length}"])
+    assert all(r["value"] is None for r in records[: length - 1])
+    assert Decimal(records[length - 1]["value"]) == Decimal(length + 1) / 2
+    assert Decimal(records[-1]["value"]) == Decimal(221) - Decimal(length - 1) / 2
+
+
+def test_bollinger_middle_width_and_percent_b_keep_ratio_conventions_and_zero_width_undefined():
+    metrics = [
+        "sma_20",
+        "bollinger_middle_20",
+        "bollinger_upper_20",
+        "bollinger_lower_20",
+        "bollinger_bandwidth_20",
+        "bollinger_percent_b_20",
+    ]
+    records = result_for(range(1, 22), metrics)
+    assert value(records, "bollinger_middle_20") == value(records, "sma_20")
+    with localcontext() as ctx:
+        ctx.prec = 80
+        sigma = Decimal("33.25").sqrt()
+        assert abs(
+            Decimal(value(records, "bollinger_bandwidth_20")) - 4 * sigma / Decimal("11.5")
+        ) < Decimal("5e-19")
+        assert abs(
+            Decimal(value(records, "bollinger_percent_b_20"))
+            - (Decimal("9.5") + 2 * sigma) / (4 * sigma)
+        ) < Decimal("5e-19")
+    flat = result_for([100] * 22, metrics)
+    assert value(flat, "bollinger_bandwidth_20") == "0.000000000000000000"
+    assert value(flat, "bollinger_percent_b_20") is None
+    assert "zero width" in by_metric(flat, "bollinger_percent_b_20")[-1]["reason"]
+    outside = result_for([100] * 19 + [200], ["bollinger_percent_b_20"])
+    assert Decimal(outside[-1]["value"]) > 1
+
+
+def test_selected_close_uses_its_own_values_basis_and_evidence_without_adjusted_fallback():
+    rows = price_rows(range(1, 30))
+    for row in rows:
+        row["close"] = str(2 * Decimal(row["adjusted_close"]))
+        row["price_basis"] = "yahoo_split_adjusted"
+        row["field_sources"]["close"] = {
+            **row["field_sources"]["adjusted_close"],
+            "json_pointer": "/separate/close",
+        }
+    rows[-1]["adjusted_close"] = None
+    inputs, records = indicator_records(rows, ["sma_5"], price_field="close")
+    assert Decimal(records[-1]["value"]) == 54
+    assert inputs[-1]["value"] == "58" and inputs[-1]["price_field"] == "close"
+    assert inputs[-1]["source"]["json_pointer"] == "/separate/close"
+    assert records[-1]["price_basis"] == "yahoo_split_adjusted"
+    assert indicator_records(rows, ["sma_5"])[1][-1]["value"] is None
+
+
+@pytest.mark.parametrize("field", ["open", "raw", "CLOSE"])
+def test_invalid_price_field_is_rejected_by_schema_and_engine(field):
+    q = {"dataset": "price_analytics", "identifier": "7203.T", "price_field": field}
+    with pytest.raises(ValidationError):
+        Draft202012Validator(ResearchQuery.model_json_schema()).validate(q)
+    with pytest.raises((AtlasError, ValueError)):
+        ResearchQuery.model_validate(q)
+    with pytest.raises(AtlasError):
+        indicator_records(price_rows([10]), ["sma_5"], price_field=field)
+
+
+def test_only_the_offline_engine_can_use_its_larger_bounded_input_table():
+    rows = price_rows([100] * 4001)
+    with pytest.raises(AtlasError):
+        indicator_records(rows, ["sma_5"])
+    inputs, records = indicator_records(rows, ["sma_5"], max_observations=11000)
+    assert len(inputs) == 4001 and Decimal(records[-1]["value"]) == 100
+    with pytest.raises(AtlasError):
+        indicator_records(rows, ["sma_5"], max_observations=11001)
 
 
 def test_schema_metric_contract_matches_runtime_and_blocks_unknown_metrics():

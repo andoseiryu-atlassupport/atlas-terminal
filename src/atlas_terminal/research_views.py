@@ -351,6 +351,7 @@ CONTEXT_FIELDS = {
     "source_unit_label",
     "source_unit_code",
     "price_basis",
+    "price_field",
     "adjusted_close_basis",
     "adjusted_close_available",
     "volume_unit",
