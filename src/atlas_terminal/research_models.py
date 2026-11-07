@@ -143,7 +143,7 @@ FIELDS = {
     "country_economics": {"country", "series", "limit", "start_date", "end_date"},
     "country_bond_yields": {"country", "series", "limit", "start_date", "end_date"},
     "commodity_prices": {"series", "start_date", "end_date", "limit"},
-    "futures_prices": {"identifier", "start_date", "end_date", "limit"},
+    "futures_prices": {"identifier", "start_date", "end_date", "limit", "allow_partial"},
     "futures_curve": {"identifiers", "observation_date", "allow_partial", "limit"},
     "credit_ratings": {"identifier", "agency", "limit"},
     "trailing_financials": {"identifier", "metrics", "count", "allow_partial"},

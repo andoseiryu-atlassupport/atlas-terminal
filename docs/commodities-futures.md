@@ -22,7 +22,7 @@ Source periods such as `2026-M01` remain intact; normalized dates identify calen
 
 ## Rolling references and dated futures
 
-`futures_prices` accepts an explicit `identifier`, optional paired dates, and `limit`. It requires the same personal-use source enablement as [Yahoo prices](yahoo-finance.md):
+`futures_prices` returns **daily** observations for an explicit `identifier`, optional paired dates, `limit` and `allow_partial`. It requires the same personal-use source enablement as [Yahoo prices](yahoo-finance.md):
 
 ```sh
 export ATLAS_ENABLE_YAHOO_FINANCE=1
@@ -42,6 +42,29 @@ atlas research get futures_prices --identifier GCZ26.CMX --start-date 2026-10-01
 Rows preserve signed prices, zeros, nulls, volume, exact field evidence and source-local daily dates. `currency="USX"` remains US cents with `denomination_currency="USD"` and `quote_unit_scale="0.01"`; dollar quotes retain scale `"1"`. Neither numeric value is silently converted. Unconfirmed current sessions are excluded. `unit="source_quote_units"` preserves the numeric quote without a conversion. `quote_measure_unit` is the family's **reference convention**, while `source_quote_convention_verified=false` states that the source quote scale has not been independently confirmed. Do not calculate notional exposure from that reference alone. The six legacy front references remain accessible through `equity_prices` with their existing output units.
 
 The reader does not infer an expiry day, contract multiplier, margin, delivery terms or exchange settlement price. `expiry_date` and `contract_multiplier` are null, `settlement_price_verified=false` and `roll_adjusted=false`. A dated contract month is not its expiry date. Rolling references can change the underlying contract; their changes are not a certified roll-adjusted return history. Futures remain excluded from the equity/ETF time-series risk connection.
+
+## Daily commodity reads
+
+Use `futures_prices` for daily commodity **futures** quotes. The IMF `commodity_prices` dataset remains monthly; its reference prices are not interpolated or substituted with futures. The thirty registered futures families include twenty-two commodity families:
+
+| Group     | Daily rolling front identifiers        |
+| --------- | -------------------------------------- |
+| Metals    | `GC=F`, `SI=F`, `HG=F`, `PL=F`, `PA=F` |
+| Energy    | `CL=F`, `BZ=F`, `NG=F`, `RB=F`, `HO=F` |
+| Grains    | `ZC=F`, `ZW=F`, `ZS=F`, `ZM=F`, `ZL=F` |
+| Softs     | `KC=F`, `SB=F`, `CC=F`, `OJ=F`         |
+| Livestock | `LE=F`, `HE=F`, `GF=F`                 |
+
+```sh
+ATLAS_ENABLE_YAHOO_FINANCE=1 atlas research get futures_prices --identifier GC=F --start-date 2026-01-01 --end-date 2026-11-06 --limit 500 --json
+ATLAS_ENABLE_YAHOO_FINANCE=1 atlas research batch --input examples/research_batch_daily_commodities.json --json
+```
+
+The [ten-commodity batch example](../examples/research_batch_daily_commodities.json) requests one month per instrument to stay within the shared batch response budget. Direct responses contain at most **500 rows**, with explicit truncation; requests span at most ten calendar years. Split longer histories into bounded, nonoverlapping date windows, usually one year each, and inspect coverage. Missing sessions are not filled, and returned dates do not certify an exchange holiday calendar.
+
+By default, contradictory OHLC bounds fail with `SOURCE_UNAVAILABLE`. For inspection, `--allow-partial` (JSON `allow_partial=true`) preserves the original daily bar with `status="ambiguous"`, `ohlc_consistent=false` and `quality_flags=["ohlc_bounds_conflict"]`. It neither repairs the quote nor silently drops that date. `coverage.partial` and `coverage.inconsistent_ohlc_records` expose affected bars; `requirements.allow_missing=false` rejects such results. Instrument identity, denomination, timestamps and numeric validation remain strict. This option applies to `futures_prices`; curve inputs still reject conflicting OHLC values.
+
+A dated live check returned 214 daily rows per available series for **2026-01-02 through 2026-11-06**. Eighteen rolling front series passed without partial coverage; coffee, cocoa and orange juice required the explicit ambiguity option for 25, 20 and nine bars respectively. `SB=F` returned an unsupported `ALTSYMBOL` instrument type and remained unavailable. A separately selected `SBH27.NYB` March 2027 sugar contract returned 214 rows; it is a different series and never replaces `SB=F`. These observations establish this captured window, not continuous future availability or verified spot/settlement prices. [Validation details](verification.md#daily-commodity-futures).
 
 ## Same-date contract curve
 

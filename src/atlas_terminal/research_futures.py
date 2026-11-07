@@ -37,6 +37,7 @@ def futures_prices(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
             end_date=q.end_date,
             limit=q.limit,
         ),
+        allow_ambiguous_futures=q.allow_partial,
     )
     unit = result["instrument"]["price_unit"]
     result["instrument"].update(future_context(q.identifier or ""))
@@ -54,6 +55,12 @@ def futures_prices(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
         "total returns or notional values; reference quote units do not assert a "
         "verified source scale."
     )
+    result["coverage"]["ambiguous_ohlc_allowed"] = q.allow_partial
+    if q.allow_partial:
+        result["limitations"].append(
+            "OHLC conflicts retain original values with status ambiguous and an explicit flag; "
+            "allow_partial does not verify or repair those quotes or relax instrument identity."
+        )
     return result
 
 

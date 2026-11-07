@@ -93,7 +93,11 @@ def chart_result(snapshot: Snapshot, symbol: str) -> tuple[dict[str, Any], dict[
 
 
 def price_rows(
-    result: dict[str, Any], snapshot: Snapshot, q: ResearchQuery
+    result: dict[str, Any],
+    snapshot: Snapshot,
+    q: ResearchQuery,
+    *,
+    allow_ambiguous_futures: bool = False,
 ) -> tuple[list[dict[str, Any]], int]:
     profile = yahoo_profile(q.identifier or "", result["meta"]["currency"])
     timezone = yahoo_timezone(q.identifier or "")
@@ -162,7 +166,11 @@ def price_rows(
                 Decimal(cast(str, values[field])) for field in PRICE_FIELDS[:4]
             ]
             ohlc_consistent = low <= min(opening, close) <= max(opening, close) <= high
-            if not ohlc_consistent and profile["asset_class"] != "fx":
+            if (
+                not ohlc_consistent
+                and profile["asset_class"] != "fx"
+                and not (allow_ambiguous_futures and profile["asset_class"] == "futures")
+            ):
                 raise source_error("Yahoo OHLC values violate the reported high/low bounds.")
         if not within(date, q.start_date, q.end_date):
             continue
@@ -314,14 +322,18 @@ def action_rows(
     return rows
 
 
-def yahoo_equities(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
+def yahoo_equities(
+    transport: Transport, q: ResearchQuery, *, allow_ambiguous_futures: bool = False
+) -> dict[str, Any]:
     assert q.identifier is not None
     if q.dataset == "equity_actions" and yahoo_profile(q.identifier)["asset_class"] != "security":
         raise AtlasError("INVALID_INPUT", "Corporate-action queries require a security symbol.")
     snapshot = transport.get(yahoo_url(q.identifier, q.start_date, q.end_date), 900)
     result, instrument = chart_result(snapshot, q.identifier)
     # Validate aligned daily arrays even when selecting only action events.
-    prices, excluded = price_rows(result, snapshot, q)
+    prices, excluded = price_rows(
+        result, snapshot, q, allow_ambiguous_futures=allow_ambiguous_futures
+    )
     actions = action_rows(result, snapshot, q)
     rows = prices if q.dataset == "equity_prices" else actions
     rows.sort(key=lambda row: (row["date"], row.get("action_type", "")), reverse=True)
