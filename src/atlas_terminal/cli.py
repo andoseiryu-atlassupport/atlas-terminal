@@ -298,6 +298,39 @@ def research_book(
     typer.echo("One venue; selected depth only. Use --json for units, coverage and evidence.")
 
 
+@research_app.command("polymarket")
+def research_polymarket(
+    search: str | None = typer.Argument(None),
+    event_slug: str | None = None,
+    limit: int = 3,
+    include_closed: bool = False,
+    provider: str = "public",
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """Find prediction events and read Gamma outcome prices as probability indicators."""
+    with Atlas(provider) as atlas:
+        result = atlas.get_prediction_markets(
+            search, event_slug=event_slug, limit=limit, include_closed=include_closed
+        )
+    if json_output:
+        output(result)
+        return
+    if result["is_synthetic"]:
+        typer.echo("Fictional prediction-market data.")
+    for event in result["records"]:
+        typer.echo(f"{event['title']}  [{event['event_slug']}]")
+        for market in event["markets"]:
+            typer.echo(f"  {market['question']}  ({market['lifecycle']})")
+            for outcome in market["outcomes"]:
+                percent = outcome["probability_percent"]
+                label = f"{percent}%" if percent is not None else "unavailable"
+                typer.echo(
+                    f"    {outcome['outcome']}: {label}  Gamma price: {outcome['reported_price']}"
+                )
+        typer.echo(event["event_url"])
+    typer.echo("Gamma market-implied indicators; price time unverified. Use --json for evidence.")
+
+
 @research_app.command("buffett")
 def research_buffett(
     identifier: str,
@@ -484,6 +517,8 @@ def research_price_history(
 @research_app.command("get")
 def research_get(
     dataset: str,
+    event_slug: str | None = None,
+    include_closed: bool = False,
     book_source: str | None = None,
     depth: int | None = None,
     report_source: str | None = None,
@@ -546,6 +581,7 @@ def research_get(
     """Fetch free public research. Dataset-specific options are in research catalog."""
     data: dict[str, Any] = {"dataset": dataset}
     options = {
+        "event_slug": event_slug,
         "book_source": book_source,
         "depth": depth,
         "report_source": report_source,
@@ -613,6 +649,8 @@ def research_get(
         data["feeds"] = feeds.split(",")
     if allow_partial:
         data["allow_partial"] = True
+    if include_closed:
+        data["include_closed"] = True
     requirements = {
         "max_source_age_seconds": max_source_age_seconds,
         "min_observation_date": min_observation_date,

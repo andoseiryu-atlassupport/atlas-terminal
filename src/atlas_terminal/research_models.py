@@ -59,6 +59,7 @@ from atlas_terminal.sdmx_sources import CODE_PATTERN, FLOW_PATTERN
 from atlas_terminal.spread_catalog import SPREADS
 
 Dataset = Literal[
+    "prediction_markets",
     "buffett_score",
     "order_book",
     "analyst_reports",
@@ -129,6 +130,7 @@ Dataset = Literal[
 ]
 
 FIELDS = {
+    "prediction_markets": {"search", "event_slug", "include_closed", "limit"},
     "buffett_score": {"identifier", "count", "financial_input", "valuation"},
     "order_book": {"identifier", "book_source", "depth"},
     "analyst_reports": {"identifier", "report_source", "start_date", "end_date", "search", "limit"},
@@ -231,6 +233,8 @@ FIELDS = {
 
 
 def dataset_required(name: str) -> list[str]:
+    if name == "prediction_markets":
+        return []
     if name == "analyst_reports":
         return []
     if name == "analyst_report_text":
@@ -387,6 +391,8 @@ def dataset_schema(schema: dict[str, Any]) -> None:
             properties["identifier"]["pattern"] = "^" + SECURITY_SYMBOL_PATTERN + "$"
         if name == "buffett_score":
             properties["count"].update({"default": 5, "minimum": 3, "maximum": 10})
+        if name == "prediction_markets":
+            properties["limit"].update({"default": 3, "maximum": 5})
         if name == "margin_balances":
             properties["identifier"]["pattern"] = r"^[0-9][0-9A-Z]{3,4}\.T$"
             properties["observation_date"]["description"] = (
@@ -571,6 +577,23 @@ def dataset_schema(schema: dict[str, Any]) -> None:
                         },
                     }
                 )
+        if name == "prediction_markets":
+            branch["oneOf"] = [
+                {
+                    "required": ["search"],
+                    "properties": {
+                        "search": {"type": "string", "minLength": 1},
+                        "event_slug": {"type": "null"},
+                    },
+                },
+                {
+                    "required": ["event_slug"],
+                    "properties": {
+                        "event_slug": {"type": "string"},
+                        "search": {"type": "null"},
+                    },
+                },
+            ]
         if "start_date" in fields:
             branch["dependentRequired"] = {"start_date": ["end_date"], "end_date": ["start_date"]}
         if name == "fx_rates":
@@ -612,6 +635,10 @@ class ResearchQuery(Model):
     before_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
     as_of: str | None = Field(default=None, max_length=64)
     identifier: str | None = None
+    event_slug: str | None = Field(
+        default=None, pattern=r"^[a-z0-9]+(?:-[a-z0-9]+)*$", max_length=200
+    )
+    include_closed: bool = Field(default=False, strict=True)
     financial_input: ScoreFinancials | None = None
     valuation: ScoreValuation | None = None
     identifiers: list[str] = Field(default_factory=list, max_length=10)
@@ -686,6 +713,17 @@ class ResearchQuery(Model):
 
     @model_validator(mode="after")
     def check_dataset(self) -> "ResearchQuery":
+        if self.dataset == "prediction_markets":
+            from atlas_terminal.prediction_sources import event_slug, search_term
+
+            if (self.search is None) == (self.event_slug is None):
+                raise AtlasError("INVALID_INPUT", "Provide search or event_slug, exactly one.")
+            if "limit" in self.model_fields_set and self.limit > 5:
+                raise AtlasError("INVALID_INPUT", "Prediction reads accept at most five events.")
+            if self.search is not None:
+                search_term(self.search)
+            if self.event_slug is not None:
+                event_slug(self.event_slug)
         if self.dataset == "buffett_score":
             if "count" in self.model_fields_set and not 3 <= self.count <= 10:
                 raise AtlasError("INVALID_INPUT", "Scoring needs three to ten annual periods.")

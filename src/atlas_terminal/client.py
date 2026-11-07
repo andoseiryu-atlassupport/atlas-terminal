@@ -96,6 +96,25 @@ class Atlas:
                 status=502,
             ) from None
 
+    def get_prediction_markets(
+        self,
+        search: str | None = None,
+        *,
+        event_slug: str | None = None,
+        limit: int = 3,
+        include_closed: bool = False,
+    ) -> dict[str, Any]:
+        """Read public Gamma event details; never connects a wallet or trades."""
+        return self.get_research(
+            {
+                "dataset": "prediction_markets",
+                "limit": limit,
+                "include_closed": include_closed,
+                **({"search": search} if search is not None else {}),
+                **({"event_slug": event_slug} if event_slug is not None else {}),
+            }
+        )
+
     def get_buffett_score(
         self,
         identifier: str,

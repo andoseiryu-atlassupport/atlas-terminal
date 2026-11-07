@@ -451,6 +451,7 @@
               "anyOf": [
                 {
                   "enum": [
+                    "prediction_markets",
                     "buffett_score",
                     "order_book",
                     "analyst_reports",
@@ -4536,6 +4537,7 @@
           "dataset": {
             "type": "string",
             "enum": [
+              "prediction_markets",
               "buffett_score",
               "order_book",
               "analyst_reports",
@@ -6499,6 +6501,96 @@
       "ResearchQuery": {
         "additionalProperties": false,
         "oneOf": [
+          {
+            "additionalProperties": false,
+            "oneOf": [
+              {
+                "properties": {
+                  "search": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "event_slug": {
+                    "type": "null"
+                  }
+                },
+                "required": ["search"]
+              },
+              {
+                "properties": {
+                  "event_slug": {
+                    "type": "string"
+                  },
+                  "search": {
+                    "type": "null"
+                  }
+                },
+                "required": ["event_slug"]
+              }
+            ],
+            "properties": {
+              "dataset": {
+                "const": "prediction_markets",
+                "type": "string"
+              },
+              "event_slug": {
+                "anyOf": [
+                  {
+                    "maxLength": 200,
+                    "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Event Slug"
+              },
+              "include_closed": {
+                "default": false,
+                "title": "Include Closed",
+                "type": "boolean"
+              },
+              "limit": {
+                "default": 3,
+                "maximum": 5,
+                "minimum": 1,
+                "title": "Limit",
+                "type": "integer"
+              },
+              "search": {
+                "anyOf": [
+                  {
+                    "maxLength": 100,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Search"
+              },
+              "response": {
+                "$ref": "#/components/schemas/ResponseOptions"
+              },
+              "requirements": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ResearchRequirements"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              }
+            },
+            "required": ["dataset"],
+            "type": "object"
+          },
           {
             "additionalProperties": false,
             "properties": {
@@ -11891,6 +11983,7 @@
         "properties": {
           "dataset": {
             "enum": [
+              "prediction_markets",
               "buffett_score",
               "order_book",
               "analyst_reports",
@@ -12168,6 +12261,25 @@
             ],
             "default": null,
             "title": "Identifier"
+          },
+          "event_slug": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Event Slug"
+          },
+          "include_closed": {
+            "default": false,
+            "title": "Include Closed",
+            "type": "boolean"
           },
           "financial_input": {
             "anyOf": [
@@ -16014,6 +16126,7 @@
               {
                 "items": {
                   "enum": [
+                    "polymarket",
                     "bitbank",
                     "fisco",
                     "yahoo_finance",

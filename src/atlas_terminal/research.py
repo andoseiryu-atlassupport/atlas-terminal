@@ -124,6 +124,11 @@ FAMILIES = {
     "institutional_holdings": {"13F-HR", "13F-HR/A"},
 }
 DATASETS = {
+    "prediction_markets": (
+        "Polymarket event discovery and source-addressable market-implied outcome prices",
+        "polymarket",
+        "prediction_market_snapshots",
+    ),
     "buffett_score": (
         "Buffett-inspired quantitative business quality and explicit valuation scenarios",
         "sec",
@@ -678,6 +683,18 @@ def research_catalog(
         "analytics_metrics": analytics_catalog(),
         "price_analytics_metrics": price_analytics_catalog(),
         "buffett_scoring": buffett_catalog(),
+        "prediction_market_data": {
+            "dataset": "prediction_markets",
+            "source": "polymarket",
+            "optional": True,
+            "default_event_limit": 3,
+            "maximum_event_limit": 5,
+            "maximum_returned_markets_per_event": 100,
+            "search_aliases": {"アンソロピック": "Anthropic", "アンスロピック": "Anthropic"},
+            "price_basis": "Gamma-reported price per unit payout; market-implied indicator",
+            "price_observation_timestamp_verified": False,
+            "trading_available": False,
+        },
         "margin_trading": {
             "dataset": "margin_balances",
             "source_id": "jpx",
@@ -1085,6 +1102,7 @@ class ResearchService:
 
             result = macro_panel(q, self.get)
         elif q.dataset in {
+            "prediction_markets",
             "interest_spreads",
             "country_economics",
             "country_bond_yields",
@@ -1669,6 +1687,10 @@ class ResearchService:
 
     def public_data(self, q: ResearchQuery) -> dict[str, Any]:
         assert self.public is not None
+        if q.dataset == "prediction_markets":
+            from atlas_terminal.research_predictions import prediction_markets
+
+            return prediction_markets(self.public, q)
         if q.dataset == "margin_balances":
             from atlas_terminal.research_margin import margin_balances
 

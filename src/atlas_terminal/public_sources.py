@@ -41,6 +41,7 @@ from atlas_terminal.japan_company_sources import (
 )
 from atlas_terminal.margin_sources import MAX_PDF_BYTES, margin_identity, margin_reports
 from atlas_terminal.policy_sources import parse_policy, policy_identity
+from atlas_terminal.prediction_sources import PREDICTION_SOURCE, prediction_identity
 from atlas_terminal.providers import CachedHTTPTransport, Snapshot, decode_json
 from atlas_terminal.reference_rate_sources import NYFED_RATES as NYFED_RATES
 from atlas_terminal.reference_rate_sources import nyfed_identity
@@ -208,6 +209,7 @@ for _key, _code, _title, _unit, _frequency, _adjusted, _annualized, _base, _kind
         BLS_DETAILS[_key]["reference_period_kind"] = _kind
 
 SOURCE_CATALOG = {
+    "polymarket": PREDICTION_SOURCE,
     **COMPANY_SOURCES,
     "yahoo_finance": YAHOO_SOURCE,
     "rba": {
@@ -460,6 +462,7 @@ class PublicTransport(CachedHTTPTransport):
             or fred_series_identity(url) is not None
             or company_identity(url) is not None
             or margin_identity(url) is not None
+            or prediction_identity(url) is not None
             or yahoo_identity(url) is not None
             or intraday_identity(url) is not None
             or re.fullmatch(re.escape(TREASURY_BASE) + r"(?:199[0-9]|20[0-9]{2}|2100)", url)
@@ -470,6 +473,16 @@ class PublicTransport(CachedHTTPTransport):
 
     @staticmethod
     def validate_body(url: str, body: bytes) -> None:
+        if prediction := prediction_identity(url):
+            from atlas_terminal.research_predictions import MAX_BODY_BYTES
+
+            if len(body) > MAX_BODY_BYTES:
+                raise ValueError("Oversized prediction response")
+            data = decode_json(body)
+            key = "events" if prediction[0] == "search" else "markets"
+            if not isinstance(data, dict) or key not in data or "error" in data:
+                raise ValueError("Malformed Gamma prediction response")
+            return
         if margin := margin_identity(url):
             if margin == "index":
                 margin_reports(Snapshot(body, url, stamp()))
@@ -734,6 +747,15 @@ class PublicFixtures:
     synthetic = True
 
     def get(self, url: str, ttl: int) -> Snapshot:
+        if prediction := prediction_identity(url):
+            name = (
+                "prediction_search.json" if prediction[0] == "search" else "prediction_event.json"
+            )
+            return Snapshot(
+                files("atlas_terminal").joinpath("resources", "research", name).read_bytes(),
+                "https://fixtures.atlas.invalid/research/" + name,
+                "2026-11-07T12:00:00Z",
+            )
         if margin := margin_identity(url):
             name = "margin_index.html" if margin == "index" else "margin_daily.pdf"
             return Snapshot(
