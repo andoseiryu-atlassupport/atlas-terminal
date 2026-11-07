@@ -155,6 +155,19 @@ class Atlas:
             read_raw,
         )
 
+    def export_technicals(
+        self,
+        history: Path,
+        *,
+        output: Path,
+        metrics: list[str] | None = None,
+        price_field: str = "adjusted_close",
+    ) -> dict[str, Any]:
+        """Calculate saved stock-history indicators without source requests."""
+        from atlas_terminal.technical_indicators import export_technicals
+
+        return export_technicals(history, output, metrics=metrics, price_field=price_field)
+
     def get_order_book(
         self, identifier: str, *, depth: int = 10, source: str = "bitbank"
     ) -> dict[str, Any]:
