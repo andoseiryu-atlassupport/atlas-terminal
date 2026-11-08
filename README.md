@@ -1,18 +1,57 @@
 # Atlas Terminal
 
-**Free financial data for AI agents through one MCP connection.**
+**Financial research for AI agents through MCP, with traceable data and calculations.**
 
 <!-- mcp-name: io.github.andoseiryu-atlassupport/atlas-terminal -->
 
-Atlas Terminal gives AI agents company financials, US/Japan and international macro indicators and reference FX through one MCP connection, using free public primary sources. The same retrieval, calculation and evidence services are available through a CLI, Python SDK and HTTP API.
+Atlas Terminal is an Apache-2.0 toolkit for retrieving financial data, running research calculations and inspecting the evidence behind each result. One MCP connection provides company financials and filings, macro indicators, rates and FX, optional market prices, technical indicators, Japanese margin balances, company scoring and prediction-market prices. A Python SDK, CLI and HTTP API share the research services.
 
-Optional [native factor risk models](docs/risk-model.md) analyze supplied [US, Japanese, Korean and British stock histories](docs/equity-markets.md). One request reads a named JSON, CSV or SQLite connection, validates inputs, fits a cross-sectional or time-series model and analyzes a portfolio. The models are experimental; a historical equity database and verified vintages are not included. A separate optional [international Yahoo Finance reader](docs/yahoo-finance.md) supplies US, Tokyo, Korean and registered European daily security prices/actions and selected index, FX, crypto and futures observations for personal use, with explicit operator enablement. A [named Yahoo time-series connection](docs/data-connections.md#optional-yahoo-time-series-connection) can fit real adjusted-price returns against a separately chosen ETF proxy.
+Public primary sources are the default. Optional international Yahoo Finance observations are a secondary source, disabled by default and available only with explicit operator enablement for personal use. Research needs no built-in LLM, wallet or paid data subscription; source access and reuse terms apply separately.
 
-[Documentation website](https://atlas-terminal-docs.citrus-genet-7815.chatgpt.site) · [Connect Codex](docs/codex.md) · [Reproducible examples](docs/research-examples.md) · [Capabilities](IMPLEMENTATION_STATUS.md) · [Data sources](DATA_SOURCES.md)
+[Documentation](https://atlas-terminal-docs.citrus-genet-7815.chatgpt.site) · [Connect an agent](docs/codex.md) · [Capabilities](IMPLEMENTATION_STATUS.md) · [Sources and terms](DATA_SOURCES.md) · [Verification](docs/verification.md)
 
-## Try two complete workflows
+## What you can do
 
-Use Python 3.12+ and [uv](https://docs.astral.sh/uv/):
+The current source checkout contains **68 research datasets, 27 upstream source families and 26 presets**. This overview describes `main`; the existing `v0.7.0` release does not include every later addition. Inspect your installed `research catalog` before selecting a dataset.
+
+| Research task                                     | Available capabilities                                                                                                                                                                         | Scope and guide                                                                                                                                                                                                                                                   |
+| ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Understand a company                              | 37 US-GAAP financial concepts; annual, reported discrete quarterly and YTD statements; TTM flows, ratios, growth, free cash flow, filing text/tables and ownership disclosures                 | SEC reported facts retain actual periods and filing evidence. Missing financial values stay unavailable. [Financial research](docs/research.md) · [Original filings](docs/filing-research.md)                                                                     |
+| Assess business quality and valuation assumptions | Buffett-inspired annual scorecards with fixed weights, missing-point bounds, original inputs and an explicit price-versus-value scenario                                                       | SEC facts or supplied financials, including declared JPY inputs. Qualitative judgment remains manual; this is not Buffett's own scoring system or a return prediction. [Scoring](docs/buffett-scoring.md)                                                         |
+| Research economies, rates and currencies          | Inflation, employment, national accounts, government yields, policy rates, curve spreads, EFFR/SOFR history and ECB reference FX                                                               | Selected US, Japanese and international series with explicit definitions and gaps. Dated EFFR checks cover history from 2000-07-03. [Economic indicators](docs/economic-indicators.md) · [Rates and FX](docs/macro.md) · [Government bonds](docs/fixed-income.md) |
+| Study stock and commodity prices                  | Optional daily/intraday observations for US, Tokyo, Korean and registered European securities; multi-year stock exports; daily commodity futures and separate IMF monthly commodity references | Yahoo access is optional and for personal use. Source adjustments, quote units, contract rolls and missing observations remain explicit. [Stock history](docs/yahoo-finance.md#multi-year-stock-history) · [Commodities](docs/commodities-futures.md)             |
+| Calculate technical indicators and compare series | 23 indicators including SMA, EMA, Bollinger bands, Wilder RSI and MACD; price comparison; offline statistics, charts and a local research workbench                                            | Choose close or adjusted close. Saved histories retain every source date, input, formula and unavailable warm-up value. [Technicals](docs/technical-indicators.md) · [Statistics](docs/time-series-statistics.md) · [Workbench](docs/research-workbench.md)       |
+| Inspect Japanese market context                   | JPX daily credit buy/sell balances, changes and margin ratios; listed-company reference data; EDINET disclosure/XBRL readers                                                                   | Daily margin reports cover currently linked dates. Own broker positions and JSF financing/lending balances are unavailable. EDINET needs a private API key. [Margin balances](docs/margin-trading.md) · [Japanese companies](docs/japan-companies.md)             |
+| Read prediction-market indicators                 | Polymarket Gamma keyword/exact-slug event discovery, named outcome prices, exact percentages, lifecycle flags and source evidence                                                              | Prices are market-implied indicators. Closed/inactive prices are references, and actual quote timestamps remain unverified. No wallet or trading integration. [Polymarket](docs/prediction-markets.md)                                                            |
+| Analyze a portfolio with supplied data            | Experimental native cross-sectional and time-series factor models, risk attribution, active risk, shocks and holdout checks                                                                    | US, Japanese, Korean and British universes remain separate. Histories and a suitable estimation universe must be supplied; forecast accuracy is unverified. [Risk models](docs/risk-model.md) · [Data connections](docs/data-connections.md)                      |
+
+Additional research includes [official news feeds](docs/news.md), [one-venue crypto books and report discovery/import](docs/order-books-reports.md), [licensed local credit-rating observations](docs/credit-ratings.md), [G20 annual macro data](docs/g20-macro.md), [series discovery and macro panels](docs/international-macro.md), and [private source history](docs/source-history.md). The [capability reference](IMPLEMENTATION_STATUS.md) describes individual datasets and limits.
+
+## Evidence and missing data
+
+Each reported value retains its unit, actual period, source URL, source hash, retrieval time and original JSON pointer, XML path, CSV cell or document location. Derived results retain their formulas and exact inputs. Compact responses expose evidence IDs that can be resolved through the same connection.
+
+Missing or ambiguous values are explicit. Atlas does not manufacture missing financial quarters, fill absent prices, infer a prediction outcome's price from its complement, or combine unrelated markets into one probability distribution. Source retrieval time, publisher metadata updates, observation dates and contract deadlines have different meanings. Current or revised source snapshots are not historical point-in-time vintages.
+
+Optional quality requirements can reject missing values, stale captures or truncated results. Presets and batches retain independent results and failures; they do not imply a synchronized snapshot. [Agent contracts](docs/agents.md) · [Financial methodology](docs/methodology.md) · [Citation guidance](docs/citations.md).
+
+## Get started
+
+Use Python 3.12+ and [uv](https://docs.astral.sh/uv/). For the capabilities documented on `main`, work from the source checkout:
+
+```sh
+git clone https://github.com/andoseiryu-atlassupport/atlas-terminal.git
+cd atlas-terminal
+uv sync --locked
+uv run --offline atlas research catalog --json
+uv run --offline atlas research get statements --identifier ATLASDEMO --period quarterly --metrics revenue,eps_basic --count 3 --provider fixture --json
+```
+
+The fixture provider uses **fictional data** with `is_synthetic=true` and `.invalid` source links. After installation, fixture queries require no source network access, data account, wallet or LLM. The package is also available from versioned GitHub releases; it is not yet published on PyPI.
+
+### Try two complete workflows
+
+The existing `v0.7.0` release includes two installed walkthroughs:
 
 ```sh
 uv tool install 'git+https://github.com/andoseiryu-atlassupport/atlas-terminal.git@v0.7.0'
@@ -20,114 +59,35 @@ atlas showcase research
 atlas showcase japan-risk
 ```
 
-Both commands use an actual official MCP client connection with **fictional data**, no data account, wallet or LLM. They run from the installed package. Add `--json` to inspect complete queries, calculations and resolved evidence. The walkthroughs use temporary state; embedded reports remain readable after their session ends.
+Both use an actual official MCP client session with fictional data. Add `--json` for the complete queries, calculations and resolved evidence. [Rates/FX walkthrough and replay](docs/agent-research-walkthrough.md) · [Japanese risk walkthrough and replay](docs/japan-risk-walkthrough.md).
 
-- [Rates and FX walkthrough, 60-second replay and recorded evidence](docs/agent-research-walkthrough.md).
-- [Japanese portfolio walkthrough, 60-second replay and recorded model output](docs/japan-risk-walkthrough.md).
+The research walkthrough also supports `--provider public --allow-network` for actual ECB/New York Fed access. Portfolio risk requires supplied histories and a broader estimation universe; its walkthrough does not download stock prices.
 
-Run `atlas showcase research --provider public --allow-network` for actual ECB/New York Fed reads from a host permitted to reach those sources. Risk analysis of your own portfolio requires a broader estimation universe and rights-cleared histories; the fictional walkthrough does not download equity prices.
+### Read public data
 
-## Available data
-
-[Polymarket event prices](docs/prediction-markets.md) add `atlas research polymarket Anthropic` and exact event-slug reads through the shared interfaces. Public Gamma prices retain outcome labels, lifecycle flags, contract details and source evidence; percentages are market-implied indicators with unverified quote timestamps. The optional source requires permitted network access and applicable source terms, with no wallet or trading integration.
-
-[Buffett-inspired scoring](docs/buffett-scoring.md) evaluates annual business quality and an explicit price-versus-value scenario, retaining fixed weights, missing-point bounds, formulas and original inputs. `atlas research buffett AAPL` uses SEC facts; supplied annual data supports declared currencies including JPY. Qualitative judgment remains manual.
-
-Japanese credit trading status is available through `atlas research margin 7203.T`: daily JPX buy/sell balances, daily changes, general/standardized components and a share-based margin ratio. Application and publication dates, currently linked dates and exact PDF-cell evidence remain explicit. [Margin trading guide](docs/margin-trading.md).
-
-Atlas provides 68 research datasets, including private local source history, with data from 27 upstream source families. Official sources include SEC EDGAR, BLS, Treasury, the Federal Reserve, ECB, New York Fed, BEA, BOJ, Japan's Statistical Dashboard/MOF, EDINET, JPX, IMF, OECD, RBA, Eurostat, ONS, Census, ABS, StatCan and World Bank. Generic FRED retrieval preserves original producer conditions. Seven optional Yahoo daily/intraday price, action, analytics and futures datasets remain disabled by default for personal-use access under separate terms.
-
-[European and Korean market data](docs/europe-korea-equities.md) covers KOSPI/KOSDAQ and sixteen European countries through the existing price/action, intraday and analytics datasets. British pound/pence quote units remain explicit. The optional time-series connector supports the same national markets with a separately selected ETF proxy; local standardized company financial readers remain unavailable.
-
-[Multi-year stock history](docs/yahoo-finance.md#multi-year-stock-history) splits an explicit date range into bounded annual reads and saves a private daily CSV, source bytes and exact field evidence. `atlas research price-history 7203.T --start-date 2021-01-01 --end-date 2026-11-06 --output build/toyota-history` supports more than 500 total observations with operator-enabled Yahoo access. Python iterators and previewed annual queries use the same research service.
-
-[Commodities and futures](docs/commodities-futures.md) add eighteen IMF monthly reference-price series and daily Yahoo quotes for thirty futures families, including twenty-two commodity families, explicit dated contracts and same-date calendar spreads. Daily futures remain separate from monthly commodity references; optional partial reads preserve conflicting OHLC bars with explicit flags. [Credit ratings](docs/credit-ratings.md) imports operator-owned or licensed issuer/issue observations on S&P, Moody’s and Fitch global long-term scales, with private source versions; no automatic agency feed is supplied.
-
-[Selected country macro and bond rates](docs/country-macro-bonds.md) add IMF CPI and monetary-policy-related statistics plus IMF/OECD government rates for South Africa, Türkiye, Malaysia, Thailand, Singapore, New Zealand and China, with explicit per-country gaps. Annual WDI now covers Malaysia, Thailand, Singapore and New Zealand alongside the existing G20 selections.
-
-[Original filing research](docs/filing-research.md) adds exact TTM flows and margins, issuer-bound SEC document inventories, scoped numeric XBRL facts, standard-axis segment selections, visible Item/document text and reported HTML cells. Raw custom tags and release text retain their original meaning; they are not a standardized KPI or guidance database. [Policy rates](docs/policy-rates.md) adds the ECB's three policy instruments and the RBA cash rate target, with exact CSV-cell evidence.
-
-[Market research](docs/market-research.md) adds 23 trailing price indicators, same-market performance/correlation comparison, financial screening over up to ten named issuers, classified historical filing events, selected N-PORT fund holdings, generic FRED series and offline HTML chart export. [Technical indicators](docs/technical-indicators.md) include SMA5/20/25/50/75/200, four EMA periods, Wilder RSI14, Bollinger20 bands and MACD. Choose close or adjusted close through shared research, or calculate an entire saved stock history offline with `atlas research technicals`, retaining CSV values, formulas and source evidence. [Intraday prices](docs/intraday-prices.md) add explicit 1/5/15/30/60-minute bars. Saved results support [offline time-series statistics](docs/time-series-statistics.md), including ADF/KPSS diagnostics, and a [local research workbench](docs/research-workbench.md) with multiple independent panels.
-
-| Area         | Information                                                                                                                                                         |
-| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Companies    | Current US ticker / CIK directory and issuer profiles; Japanese EDINET disclosures/XBRL and current JPX securities/industry reference                               |
-| Financials   | 37 US-GAAP concepts covering income, balance sheets, cash flow, EPS, shares and dividends; annual, reported discrete quarters and YTD                               |
-| Analysis     | Six ratios, five year-over-year growth rates, free cash flow and FCF margin; comparison of up to ten issuers at a common period                                     |
-| XBRL         | Concept inventory and raw observations with their taxonomy, units and contexts                                                                                      |
-| Disclosures  | All-form filing discovery, including ownership, fund, proxy, offering and corporate-action filings                                                                  |
-| Ownership    | Form 3/4/5 transactions and positions; a selected manager's 13F information table                                                                                   |
-| Macro        | Twenty-two BLS price/labor/cost/productivity series, CPI/core CPI YoY, payroll changes, government curves and federal debt                                          |
-| Rates / FX   | EFFR and SOFR overnight rates; ECB daily reference FX for 31 currencies, with traceable inverse and cross calculations                                              |
-| US accounts  | Sixteen BEA GDP, demand-component, PCE/income and saving-rate series                                                                                                |
-| US activity  | Retail, housing, durable goods, industrial production, weekly claims and goods/services trade                                                                       |
-| AU / CA / CN | Four Australian, three Canadian and four Chinese GDP/price/labour selections, with distinct source frequencies                                                      |
-| Japan        | Twenty-nine selections including machinery orders, trade, current account, corporate statistics and BOJ financial series                                            |
-| Market data  | Optional US, Tokyo, Korean and registered European securities and selected indexes/FX/crypto/futures; price analytics, comparison and original source-cell evidence |
-| Europe / UK  | Eurostat GDP, HICP, unemployment, production and retail for six regions; five ONS CPI/GDP/rolling-unemployment series                                               |
-| Policy       | Federal Reserve release headlines, publication times and original links                                                                                             |
-
-[Order books and analyst reports](docs/order-books-reports.md) add public bitbank crypto depth snapshots, permitted local equity/futures books, FISCO report-link discovery and a private PDF/text library. `atlas research book BTC_JPY` returns price levels and exact spread/depth calculations; `atlas research reports` discovers original report links. Imported documents retain page citations and rights metadata. Consolidated equity depth and contracted broker-report feeds remain unavailable; live source access is distinct from offline validation.
-
-Values retain their units, periods, source hashes, retrieval times and JSON pointers, XML paths, CSV cells, PDF pages or fixed-width text positions. Missing or ambiguous values are explicit. Derived metrics include their formulas and reported inputs.
-
-Use `japan_activity_overview`, `us_activity_overview`, `euro_area_macro_overview`, `uk_macro_overview` or `global_macro_overview` to retrieve selected economic context through one connection. [Series, definitions, source requirements and examples](docs/economic-indicators.md). These additions are in the latest source checkout; the existing `v0.7.0` release remains unchanged.
-
-Use `us_activity_extended`, `us_trade_overview`, `japan_external_corporate`, `australia_macro_overview`, `canada_macro_overview` or `china_macro_overview` for the additional activity selections. Census and FRED need separate free API keys; Australian/Canadian/Chinese endpoints need no key. China's WDI GDP is annual; Australia's monthly and quarterly CPI remain separate series. Dated private live checks cover many key-free selections. Five Japanese trade/corporate selectors remain unresolved. ABS quarterly CPI uses the current official CPI flow's native quarterly observations; no monthly aggregation is used. Preview, the catalog and diagnostics retain source requirements. [Observed results](docs/verification.md#data-integrity-and-japanese-company-extensions).
-
-[Japanese company readers](docs/japan-companies.md) retain dated EDINET document metadata, original numeric XBRL contexts/units and current JPX reference cells. EDINET needs a free private API key and remains unverified live; JPX reuse requires the applicable permission. [Local source history](docs/source-history.md) retains raw versions, observation events and exact JSON differences. Its `as_of` selects locally captured bytes and does not establish publisher PIT data.
-
-[G20 annual macro coverage](docs/g20-macro.md) covers fourteen WDI indicators for 23 countries and the overlapping EU aggregate through `global_economics`, plus the ten-item `g20_country_overview` preset. The 336 templates retain annual definitions, modeled-estimate status, debt scope and missingness. The African Union has no selected aggregate. Existing monthly/quarterly sources remain separate.
-
-Series search filters registered macro/FX templates by text, country, frequency, source and unit. IMF/OECD/ABS metadata discovery retrieves new series without indicator-specific adapters; macro panels align observations with explicit aggregation, gaps and source evidence. [Discovery and panel guide](docs/international-macro.md).
-
-Read free official announcements with `atlas research news`, `--digest` for a source-linked publisher briefing, or `--watch` for foreground updates. Five Federal Reserve/ECB/RBA/Japan MOF feeds share the CLI/SDK/MCP/HTTP service and an optional RSS endpoint, with separate private news history. [News guide](docs/news.md).
-
-Use `atlas research spread us_10y_2y` or `jp_10y_2y` to retrieve a latest dated spread in basis points. Fifteen short names cover US, Japan, ECB AAA/all-rating and Australia curves; `--limit` selects history and `--json` retains original yields and evidence. [Interest-spread guide](docs/interest-spreads.md).
-
-Government-bond presets combine US nominal/real curves, Japanese 1–40-year yields, local slopes, butterflies, rate changes, funding context and reference FX through the same connection. Japanese observations retain original MOF CSV cells. The US nominal/real par gap is an inflation-compensation proxy, not pure expected inflation. [Government-bond guide](docs/fixed-income.md). ECB euro area AAA/all-rating spot curves and RBA Australian government yields add regional presets and a four-region `global_bond_context`. Source curve basis, compounding and currencies remain explicit.
+Research commands default to `--provider public`. These examples make actual source requests and require normal permitted HTTPS access:
 
 ```sh
-uv run --offline atlas research preset us_bond_context --year 2025 --provider fixture --json
-uv run --offline atlas research preset japan_bond_context --year 2026 --provider fixture --json
-uv run --offline atlas research preset us_japan_bond_context --year 2026 --preview --provider fixture --json
-```
-
-## Get started
-
-The package is available from versioned GitHub releases and is not yet published on PyPI. To work in a cloned repository:
-
-```sh
-uv sync --locked
-uv run --offline atlas research catalog --json
-uv run --offline atlas research get statements --identifier ATLASDEMO --period quarterly --metrics revenue,eps_basic --count 3 --provider fixture --json
-```
-
-The fixture provider runs without network access. Its company identifiers and values are fictional, with `is_synthetic=true` and `.invalid` source links.
-
-For public data, research commands use `--provider public` by default. SEC requests require a private `SEC_USER_AGENT` containing your application name and actual contact email. Other sources do not require that setting.
-
-```sh
-uv run atlas research get statements --identifier AAPL --period quarterly --metrics revenue,eps_basic --count 3 --allow-partial --json
-uv run atlas research get financial_analytics --identifier AAPL --metrics revenue_growth_yoy,free_cash_flow,free_cash_flow_margin --count 1 --allow-partial --json
-uv run atlas research get compare --identifiers MSFT,GOOGL --metrics revenue,revenue_growth_yoy,free_cash_flow --period quarterly --allow-partial --json
-uv run atlas research get economics --series cpi --start-date 2000-01-01 --end-date 2026-12-31 --limit 500 --json
-uv run atlas research preset japan_macro_overview --json
-uv run atlas research get national_accounts --series gdp_real --json
-uv run atlas research get treasury_yields --year 2026 --json
+uv run atlas research get reference_rates --series effr --limit 5 --json
 uv run atlas research get fx_rates --base-currency USD --quote-currency JPY --json
-uv run atlas research get reference_rates --series sofr --json
-uv run atlas research get treasury_real_yields --year 2026 --json
-uv run atlas research get macro_analytics --series cpi_yoy --json
+uv run atlas research margin 7203.T --json
+uv run atlas research polymarket Anthropic --json
 ```
 
-Research needs no data subscription, wallet or LLM. BEA, Census, FRED and EDINET require separate free API keys configured privately in the process environment. Japanese, Australian, Canadian and Chinese statistical selections need no registration. Commands return JSON, and errors use nonzero exit codes. Dataset names, metrics, series identifiers and query limits are listed in `research catalog` and the [research guide](docs/research.md).
+SEC research and automatic `atlas research buffett AAPL` scoring require a private `SEC_USER_AGENT` with an application name and actual contact email. BEA, Census, FRED and EDINET need separate free registered API keys. Polymarket needs no key, but its source terms and network restrictions still apply.
 
-Growth matches actual prior-year periods; `0.25` means 25%. Free cash flow is reported operating cash flow minus PP&E acquisition payments. Comparisons select the latest shared reported period end and suppress values with different actual input dates. Missing quarters and nonpositive growth baselines remain unavailable. [Calculation rules](docs/research.md#growth-and-cash-flow-analytics).
+For optional personal-use Yahoo access, a multi-year stock export can feed offline technical calculations:
 
-FX observations are daily reference rates for information purposes. ECB retrieval uses the full published history, with optional observation-date bounds. EFFR/SOFR default to the latest 90 observations and support explicit historical observation dates through annual source requests. Cross rates use inputs from the same date. Missing dates and macro baselines are not filled. [Macro and FX guide](docs/macro.md).
+```sh
+ATLAS_ENABLE_YAHOO_FINANCE=1 uv run atlas research price-history 7203.T --start-date 2021-01-01 --end-date 2026-11-06 --output build/toyota-history --json
+uv run --offline atlas research technicals --input build/toyota-history --output build/toyota-technicals --price-field close --json
+```
+
+Use new private output directories. Source bytes, daily CSVs and calculation evidence stay local; a successful export does not establish complete exchange calendars or consistent cross-window adjustments. [History conventions](docs/yahoo-finance.md) · [Indicator formulas](docs/technical-indicators.md).
 
 ## Python, MCP and HTTP
+
+The same validated research query works across the SDK, CLI, MCP and HTTP interfaces:
 
 ```python
 from atlas_terminal.client import Atlas
@@ -145,71 +105,32 @@ with Atlas("fixture") as atlas:
     print(result["records"])
 ```
 
-Start the MCP server with:
+Start a local MCP server with fictional data:
 
 ```sh
 uv run --offline atlas mcp serve --provider fixture --research-only
 ```
 
-Research-only mode exposes six tools for datasets, presets, batches, connection diagnostics and saved evidence. It has no quote, purchase or wallet handler. `atlas_get_research` publishes dataset-specific input branches and a common output schema. Use `atlas_research_catalog` with an optional dataset filter and compact view to reduce discovery output. [MCP setup](docs/quickstart.md) · [Codex connection and skill](docs/codex.md).
+Research-only mode provides six tools for catalog discovery, exact queries, batches, presets, diagnostics and evidence. Use `atlas_get_research` with a `query` object, or send that object to HTTP `POST /v1/research`. `GET /v1/research/catalog` describes the available datasets. Optional risk tools require `--enable-risk`.
 
-The [company, CPI and USD/JPY example](docs/company-macro-fx.md) uses one official MCP session to retrieve four datasets and resolve all evidence IDs. Its executable contract evaluation reports explicit quality and unsupported-dataset rejection without an LLM. [Public checks](docs/public-checks.md) separately inspect published documentation HTTP/crawler signals and an optionally configured actual remote endpoint.
+[Codex setup](docs/codex.md) · [MCP quickstart](docs/quickstart.md) · [Python and research queries](docs/research.md) · [HTTP API](docs/self-hosting.md) · [Research-only Streamable HTTP](docs/remote-mcp.md).
 
-The original full stdio mode, without `--research-only`, exposes fourteen tools including company resolution, annual snapshots, filings, budget/preflight inspection and separately configured quote/purchase recovery. Research-only Streamable HTTP is available for [self-hosting](docs/remote-mcp.md). No official public remote endpoint or public ChatGPT plugin is currently operated.
+No official public Atlas remote endpoint or public ChatGPT plugin is operated. Remote use requires an operator-managed service. `company_overview`, `japan_macro_overview`, `fx_context` and government-bond presets combine independent reads; preview a preset before fetching an unfamiliar scope. [Presets](docs/presets.md) · [Reproducible research cases](docs/research-examples.md).
 
-Research accepts optional `response` settings for compact provenance references, field selection and snapshot pagination. `atlas_get_evidence` retrieves the original provenance by ID. Errors include a structured next action and a retry delay when known. The same contracts work through CLI, SDK and HTTP. [Agent usage](docs/agents.md).
+## Verification and limits
 
-Results link the relevant Atlas documentation while preserving original publisher attribution. Cite SEC, BLS, Treasury, Federal Reserve, ECB, New York Fed, BEA, BOJ, Statistics Bureau, Japan MOF or RBA provenance for numerical facts, and Atlas methodology for its calculation and selection rules. [Citation guidance](docs/citations.md).
+[Verification records](docs/verification.md) distinguish offline fictional tests, dated actual-source checks, installed-package checks and CI. Dated live checks cover selected macro/rate series, stock histories, daily futures, JPX margin reports and Polymarket outcomes. Successful reads certify the checked captures and calculations, not every source, continuous availability or forecast accuracy. SEC/EDINET live retrieval and several country-series selections retain documented limits.
 
-Optional `requirements` gate source age, the latest usable observation date, missing values, derived records and truncation before returning data. Failed conditions return `QUALITY_NOT_MET`; pages recheck time-dependent conditions. `Atlas.get_research_batch`, MCP `atlas_get_research_batch`, HTTP `POST /v1/research/batch` and `atlas research batch` process up to ten independent reads with an ID and status per item. [Requirements and batches](docs/agents.md#require-data-quality-explicitly).
+Polymarket's dated live check matched three Anthropic events, 29 open markets and 58 outcome prices/percentages to original Gamma responses. The search was bounded, price observation timestamps remained unknown, and retained closed-market prices had null current probabilities. [Exact verification scope](docs/verification.md#polymarket-event-prices).
 
-```sh
-uv run --offline atlas research batch --input examples/research_batch.json --provider fixture --json
-uv run atlas research check-sources --sources ecb,new_york_fed --allow-network --json
-```
+Atlas does not provide consolidated real-time equity prices or order books, option chains, analyst consensus, complete news/transcript coverage, a complete security master, historical release vintages or trading. Reference FX is daily reference data. Public API access and the Apache-2.0 code license do not grant redistribution rights to source data.
 
-Source checks require an explicit network opt-in, revalidate through shared source caches/quotas and record response hashes, structural fingerprints and observation dates against private last-success baselines. A separate manual workflow supports read-only official-source verification. [Source checks and limits](docs/source-checks.md).
+## Optional snapshot API
 
-### Multiple datasets through one connection
+Annual snapshots of five financial metrics have a separate optional quote/purchase/recovery API. Payments default to off; mock payments are fictional, and testnet mode is restricted to Base Sepolia USDC using x402 V2. Research queries do not purchase or sign. Mainnet and production custody are unsupported. [Payment configuration and limits](docs/payments.md).
 
-`company_overview`, `us_macro_overview` and `fx_context` expand into inspectable free research queries. Select items, preview the exact plan, then execute it through the existing batch service. Results include units, source cadence, usable observations, missingness and separate observation/publication/retrieval times. Missing publication times remain unknown; this is not an atomic snapshot.
+## License and contributing
 
-```sh
-uv run --offline atlas research preset company_overview --identifier ATLASDEMO --preview --provider fixture --json
-uv run --offline atlas research preset --input examples/research_presets/fx_context.json --provider fixture --json
-uv run --offline atlas research doctor --sources ecb,new_york_fed --json
-```
-
-SDK `Atlas.get_research_preset`, MCP `atlas_get_research_preset` and HTTP `POST /v1/research/preset` share the same query. `research doctor`, SDK `research_diagnostics`, MCP `atlas_research_diagnostics` and HTTP `POST /v1/research/diagnostics` check configuration without exposing private contact settings. Source probes require explicit `allow_network=true`; fixtures never establish live connectivity. [Presets, saved queries and diagnostics](docs/presets.md).
-
-The hosted MCP provider adds native x402 purchases through standard payment metadata and read-only chain reconciliation. Its external-wallet path uses the caller's spending controls. [MCP payment setup](docs/payments.md#standard-http-and-native-mcp-clients).
-
-Start the local HTTP API with:
-
-```sh
-uv run atlas serve --provider fixture --payments off --host 127.0.0.1 --port 8000
-```
-
-`GET /v1/research/catalog` lists datasets and query schemas. `POST /v1/research` retrieves research without a quote or payment. [API configuration](docs/self-hosting.md).
-
-## Annual snapshots and optional payments
-
-`financials get` and `Atlas.get_financials` provide annual US-GAAP USD snapshots for `revenue`, `net_income`, `assets`, `liabilities` and `operating_cash_flow`. Use `research get statements` for the full metric set and quarterly or YTD periods.
-
-The HTTP API also supports immutable annual snapshots with explicit quote, purchase and recovery steps. Payment modes are `off`, `mock` and `testnet`; payments default to off. Testnet uses x402 V2 exact/EIP-3009 with Base Sepolia USDC. Optional finalized-chain reconciliation recovers unknown orders without signing or settling again. Mainnet is unsupported. Research retrieval does not purchase snapshots. [Payment configuration](docs/payments.md).
-
-Use a stable `intent_id` when preparing a quote to recover the same order after response loss or restart. `purchase-preflight` and `budget-status` expose order readiness, policy denials, spending and reserved amounts without signing or reserving funds. Preflight is advisory; purchase still enforces the operator's policy atomically. [Planning and task replay](docs/payments.md#inspect-a-purchase-before-spending).
-
-## Sources and coverage
-
-Filing discovery returns document metadata and links. Structured ownership results describe one selected filing, with amendment, reporting-lag and coverage limits. Current snapshots and revised economic observations are not point-in-time historical data.
-
-Consolidated equity prices, consolidated equity order books, option chains, analyst consensus, newswire articles and earnings-call transcripts are not provided. Source access limits and third-party content terms apply independently of the code license.
-
-[Source terms](DATA_SOURCES.md) · [Financial methodology](docs/methodology.md) · [Validation scope](docs/verification.md) · [Security](SECURITY.md) · [Contributing](CONTRIBUTING.md)
-
-## License
-
-Atlas Terminal is licensed under [Apache-2.0](LICENSE). Source-data and dependency terms apply separately.
+Atlas Terminal is licensed under [Apache-2.0](LICENSE). Source-data and dependency terms remain separate. [Sources and terms](DATA_SOURCES.md) · [Contributing and checks](CONTRIBUTING.md) · [Security](SECURITY.md).
 
 Prepared MCP Registry namespace: `io.github.andoseiryu-atlassupport/atlas-terminal`; registration is pending.

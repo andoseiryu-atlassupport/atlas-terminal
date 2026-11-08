@@ -1,6 +1,8 @@
 # Atlas Terminal capabilities
 
-Atlas Terminal retrieves US equity research, macro data and reference FX from free public primary sources. Optional international Yahoo Finance market prices/actions are a secondary-source exception, disabled by default for operator-enabled personal use. Its CLI, Python SDK, stdio MCP server and HTTP API share the same datasets and selection rules.
+Atlas Terminal is an Apache-2.0 financial research toolkit for AI agents and applications. Its shared CLI, Python SDK, MCP and HTTP research services cover company financials and filings, macro/rates/FX, optional stock and futures prices, technical indicators, Japanese margin balances, Buffett-inspired scoring and Polymarket outcomes. Original data and derived calculations retain inspectable evidence. Separate optional native factor risk models analyze supplied histories.
+
+Public primary sources are the default. Optional international Yahoo market prices/actions are a secondary-source exception, disabled by default for operator-enabled personal use. These capabilities describe the current source checkout, with **68 datasets, 27 upstream source families and 26 presets**; the existing `v0.7.0` release does not include every later addition. Inspect the installed catalog and the source-specific verification limits below.
 
 [Japanese margin balances](docs/margin-trading.md) add `margin_balances` and `atlas research margin`: JPX daily buy/sell balances, daily changes, general/standardized components, JPY rows and a share-based ratio with exact operands and PDF-cell evidence. One currently linked application date is selected per query, with a separate printed publication date. The current catalog contains **68 datasets across 27 upstream source families**. Own-account positions and JSF financing/lending balances are separate and unavailable.
 

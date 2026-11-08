@@ -9,7 +9,10 @@ repository-code: "https://github.com/andoseiryu-atlassupport/atlas-terminal"
 url: "https://atlas-terminal-docs.citrus-genet-7815.chatgpt.site/"
 license: Apache-2.0
 keywords:
+  - financial research
   - financial data
   - MCP
   - macroeconomics
+  - technical analysis
+  - prediction markets
   - source evidence

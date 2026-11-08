@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "atlas-terminal"
 version = "0.7.0"
-description = "Free financial data for AI agents through one MCP connection."
+description = "Financial research for AI agents through MCP, with traceable data and calculations."
 readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE"]

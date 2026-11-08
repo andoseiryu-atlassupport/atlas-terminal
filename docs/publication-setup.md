@@ -59,7 +59,7 @@ Use [public access checks](public-checks.md), [reproducible research cases](rese
 A GitHub account with repository administration permission can apply the same public description and documentation URL:
 
 ```sh
-gh repo edit andoseiryu-atlassupport/atlas-terminal --description 'Free financial data for AI agents through one MCP connection.' --homepage 'https://atlas-terminal-docs.citrus-genet-7815.chatgpt.site/' --add-topic mcp --add-topic financial-data --add-topic macroeconomics --add-topic sec-edgar --add-topic foreign-exchange
+gh repo edit andoseiryu-atlassupport/atlas-terminal --description 'Financial research for AI agents through MCP, with traceable data and calculations.' --homepage 'https://atlas-terminal-docs.citrus-genet-7815.chatgpt.site/' --add-topic mcp --add-topic financial-data --add-topic macroeconomics --add-topic sec-edgar --add-topic foreign-exchange
 ```
 
 The ability to push code or merge a pull request does not necessarily permit editing repository settings through an integration.

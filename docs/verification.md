@@ -245,6 +245,10 @@ Wheel-payload SDK and CLI smoke reads loaded the packaged fictional WDI template
 
 ## Current local checks
 
+On **2026-11-08 JST**, the project overview and public descriptions were refreshed to cover the current research scope. README, overview/FAQ/setup guides, package descriptions, prepared plugin/Registry metadata and agent discovery guidance now distinguish current source capabilities from the existing `v0.7.0` release. An offline catalog check confirmed **68 datasets / 27 source families / 26 presets**. Both documented fixture query examples returned explicitly synthetic records, and the shared description matched README, Python/npm metadata, prepared manifests and wheel metadata. No research contract, source parser, calculation or dependency version changed.
+
+The full offline suite again passed **2,971 tests**, with two live tests deselected. The checks below passed, including the **68-page** documentation build and wheel/sdist validation (**428 / 739 files**). Existing BLS replay retained **14 captures / 168 matched records**, and all **22 hashed private Polymarket verification artifacts** remained unchanged. This description update made no new upstream data requests and did not publish a release, Registry entry or site deployment. Local validation remains separate from GitHub CI.
+
 | Check                                                     | Observed result                                                     |
 | --------------------------------------------------------- | ------------------------------------------------------------------- |
 | `uv run --offline ruff check .`                           | PASS                                                                |
