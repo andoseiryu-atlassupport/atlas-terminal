@@ -101,6 +101,7 @@ class ScoreValuation(Model):
     market_cap: Amount
     currency: str = Field(pattern=r"^[A-Z]{3}$")
     observed_on: str
+    observed_at: str | None = Field(default=None, max_length=64)
     captured_at: str = Field(max_length=64)
     growth_rate: Amount = "0.03"
     discount_rate: Amount = "0.10"
@@ -118,9 +119,19 @@ class ScoreValuation(Model):
         if (
             captured.tzinfo is None
             or captured > datetime.now(UTC)
-            or captured.date().isoformat() < self.observed_on
+            or (self.observed_at is None and captured.date().isoformat() < self.observed_on)
         ):
             raise ValueError("Valuation capture needs a timezone and cannot precede its quote date")
+        if self.observed_at is not None:
+            observed = datetime.fromisoformat(self.observed_at.replace("Z", "+00:00"))
+            if (
+                observed.tzinfo is None
+                or observed > captured
+                or observed.date().isoformat() != self.observed_on
+            ):
+                raise ValueError(
+                    "Quote timestamp needs a timezone, matching date and later capture"
+                )
         if not 0 < Decimal(self.market_cap) <= Decimal("1e24"):
             raise ValueError("Market capitalization must be a positive whole-equity amount")
         g, r, terminal = (

@@ -208,6 +208,19 @@
           "title": "Observed On",
           "type": "string"
         },
+        "observed_at": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observed At"
+        },
         "captured_at": {
           "maxLength": 64,
           "title": "Captured At",

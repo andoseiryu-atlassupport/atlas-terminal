@@ -1,6 +1,6 @@
 """Deterministic business-quality heuristics with fixed weights and explicit gaps."""
 
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from decimal import ROUND_HALF_EVEN, Context, Decimal, localcontext
 from statistics import median
 from typing import TYPE_CHECKING, Any
@@ -171,11 +171,35 @@ def _calculate_score(
     inputs = dict(data["inputs"])
     if valuation and (
         valuation.currency != data["currency"]
-        or (latest and valuation.observed_on < max(row["available_on"] for row in window))
+        or (
+            latest
+            and valuation.observed_on < max(row["available_on"] for row in window)
+            and not (valuation.observed_at and all(row.get("available_at") for row in window))
+        )
     ):
         raise AtlasError(
             "INVALID_INPUT", "Valuation currency/date must match available financial inputs."
         )
+    if valuation and any(row.get("available_at") for row in window):
+        available_at = max(
+            datetime.fromisoformat(row["available_at"]) for row in window if row.get("available_at")
+        )
+        captured_at = datetime.fromisoformat(valuation.captured_at.replace("Z", "+00:00"))
+        observed_at = (
+            datetime.fromisoformat(valuation.observed_at.replace("Z", "+00:00"))
+            if valuation.observed_at
+            else None
+        )
+        if (
+            captured_at < available_at
+            or (observed_at is not None and observed_at < available_at)
+            or (observed_at is None and valuation.observed_on == available_at.date().isoformat())
+        ):
+            raise AtlasError(
+                "INVALID_INPUT",
+                "Japanese valuation must follow the selected filing submission. "
+                "A same-day quote requires an explicit observed_at timestamp.",
+            )
     applicable = data["business_type"] == "nonfinancial"
     continuous = len(window) == years and all(
         (date.fromisoformat(right["start"]) - date.fromisoformat(left["end"])).days == 1
@@ -215,7 +239,9 @@ def _calculate_score(
         if origin.get("tag") or cell.get("comparability_key"):
             concepts.setdefault(metric, set()).add(
                 (
-                    origin.get("taxonomy", ""),
+                    "canonical_definition"
+                    if cell.get("comparability_key")
+                    else origin.get("taxonomy", ""),
                     cell.get("comparability_key", origin.get("tag", "")),
                     cell["unit"],
                 )
@@ -422,7 +448,7 @@ def _calculate_score(
     score = {
         "identifier": data["identifier"],
         "period_end": latest["end"] if latest else None,
-        "model_version": MODEL_VERSION,
+        "model_version": data.get("model_version", MODEL_VERSION),
         "derived": True,
         "status": "derived" if complete else "unavailable",
         "score": decimal_text(known) if complete else None,
@@ -504,7 +530,8 @@ def buffett_score(
         "source_id": "multiple" if q.valuation or q.financial_input else data["source_id"],
         "input_origin": data["input_origin"],
         "supplied_documents": documents,
-        "scoring_policy": buffett_catalog(),
+        "scoring_policy": buffett_catalog()
+        | {"model_version": data.get("model_version", MODEL_VERSION)},
         **{
             key: data[key]
             for key in ("issuer", "filing_selection", "normalization_version", "source_coverage")

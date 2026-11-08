@@ -6,13 +6,23 @@ from decimal import Decimal, localcontext
 from typing import Any
 
 from atlas_terminal.buffett_models import METRICS
+from atlas_terminal.edinet_extensions import capex_extensions
+from atlas_terminal.edinet_mappings import (
+    DEFINITIONS,
+    MAPPING_VERSION,
+    REVENUE_ALIASES,
+    mapped_fact,
+    measurement_basis,
+    taxonomy_family,
+)
+from atlas_terminal.edinet_notes import toyota_notes
+from atlas_terminal.errors import AtlasError
 from atlas_terminal.providers import Snapshot
 from atlas_terminal.research_buffett import CONTEXT
 from atlas_terminal.research_financials import reference
 from atlas_terminal.research_japan_companies import NIL, filing_facts, scoped_xml, xbrl_member
-from atlas_terminal.util import digest
+from atlas_terminal.util import canonical, digest
 
-MAPPING_VERSION = "edinet_consolidated_annual_v1"
 # Exact core concepts only. Cash-flow purchases are signed cash outflows in these taxonomies.
 TAGS: dict[str, dict[str, tuple[str, ...]]] = {
     "Japan GAAP": {
@@ -42,21 +52,6 @@ TAGS: dict[str, dict[str, tuple[str, ...]]] = {
 }
 INSTANTS = {"stockholders_equity", "assets", "liabilities"}
 JPY = "{http://www.xbrl.org/2003/iso4217}JPY"
-
-
-def taxonomy_family(namespace: str) -> str | None:
-    match = re.fullmatch(
-        r"http://disclosure\.edinet-fsa\.go\.jp/taxonomy/(jpdei|jppfs|jpigp|jpcrp)/"
-        r"(20[0-9]{2}-[0-9]{2}-[0-9]{2})/\1_cor",
-        namespace,
-    )
-    if not match:
-        return None
-    try:
-        date.fromisoformat(match[2])
-    except ValueError:
-        return None
-    return match[1]
 
 
 def consolidation(context: dict[str, Any]) -> str:
@@ -135,8 +130,31 @@ def metadata(snapshot: Snapshot) -> dict[str, Any]:
 
 def metadata_value(info: dict[str, Any], key: str) -> str | None:
     cells = info.get(key, [])
-    # Even equal duplicates need review; selection must not depend on XML order.
-    return cells[0]["value"] if len(cells) == 1 else None
+    identities = {(cell["entity"], cell["value"]) for cell in cells}
+    return next(iter(identities))[1] if len(identities) == 1 else None
+
+
+def fact_identity(fact: dict[str, Any]) -> bytes:
+    """Semantic context/unit identity; prefix aliases and XML IDs are not meaning."""
+    context = fact["context"]
+    dimensions = [
+        {key: value for key, value in item.items() if key.startswith("expanded_") or key == "kind"}
+        for item in context["dimensions"]
+    ]
+    unit = fact["unit_definition"]
+    return canonical(
+        {
+            "entity": context["entity"],
+            "entity_scheme": context["entity_scheme"],
+            "period": context["period"],
+            "dimensions": sorted(dimensions, key=canonical),
+            "unsupported_content": context.get("unsupported_content", False),
+            "unit": {
+                part: sorted(item["expanded_measure"] for item in unit[part])
+                for part in ("numerator", "denominator")
+            },
+        }
+    )
 
 
 def annual_period(start: str, end: str) -> bool:
@@ -152,6 +170,11 @@ def annual_period(start: str, end: str) -> bool:
 
 
 def normalize_filing(snapshot: Snapshot, filing: dict[str, Any]) -> dict[str, Any]:
+    with localcontext(CONTEXT):
+        return _normalize_filing(snapshot, filing)
+
+
+def _normalize_filing(snapshot: Snapshot, filing: dict[str, Any]) -> dict[str, Any]:
     facts = filing_facts(snapshot, filing, None)
     info = metadata(snapshot)
     standard = metadata_value(info, "AccountingStandardsDEI")
@@ -165,6 +188,8 @@ def normalize_filing(snapshot: Snapshot, filing: dict[str, Any]) -> dict[str, An
         problem = "dei_entities_ambiguous"
     elif metadata_value(info, "SecurityCodeDEI") not in {None, filing["security_code"]}:
         problem = "dei_security_code_mismatched"
+    elif info.get("SecurityCodeDEI") and metadata_value(info, "SecurityCodeDEI") is None:
+        problem = "dei_security_code_ambiguous"
     elif standard not in TAGS:
         problem = "unsupported_or_ambiguous_accounting_standard"
     elif consolidated not in {"true", "1"}:
@@ -177,12 +202,18 @@ def normalize_filing(snapshot: Snapshot, filing: dict[str, Any]) -> dict[str, An
     elif not annual_period(start, end):
         problem = "fiscal_period_not_twelve_months"
     period = {"start": start, "end": end}
-    family = "jpigp" if standard == "IFRS" else "jppfs"
+    extensions = capex_extensions(snapshot, filing) if not problem and standard == "IFRS" else {}
 
     def cell(metric: str, *, opening: bool = False) -> dict[str, Any]:
         target = (date.fromisoformat(start) - timedelta(days=1)).isoformat() if opening else end
         actual_period = {"start": None if metric in INSTANTS else start, "end": target}
         tags = TAGS.get(standard or "", {}).get(metric, ())
+        if metric == "revenue":
+            tags = tuple(tag for _, tag in REVENUE_ALIASES.get(standard or "", ())) + (
+                "TotalNetRevenuesIFRS",
+            )
+        if metric == "capital_expenditure":
+            tags += tuple(key[1] for key in extensions)
         result: dict[str, Any] = {
             "metric": metric,
             "value": None,
@@ -201,6 +232,8 @@ def normalize_filing(snapshot: Snapshot, filing: dict[str, Any]) -> dict[str, An
             "input_origin": "edinet_reported",
             "filing_source": filing["source"],
             "normalization_version": MAPPING_VERSION,
+            "definition_id": DEFINITIONS[metric],
+            "evidence_type": "numeric_xbrl",
             "expected_tags": list(tags),
             "fact_inputs": [],
         }
@@ -213,15 +246,25 @@ def normalize_filing(snapshot: Snapshot, filing: dict[str, Any]) -> dict[str, An
         candidates = [
             fact
             for fact in possible
-            if taxonomy_family(fact["taxonomy_namespace"]) == family
+            if (
+                mapped_fact(
+                    fact,
+                    metric,
+                    standard or "",
+                    TAGS.get(standard or "", {}).get(metric, ()),
+                    filing,
+                )
+                or (
+                    metric == "capital_expenditure"
+                    and (fact["taxonomy_namespace"], fact["concept"]) in extensions
+                )
+            )
             and fact["context"]["period"] == wanted_period
             and fact["context"]["entity"] in entities
             and consolidation(fact["context"]) in {"consolidated", "consolidated_default"}
         ]
         expected = 2 if metric == "stockholders_equity" and standard == "Japan GAAP" else 1
-        if len(candidates) != expected or (
-            expected == 2 and {fact["concept"] for fact in candidates} != set(tags)
-        ):
+        if not candidates or (expected == 2 and {f["concept"] for f in candidates} != set(tags)):
             if candidates:
                 reason = (
                     "duplicate_or_ambiguous_facts"
@@ -230,7 +273,7 @@ def normalize_filing(snapshot: Snapshot, filing: dict[str, Any]) -> dict[str, An
                 )
             elif not possible:
                 reason = "supported_tag_not_reported"
-            elif not any(taxonomy_family(f["taxonomy_namespace"]) == family for f in possible):
+            elif not any(mapped_fact(f, metric, standard or "", tags, filing) for f in possible):
                 reason = "unsupported_taxonomy"
             elif not any(f["context"]["period"] == wanted_period for f in possible):
                 reason = "period_mismatch"
@@ -242,10 +285,8 @@ def normalize_filing(snapshot: Snapshot, filing: dict[str, Any]) -> dict[str, An
                 reason=reason, candidate_facts=possible[:8], candidates_truncated=len(possible) > 8
             )
             return result
-        # A component sum must be from one actual context, not just two similarly dated cells.
-        if expected == 2 and len({fact["context_id"] for fact in candidates}) != 1:
-            result.update(reason="equity_component_contexts_differ", fact_inputs=candidates)
-            return result
+        # Deterministic evidence order is presentation only; every fact is checked.
+        candidates.sort(key=lambda f: canonical(f["source"]))
         result["fact_inputs"] = candidates
         for fact in candidates:
             if fact.get("scale") is not None or fact.get("sign") is not None:
@@ -269,43 +310,173 @@ def normalize_filing(snapshot: Snapshot, filing: dict[str, Any]) -> dict[str, An
             if not value.is_finite() or abs(value) > Decimal("1e30"):
                 result["reason"] = "invalid_numeric_value"
                 return result
+        groups: dict[str, list[dict[str, Any]]] = {}
+        for fact in candidates:
+            # Japan GAAP parent equity has two additive operands. Other registered
+            # aliases are alternative representations, never additive components.
+            key = fact["concept"] if expected == 2 else metric
+            if metric == "capital_expenditure":
+                extension = extensions.get((fact["taxonomy_namespace"], fact["concept"]))
+                if extension:
+                    key = extension["operand"]
+                    fact["mapping_evidence"] = extension["evidence"]
+            groups.setdefault(key, []).append(fact)
+        operands: list[dict[str, Any]] = []
+        for key, group in sorted(groups.items()):
+            identities = {fact_identity(fact) for fact in group}
+            values = {Decimal(fact["value"]) for fact in group}
+            if len(identities) != 1 or len(values) != 1:
+                result["reason"] = "duplicate_or_ambiguous_facts"
+                result["ambiguity"] = (
+                    "conflicting_values" if len(values) != 1 else "conflicting_contexts"
+                )
+                return result
+            operands.append(
+                {
+                    "operand": key,
+                    "value": format(next(iter(values)), "f"),
+                    "source_locations": [fact["source"] for fact in group],
+                }
+            )
+        if expected == 2 and len({fact_identity(fact) for fact in candidates}) != 1:
+            result["reason"] = "equity_component_contexts_differ"
+            return result
+        split_capex = metric == "capital_expenditure" and any(key != metric for key in groups)
+        if split_capex:
+            required = {"ppe_excluding_rental_assets", "rental_assets"}
+            if not required <= groups.keys() or groups.keys() - required - {metric}:
+                result["reason"] = "incomplete_or_ambiguous_gross_ppe_components"
+                return result
+            if len({fact_identity(fact) for fact in candidates}) != 1:
+                result["reason"] = "capex_component_contexts_differ"
+                return result
+            total = next((item for item in operands if item["operand"] == metric), None)
+            operands = [item for item in operands if item["operand"] in required]
+            if total and Decimal(total["value"]) != sum(
+                (Decimal(item["value"]) for item in operands), Decimal(0)
+            ):
+                result["reason"] = "conflicting_gross_ppe_total_and_components"
+                return result
+            result["corroborating_total"] = total
         with localcontext(CONTEXT):
-            value = sum((Decimal(fact["value"]) for fact in candidates), Decimal(0))
+            value = sum((Decimal(operand["value"]) for operand in operands), Decimal(0))
             formula = "reported_value"
             if expected == 2:
                 formula = "ShareholdersEquity + AccumulatedOtherComprehensiveIncome"
             if metric == "capital_expenditure":
-                if value > 0:
+                if any(Decimal(item["value"]) > 0 for item in operands):
                     result["reason"] = "expected_nonpositive_cash_outflow"
                     return result
                 value = -value
                 formula = "-reported_cash_outflow"
+                if split_capex:
+                    formula = "-(ppe_excluding_rental_assets + rental_assets)"
             elif (
                 metric in {"assets", "liabilities", "interest_expense", "stock_based_compensation"}
                 and value < 0
             ):
                 result["reason"] = "invalid_negative_input"
                 return result
-        tag_key = "+".join(sorted(fact["concept"] for fact in candidates))
         result.update(
             value=format(value, "f"),
             status="reported" if formula == "reported_value" else "normalized",
-            source=candidates[0]["source"] | {"taxonomy": family, "tag": candidates[0]["concept"]},
+            source=candidates[0]["source"]
+            | {
+                "taxonomy": taxonomy_family(candidates[0]["taxonomy_namespace"])
+                or "issuer_extension",
+                "tag": candidates[0]["concept"],
+            },
             normalization={
                 "formula": formula,
                 "amount_scale": "1",
                 "decimals_role": "precision_only",
+                "operands": operands,
+                "equivalent_duplicate_count": len(candidates) - len(operands),
             },
-            comparability_key=f"{standard}:consolidated:{candidates[0]['context']['entity']}:{metric}:{tag_key}",
+            source_locations=[fact["source"] for fact in candidates],
+            measurement_bases=sorted(
+                {measurement_basis(metric, fact["concept"]) for fact in candidates}
+            ),
+            comparability_key=f"{standard}:consolidated:{candidates[0]['context']['entity']}:{DEFINITIONS[metric]}",
         )
         return result
 
+    cells: dict[str, dict[str, Any]] = {metric: cell(metric) for metric in METRICS}
+    note_problem = None
+    notes: dict[str, list[dict[str, Any]]] = {}
+    if not problem and standard == "IFRS":
+        eligible = {
+            fact["context_id"]
+            for fact in facts
+            if fact["context"]["period"] == {"startDate": start, "endDate": end}
+            and fact["context"]["entity"] in entities
+            and consolidation(fact["context"]) in {"consolidated", "consolidated_default"}
+        }
+        try:
+            notes = toyota_notes(snapshot, filing, eligible)
+        except AtlasError:
+            note_problem = "unsupported_note_structure"
+    for metric, observations in notes.items():
+        current = cells[metric]
+        for observation in observations:
+            observation["context"] = next(
+                fact["context"]
+                for fact in facts
+                if fact["context_id"] == observation["source"]["context_id"]
+            )
+        current["note_inputs"] = observations
+        values = {Decimal(item["value"]) for item in observations}
+        if len(values) != 1:
+            current.update(value=None, status="unavailable", reason="conflicting_note_disclosures")
+            continue
+        value = next(iter(values))
+        if not value.is_finite() or value < 0 or value > Decimal("1e30"):
+            current.update(value=None, status="unavailable", reason="invalid_note_amount")
+            continue
+        if current["value"] is not None and Decimal(current["value"]) != value:
+            current.update(
+                value=None, status="unavailable", reason="numeric_and_note_measurements_differ"
+            )
+            continue
+        if current["value"] is None and current["reason"] not in {
+            "supported_tag_not_reported",
+            "unsupported_taxonomy",
+            "period_mismatch",
+            "standalone_or_dimensioned_facts_only",
+        }:
+            continue
+        definition = (
+            "share_based_compensation_expense_v1"
+            if metric == "stock_based_compensation"
+            else "total_interest_expense_including_financial_operations_v1"
+            if metric == "interest_expense"
+            else DEFINITIONS[metric]
+        )
+        current.update(
+            value=format(value, "f"),
+            status="normalized",
+            reason=None,
+            evidence_type=observations[0]["evidence_type"],
+            definition_id=definition,
+            source=observations[0]["source"],
+            source_locations=[item["source"] for item in observations]
+            + [fact["source"] for fact in current["fact_inputs"]],
+            measurement_bases=sorted({item["measurement_basis"] for item in observations}),
+            comparability_key=f"{standard}:consolidated:{next(iter(entities))}:{definition}",
+            normalization={
+                "formula": observations[0]["formula"],
+                "amount_scale": "1000000",
+                "decimals_role": "not_applicable_to_note_display_unit",
+                "equivalent_duplicate_count": len(observations) - 1,
+            },
+        )
     return {
         "period": period,
         "metadata": info,
         "accounting_standard": standard,
         "consolidation": "consolidated" if consolidated in {"true", "1"} else "unconfirmed",
         "reason": problem,
-        "cells": {metric: cell(metric) for metric in METRICS},
+        "cells": cells,
+        "note_extraction_reason": note_problem,
         "opening_equity": cell("stockholders_equity", opening=True),
     }
