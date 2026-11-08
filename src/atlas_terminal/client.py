@@ -115,11 +115,20 @@ class Atlas:
             }
         )
 
+    def sync_edinet_history(self, start_date: str, end_date: str) -> dict[str, Any]:
+        """Index at most 31 daily EDINET lists in the configured private server state."""
+        if self.provider == "hosted":
+            raise AtlasError(
+                "CONFIG_REQUIRED", "EDINET indexing requires local server configuration."
+            )
+        return self._research.sync_edinet_history(start_date, end_date)
+
     def get_buffett_score(
         self,
         identifier: str,
         *,
         years: int = 5,
+        country: str | None = None,
         financial_input: dict[str, Any] | None = None,
         valuation: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
@@ -129,6 +138,7 @@ class Atlas:
                 "dataset": "buffett_score",
                 "identifier": identifier,
                 "count": years,
+                **({"country": country} if country is not None else {}),
                 **({"financial_input": financial_input} if financial_input is not None else {}),
                 **({"valuation": valuation} if valuation is not None else {}),
             }

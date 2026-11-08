@@ -1,6 +1,6 @@
 # Japanese company disclosures and reference data
 
-The source checkout adds three research datasets across CLI, SDK, MCP and HTTP. The existing `v0.7.0` release assets are unchanged. EDINET supplies official filing metadata and original numeric XBRL facts; JPX supplies a current listed-security/industry reference table. These are separate from [optional Yahoo prices](yahoo-finance.md).
+The source checkout adds three research datasets across CLI, SDK, MCP and HTTP. The existing `v0.7.0` release assets are unchanged. EDINET supplies official filing metadata and original numeric XBRL facts; JPX supplies a current listed-security/industry reference table. These are separate from [optional Yahoo prices](yahoo-finance.md). [Japanese company scoring](japan-buffett.md) adds a separate conservative annual normalization layer over these readers, with a private history index and unchanged Buffett-inspired scoring rules.
 
 | Dataset              | Selection                                                                                                 | Returned information                                                                                                              |
 | -------------------- | --------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |

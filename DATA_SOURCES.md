@@ -180,7 +180,7 @@ Companies, CIKs, amounts and observations under `resources/sec_like`, `resources
 
 ## Buffett-inspired calculations
 
-`buffett_score` reuses SEC primary annual facts or explicitly supplied financial inputs. The rubric and DCF assumptions are Atlas editorial choices inspired by public Berkshire letters; they are not another data provider or Buffett endorsement. Supplied values and market capitalization retain canonical request-document hashes and declared attribution, with publisher verification explicitly false. No source URL is fetched for operator inputs, and no paid API, LLM or new data package is required. [Methods, philosophy and OSS review](docs/buffett-scoring.md).
+`buffett_score` reuses SEC primary annual facts, explicitly selected Japanese EDINET consolidated annual facts with current JPX classification, or supplied financial inputs. Japanese reads use a bounded private disclosure index and a conservative Japan GAAP/IFRS mapping; source rights and the private EDINET key requirement remain unchanged. [Japanese normalization and limits](docs/japan-buffett.md). The rubric and DCF assumptions are Atlas editorial choices inspired by public Berkshire letters; they are not another data provider or Buffett endorsement. Supplied values and market capitalization retain canonical request-document hashes and declared attribution, with publisher verification explicitly false. No source URL is fetched for operator inputs, and no paid API, LLM or new data package is required. [Methods, philosophy and OSS review](docs/buffett-scoring.md).
 
 ## Optional Polymarket event data
 

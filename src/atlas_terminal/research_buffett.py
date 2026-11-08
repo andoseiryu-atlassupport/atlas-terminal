@@ -187,7 +187,7 @@ def _calculate_score(
     concepts: dict[str, set[tuple[str, str, str]]] = {}
 
     def read(row: dict[str, Any], metric: str) -> Decimal:
-        key = cell_id(row["end"], metric)
+        key = row.get("input_ids", {}).get(metric, cell_id(row["end"], metric))
         used_ids.append(key)
         if key not in inputs:
             inputs[key] = {
@@ -202,17 +202,21 @@ def _calculate_score(
         if (
             not cell
             or cell["value"] is None
-            or cell["status"] not in {"reported", "operator_supplied"}
+            or cell["status"] not in {"reported", "normalized", "operator_supplied"}
         ):
-            raise Unavailable("missing_or_ambiguous_input: " + key)
+            raise Unavailable(
+                "missing_or_ambiguous_input: "
+                + key
+                + ("; " + cell["reason"] if cell and cell.get("reason") else "")
+            )
         if cell["unit"] != data["currency"]:
             raise Unavailable("input_currency_mismatch: " + key)
         origin = cell.get("source") or {}
-        if origin.get("tag"):
+        if origin.get("tag") or cell.get("comparability_key"):
             concepts.setdefault(metric, set()).add(
                 (
                     origin.get("taxonomy", ""),
-                    origin["tag"],
+                    cell.get("comparability_key", origin.get("tag", "")),
                     cell["unit"],
                 )
             )
@@ -236,6 +240,8 @@ def _calculate_score(
                     if data["business_type"] == "financial"
                     else "business_type_unspecified"
                 )
+            if name == "margin_of_safety" and valuation is None:
+                raise Unavailable("valuation_input_not_supplied")
             if latest is None:
                 raise Unavailable("no_annual_period")
             if name not in {"balance_sheet", "interest_coverage"} and not continuous:
@@ -246,7 +252,11 @@ def _calculate_score(
                     previous_end = (
                         date.fromisoformat(row["start"]) - timedelta(days=1)
                     ).isoformat()
-                    previous = {"end": previous_end}
+                    previous: dict[str, Any] = {"end": previous_end}
+                    if row.get("opening_equity_input_id"):
+                        previous["input_ids"] = {
+                            "stockholders_equity": row["opening_equity_input_id"]
+                        }
                     begin, end = (
                         read(previous, "stockholders_equity"),
                         read(row, "stockholders_equity"),
@@ -427,21 +437,42 @@ def _calculate_score(
             "upper": decimal_text(known + 100 - available_weight),
         },
         "available_weight": str(available_weight),
+        "unevaluated_weight": str(100 - available_weight),
         "components": components,
         "reported_inputs": inputs,
         "valuation": valuation_detail,
         "selected_periods": window,
         "business_type": data["business_type"],
         "currency": data["currency"],
+        "applicability": {
+            "applicable": applicable,
+            "reason": None
+            if applicable
+            else (
+                "financial_business_not_applicable"
+                if data["business_type"] == "financial"
+                else "business_type_unspecified"
+            ),
+        },
+        "missing_inputs": {
+            key: cell.get("reason", "input_not_reported")
+            for key, cell in inputs.items()
+            if cell["value"] is None
+            or cell["status"] not in {"reported", "normalized", "operator_supplied"}
+        },
         "manual_review": buffett_catalog()["qualitative_not_scored"],
         "formula": "sum(component points); missing weights are not redistributed",
     }
     return score
 
 
-def buffett_score(source: SECProvider | None, q: "ResearchQuery") -> dict[str, Any]:
+def buffett_score(
+    source: SECProvider | None, q: "ResearchQuery", *, financials: dict[str, Any] | None = None
+) -> dict[str, Any]:
     years = q.count if "count" in q.model_fields_set else 5
-    if q.financial_input is not None:
+    if financials is not None:
+        data = financials
+    elif q.financial_input is not None:
         data = supplied_financials(q.financial_input)
     else:
         assert source is not None
@@ -470,16 +501,22 @@ def buffett_score(source: SECProvider | None, q: "ResearchQuery") -> dict[str, A
             else {}
         ),
         "sources": sources,
-        "source_id": "multiple" if q.valuation or q.financial_input else "sec",
+        "source_id": "multiple" if q.valuation or q.financial_input else data["source_id"],
         "input_origin": data["input_origin"],
         "supplied_documents": documents,
         "scoring_policy": buffett_catalog(),
+        **{
+            key: data[key]
+            for key in ("issuer", "filing_selection", "normalization_version", "source_coverage")
+            if key in data
+        },
         "coverage": {
             "requested_years": years,
             "available_annual_periods": len(data["annual"]),
             "returned_records": 1,
             "partial": score["score"] is None,
             "available_weight": score["available_weight"],
+            "unevaluated_weight": score["unevaluated_weight"],
             "point_in_time": False,
             "history_truncated": data["history_truncated"],
             "missing_components": [

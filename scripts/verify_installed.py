@@ -164,6 +164,8 @@ MACRO_QUERIES = [
         "include_closed": True,
     },
     {"dataset": "buffett_score", "identifier": "ATLASDEMO"},
+    {"dataset": "buffett_score", "identifier": "9999.T", "country": "JP", "count": 3},
+    {"dataset": "buffett_score", "identifier": "9998.T", "country": "JP", "count": 3},
     {
         "dataset": "buffett_score",
         "identifier": "BUFFETTDEMO",
@@ -685,6 +687,12 @@ with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
     assert source_check.returncode == 4 and json.loads(source_check.stdout)["status"] == "NOT_RUN"
     assert dataset_expected["fx_rates"]["records"][0]["value"] == "120"
     assert dataset_expected["buffett_score"]["records"][0]["score"] == "100.000000000000000000"
+    for japanese_query in (
+        q for q in MACRO_QUERIES if q.get("country") == "JP" and q["dataset"] == "buffett_score"
+    ):
+        japanese_score = macro_expected[json.dumps(japanese_query, sort_keys=True)]["records"][0]
+        assert japanese_score["quality_score"] == "80.000000000000000000"
+        assert japanese_score["score"] is None and japanese_score["unevaluated_weight"] == "20"
     assert dataset_expected["reference_rates"]["records"][0]["value"] == "1.30"
     assert any(
         row["value"] == "-0.10" for row in dataset_expected["treasury_real_yields"]["records"]
@@ -911,6 +919,7 @@ with TemporaryDirectory(prefix="atlas-wheel-e2e-") as temporary:
                 "wheel_books_reports_cli_sdk_mcp_http": "PASS",
                 "wheel_margin_balances_cli_sdk_mcp_http": "PASS",
                 "wheel_buffett_score_cli_sdk_mcp_http": "PASS",
+                "wheel_edinet_japan_gaap_ifrs_cli_sdk_mcp_http": "PASS",
                 "wheel_prediction_markets_cli_sdk_mcp_http": "PASS",
                 "wheel_pdf_import_page_evidence_cli_sdk": "PASS",
                 "wheel_market_discovery_funds_fred_cli_sdk_mcp_http": "PASS",

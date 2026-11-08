@@ -3,7 +3,7 @@
 import io
 import re
 from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from xml.etree import ElementTree as ET
 
 from xlrd.biffh import XLRDError
@@ -19,6 +19,9 @@ from atlas_terminal.research_macro import numeric, source_error
 from atlas_terminal.research_models import ResearchQuery
 from atlas_terminal.source_archives import bounded_zip, member_bytes, reject_archive_token
 from atlas_terminal.util import digest
+
+if TYPE_CHECKING:
+    from atlas_terminal.edinet_history import EdinetHistory
 
 XBRLI = "{http://www.xbrl.org/2003/instance}"
 NIL = "{http://www.w3.org/2001/XMLSchema-instance}nil"
@@ -168,6 +171,18 @@ def filing_facts(
                 "entity": entity_code,
                 "entity_scheme": entity.get("scheme"),
                 "period": period_values,
+                "unsupported_content": any(
+                    node.tag in {XBRLI + "segment", XBRLI + "scenario"}
+                    and any(
+                        item.tag
+                        not in {
+                            "{http://xbrl.org/2006/xbrldi}explicitMember",
+                            "{http://xbrl.org/2006/xbrldi}typedMember",
+                        }
+                        for item in node
+                    )
+                    for node in child.iter()
+                ),
                 "dimensions": [
                     {
                         "dimension": node.get("dimension"),
@@ -247,6 +262,8 @@ def filing_facts(
                 "unit_measures": units[unit]["numerator"] + units[unit]["denominator"],
                 "unit_definition": units[unit],
                 "decimals": child.get("decimals"),
+                "scale": child.get("scale"),
+                "sign": child.get("sign"),
                 "value": value,
                 "status": "unavailable" if value is None else "reported",
                 "filed_at": filing["filed_at"],
@@ -315,7 +332,9 @@ def jpx_rows(snapshot: Snapshot) -> list[dict[str, Any]]:
         ) from None
 
 
-def japan_companies(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
+def japan_companies(
+    transport: Transport, q: ResearchQuery, *, history: "EdinetHistory | None" = None
+) -> dict[str, Any]:
     if q.dataset == "japan_securities":
         snapshot = transport.get(JPX_LIST, 21600)
         rows, sources = jpx_rows(snapshot), [reference(snapshot, "")]
@@ -323,6 +342,8 @@ def japan_companies(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
             rows = [row for row in rows if row["identifier"] == q.identifier]
     else:
         listing = transport.get(edinet_list_url(q.filing_date or ""), 900)
+        if history is not None:
+            history.ingest(q.filing_date or "", listing)
         rows, sources = disclosure_rows(listing), [reference(listing, "")]
         if q.identifier:
             rows = [

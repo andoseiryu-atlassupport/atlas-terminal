@@ -37,6 +37,16 @@ The local suite passed **2,971 tests**, with two live tests deselected, includin
 
 The built wheel was reinstalled outside the checkout into the existing isolated environment with **74 hash-locked runtime dependencies**; all **75 packages** passed compatibility checks. `scripts/verify_installed.py` passed fictional event search and exact-slug/closed-reference queries through SDK, CLI, official stdio MCP and actual loopback HTTP. These package checks made no external requests or real transfers and do not establish Gamma connectivity. No new dependency, release or deployment was introduced.
 
+## Japanese EDINET company scoring
+
+On **2026-11-08 JST**, the source checkout added explicit `country="JP"` scoring through the existing SDK/CLI/HTTP/MCP service. The offline tests use fictional Japan GAAP and IFRS consolidated annual reports; they exercise the original fixed-weight rubric, parent-attributed income/equity, separate opening-equity operands, signed PP&E purchases, precision versus amount scale, nil/missing/duplicate/custom/dimensioned facts, fiscal-period changes, amendment lineage and unavailable corrections. Current JPX33 banking, insurance, securities/commodity futures, other-finance and unknown classifications are excluded. The bounded private daily-list index exposes incomplete coverage and resumable maintenance; it does not scan an unrestricted calendar during scoring.
+
+The focused Japanese, existing US/supplied-JPY scoring and raw Japanese-source suites passed **161 tests**. CLI, SDK, REST and an actual official stdio MCP session returned the same fictional scorecards and evidence. The fictional complete quality case earned 80 points with valuation absent: total remained null, evaluated weight was 80 and unevaluated weight was 20. An explicit fictional JPY market-cap scenario exercised the remaining 20 points. These are parser/calculation/protocol tests, not real issuer valuations or AI conversation tests.
+
+The actual public-provider query `{"dataset":"buffett_score","identifier":"7203.T","country":"JP","count":3}` was attempted at **2026-11-08 09:52:24 JST (00:52:24 UTC)**. It stopped with **`CONFIG_REQUIRED`** because `EDINET_API_KEY` was unset. No EDINET list or financial ZIP request was sent, and no source HTTP status or financial value was obtained. **Live Japanese company financial normalization/scoring is unverified.** No missing value or empty index was reported as live success. The failure record and subsequent local logs remain private under ignored `build/japan-buffett-2026-11-08/`; no actual issuer financials were added to fixtures. Source requests retain normal proxy/TLS handling.
+
+[Setup, exact mapping registry, common Web response and limitations](japan-buffett.md). A private server-side key and prepared disclosure history are required for real automatic reads. Current index captures and classifications do not establish historical availability or complete amendment discovery. This change does not alter scoring weights, add a paid feed/LLM dependency, release a package or deploy a service.
+
 ## Buffett-inspired scoring
 
 `buffett_score` adds a deterministic, versioned 100-point rubric: 80 points for annual business-quality proxies and 20 for an explicit cash-flow-proxy valuation scenario. The catalog now contains **67 datasets, 26 upstream source families and 26 presets**. Scores retain rules, exact inputs, source evidence and fixed-weight bounds; missing data is not reweighted. Qualitative business understanding, management integrity and durable moat remain manual-review items. General-company thresholds do not score financial businesses.
@@ -245,22 +255,25 @@ Wheel-payload SDK and CLI smoke reads loaded the packaged fictional WDI template
 
 ## Current local checks
 
-On **2026-11-08 JST**, the project overview and public descriptions were refreshed to cover the current research scope. README, overview/FAQ/setup guides, package descriptions, prepared plugin/Registry metadata and agent discovery guidance now distinguish current source capabilities from the existing `v0.7.0` release. An offline catalog check confirmed **68 datasets / 27 source families / 26 presets**. Both documented fixture query examples returned explicitly synthetic records, and the shared description matched README, Python/npm metadata, prepared manifests and wheel metadata. No research contract, source parser, calculation or dependency version changed.
+On **2026-11-08 JST**, explicit Japanese EDINET company scoring passed **3,042 offline tests**, with two opt-in live tests deselected. The 161 focused Japanese/US/supplied-input/raw-source regressions are included. Ruff/format, mypy (**127 source files**), the **69-page** documentation build, schema export, wheel/sdist build and artifact validation (**437 / 750 files**) passed. The catalog remains **68 datasets / 27 source families / 26 presets** because Japan uses the existing scoring dataset.
 
-The full offline suite again passed **2,971 tests**, with two live tests deselected. The checks below passed, including the **68-page** documentation build and wheel/sdist validation (**428 / 739 files**). Existing BLS replay retained **14 captures / 168 matched records**, and all **22 hashed private Polymarket verification artifacts** remained unchanged. This description update made no new upstream data requests and did not publish a release, Registry entry or site deployment. Local validation remains separate from GitHub CI.
+The installed wheel also passed the CLI/SDK/MCP/loopback HTTP verifier, including both fictional Japan GAAP and IFRS pipelines. The offline wheel environment reused the already locked development dependencies after standalone offline dependency resolution lacked cached registry metadata; the imported Atlas package was verified to come from the wheel environment. These were fictional and loopback mock checks, with no external financial requests or real transfers. Live EDINET financial scoring remains blocked by missing private configuration as recorded above.
+
+BLS replay retained **14 captures / 168 matched records**, both recorded showcase checksums passed, and all **22 hashed private Polymarket artifacts** remained unchanged. No BLS source requests or resets, release, Registry publication or deployment were performed. The earlier overview/description update passed 2,971 tests before this implementation; local validation remains separate from GitHub CI.
 
 | Check                                                     | Observed result                                                     |
 | --------------------------------------------------------- | ------------------------------------------------------------------- |
 | `uv run --offline ruff check .`                           | PASS                                                                |
 | `uv run --offline ruff format --check .`                  | PASS                                                                |
-| `uv run --offline mypy`                                   | PASS; 121 source files                                              |
-| `uv run --offline pytest`                                 | PASS; 2,971 tests, 2 live tests deselected                          |
+| `uv run --offline mypy`                                   | PASS; 127 source files                                              |
+| `uv run --offline pytest`                                 | PASS; 3,042 tests, 2 live tests deselected                          |
 | `uv run --offline python -m build --no-isolation`         | PASS; wheel and source distribution                                 |
 | `uv run --offline python scripts/verify_distribution.py`  | PASS; metadata, required contents and forbidden paths               |
-| `uv run --offline python scripts/build_docs.py`           | PASS; 68 HTML pages and internal file/section links                 |
+| `uv run --offline python scripts/build_docs.py`           | PASS; 69 HTML pages and internal file/section links                 |
 | `uv run --offline python scripts/verify_showcases.py`     | PASS; both recorded versions, data modes and checksums              |
 | `uv run --offline python scripts/verify_bls_capture.py`   | PASS; offline audit/replay of 14 captured responses and 168 records |
 | `uv run --offline python scripts/prepare_distribution.py` | PREPARED; versioned plugin ZIP and Registry draft                   |
+| `python scripts/verify_installed.py`                      | PASS; installed wheel; fictional JP/US and loopback mock workflows  |
 | `npm run check`                                           | PASS; Prettier and whitespace                                       |
 | `python scripts/scan_public_files.py`                     | PASS; heuristic working-file and reachable-history patterns         |
 
