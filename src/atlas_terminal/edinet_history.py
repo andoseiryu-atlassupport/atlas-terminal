@@ -30,6 +30,10 @@ CREATE TABLE IF NOT EXISTS documents (
 );
 CREATE INDEX IF NOT EXISTS issuer_code ON documents(edinet_code);
 CREATE INDEX IF NOT EXISTS security_code ON documents(security_code);
+CREATE TABLE IF NOT EXISTS normalized_filings (
+ cache_key TEXT PRIMARY KEY, document_id TEXT NOT NULL, version TEXT NOT NULL,
+ source_sha256 TEXT NOT NULL, saved_at TEXT NOT NULL, body BLOB NOT NULL, sha256 TEXT NOT NULL
+);
 """
 
 
@@ -76,6 +80,63 @@ class EdinetHistory:
     def __init__(self, directory: Path, *, synthetic: bool = False) -> None:
         name = "edinet-history-fixture.sqlite3" if synthetic else "edinet-history.sqlite3"
         self.db = Database((directory / name).resolve(), SCHEMA)
+
+    @staticmethod
+    def normalization_key(filing: dict[str, Any], version: str) -> str:
+        return digest(canonical({"filing": filing, "version": version}))
+
+    def normalized(
+        self, filing: dict[str, Any], version: str, snapshot: Snapshot | None = None
+    ) -> dict[str, Any] | None:
+        """A checkpoint is reusable only for the same selection, mapping and bytes.
+
+        Without a snapshot this is only a scheduling hint, never scoring evidence.
+        Raw source TTL/revalidation still runs before any checkpoint is consumed.
+        """
+        with self.db.connect() as conn:
+            row = conn.execute(
+                "SELECT * FROM normalized_filings WHERE cache_key=?",
+                (self.normalization_key(filing, version),),
+            ).fetchone()
+        if row is None or (snapshot is not None and row["source_sha256"] != snapshot.sha256):
+            return None
+        if digest(row["body"]) != row["sha256"]:
+            raise AtlasError(
+                "SOURCE_UNAVAILABLE", "Normalized filing checkpoint failed integrity validation."
+            )
+        return dict(json.loads(row["body"]))
+
+    def save_normalized(
+        self, snapshot: Snapshot, filing: dict[str, Any], version: str, result: dict[str, Any]
+    ) -> None:
+        body = canonical(result)
+        # A large source remains usable, but is not retained as a parsed checkpoint.
+        if len(body) > 8 * 1024 * 1024:
+            return
+        with self.db.connect(write=True) as conn:
+            conn.execute(
+                "INSERT OR REPLACE INTO normalized_filings VALUES (?,?,?,?,?,?,?)",
+                (
+                    self.normalization_key(filing, version),
+                    filing["document_id"],
+                    version,
+                    snapshot.sha256,
+                    datetime.now(TOKYO).isoformat(),
+                    body,
+                    digest(body),
+                ),
+            )
+            rows = conn.execute(
+                "SELECT cache_key, length(body) AS size FROM normalized_filings "
+                "ORDER BY saved_at DESC, cache_key"
+            ).fetchall()
+            total = 0
+            for index, row in enumerate(rows):
+                total += row["size"]
+                if index >= 256 or total > 64 * 1024 * 1024:
+                    conn.execute(
+                        "DELETE FROM normalized_filings WHERE cache_key=?", (row["cache_key"],)
+                    )
 
     def ingest(self, day: str, snapshot: Snapshot) -> None:
         rows = disclosure_rows(snapshot)

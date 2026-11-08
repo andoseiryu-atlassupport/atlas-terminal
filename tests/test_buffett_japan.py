@@ -228,7 +228,9 @@ def test_unsupported_and_ambiguous_facts_keep_reasons(kind):
         elif kind == "precision":
             fact.set("decimals", "million")
         elif kind == "duplicate":
-            root.append(deepcopy(fact))
+            conflicting = deepcopy(fact)
+            conflicting.text = "999"
+            root.append(conflicting)
         elif kind == "custom_tag":
             fact.tag = "{https://issuer.atlas.invalid/custom}NetSales"
         elif kind == "period":
@@ -500,10 +502,16 @@ def test_cli_sdk_rest_share_one_score_and_evidence_contract(tmp_path):
         check=True,
         timeout=20,
     )
-    assert json.loads(proc.stdout) == expected
+    observed = json.loads(proc.stdout)
+    # Retrieval checkpoints vary by process state; calculations/evidence do not.
+    for result in (observed, expected):
+        result["source_coverage"]["progress"].pop("reused_normalized_periods")
+    assert observed == expected
     with TestClient(create_app(provider="fixture", directory=tmp_path)) as client:
         response = client.post("/v1/research", json=query)
-        assert response.status_code == 200 and response.json() == expected
+        body = response.json()
+        body["source_coverage"]["progress"].pop("reused_normalized_periods")
+        assert response.status_code == 200 and body == expected
 
 
 async def test_real_stdio_protocol_uses_the_same_fictional_edinet_pipeline(tmp_path):
@@ -627,6 +635,14 @@ def test_accounting_standard_changes_do_not_produce_comparable_history(tmp_path)
 
 def test_dei_duplicates_and_inline_scaling_are_not_interpreted():
     data = modified(lambda root: root.append(deepcopy(node(root, "AccountingStandardsDEI"))))
+    assert data["reason"] is None
+
+    def conflict(root):
+        duplicate = deepcopy(node(root, "AccountingStandardsDEI"))
+        duplicate.text = "IFRS"
+        root.append(duplicate)
+
+    data = modified(conflict)
     assert data["reason"] == "unsupported_or_ambiguous_accounting_standard"
     for attr, value in [("scale", "6"), ("sign", "-")]:
         data = modified(

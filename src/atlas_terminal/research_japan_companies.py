@@ -265,6 +265,8 @@ def filing_facts(
                 "scale": child.get("scale"),
                 "sign": child.get("sign"),
                 "value": value,
+                "raw_value": child.text,
+                "evidence_type": "numeric_xbrl",
                 "status": "unavailable" if value is None else "reported",
                 "filed_at": filing["filed_at"],
                 "published_at": None,
