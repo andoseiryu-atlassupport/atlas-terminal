@@ -32,18 +32,32 @@ def prepare(directory: Path, remote_url: str | None = None) -> None:
         "homepage": SITE_ORIGIN + "/",
         "repository": REPOSITORY,
         "license": "Apache-2.0",
-        "keywords": ["financial-data", "mcp", "sec", "macro", "foreign-exchange"],
+        "keywords": [
+            "financial-research",
+            "financial-data",
+            "mcp",
+            "sec",
+            "macro",
+            "foreign-exchange",
+            "technical-analysis",
+            "prediction-markets",
+        ],
         "extensions": {
             "com.openai": {
                 "interface": {
                     "displayName": "Atlas Terminal",
-                    "shortDescription": "Financials, US/Japan macro and FX with original sources",
+                    "shortDescription": "Financial data and analysis with original sources",
                     "longDescription": (
-                        f"Retrieve {len(get_args(Dataset))} free primary-source datasets "
-                        "through one MCP connection. "
-                        "Use company, US/Japan macro and FX-context presets with explicit "
-                        "units, dates, "
-                        "missingness and evidence. No real-time prices, PIT history or trading."
+                        "Retrieve financial data and inspect calculations through one MCP "
+                        f"connection. The source checkout has {len(get_args(Dataset))} research "
+                        "datasets spanning financials, macro/rates/FX, optional market prices, "
+                        "technicals, Japanese margin balances, company scoring and Polymarket. "
+                        "Original sources, units, dates and missing values remain explicit. "
+                        "Public primary sources are the default; optional Yahoo access requires "
+                        "operator enablement for personal use. Source terms apply separately. "
+                        "Capabilities depend on the installed version: the existing v0.7.0 "
+                        "release does not include every source-checkout feature. Inspect its "
+                        "catalog first. No consolidated real-time quotes, PIT vintages or trading."
                     ),
                     "developerName": "Atlas Terminal contributors",
                     "category": "Productivity",
@@ -55,7 +69,8 @@ def prepare(directory: Path, remote_url: str | None = None) -> None:
                     "defaultPrompt": [
                         "Retrieve quarterly financials and free cash flow with sources.",
                         "Get US inflation, employment and rates with observation dates.",
-                        "Retrieve USD/JPY reference FX and US inflation/rate context.",
+                        "Calculate stock technical indicators with original price inputs.",
+                        "Find Polymarket events and show outcome prices, percentages and status.",
                     ],
                 }
             }

@@ -1,13 +1,13 @@
 interface:
   display_name: Atlas Research
-  short_description: Source-backed financials, US/Japan macro and reference FX
-  default_prompt: Use my Atlas connection to retrieve the requested data with original sources, units, periods and coverage limits.
+  short_description: Financial data and analysis with original sources
+  default_prompt: Use my Atlas connection to retrieve the requested financial research with original sources, calculation inputs, units, dates and coverage limits. Inspect the installed catalog first.
 
 dependencies:
   tools:
     - type: mcp
       value: atlas-terminal
-      description: Free primary-source company financials, US/Japan macro indicators and reference FX
+      description: Financial research, market indicators and original evidence; optional sources require operator configuration
 
 policy:
   allow_implicit_invocation: true

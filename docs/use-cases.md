@@ -1,6 +1,6 @@
 # Retrieve company financials, macro data and FX through one connection
 
-Atlas Terminal provides five presets for common research tasks. Discover their accepted fields in `atlas_research_catalog`, preview the exact plan, then inspect every item and its evidence. These examples use the packaged fictional fixture provider. They do not show current observations or establish live source availability.
+This guide demonstrates five research presets from Atlas Terminal's broader catalog. Discover the installed presets and their accepted fields in `atlas_research_catalog`, preview the exact plan, then inspect every item and its evidence. These examples use the packaged fictional fixture provider. They do not show current observations or establish live source availability. The [capability overview](../README.md#what-you-can-do) covers current source-checkout workflows, including market history, technical indicators, company scoring and prediction markets.
 
 ## Company financials and free cash flow
 

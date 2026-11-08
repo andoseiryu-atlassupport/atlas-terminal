@@ -1,6 +1,6 @@
 # Atlas Terminal and OpenBB for financial research agents
 
-Atlas Terminal and OpenBB both expose financial data to programs and MCP clients. Atlas focuses on selected free public primary sources, explicit research queries and inspectable original evidence. OpenBB Python V5 provides a modular provider and extension framework. Select according to the sources, installation requirements and output contracts needed for the actual research task.
+Atlas Terminal and OpenBB both expose financial data to programs and MCP clients. Atlas combines selected public-source data, research calculations and inspectable original evidence, with optional personal-use Yahoo observations and permitted local inputs. OpenBB Python V5 provides a modular provider and extension framework. Select according to the sources, installation requirements and output contracts needed for the actual research task. The Atlas column describes the current source checkout; installed release capabilities may differ.
 
 ## Compare the supported interfaces and scope
 
@@ -8,13 +8,13 @@ Atlas Terminal and OpenBB both expose financial data to programs and MCP clients
 | --------------------------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
 | Data access                 | Selected official-source adapters with shared research queries                                | Installable provider packages with provider-owned namespaces       |
 | Programmatic interfaces     | Python SDK, CLI, REST and research-only MCP                                                   | Python, CLI, REST and MCP interfaces                               |
-| Multi-source tasks          | Twenty-four presets and explicit independent batches                                          | Provider commands and MCP pipeline facilities                      |
+| Multi-source tasks          | Twenty-six presets and explicit independent batches                                           | Provider commands and MCP pipeline facilities                      |
 | Series discovery            | Registered macro/FX templates and IMF/OECD/ABS SDMX metadata                                  | Provider-specific commands and query models                        |
 | Evidence review             | Source hashes, JSON/XML locators, exact calculation inputs and resolvable evidence references | Inspect the chosen command/provider's returned fields and metadata |
 | Source credentials          | SEC private contact setting; BEA/Census/FRED/EDINET free keys; source-specific limits         | Provider-specific credentials and configuration                    |
 | Broader financial workflows | Scope and unsupported datasets are listed in the catalog                                      | Provider, router and other extensions expand installed commands    |
 
-Atlas also includes optional Yahoo daily/intraday observations, price indicators, bounded issuer screening, one-filing fund holdings, native portfolio risk, offline ADF/KPSS diagnostics and a local evidence-backed HTML workbench. These focused capabilities do not establish parity with every installed OpenBB provider or the OpenBB Workspace product.
+Atlas also includes multi-year stock exports, technical indicators, Japanese margin balances, Buffett-inspired scorecards, Polymarket outcome prices, bounded issuer screening, one-filing fund holdings, native portfolio risk, offline ADF/KPSS diagnostics and a local evidence-backed HTML workbench. Source terms, input requirements, missing values and forecast limits remain explicit. These capabilities do not establish parity with every installed OpenBB provider or the OpenBB Workspace product.
 
 MCP access and a shared interface are available in both projects. This comparison does not claim exclusive AI support, superior data accuracy or measured latency/token advantages. Atlas has no consolidated real-time price feed, options chain, analyst consensus, historical release vintages or trading workflow. An interface or package count is not a comparable count of datasets.
 
