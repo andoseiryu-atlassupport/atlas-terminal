@@ -131,7 +131,7 @@ Dataset = Literal[
 
 FIELDS = {
     "prediction_markets": {"search", "event_slug", "include_closed", "limit"},
-    "buffett_score": {"identifier", "count", "financial_input", "valuation"},
+    "buffett_score": {"identifier", "country", "count", "financial_input", "valuation"},
     "order_book": {"identifier", "book_source", "depth"},
     "analyst_reports": {"identifier", "report_source", "start_date", "end_date", "search", "limit"},
     "analyst_report_text": {"report_id", "search", "limit"},
@@ -391,6 +391,13 @@ def dataset_schema(schema: dict[str, Any]) -> None:
             properties["identifier"]["pattern"] = "^" + SECURITY_SYMBOL_PATTERN + "$"
         if name == "buffett_score":
             properties["count"].update({"default": 5, "minimum": 3, "maximum": 10})
+            properties["country"] = {
+                "enum": [None, "US", "JP"],
+                "default": None,
+                "description": (
+                    "JP selects EDINET annual financials; omitted or US retains SEC behavior."
+                ),
+            }
         if name == "prediction_markets":
             properties["limit"].update({"default": 3, "maximum": 5})
         if name == "margin_balances":
@@ -725,6 +732,22 @@ class ResearchQuery(Model):
             if self.event_slug is not None:
                 event_slug(self.event_slug)
         if self.dataset == "buffett_score":
+            if self.country not in {None, "US", "JP"}:
+                raise AtlasError(
+                    "INVALID_INPUT", "Scoring supports explicit JP or US country selection."
+                )
+            if self.country == "JP" and self.financial_input is None:
+                from atlas_terminal.edinet_history import japan_identifier
+
+                japan_identifier(self.identifier or "")
+            if (
+                self.country == "JP"
+                and self.financial_input is not None
+                and self.financial_input.currency != "JPY"
+            ):
+                raise AtlasError(
+                    "INVALID_INPUT", "Explicit Japanese financial inputs must use JPY."
+                )
             if "count" in self.model_fields_set and not 3 <= self.count <= 10:
                 raise AtlasError("INVALID_INPUT", "Scoring needs three to ten annual periods.")
             if (

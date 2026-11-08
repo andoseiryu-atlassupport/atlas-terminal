@@ -57,6 +57,7 @@ from atlas_terminal.regional_economic_sources import (
     regional_economic_identity,
 )
 from atlas_terminal.sdmx_sources import BASES, SDMX_SOURCES, sdmx_source, valid_sdmx_url
+from atlas_terminal.source_deadline import timeout_options
 from atlas_terminal.util import stamp, state_dir
 
 BLS_BASE = "https://api.bls.gov/publicAPI/v1/timeseries/data/"
@@ -616,6 +617,7 @@ class PublicTransport(CachedHTTPTransport):
                 httpx.URL(url).copy_add_param("Subscription-Key", edinet_key()),
                 headers=headers,
                 follow_redirects=False,
+                **timeout_options(),
             )
         if activity := activity_identity(url):
             source, _, kind = activity

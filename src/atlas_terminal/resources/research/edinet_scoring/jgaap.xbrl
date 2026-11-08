@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- FICTIONAL: no issuer observations. Placeholder years/codes are expanded before parsing. -->
+<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:iso4217="http://www.xbrl.org/2003/iso4217" xmlns:jpdei="http://disclosure.edinet-fsa.go.jp/taxonomy/jpdei/2013-08-31/jpdei_cor" xmlns:core="http://disclosure.edinet-fsa.go.jp/taxonomy/jppfs/2025-11-01/jppfs_cor">
+<xbrli:context id="d"><xbrli:entity><xbrli:identifier scheme="http://disclosure.edinet-fsa.go.jp">__EDINET__-000</xbrli:identifier></xbrli:entity><xbrli:period><xbrli:startDate>__PREVIOUS__-04-01</xbrli:startDate><xbrli:endDate>__YEAR__-03-31</xbrli:endDate></xbrli:period></xbrli:context>
+<xbrli:context id="i"><xbrli:entity><xbrli:identifier scheme="http://disclosure.edinet-fsa.go.jp">__EDINET__-000</xbrli:identifier></xbrli:entity><xbrli:period><xbrli:instant>__YEAR__-03-31</xbrli:instant></xbrli:period></xbrli:context>
+<xbrli:context id="p"><xbrli:entity><xbrli:identifier scheme="http://disclosure.edinet-fsa.go.jp">__EDINET__-000</xbrli:identifier></xbrli:entity><xbrli:period><xbrli:instant>__PREVIOUS__-03-31</xbrli:instant></xbrli:period></xbrli:context>
+<xbrli:unit id="JPY"><xbrli:measure>iso4217:JPY</xbrli:measure></xbrli:unit>
+<jpdei:AccountingStandardsDEI contextRef="d">Japan GAAP</jpdei:AccountingStandardsDEI>
+<jpdei:WhetherConsolidatedFinancialStatementsArePreparedDEI contextRef="d">true</jpdei:WhetherConsolidatedFinancialStatementsArePreparedDEI>
+<jpdei:EDINETCodeDEI contextRef="d">__EDINET__</jpdei:EDINETCodeDEI>
+<jpdei:SecurityCodeDEI contextRef="d">__CODE__0</jpdei:SecurityCodeDEI>
+<jpdei:CurrentFiscalYearStartDateDEI contextRef="d">__PREVIOUS__-04-01</jpdei:CurrentFiscalYearStartDateDEI>
+<jpdei:CurrentFiscalYearEndDateDEI contextRef="d">__YEAR__-03-31</jpdei:CurrentFiscalYearEndDateDEI>
+<core:NetSales contextRef="d" unitRef="JPY" decimals="-6">1000000000000</core:NetSales>
+<core:ProfitLossAttributableToOwnersOfParent contextRef="d" unitRef="JPY" decimals="-6">220000000000</core:ProfitLossAttributableToOwnersOfParent>
+<core:OperatingIncome contextRef="d" unitRef="JPY" decimals="-6">250000000000</core:OperatingIncome>
+<core:NetCashProvidedByUsedInOperatingActivities contextRef="d" unitRef="JPY" decimals="-6">320000000000</core:NetCashProvidedByUsedInOperatingActivities>
+<core:PurchaseOfPropertyPlantAndEquipmentInvCF contextRef="d" unitRef="JPY" decimals="-6">-50000000000</core:PurchaseOfPropertyPlantAndEquipmentInvCF>
+<core:ShareholdersEquity contextRef="i" unitRef="JPY" decimals="-6">1000000000000</core:ShareholdersEquity>
+<core:AccumulatedOtherComprehensiveIncome contextRef="i" unitRef="JPY" decimals="-6">100000000000</core:AccumulatedOtherComprehensiveIncome>
+<core:ShareholdersEquity contextRef="p" unitRef="JPY" decimals="-6">1000000000000</core:ShareholdersEquity>
+<core:AccumulatedOtherComprehensiveIncome contextRef="p" unitRef="JPY" decimals="-6">100000000000</core:AccumulatedOtherComprehensiveIncome>
+<core:Assets contextRef="i" unitRef="JPY" decimals="-6">2000000000000</core:Assets>
+<core:Liabilities contextRef="i" unitRef="JPY" decimals="-6">600000000000</core:Liabilities>
+<core:InterestExpensesNOE contextRef="d" unitRef="JPY" decimals="-6">20000000000</core:InterestExpensesNOE>
+<core:ShareBasedCompensationExpensesOpeCF contextRef="d" unitRef="JPY" decimals="-6">10000000000</core:ShareBasedCompensationExpensesOpeCF>
+</xbrli:xbrl>

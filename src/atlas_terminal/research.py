@@ -982,6 +982,31 @@ class ResearchService:
         if self.public:
             self.public.close()
 
+    def sync_edinet_history(self, start_date: str, end_date: str) -> dict[str, Any]:
+        """Operator maintenance: bounded daily-list reads, shared by every Japanese issuer."""
+        from atlas_terminal.edinet_history import EdinetHistory, date_window, sync_history
+
+        date_window(start_date, end_date)
+        if self.synthetic:
+            from atlas_terminal.edinet_scoring_fixtures import EdinetScoringFixtures
+
+            transport: Transport = EdinetScoringFixtures()
+        else:
+            from atlas_terminal.japan_company_sources import edinet_key
+
+            edinet_key()
+            self.public = self.public or PublicTransport(
+                cache_path=self.view_path.parent / "public-cache.sqlite3"
+            )
+            transport = self.public
+        result = sync_history(
+            transport,
+            EdinetHistory(self.view_path.parent, synthetic=self.synthetic),
+            start_date,
+            end_date,
+        )
+        return {"is_synthetic": self.synthetic, **result}
+
     def get(self, query: ResearchQuery | dict[str, Any]) -> dict[str, Any]:
         q = query if isinstance(query, ResearchQuery) else parse_research(query)
         if (
@@ -1005,7 +1030,10 @@ class ResearchService:
 
             if not os.environ.get("ATLAS_ORDER_BOOK_FILE"):
                 raise AtlasError("CONFIG_REQUIRED", "Configure ATLAS_ORDER_BOOK_FILE.")
-        if q.dataset in {"japan_disclosures", "japan_filing_facts"} and not self.synthetic:
+        if (
+            q.dataset in {"japan_disclosures", "japan_filing_facts"}
+            or (q.dataset == "buffett_score" and q.country == "JP" and q.financial_input is None)
+        ) and not self.synthetic:
             from atlas_terminal.japan_company_sources import edinet_key
 
             edinet_key()
@@ -1163,7 +1191,29 @@ class ResearchService:
         elif q.dataset == "buffett_score":
             from atlas_terminal.research_buffett import buffett_score
 
-            result = buffett_score(self.sec_factory() if q.financial_input is None else None, q)
+            if q.country == "JP" and q.financial_input is None:
+                from atlas_terminal.research_buffett_japan import japan_financials
+
+                self.public = self.public or (
+                    PublicFixtures()
+                    if self.synthetic
+                    else PublicTransport(cache_path=self.view_path.parent / "public-cache.sqlite3")
+                )
+                transport = self.public
+                if self.synthetic and type(transport) is PublicFixtures:
+                    from atlas_terminal.edinet_scoring_fixtures import EdinetScoringFixtures
+
+                    transport = EdinetScoringFixtures()
+                financials = japan_financials(
+                    transport,
+                    q.identifier or "",
+                    q.count if "count" in q.model_fields_set else 5,
+                    self.view_path.parent,
+                    synthetic=self.synthetic,
+                )
+                result = buffett_score(None, q, financials=financials)
+            else:
+                result = buffett_score(self.sec_factory() if q.financial_input is None else None, q)
         elif q.dataset == "company_screen":
             from atlas_terminal.research_discovery import screen_data
 
@@ -1735,9 +1785,16 @@ class ResearchService:
             return fred_series(self.public, q)
         assert self.public is not None
         if q.dataset in {"japan_disclosures", "japan_filing_facts", "japan_securities"}:
+            from atlas_terminal.edinet_history import EdinetHistory
             from atlas_terminal.research_japan_companies import japan_companies
 
-            return japan_companies(self.public, q)
+            return japan_companies(
+                self.public,
+                q,
+                history=EdinetHistory(self.view_path.parent)
+                if not self.synthetic and q.dataset != "japan_securities"
+                else None,
+            )
         if q.dataset in EQUITY_DATASETS:
             from atlas_terminal.research_equities import yahoo_equities
 

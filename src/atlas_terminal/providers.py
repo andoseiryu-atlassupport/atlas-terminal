@@ -21,6 +21,7 @@ import httpx
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.models import Company, identifier
 from atlas_terminal.security import private_library_logs
+from atlas_terminal.source_deadline import bounded_pause, remaining_timeout, timeout_options
 from atlas_terminal.source_history import SCHEMA as HISTORY_SCHEMA
 from atlas_terminal.source_history import retain_version
 from atlas_terminal.util import Database, digest, stamp, state_dir
@@ -153,7 +154,7 @@ class CachedHTTPTransport:
 
     def request(self, url: str, headers: dict[str, str]) -> Any:
         """Subclasses may inject private credentials or a documented read-only POST."""
-        return self.client.stream("GET", url, headers=headers)
+        return self.client.stream("GET", url, headers=headers, **timeout_options())
 
     @contextmanager
     def request_permit(self, url: str) -> Iterator[None]:
@@ -166,6 +167,7 @@ class CachedHTTPTransport:
         owner = uuid4().hex
         started = self.clock()
         while True:
+            remaining_timeout()
             now = self.clock()
             with self.db.connect(write=True) as conn:
                 conn.execute("DELETE FROM source_leases WHERE expires <= ?", (now,))
@@ -181,7 +183,7 @@ class CachedHTTPTransport:
                 break
             if now - started > 30:
                 raise AtlasError("SOURCE_RATE_LIMITED", "Source transport is busy.", retryable=True)
-            self.sleep(min(0.5, max(0.01, next_at - now)))
+            bounded_pause(min(0.5, max(0.01, next_at - now)), self.sleep)
         try:
             yield
         finally:
@@ -189,6 +191,7 @@ class CachedHTTPTransport:
                 conn.execute("DELETE FROM source_leases WHERE owner=?", (owner,))
 
     def get(self, url: str, ttl: int, *, force_refresh: bool = False) -> Snapshot:
+        remaining_timeout()
         self.validate_url(url)
         with self.db.connect() as conn:
             cached = conn.execute("SELECT * FROM source_cache WHERE url=?", (url,)).fetchone()
@@ -205,6 +208,7 @@ class CachedHTTPTransport:
             if cached["modified"]:
                 headers["If-Modified-Since"] = cached["modified"]
         for attempt in range(3):
+            remaining_timeout()
             try:
                 with (
                     self.request_permit(url),
@@ -231,6 +235,7 @@ class CachedHTTPTransport:
                         chunks: list[bytes] = []
                         size = 0
                         for chunk in response.iter_bytes():
+                            remaining_timeout()
                             size += len(chunk)
                             if size > self.max_bytes or self.clock() - response_started > 30:
                                 raise AtlasError(
@@ -249,7 +254,7 @@ class CachedHTTPTransport:
                             details={"http_status": response.status_code},
                             status=502,
                         )
-                self.sleep(wait)
+                bounded_pause(wait, self.sleep)
             except (httpx.HTTPError, ValueError):
                 raise AtlasError(
                     "SOURCE_UNAVAILABLE",

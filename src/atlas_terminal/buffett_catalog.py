@@ -109,7 +109,14 @@ def buffett_catalog() -> dict:
                 "management_integrity",
                 "durable_moat",
             ],
-            "automatic_source": "SEC US-GAAP USD primary annual facts",
+            "automatic_source": (
+                "SEC US-GAAP USD, or explicit JP EDINET consolidated "
+                "Japan GAAP/IFRS JPY annual facts"
+            ),
+            "japan_selection": (
+                "Bounded private daily-list index; current JPX33 "
+                "nonfinancial domestic common equities only"
+            ),
             "supplied_source": "Declared annual inputs and currencies; no currency conversion",
             "valuation": "Optional supplied market cap and cash-flow-proxy DCF assumptions",
             "financial_businesses": "Not applicable; general-company rules are not bank models",

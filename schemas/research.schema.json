@@ -1342,6 +1342,11 @@
               "title": "Count",
               "type": "integer"
             },
+            "country": {
+              "default": null,
+              "description": "JP selects EDINET annual financials; omitted or US retains SEC behavior.",
+              "enum": [null, "US", "JP"]
+            },
             "financial_input": {
               "anyOf": [
                 {

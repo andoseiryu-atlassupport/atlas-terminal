@@ -19,6 +19,7 @@ def research_documentation(dataset: str) -> dict[str, str]:
         return {
             "guide": f"{DOCUMENTATION_ORIGIN}/docs/buffett-scoring.md",
             "methodology": f"{DOCUMENTATION_ORIGIN}/docs/buffett-scoring.md",
+            "japan_guide": f"{DOCUMENTATION_ORIGIN}/docs/japan-buffett.md",
             "sources_and_terms": f"{DOCUMENTATION_ORIGIN}/DATA_SOURCES.md",
             "citation_guidance": f"{DOCUMENTATION_ORIGIN}/docs/citations.md",
         }

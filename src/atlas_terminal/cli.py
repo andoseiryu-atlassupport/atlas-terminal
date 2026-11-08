@@ -335,6 +335,7 @@ def research_polymarket(
 def research_buffett(
     identifier: str,
     years: int = 5,
+    country: str | None = None,
     financial_input: Annotated[Path | None, typer.Option("--input")] = None,
     valuation_input: Annotated[Path | None, typer.Option("--valuation-input")] = None,
     provider: str = "public",
@@ -363,6 +364,7 @@ def research_buffett(
         result = atlas.get_buffett_score(
             identifier,
             years=years,
+            country=country,
             financial_input=read_input(financial_input),
             valuation=read_input(valuation_input),
         )
@@ -387,6 +389,17 @@ def research_buffett(
             + (f" ({component['reason']})" if component["reason"] else "")
         )
     typer.echo("Quantitative proxies; business understanding, moat and management require review.")
+
+
+@research_app.command("edinet-index")
+def research_edinet_index(
+    start_date: Annotated[str, typer.Option("--start-date")],
+    end_date: Annotated[str, typer.Option("--end-date")],
+    provider: str = "public",
+) -> None:
+    """Index at most 31 EDINET submission dates in private state; resume using next_date."""
+    with Atlas(provider) as atlas:
+        output(atlas.sync_edinet_history(start_date, end_date))
 
 
 @research_app.command("margin")
