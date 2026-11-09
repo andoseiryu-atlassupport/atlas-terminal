@@ -127,7 +127,9 @@ Atlas does not provide consolidated real-time equity prices or order books, opti
 
 ## Optional snapshot API
 
-Annual snapshots of five financial metrics have a separate optional quote/purchase/recovery API. Payments default to off; mock payments are fictional, and testnet mode is restricted to Base Sepolia USDC using x402 V2. Research queries do not purchase or sign. Mainnet and production custody are unsupported. [Payment configuration and limits](docs/payments.md).
+Annual snapshots of five financial metrics have a separate optional quote/purchase/recovery API. Payments default to off; mock payments are fictional, and the annual API and local signer remain restricted to Base Sepolia USDC using x402 V2. Research queries do not purchase or sign. [Payment configuration and limits](docs/payments.md).
+
+The isolated [BLS seller API](docs/seller.md) offers one prepared-series product with immutable results, explicit capture age and original evidence. Its optional Base mainnet receiving adapter uses an external buyer wallet, a configured CDP facilitator and a trusted reconciliation RPC; it never needs the receiving wallet's private key. SDK, CLI and seller-only MCP tools share this API. Buyer requests cannot access the free research routes or refresh BLS data. Mainnet settlement and public seller hosting remain unverified; no official public seller endpoint is operated.
 
 ## License and contributing
 

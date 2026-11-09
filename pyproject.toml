@@ -33,6 +33,11 @@ Repository = "https://github.com/andoseiryu-atlassupport/atlas-terminal"
 Issues = "https://github.com/andoseiryu-atlassupport/atlas-terminal/issues"
 Changelog = "https://github.com/andoseiryu-atlassupport/atlas-terminal/blob/main/CHANGELOG.md"
 
+[project.optional-dependencies]
+seller = [
+    "cdp-sdk==1.52.0",
+]
+
 [dependency-groups]
 dev = [
   "build==1.6.1",

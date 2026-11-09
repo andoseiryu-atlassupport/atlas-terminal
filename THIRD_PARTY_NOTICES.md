@@ -1,5 +1,29 @@
 # Third-party dependency licenses
 
+## Optional seller extra
+
+The following additional distributions were inspected on 2026-11-10 JST after resolving `cdp-sdk==1.52.0`. This extra supplies official facilitator authentication; it does not enable custody or Solana support in Atlas. Licenses below are declared installed metadata except the noted installed license file. Missing metadata is explicitly identified; this inventory is not a legal or vulnerability audit.
+
+| Distribution     | Version | License evidence                                              |
+| ---------------- | ------- | ------------------------------------------------------------- |
+| cdp-sdk          | 1.52.0  | MIT                                                           |
+| aiohttp-retry    | 2.9.1   | MIT                                                           |
+| aiolimiter       | 1.3.0   | MIT                                                           |
+| arrow            | 1.4.0   | Apache Software License classifier                            |
+| base58           | 2.1.1   | MIT                                                           |
+| construct        | 2.10.70 | MIT                                                           |
+| construct-typing | 0.8.1   | MIT                                                           |
+| h2               | 4.4.1   | MIT                                                           |
+| hpack            | 4.2.0   | MIT                                                           |
+| hyperframe       | 6.1.0   | MIT                                                           |
+| jsonalias        | 0.1.1   | Not declared in installed metadata; no installed license file |
+| python-dateutil  | 4.0.0   | BSD-3-Clause                                                  |
+| solana           | 0.41.0  | MIT                                                           |
+| solders          | 0.29.0  | Apache-2.0, installed LICENSE                                 |
+| tzdata           | 2026.6  | Apache-2.0                                                    |
+
+## Existing dependency inventory
+
 Recorded on 2026-10-20 from installed metadata for dependencies resolved by uv.lock. Each distribution's LICENSE / NOTICE defines its terms; this inventory does not replace those files. It includes direct, development and transitive dependencies.
 
 | Distribution              | Version      | Declared license                                                |

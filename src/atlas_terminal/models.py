@@ -132,7 +132,7 @@ class FinancialResult(Model):
 
 
 class Pricing(Model):
-    mode: Literal["off", "mock", "testnet"]
+    mode: Literal["off", "mock", "testnet", "mainnet"]
     scheme: Literal["none", "exact"]
     network: str
     asset: str
@@ -169,7 +169,7 @@ class Quote(Model):
 
 class Receipt(Model):
     quote_id: str
-    mode: Literal["off", "mock", "testnet"]
+    mode: Literal["off", "mock", "testnet", "mainnet"]
     simulated: bool
     status: Literal["NOT_REQUIRED", "SETTLED"]
     network: str

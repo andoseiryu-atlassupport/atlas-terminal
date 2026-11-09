@@ -33,7 +33,6 @@ from x402.mechanisms.evm.types import AUTHORIZATION_TYPES, TypedDataDomain, Type
 from x402.schemas import PaymentPayload, PaymentRequired, PaymentRequirements, ResourceInfo
 
 from atlas_terminal.errors import AtlasError
-from atlas_terminal.models import Quote
 from atlas_terminal.payments.common import (
     ASSET,
     NETWORK,
@@ -45,6 +44,7 @@ from atlas_terminal.payments.common import (
     origin,
     validate_testnet,
 )
+from atlas_terminal.payments.common import PaymentQuote as Quote
 from atlas_terminal.payments.policy import BudgetLedger, SpendingPolicy
 from atlas_terminal.security import private_library_logs
 from atlas_terminal.util import digest
@@ -72,6 +72,10 @@ def quiet_payment_libraries() -> None:
 
 class TestnetAdapter:
     header = "PAYMENT-SIGNATURE"
+    network = NETWORK
+
+    def requirements(self, quote: Quote) -> PaymentRequirements:
+        return requirements(quote)
 
     def __init__(self, facilitator_url: str, *, facilitator: Any = None) -> None:
         quiet_payment_libraries()
@@ -95,7 +99,7 @@ class TestnetAdapter:
         self.server = x402ResourceServerSync(facilitator)
         # 2.25.0 annotates this implementation's payment_flows more narrowly than
         # its own protocol. Runtime binding is exercised by the offline SDK tests.
-        self.server.register(NETWORK, cast(SchemeNetworkServer, ExactEvmServerScheme()))
+        self.server.register(self.network, cast(SchemeNetworkServer, ExactEvmServerScheme()))
         self.ready = False
 
     def ensure_ready(self) -> None:
@@ -105,20 +109,20 @@ class TestnetAdapter:
             self.server.initialize()
             supported = self.facilitator.get_supported()
             if not any(
-                k.x402_version == 2 and k.scheme == "exact" and k.network == NETWORK
+                k.x402_version == 2 and k.scheme == "exact" and k.network == self.network
                 for k in supported.kinds
             ):
                 raise ValueError("Unsupported facilitator")
             self.ready = True
         except Exception:
             raise AtlasError(
-                "CONFIG_REQUIRED", "Facilitator did not confirm V2 exact Base Sepolia support."
+                "CONFIG_REQUIRED", "Facilitator did not confirm the configured V2 exact network."
             ) from None
 
     def challenge(self, quote: Quote, base_origin: str) -> dict[str, str]:
         self.ensure_ready()
         required = self.server.create_payment_required_response(
-            [requirements(quote)],
+            [self.requirements(quote)],
             resource=ResourceInfo(
                 url=origin(base_origin) + quote.resource_path, mime_type="application/json"
             ),
@@ -132,7 +136,7 @@ class TestnetAdapter:
             payload = decode_payment_signature_header(proof)
             if not isinstance(payload, PaymentPayload) or payload.x402_version != 2:
                 raise ValueError("v2 required")
-            req = requirements(quote)
+            req = self.requirements(quote)
             if (
                 payload.accepted != req
                 or not payload.resource
@@ -175,17 +179,17 @@ class TestnetAdapter:
             raise
         except Exception:
             raise AtlasError(
-                "PAYMENT_INVALID", "Official testnet payment verification failed."
+                "PAYMENT_INVALID", "Official x402 payment verification failed."
             ) from None
 
     def settle(self, quote: Quote, payment: VerifiedPayment) -> Settlement:
         try:
             # Call the official facilitator SDK once. ResourceServer.settle_payment in
             # 2.25.0 may retry settlement_pending internally; Atlas retains UNKNOWN.
-            result = self.facilitator.settle(payment.payload, requirements(quote))
+            result = self.facilitator.settle(payment.payload, self.requirements(quote))
             if (
                 result.success
-                and result.network == NETWORK
+                and result.network == self.network
                 and re.fullmatch(r"0x[0-9a-fA-F]{64}", result.transaction)
                 and (result.amount is None or result.amount == quote.pricing.amount_atomic)
                 and (result.payer is None or result.payer.lower() == payment.payer.lower())

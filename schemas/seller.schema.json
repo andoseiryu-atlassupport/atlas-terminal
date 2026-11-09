@@ -1,0 +1,1072 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atlas-terminal.invalid/schemas/seller.schema.json",
+  "title": "Atlas Terminal seller contracts",
+  "$defs": {
+    "ProductQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "product_id": {
+          "const": "bls-series-v1",
+          "default": "bls-series-v1",
+          "title": "Product Id",
+          "type": "string"
+        },
+        "series": {
+          "maxLength": 40,
+          "minLength": 1,
+          "title": "Series",
+          "type": "string"
+        }
+      },
+      "required": ["series"],
+      "title": "ProductQuery",
+      "type": "object"
+    },
+    "EvidenceReference": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Evidence Id",
+          "type": "string"
+        }
+      },
+      "required": ["evidence_id"],
+      "title": "EvidenceReference",
+      "type": "object"
+    },
+    "QualityCheck": {
+      "additionalProperties": false,
+      "properties": {
+        "requirement": {
+          "enum": [
+            "max_source_age_seconds",
+            "min_observation_date",
+            "allow_missing",
+            "allow_derived",
+            "allow_truncated"
+          ],
+          "title": "Requirement",
+          "type": "string"
+        },
+        "passed": {
+          "title": "Passed",
+          "type": "boolean"
+        },
+        "required": {
+          "title": "Required"
+        },
+        "actual": {
+          "title": "Actual"
+        }
+      },
+      "required": ["requirement", "passed", "required", "actual"],
+      "title": "QualityCheck",
+      "type": "object"
+    },
+    "ResearchQuality": {
+      "additionalProperties": false,
+      "properties": {
+        "evaluated_at": {
+          "title": "Evaluated At",
+          "type": "string"
+        },
+        "scope": {
+          "const": "complete_selected_result",
+          "default": "complete_selected_result",
+          "title": "Scope",
+          "type": "string"
+        },
+        "oldest_source_retrieved_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Oldest Source Retrieved At"
+        },
+        "newest_source_retrieved_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Newest Source Retrieved At"
+        },
+        "max_source_age_seconds": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Max Source Age Seconds"
+        },
+        "latest_observation_date": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Latest Observation Date"
+        },
+        "missing_value_count": {
+          "minimum": 0,
+          "title": "Missing Value Count",
+          "type": "integer"
+        },
+        "derived_record_count": {
+          "minimum": 0,
+          "title": "Derived Record Count",
+          "type": "integer"
+        },
+        "partial_coverage": {
+          "title": "Partial Coverage",
+          "type": "boolean"
+        },
+        "truncated": {
+          "title": "Truncated",
+          "type": "boolean"
+        },
+        "meets_requirements": {
+          "title": "Meets Requirements",
+          "type": "boolean"
+        },
+        "checks": {
+          "items": {
+            "$ref": "#/$defs/QualityCheck"
+          },
+          "title": "Checks",
+          "type": "array"
+        }
+      },
+      "required": [
+        "evaluated_at",
+        "oldest_source_retrieved_at",
+        "newest_source_retrieved_at",
+        "max_source_age_seconds",
+        "latest_observation_date",
+        "missing_value_count",
+        "derived_record_count",
+        "partial_coverage",
+        "truncated",
+        "meets_requirements",
+        "checks"
+      ],
+      "title": "ResearchQuality",
+      "type": "object"
+    },
+    "ResearchResult": {
+      "additionalProperties": true,
+      "description": "Common envelope; dataset-specific records and metadata remain extensible.",
+      "properties": {
+        "schema_version": {
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "dataset": {
+          "enum": [
+            "prediction_markets",
+            "buffett_score",
+            "order_book",
+            "analyst_reports",
+            "analyst_report_text",
+            "news_feed",
+            "news_digest",
+            "interest_spreads",
+            "country_economics",
+            "country_bond_yields",
+            "commodity_prices",
+            "futures_prices",
+            "futures_curve",
+            "credit_ratings",
+            "trailing_financials",
+            "filing_documents",
+            "filing_facts",
+            "segment_financials",
+            "filing_sections",
+            "filing_tables",
+            "policy_rates",
+            "companies",
+            "profile",
+            "statements",
+            "ratios",
+            "financial_analytics",
+            "company_facts",
+            "filings",
+            "insider_transactions",
+            "institutional_holdings",
+            "ownership_filings",
+            "fund_filings",
+            "corporate_action_filings",
+            "economics",
+            "treasury_yields",
+            "federal_debt",
+            "policy_news",
+            "compare",
+            "fx_rates",
+            "reference_rates",
+            "treasury_real_yields",
+            "jgb_yields",
+            "euro_area_yields",
+            "australia_yields",
+            "macro_analytics",
+            "national_accounts",
+            "japan_economics",
+            "europe_economics",
+            "uk_economics",
+            "activity_economics",
+            "global_economics",
+            "sdmx_catalog",
+            "international_economics",
+            "macro_panel",
+            "equity_prices",
+            "intraday_prices",
+            "equity_actions",
+            "japan_disclosures",
+            "japan_filing_facts",
+            "japan_securities",
+            "margin_balances",
+            "source_history",
+            "price_analytics",
+            "price_comparison",
+            "company_screen",
+            "filing_events",
+            "fund_holdings",
+            "fred_series"
+          ],
+          "title": "Dataset",
+          "type": "string"
+        },
+        "query": {
+          "additionalProperties": true,
+          "title": "Query",
+          "type": "object"
+        },
+        "source_id": {
+          "title": "Source Id",
+          "type": "string"
+        },
+        "source_terms_url": {
+          "title": "Source Terms Url",
+          "type": "string"
+        },
+        "documentation": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Documentation"
+        },
+        "upstream_data_cost": {
+          "const": "0",
+          "title": "Upstream Data Cost",
+          "type": "string"
+        },
+        "is_synthetic": {
+          "title": "Is Synthetic",
+          "type": "boolean"
+        },
+        "source_text_is_untrusted": {
+          "const": true,
+          "title": "Source Text Is Untrusted",
+          "type": "boolean"
+        },
+        "retrieved_at": {
+          "title": "Retrieved At",
+          "type": "string"
+        },
+        "records": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Records",
+          "type": "array"
+        },
+        "sources": {
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SourceEvidence"
+              },
+              {
+                "$ref": "#/$defs/EvidenceReference"
+              }
+            ]
+          },
+          "title": "Sources",
+          "type": "array"
+        },
+        "coverage": {
+          "additionalProperties": true,
+          "title": "Coverage",
+          "type": "object"
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Limitations",
+          "type": "array"
+        },
+        "response": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ResponseMetadata"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "quality": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ResearchQuality"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "schema_version",
+        "dataset",
+        "query",
+        "source_id",
+        "source_terms_url",
+        "upstream_data_cost",
+        "is_synthetic",
+        "source_text_is_untrusted",
+        "retrieved_at",
+        "records",
+        "sources",
+        "coverage",
+        "limitations"
+      ],
+      "title": "ResearchResult",
+      "type": "object"
+    },
+    "ResponseMetadata": {
+      "additionalProperties": false,
+      "properties": {
+        "view": {
+          "enum": ["full", "compact"],
+          "title": "View",
+          "type": "string"
+        },
+        "fields": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Fields",
+          "type": "array"
+        },
+        "snapshot_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Snapshot Id",
+          "type": "string"
+        },
+        "result_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Result Sha256",
+          "type": "string"
+        },
+        "expires_at": {
+          "title": "Expires At",
+          "type": "string"
+        },
+        "total_records": {
+          "minimum": 0,
+          "title": "Total Records",
+          "type": "integer"
+        },
+        "returned_records": {
+          "minimum": 0,
+          "title": "Returned Records",
+          "type": "integer"
+        },
+        "offset": {
+          "minimum": 0,
+          "title": "Offset",
+          "type": "integer"
+        },
+        "page_size": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Page Size"
+        },
+        "next_cursor": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Next Cursor"
+        },
+        "evidence_count": {
+          "minimum": 0,
+          "title": "Evidence Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "view",
+        "fields",
+        "snapshot_id",
+        "result_sha256",
+        "expires_at",
+        "total_records",
+        "returned_records",
+        "offset",
+        "page_size",
+        "next_cursor",
+        "evidence_count"
+      ],
+      "title": "ResponseMetadata",
+      "type": "object"
+    },
+    "SourceEvidence": {
+      "additionalProperties": true,
+      "anyOf": [
+        {
+          "properties": {
+            "pdf_page": {
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          "required": ["pdf_page"]
+        },
+        {
+          "required": ["worksheet", "cell_row", "cell_column"]
+        },
+        {
+          "properties": {
+            "json_pointer": {
+              "type": "string"
+            }
+          },
+          "required": ["json_pointer"]
+        },
+        {
+          "properties": {
+            "xml_local_path": {
+              "type": "string"
+            }
+          },
+          "required": ["xml_local_path"]
+        },
+        {
+          "properties": {
+            "csv_row": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "csv_column": {
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          "required": ["csv_row", "csv_column"]
+        },
+        {
+          "properties": {
+            "text_line": {
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          "required": ["text_line"]
+        }
+      ],
+      "properties": {
+        "worksheet": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Worksheet"
+        },
+        "pdf_page": {
+          "anyOf": [
+            {
+              "maximum": 160,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pdf Page"
+        },
+        "cell_row": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cell Row"
+        },
+        "cell_column": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cell Column"
+        },
+        "raw_source_url": {
+          "format": "uri",
+          "title": "Raw Source Url",
+          "type": "string"
+        },
+        "raw_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Raw Sha256",
+          "type": "string"
+        },
+        "retrieved_at": {
+          "format": "date-time",
+          "title": "Retrieved At",
+          "type": "string"
+        },
+        "json_pointer": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Json Pointer"
+        },
+        "xml_local_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Xml Local Path"
+        },
+        "csv_row": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Csv Row"
+        },
+        "csv_column": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Csv Column"
+        },
+        "text_line": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Text Line"
+        },
+        "text_column_start": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Text Column Start"
+        },
+        "text_column_end": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Text Column End"
+        }
+      },
+      "required": ["raw_source_url", "raw_sha256", "retrieved_at"],
+      "title": "SourceEvidence",
+      "type": "object"
+    },
+    "ProductData": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "seller-1.0",
+          "default": "seller-1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "product_id": {
+          "const": "bls-series-v1",
+          "default": "bls-series-v1",
+          "title": "Product Id",
+          "type": "string"
+        },
+        "query": {
+          "$ref": "#/$defs/ProductQuery"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "captured_at": {
+          "title": "Captured At",
+          "type": "string"
+        },
+        "prepared_at": {
+          "title": "Prepared At",
+          "type": "string"
+        },
+        "source_access": {
+          "enum": ["source_response", "retained_capture", "fictional_fixture"],
+          "title": "Source Access",
+          "type": "string"
+        },
+        "is_synthetic": {
+          "title": "Is Synthetic",
+          "type": "boolean"
+        },
+        "attribution": {
+          "default": "Source: U.S. Bureau of Labor Statistics. Normalized by Atlas Terminal.",
+          "title": "Attribution",
+          "type": "string"
+        },
+        "source_terms_url": {
+          "default": "https://www.bls.gov/bls/linksite.htm",
+          "title": "Source Terms Url",
+          "type": "string"
+        },
+        "research": {
+          "$ref": "#/$defs/ResearchResult"
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Limitations",
+          "type": "array"
+        }
+      },
+      "required": [
+        "query",
+        "title",
+        "captured_at",
+        "prepared_at",
+        "source_access",
+        "is_synthetic",
+        "research",
+        "limitations"
+      ],
+      "title": "ProductData",
+      "type": "object"
+    },
+    "Pricing": {
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "enum": ["off", "mock", "testnet", "mainnet"],
+          "title": "Mode",
+          "type": "string"
+        },
+        "scheme": {
+          "enum": ["none", "exact"],
+          "title": "Scheme",
+          "type": "string"
+        },
+        "network": {
+          "title": "Network",
+          "type": "string"
+        },
+        "asset": {
+          "title": "Asset",
+          "type": "string"
+        },
+        "pay_to": {
+          "title": "Pay To",
+          "type": "string"
+        },
+        "symbol": {
+          "title": "Symbol",
+          "type": "string"
+        },
+        "decimals": {
+          "maximum": 18,
+          "minimum": 0,
+          "title": "Decimals",
+          "type": "integer"
+        },
+        "amount_atomic": {
+          "maxLength": 40,
+          "pattern": "^(0|[1-9][0-9]*)$",
+          "title": "Amount Atomic",
+          "type": "string"
+        },
+        "display_amount": {
+          "title": "Display Amount",
+          "type": "string"
+        }
+      },
+      "required": [
+        "mode",
+        "scheme",
+        "network",
+        "asset",
+        "pay_to",
+        "symbol",
+        "decimals",
+        "amount_atomic",
+        "display_amount"
+      ],
+      "title": "Pricing",
+      "type": "object"
+    },
+    "ProductSelection": {
+      "additionalProperties": false,
+      "description": "Disclose the selected observations before delivering their values.",
+      "properties": {
+        "source_query": {
+          "additionalProperties": true,
+          "title": "Source Query",
+          "type": "object"
+        },
+        "first_observation_date": {
+          "title": "First Observation Date",
+          "type": "string"
+        },
+        "last_observation_date": {
+          "title": "Last Observation Date",
+          "type": "string"
+        },
+        "unit": {
+          "title": "Unit",
+          "type": "string"
+        },
+        "seasonally_adjusted": {
+          "title": "Seasonally Adjusted",
+          "type": "boolean"
+        },
+        "period_kinds": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Period Kinds",
+          "type": "array"
+        },
+        "reported_records": {
+          "maximum": 130,
+          "minimum": 1,
+          "title": "Reported Records",
+          "type": "integer"
+        },
+        "missing_records": {
+          "maximum": 130,
+          "minimum": 0,
+          "title": "Missing Records",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "source_query",
+        "first_observation_date",
+        "last_observation_date",
+        "unit",
+        "seasonally_adjusted",
+        "period_kinds",
+        "reported_records",
+        "missing_records"
+      ],
+      "title": "ProductSelection",
+      "type": "object"
+    },
+    "ProductQuote": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "seller-1.0",
+          "default": "seller-1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "quote_id": {
+          "pattern": "^[0-9a-f]{32}$",
+          "title": "Quote Id",
+          "type": "string"
+        },
+        "query": {
+          "$ref": "#/$defs/ProductQuery"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "snapshot_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Snapshot Id",
+          "type": "string"
+        },
+        "result_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Result Sha256",
+          "type": "string"
+        },
+        "record_count": {
+          "maximum": 130,
+          "minimum": 1,
+          "title": "Record Count",
+          "type": "integer"
+        },
+        "selection": {
+          "$ref": "#/$defs/ProductSelection"
+        },
+        "captured_at": {
+          "title": "Captured At",
+          "type": "string"
+        },
+        "source_access": {
+          "enum": ["source_response", "retained_capture", "fictional_fixture"],
+          "title": "Source Access",
+          "type": "string"
+        },
+        "pricing": {
+          "$ref": "#/$defs/Pricing"
+        },
+        "expires_at": {
+          "title": "Expires At",
+          "type": "string"
+        },
+        "resource_path": {
+          "title": "Resource Path",
+          "type": "string"
+        },
+        "is_synthetic": {
+          "title": "Is Synthetic",
+          "type": "boolean"
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Limitations",
+          "type": "array"
+        }
+      },
+      "required": [
+        "quote_id",
+        "query",
+        "title",
+        "snapshot_id",
+        "result_sha256",
+        "record_count",
+        "selection",
+        "captured_at",
+        "source_access",
+        "pricing",
+        "expires_at",
+        "resource_path",
+        "is_synthetic",
+        "limitations"
+      ],
+      "title": "ProductQuote",
+      "type": "object"
+    },
+    "Receipt": {
+      "additionalProperties": false,
+      "properties": {
+        "quote_id": {
+          "title": "Quote Id",
+          "type": "string"
+        },
+        "mode": {
+          "enum": ["off", "mock", "testnet", "mainnet"],
+          "title": "Mode",
+          "type": "string"
+        },
+        "simulated": {
+          "title": "Simulated",
+          "type": "boolean"
+        },
+        "status": {
+          "enum": ["NOT_REQUIRED", "SETTLED"],
+          "title": "Status",
+          "type": "string"
+        },
+        "network": {
+          "title": "Network",
+          "type": "string"
+        },
+        "asset": {
+          "title": "Asset",
+          "type": "string"
+        },
+        "amount_atomic": {
+          "maxLength": 40,
+          "pattern": "^(0|[1-9][0-9]*)$",
+          "title": "Amount Atomic",
+          "type": "string"
+        },
+        "transaction": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Transaction"
+        },
+        "settled_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Settled At"
+        },
+        "result_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Result Sha256",
+          "type": "string"
+        },
+        "retained_until": {
+          "title": "Retained Until",
+          "type": "string"
+        }
+      },
+      "required": [
+        "quote_id",
+        "mode",
+        "simulated",
+        "status",
+        "network",
+        "asset",
+        "amount_atomic",
+        "transaction",
+        "settled_at",
+        "result_sha256",
+        "retained_until"
+      ],
+      "title": "Receipt",
+      "type": "object"
+    },
+    "ProductPurchase": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "$ref": "#/$defs/ProductData"
+        },
+        "receipt": {
+          "$ref": "#/$defs/Receipt"
+        }
+      },
+      "required": ["data", "receipt"],
+      "title": "ProductPurchase",
+      "type": "object"
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/ProductQuery"
+    },
+    {
+      "$ref": "#/$defs/ProductData"
+    },
+    {
+      "$ref": "#/$defs/ProductQuote"
+    },
+    {
+      "$ref": "#/$defs/ProductPurchase"
+    }
+  ]
+}

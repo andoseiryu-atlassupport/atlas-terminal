@@ -1,8 +1,20 @@
 # Validation scope
 
-Recorded on 2026-11-08 (JST) for the source checkout following Atlas Terminal 0.7.0, with Python 3.12.14 and Node.js 24 on Linux. Local verification, GitHub Actions, public deployment, official-source access and model observations are distinct evidence.
+Recorded on 2026-11-10 (JST) for the source checkout following Atlas Terminal 0.7.0, with Python 3.12.14 and Node.js 24 on Linux. Local verification, GitHub Actions, public deployment, official-source access and model observations are distinct evidence.
 
 Version 0.7.0 includes the experimental native factor risk extension and installed walkthroughs described below. The prior 0.6.0 release did not include risk estimation. Local wheel checks remain separate evidence from a published GitHub release.
+
+## BLS seller API
+
+On **2026-11-10 JST**, `uv run --offline python scripts/verify_seller_captures.py --output build/seller-2026-11-10/source-replay-final` replayed **12 previously retained real BLS captures and matched 168 records** to the original values, units, years, periods, source hashes, retrieval times and JSON pointers. All **31 retained capture files** remained byte-identical. Each replay prepared an immutable product, quoted it, completed one fictional settlement, verified the result hash and recovered the same paid artifact without another settlement. Unauthenticated recovery and free-research routes were rejected.
+
+These source responses were originally captured on **2026-10-27**, not freshly retrieved during this task. The replay labels them `retained_capture`; source origin/time are operator-supplied evidence. It deliberately raises its private replay age limit while recording rejection under the normal 48-hour seller policy. Real source data and simulated receipts are independent: the result has `is_synthetic=false`, while the receipt has `simulated=true` and no transaction. Private results, databases, hashes and the report remain ignored under `build/seller-2026-11-10/`. **No new BLS request, cache/counter reset or real transfer occurred.**
+
+Separate fictional regressions exercise all 22 curated BLS mappings, missing/annual-summary semantics, raw-body hash validation, source identity and age, publication/recovery isolation, quote replay, private client capabilities, exact HTTP boundaries, official Base mainnet-shaped signatures and simulated facilitator/RPC messages. Actual in-memory official MCP sessions exercise an external-wallet purchase and suppress a new signature after an unknown payment. These are offline interoperability checks, not successful blockchain settlement.
+
+The complete local suite passed **3,170 tests**, with two opt-in live tests deselected; **83 new seller cases** cover product, payment, interface and deployment-preparation behavior. Ruff/format (**337 Python files**), mypy (**138 source files**), regenerated schemas, npm checks, credential-pattern scanning, **71-page** documentation and distribution preparation passed. Wheel/sdist validation passed with **448 wheel files and 777 source files**. An installed-wheel check outside the checkout exercised the CLI, SDK, actual loopback HTTP and all seven tools' discovery through the official stdio MCP transport, including purchase/recovery with fictional data and mock settlement. It reused locked dependencies through a private `.pth` file rather than proving a fresh network installation. The existing BLS audit still matched 14 captures/168 records, and both showcase checksums passed. Local results are separate from subsequent GitHub Actions.
+
+The deployment preparer rendered inert single-process systemd/Caddy/private-environment templates for `https://api.example.com`; this is an example origin, not a deployed service. No receiving address, real public origin, CDP credentials or mainnet RPC was configured. Live facilitator authentication, finalized-chain compatibility, real testnet/mainnet transfer, public hosting and continuous source freshness remain **unverified**. No release or public service was published.
 
 ## Polymarket event prices
 
@@ -480,7 +492,7 @@ Offline cases cover all 26 datasets, exact financial periods and decimals, missi
 
 Eight BEA and ten Japanese macro series, bounded BLS history and ECB history are covered by fictional bytes and parser/interface tests. Metadata-probe success does not establish successful observation retrieval. Source ages, observation periods, publication times and retrieval times remain distinct. Current revised source snapshots are not historical release vintages or PIT data.
 
-Official x402 Python and JavaScript interoperability tests use mocked facilitator/RPC responses and private pipes or in-memory streams. Research-only MCP has no payment handlers. Real Base Sepolia settlement and reconciliation against a live RPC are unverified; mainnet is unsupported.
+Official x402 Python and JavaScript interoperability tests use mocked facilitator/RPC responses and private pipes or in-memory streams. Research-only MCP has no payment handlers. Real Base Sepolia settlement and reconciliation against a live RPC are unverified. Mainnet is confined to the separately selected seller receiving adapter described above; real mainnet settlement remains unverified.
 
 ## Public documentation and discovery
 

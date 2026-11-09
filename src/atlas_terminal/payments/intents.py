@@ -3,8 +3,9 @@
 import hmac
 import re
 
+from pydantic import BaseModel
+
 from atlas_terminal.errors import AtlasError
-from atlas_terminal.models import FinancialQuery
 from atlas_terminal.util import canonical, digest
 
 INTENT_HEADER = "Atlas-Intent-Key"
@@ -17,7 +18,7 @@ def intent_identifier(value: str) -> str:
     return value
 
 
-def intent_binding(key: str, query: FinancialQuery, origin: str) -> tuple[str, str, str]:
+def intent_binding(key: str, query: BaseModel, origin: str) -> tuple[str, str, str]:
     if not re.fullmatch(r"[a-zA-Z0-9_-]{32,128}", key):
         raise AtlasError("INVALID_INPUT", "Invalid private intent capability.")
     # Domain separation keeps the public lookup hash distinct from recovery authority.

@@ -4,15 +4,15 @@
   "title": "Atlas application contract \u2014 design specification, not x402 wire schema",
   "$defs": {
     "FinancialQuery": {
-      "type": "object",
+      "additionalProperties": false,
       "properties": {
         "identifier": {
-          "type": "string",
+          "maxLength": 100,
           "minLength": 1,
-          "maxLength": 100
+          "title": "Identifier",
+          "type": "string"
         },
         "metrics": {
-          "type": "array",
           "items": {
             "enum": [
               "revenue",
@@ -20,98 +20,119 @@
               "assets",
               "liabilities",
               "operating_cash_flow"
-            ]
+            ],
+            "type": "string"
           },
-          "minItems": 1,
           "maxItems": 5,
-          "uniqueItems": true
+          "minItems": 1,
+          "title": "Metrics",
+          "type": "array"
         },
         "period": {
-          "const": "annual"
+          "const": "annual",
+          "default": "annual",
+          "title": "Period",
+          "type": "string"
         },
         "count": {
-          "type": "integer",
+          "default": 3,
+          "maximum": 20,
           "minimum": 1,
-          "maximum": 20
+          "title": "Count",
+          "type": "integer"
         },
         "allow_partial": {
-          "type": "boolean",
-          "default": false
+          "default": false,
+          "title": "Allow Partial",
+          "type": "boolean"
         }
       },
-      "required": ["identifier", "metrics", "period", "count", "allow_partial"],
-      "additionalProperties": false
+      "required": ["identifier", "metrics"],
+      "title": "FinancialQuery",
+      "type": "object"
     },
     "Company": {
-      "type": "object",
+      "additionalProperties": false,
       "properties": {
         "cik": {
-          "type": "string",
-          "pattern": "^[0-9]{10}$"
+          "pattern": "^[0-9]{10}$",
+          "title": "Cik",
+          "type": "string"
         },
         "name": {
+          "title": "Name",
           "type": "string"
         },
         "tickers": {
-          "type": "array",
           "items": {
             "type": "string"
           },
-          "uniqueItems": true
+          "title": "Tickers",
+          "type": "array"
         }
       },
       "required": ["cik", "name", "tickers"],
-      "additionalProperties": false
+      "title": "Company",
+      "type": "object"
     },
     "Source": {
-      "type": "object",
+      "additionalProperties": false,
       "properties": {
         "accession": {
-          "type": "string",
-          "pattern": "^[0-9]{10}-[0-9]{2}-[0-9]{6}$"
+          "pattern": "^[0-9]{10}-[0-9]{2}-[0-9]{6}$",
+          "title": "Accession",
+          "type": "string"
         },
         "form": {
-          "enum": ["10-K", "10-K/A"]
+          "enum": ["10-K", "10-K/A"],
+          "title": "Form",
+          "type": "string"
         },
         "filed_on": {
-          "type": "string",
-          "format": "date"
+          "title": "Filed On",
+          "type": "string"
         },
         "accepted_at": {
           "anyOf": [
             {
-              "type": "string",
-              "format": "date-time"
+              "type": "string"
             },
             {
               "type": "null"
             }
-          ]
+          ],
+          "title": "Accepted At"
         },
         "taxonomy": {
-          "const": "us-gaap"
+          "const": "us-gaap",
+          "default": "us-gaap",
+          "title": "Taxonomy",
+          "type": "string"
         },
         "tag": {
+          "title": "Tag",
           "type": "string"
         },
         "source_url": {
-          "type": "string",
-          "format": "uri"
+          "title": "Source Url",
+          "type": "string"
         },
         "raw_source_url": {
-          "type": "string",
-          "format": "uri"
+          "title": "Raw Source Url",
+          "type": "string"
         },
         "json_pointer": {
+          "title": "Json Pointer",
           "type": "string"
         },
         "raw_sha256": {
-          "type": "string",
-          "pattern": "^[0-9a-f]{64}$"
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Raw Sha256",
+          "type": "string"
         },
         "retrieved_at": {
-          "type": "string",
-          "format": "date-time"
+          "title": "Retrieved At",
+          "type": "string"
         }
       },
       "required": [
@@ -119,7 +140,6 @@
         "form",
         "filed_on",
         "accepted_at",
-        "taxonomy",
         "tag",
         "source_url",
         "raw_source_url",
@@ -127,35 +147,39 @@
         "raw_sha256",
         "retrieved_at"
       ],
-      "additionalProperties": false
+      "title": "Source",
+      "type": "object"
     },
     "Period": {
-      "type": "object",
+      "additionalProperties": false,
       "properties": {
         "kind": {
-          "enum": ["duration", "instant"]
+          "enum": ["duration", "instant"],
+          "title": "Kind",
+          "type": "string"
         },
         "start": {
           "anyOf": [
             {
-              "type": "string",
-              "format": "date"
+              "type": "string"
             },
             {
               "type": "null"
             }
-          ]
+          ],
+          "title": "Start"
         },
         "end": {
-          "type": "string",
-          "format": "date"
+          "title": "End",
+          "type": "string"
         }
       },
       "required": ["kind", "start", "end"],
-      "additionalProperties": false
+      "title": "Period",
+      "type": "object"
     },
     "Fact": {
-      "type": "object",
+      "additionalProperties": false,
       "properties": {
         "metric": {
           "enum": [
@@ -164,30 +188,45 @@
             "assets",
             "liabilities",
             "operating_cash_flow"
-          ]
+          ],
+          "title": "Metric",
+          "type": "string"
         },
         "value": {
           "anyOf": [
             {
-              "type": "string",
-              "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+              "type": "string"
             },
             {
               "type": "null"
             }
-          ]
+          ],
+          "title": "Value"
         },
         "status": {
-          "enum": ["reported", "unavailable", "ambiguous"]
+          "enum": ["reported", "unavailable", "ambiguous"],
+          "title": "Status",
+          "type": "string"
         },
         "unit": {
-          "const": "USD"
+          "const": "USD",
+          "default": "USD",
+          "title": "Unit",
+          "type": "string"
         },
         "period": {
           "$ref": "#/$defs/Period"
         },
         "reason": {
-          "type": ["string", "null"]
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Reason"
         },
         "source": {
           "anyOf": [
@@ -200,71 +239,28 @@
           ]
         }
       },
-      "required": [
-        "metric",
-        "value",
-        "status",
-        "unit",
-        "period",
-        "reason",
-        "source"
-      ],
-      "additionalProperties": false,
-      "allOf": [
-        {
-          "if": {
-            "properties": {
-              "status": {
-                "const": "reported"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "value": {
-                "type": "string",
-                "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$"
-              },
-              "source": {
-                "$ref": "#/$defs/Source"
-              },
-              "reason": {
-                "type": "null"
-              }
-            }
-          },
-          "else": {
-            "properties": {
-              "value": {
-                "type": "null"
-              },
-              "reason": {
-                "type": "string",
-                "minLength": 1
-              }
-            }
-          }
-        }
-      ]
+      "required": ["metric", "value", "status", "period", "reason", "source"],
+      "title": "Fact",
+      "type": "object"
     },
     "Coverage": {
-      "type": "object",
+      "additionalProperties": false,
       "properties": {
         "requested_periods": {
-          "type": "integer",
-          "minimum": 1
+          "title": "Requested Periods",
+          "type": "integer"
         },
         "available_periods": {
-          "type": "integer",
-          "minimum": 0
+          "title": "Available Periods",
+          "type": "integer"
         },
         "requested_cells": {
-          "type": "integer",
-          "minimum": 1
+          "title": "Requested Cells",
+          "type": "integer"
         },
         "reported_cells": {
-          "type": "integer",
-          "minimum": 0
+          "title": "Reported Cells",
+          "type": "integer"
         }
       },
       "required": [
@@ -273,29 +269,39 @@
         "requested_cells",
         "reported_cells"
       ],
-      "additionalProperties": false
+      "title": "Coverage",
+      "type": "object"
     },
     "Warning": {
-      "type": "object",
+      "additionalProperties": false,
       "properties": {
         "code": {
+          "title": "Code",
           "type": "string"
         },
         "message": {
+          "title": "Message",
           "type": "string"
         }
       },
       "required": ["code", "message"],
-      "additionalProperties": false
+      "title": "Warning",
+      "type": "object"
     },
     "FinancialResult": {
-      "type": "object",
+      "additionalProperties": false,
       "properties": {
         "schema_version": {
-          "const": "0.1.0"
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
         },
         "kind": {
-          "const": "financials"
+          "const": "financials",
+          "default": "financials",
+          "title": "Kind",
+          "type": "string"
         },
         "company": {
           "$ref": "#/$defs/Company"
@@ -304,59 +310,64 @@
           "$ref": "#/$defs/FinancialQuery"
         },
         "provider": {
-          "enum": ["fixture", "sec"]
+          "enum": ["fixture", "sec"],
+          "title": "Provider",
+          "type": "string"
         },
         "selection_policy": {
-          "const": "latest_primary_filing_per_fact_v1"
+          "const": "latest_primary_filing_per_fact_v1",
+          "default": "latest_primary_filing_per_fact_v1",
+          "title": "Selection Policy",
+          "type": "string"
         },
         "period_ends": {
-          "type": "array",
           "items": {
-            "type": "string",
-            "format": "date"
+            "type": "string"
           },
-          "uniqueItems": true
+          "title": "Period Ends",
+          "type": "array"
         },
         "facts": {
-          "type": "array",
           "items": {
             "$ref": "#/$defs/Fact"
-          }
+          },
+          "title": "Facts",
+          "type": "array"
         },
         "coverage": {
           "$ref": "#/$defs/Coverage"
         },
         "partial": {
+          "title": "Partial",
           "type": "boolean"
         },
         "warnings": {
-          "type": "array",
           "items": {
             "$ref": "#/$defs/Warning"
-          }
+          },
+          "title": "Warnings",
+          "type": "array"
         },
         "limitations": {
-          "type": "array",
           "items": {
             "type": "string"
           },
-          "minItems": 1
+          "title": "Limitations",
+          "type": "array"
         },
         "retrieved_at": {
-          "type": "string",
-          "format": "date-time"
+          "title": "Retrieved At",
+          "type": "string"
         },
         "is_synthetic": {
+          "title": "Is Synthetic",
           "type": "boolean"
         }
       },
       "required": [
-        "schema_version",
-        "kind",
         "company",
         "query",
         "provider",
-        "selection_policy",
         "period_ends",
         "facts",
         "coverage",
@@ -366,13 +377,14 @@
         "retrieved_at",
         "is_synthetic"
       ],
-      "additionalProperties": false
+      "title": "FinancialResult",
+      "type": "object"
     },
     "Pricing": {
       "additionalProperties": false,
       "properties": {
         "mode": {
-          "enum": ["off", "mock", "testnet"],
+          "enum": ["off", "mock", "testnet", "mainnet"],
           "title": "Mode",
           "type": "string"
         },
@@ -429,12 +441,16 @@
       "type": "object"
     },
     "Quote": {
-      "type": "object",
+      "additionalProperties": false,
       "properties": {
         "schema_version": {
-          "const": "0.1.0"
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
         },
         "quote_id": {
+          "title": "Quote Id",
           "type": "string"
         },
         "query": {
@@ -444,68 +460,59 @@
           "$ref": "#/$defs/Company"
         },
         "snapshot_id": {
+          "title": "Snapshot Id",
           "type": "string"
         },
         "result_sha256": {
-          "type": "string",
-          "pattern": "^[0-9a-f]{64}$"
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Result Sha256",
+          "type": "string"
         },
         "period_ends": {
-          "type": "array",
           "items": {
-            "type": "string",
-            "format": "date"
-          }
+            "type": "string"
+          },
+          "title": "Period Ends",
+          "type": "array"
         },
         "coverage": {
           "$ref": "#/$defs/Coverage"
         },
         "partial": {
+          "title": "Partial",
           "type": "boolean"
         },
         "missing": {
-          "type": "array",
           "items": {
-            "type": "object",
-            "properties": {
-              "metric": {
-                "type": "string"
-              },
-              "period_end": {
-                "type": "string",
-                "format": "date"
-              },
-              "reason": {
-                "type": "string"
-              }
-            },
-            "required": ["metric", "period_end", "reason"],
-            "additionalProperties": false
-          }
+            "$ref": "#/$defs/Missing"
+          },
+          "title": "Missing",
+          "type": "array"
         },
         "pricing": {
           "$ref": "#/$defs/Pricing"
         },
         "expires_at": {
-          "type": "string",
-          "format": "date-time"
+          "title": "Expires At",
+          "type": "string"
         },
         "resource_path": {
-          "type": "string",
-          "pattern": "^/v1/quotes/[^/]+/result$"
+          "title": "Resource Path",
+          "type": "string"
         },
         "limitations": {
-          "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "title": "Limitations",
+          "type": "array"
         },
         "is_synthetic": {
+          "title": "Is Synthetic",
           "type": "boolean"
         }
       },
       "required": [
-        "schema_version",
         "quote_id",
         "query",
         "company",
@@ -521,54 +528,74 @@
         "limitations",
         "is_synthetic"
       ],
-      "additionalProperties": false
+      "title": "Quote",
+      "type": "object"
     },
     "Receipt": {
-      "type": "object",
+      "additionalProperties": false,
       "properties": {
         "quote_id": {
+          "title": "Quote Id",
           "type": "string"
         },
         "mode": {
-          "enum": ["off", "mock", "testnet"]
+          "enum": ["off", "mock", "testnet", "mainnet"],
+          "title": "Mode",
+          "type": "string"
         },
         "simulated": {
+          "title": "Simulated",
           "type": "boolean"
         },
         "status": {
-          "enum": ["NOT_REQUIRED", "SETTLED"]
+          "enum": ["NOT_REQUIRED", "SETTLED"],
+          "title": "Status",
+          "type": "string"
         },
         "network": {
+          "title": "Network",
           "type": "string"
         },
         "asset": {
+          "title": "Asset",
           "type": "string"
         },
         "amount_atomic": {
-          "type": "string",
-          "pattern": "^(0|[1-9][0-9]*)$"
+          "maxLength": 40,
+          "pattern": "^(0|[1-9][0-9]*)$",
+          "title": "Amount Atomic",
+          "type": "string"
         },
         "transaction": {
-          "type": ["string", "null"]
-        },
-        "settled_at": {
           "anyOf": [
             {
-              "type": "string",
-              "format": "date-time"
+              "type": "string"
             },
             {
               "type": "null"
             }
-          ]
+          ],
+          "title": "Transaction"
+        },
+        "settled_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Settled At"
         },
         "result_sha256": {
-          "type": "string",
-          "pattern": "^[0-9a-f]{64}$"
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Result Sha256",
+          "type": "string"
         },
         "retained_until": {
-          "type": "string",
-          "format": "date-time"
+          "title": "Retained Until",
+          "type": "string"
         }
       },
       "required": [
@@ -584,10 +611,11 @@
         "result_sha256",
         "retained_until"
       ],
-      "additionalProperties": false
+      "title": "Receipt",
+      "type": "object"
     },
     "PurchaseResult": {
-      "type": "object",
+      "additionalProperties": false,
       "properties": {
         "data": {
           "$ref": "#/$defs/FinancialResult"
@@ -597,7 +625,8 @@
         }
       },
       "required": ["data", "receipt"],
-      "additionalProperties": false
+      "title": "PurchaseResult",
+      "type": "object"
     },
     "Error": {
       "additionalProperties": false,
@@ -1011,6 +1040,26 @@
         "checked_at"
       ],
       "title": "PurchasePreflight",
+      "type": "object"
+    },
+    "Missing": {
+      "additionalProperties": false,
+      "properties": {
+        "metric": {
+          "title": "Metric",
+          "type": "string"
+        },
+        "period_end": {
+          "title": "Period End",
+          "type": "string"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": ["metric", "period_end", "reason"],
+      "title": "Missing",
       "type": "object"
     }
   }
