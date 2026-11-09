@@ -3,6 +3,7 @@
 import logging
 
 PRIVATE_LIBRARIES = (
+    "cdp",
     "x402",
     "mcp",
     "httpx",

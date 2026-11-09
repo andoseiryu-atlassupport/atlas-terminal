@@ -8,7 +8,8 @@ from typing import Any, Literal
 from pydantic import Field, ValidationError
 
 from atlas_terminal.errors import AtlasError
-from atlas_terminal.models import Atomic, BudgetStatus, BudgetWindow, Model, Quote
+from atlas_terminal.models import Atomic, BudgetStatus, BudgetWindow, Model
+from atlas_terminal.payments.common import PaymentQuote as Quote
 from atlas_terminal.payments.common import fingerprint, origin, validate_testnet
 from atlas_terminal.util import Database, stamp, utcnow
 

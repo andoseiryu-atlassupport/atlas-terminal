@@ -6,6 +6,6 @@ Public-source data and third-party dependencies retain their own licenses and ac
 
 Current/revised snapshots are not point-in-time historical data. Observations may be delayed, missing, revised, partial or unavailable. Reference FX is not an executable currency quote, and research results are not personalized investment advice or trading instructions. Verify the original source and coverage before relying on a result.
 
-Fixture observations are explicitly fictional. Mock payments are simulated, actual payment support is testnet-only and mainnet is rejected. The research-only remote MCP service exposes no payment tools.
+Fixture observations are explicitly fictional. Mock payments are simulated. The annual API and local signer remain testnet-only. The separately configured [BLS seller API](seller.md) can receive Base mainnet USDC; actual mainnet settlement remains unverified. The seller's fee covers normalization and delivery of a prepared snapshot, while original BLS data is freely available. The research-only remote MCP service exposes no payment tools.
 
 No official public remote Atlas service is currently operated. A self-hosting operator is responsible for their infrastructure, access control, applicable data conditions and deployment-specific terms. These software documentation pages do not constitute a hosted-service contract or establish third-party approval, listing, search inclusion or citation.

@@ -3453,7 +3453,7 @@
         "properties": {
           "mode": {
             "type": "string",
-            "enum": ["off", "mock", "testnet"],
+            "enum": ["off", "mock", "testnet", "mainnet"],
             "title": "Mode"
           },
           "scheme": {
@@ -3757,7 +3757,7 @@
           },
           "mode": {
             "type": "string",
-            "enum": ["off", "mock", "testnet"],
+            "enum": ["off", "mock", "testnet", "mainnet"],
             "title": "Mode"
           },
           "simulated": {

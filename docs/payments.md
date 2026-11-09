@@ -1,5 +1,7 @@
 # Payments and recovery
 
+This page describes the annual-snapshot API and its local wallet. The separately selected [BLS seller API](seller.md) reuses the order/recovery engine and adds an external-wallet Base mainnet receiving adapter. It does not enable mainnet in the annual API or local signer.
+
 ## Modes
 
 - `off`: Zero price, no wallet and no x402 calls. A recovery capability retrieves the same quoted result.

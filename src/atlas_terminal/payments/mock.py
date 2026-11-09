@@ -4,7 +4,7 @@ import json
 from uuid import uuid4
 
 from atlas_terminal.errors import AtlasError
-from atlas_terminal.models import Quote
+from atlas_terminal.payments.common import PaymentQuote as Quote
 from atlas_terminal.payments.common import Settlement, VerifiedPayment, fingerprint
 from atlas_terminal.util import canonical, digest
 

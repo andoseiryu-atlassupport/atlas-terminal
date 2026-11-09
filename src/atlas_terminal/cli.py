@@ -18,6 +18,7 @@ from atlas_terminal.research_batch import MAX_BATCH_REQUEST_BYTES
 from atlas_terminal.research_models import Dataset
 from atlas_terminal.risk_markets import EquityMarket
 from atlas_terminal.risk_models import MAX_RISK_BYTES, RiskMethod
+from atlas_terminal.seller_cli import seller_app
 
 app = typer.Typer(no_args_is_help=True, add_completion=False, pretty_exceptions_enable=False)
 company_app, financials_app, filings_app, quote_app, mcp_app = (typer.Typer() for _ in range(5))
@@ -30,6 +31,7 @@ research_app = typer.Typer(no_args_is_help=True)
 app.add_typer(research_app, name="research")
 risk_app = typer.Typer(no_args_is_help=True)
 app.add_typer(risk_app, name="risk")
+app.add_typer(seller_app, name="seller")
 
 
 def output(value: Any, *, err: bool = False) -> None:
@@ -1130,7 +1132,7 @@ def serve(
 
 
 def main() -> None:
-    mcp_startup = sys.argv[1:3] == ["mcp", "serve"]
+    mcp_startup = sys.argv[1:3] in (["mcp", "serve"], ["seller", "mcp"])
     try:
         app(standalone_mode=False)
     except AtlasError as exc:

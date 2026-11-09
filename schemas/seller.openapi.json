@@ -1,0 +1,2530 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Atlas Terminal BLS seller API",
+    "version": "seller-1.0"
+  },
+  "paths": {
+    "/healthz": {
+      "get": {
+        "summary": "Health",
+        "operationId": "health_healthz_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Health Healthz Get"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Gone",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request Entity Too Large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/seller/catalog": {
+      "get": {
+        "summary": "Catalog",
+        "operationId": "catalog_v1_seller_catalog_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Catalog V1 Seller Catalog Get"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Gone",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request Entity Too Large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/seller/quotes": {
+      "post": {
+        "summary": "Quote",
+        "operationId": "quote_v1_seller_quotes_post",
+        "parameters": [
+          {
+            "name": "Atlas-Intent-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Atlas-Intent-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductQuery"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductQuote"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Gone"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Request Entity Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/v1/seller/quotes/{quote_id}/preflight": {
+      "get": {
+        "summary": "Preflight",
+        "operationId": "preflight_v1_seller_quotes__quote_id__preflight_get",
+        "parameters": [
+          {
+            "name": "quote_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{32}$",
+              "title": "Quote Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchasePreflight"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Gone"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Request Entity Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/v1/seller/quotes/{quote_id}/status": {
+      "get": {
+        "summary": "Status",
+        "operationId": "status_v1_seller_quotes__quote_id__status_get",
+        "parameters": [
+          {
+            "name": "quote_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{32}$",
+              "title": "Quote Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Status V1 Seller Quotes  Quote Id  Status Get"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Gone"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Request Entity Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/v1/seller/quotes/{quote_id}/reconcile": {
+      "post": {
+        "summary": "Reconcile",
+        "operationId": "reconcile_v1_seller_quotes__quote_id__reconcile_post",
+        "parameters": [
+          {
+            "name": "quote_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{32}$",
+              "title": "Quote Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReconcileRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReconciliationResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Gone"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Request Entity Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/v1/seller/quotes/{quote_id}/result": {
+      "get": {
+        "summary": "Result",
+        "operationId": "result_v1_seller_quotes__quote_id__result_get",
+        "parameters": [
+          {
+            "name": "quote_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{32}$",
+              "title": "Quote Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductPurchase"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Gone"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Request Entity Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "202": {
+            "description": "Settlement unknown; do not sign again"
+          },
+          "402": {
+            "description": "x402 payment terms, or fictional mock challenge"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BudgetStatus": {
+        "properties": {
+          "scope": {
+            "type": "string",
+            "const": "local_wallet",
+            "title": "Scope",
+            "default": "local_wallet"
+          },
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled"
+          },
+          "mode": {
+            "type": "string",
+            "enum": ["mock", "testnet"],
+            "title": "Mode"
+          },
+          "network": {
+            "type": "string",
+            "title": "Network"
+          },
+          "asset": {
+            "type": "string",
+            "title": "Asset"
+          },
+          "decimals": {
+            "type": "integer",
+            "const": 6,
+            "title": "Decimals",
+            "default": 6
+          },
+          "per_purchase_atomic": {
+            "type": "string",
+            "maxLength": 40,
+            "pattern": "^(0|[1-9][0-9]*)$",
+            "title": "Per Purchase Atomic"
+          },
+          "session": {
+            "$ref": "#/components/schemas/BudgetWindow"
+          },
+          "day": {
+            "$ref": "#/components/schemas/BudgetWindow"
+          },
+          "utc_day": {
+            "type": "string",
+            "title": "Utc Day"
+          },
+          "checked_at": {
+            "type": "string",
+            "title": "Checked At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "enabled",
+          "mode",
+          "network",
+          "asset",
+          "per_purchase_atomic",
+          "session",
+          "day",
+          "utc_day",
+          "checked_at"
+        ],
+        "title": "BudgetStatus"
+      },
+      "BudgetWindow": {
+        "properties": {
+          "limit_atomic": {
+            "type": "string",
+            "maxLength": 40,
+            "pattern": "^(0|[1-9][0-9]*)$",
+            "title": "Limit Atomic"
+          },
+          "spent_atomic": {
+            "type": "string",
+            "maxLength": 40,
+            "pattern": "^(0|[1-9][0-9]*)$",
+            "title": "Spent Atomic"
+          },
+          "reserved_atomic": {
+            "type": "string",
+            "maxLength": 40,
+            "pattern": "^(0|[1-9][0-9]*)$",
+            "title": "Reserved Atomic"
+          },
+          "remaining_atomic": {
+            "type": "string",
+            "maxLength": 40,
+            "pattern": "^(0|[1-9][0-9]*)$",
+            "title": "Remaining Atomic"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "limit_atomic",
+          "spent_atomic",
+          "reserved_atomic",
+          "remaining_atomic"
+        ],
+        "title": "BudgetWindow"
+      },
+      "ErrorEnvelope": {
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ErrorPayload"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["error"],
+        "title": "ErrorEnvelope"
+      },
+      "ErrorPayload": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "retryable": {
+            "type": "boolean",
+            "title": "Retryable"
+          },
+          "details": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Details"
+          },
+          "request_id": {
+            "type": "string",
+            "title": "Request Id"
+          },
+          "next_action": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/NextAction"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "retry_after_seconds": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 86400.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retry After Seconds"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["code", "message", "retryable", "details", "request_id"],
+        "title": "ErrorPayload"
+      },
+      "EvidenceReference": {
+        "properties": {
+          "evidence_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Evidence Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["evidence_id"],
+        "title": "EvidenceReference"
+      },
+      "NextAction": {
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "fix_query",
+              "inspect_catalog",
+              "resolve_company",
+              "review_coverage",
+              "review_requirements",
+              "retry_read",
+              "request_quote",
+              "wait",
+              "check_purchase_status",
+              "contact_operator",
+              "restart_query",
+              "stop"
+            ],
+            "title": "Action"
+          },
+          "tool": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tool"
+          },
+          "fields": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Fields"
+          },
+          "automatic": {
+            "type": "boolean",
+            "title": "Automatic",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["action"],
+        "title": "NextAction"
+      },
+      "Pricing": {
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": ["off", "mock", "testnet", "mainnet"],
+            "title": "Mode"
+          },
+          "scheme": {
+            "type": "string",
+            "enum": ["none", "exact"],
+            "title": "Scheme"
+          },
+          "network": {
+            "type": "string",
+            "title": "Network"
+          },
+          "asset": {
+            "type": "string",
+            "title": "Asset"
+          },
+          "pay_to": {
+            "type": "string",
+            "title": "Pay To"
+          },
+          "symbol": {
+            "type": "string",
+            "title": "Symbol"
+          },
+          "decimals": {
+            "type": "integer",
+            "maximum": 18.0,
+            "minimum": 0.0,
+            "title": "Decimals"
+          },
+          "amount_atomic": {
+            "type": "string",
+            "maxLength": 40,
+            "pattern": "^(0|[1-9][0-9]*)$",
+            "title": "Amount Atomic"
+          },
+          "display_amount": {
+            "type": "string",
+            "title": "Display Amount"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "mode",
+          "scheme",
+          "network",
+          "asset",
+          "pay_to",
+          "symbol",
+          "decimals",
+          "amount_atomic",
+          "display_amount"
+        ],
+        "title": "Pricing"
+      },
+      "ProductData": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "seller-1.0",
+            "title": "Schema Version",
+            "default": "seller-1.0"
+          },
+          "product_id": {
+            "type": "string",
+            "const": "bls-series-v1",
+            "title": "Product Id",
+            "default": "bls-series-v1"
+          },
+          "query": {
+            "$ref": "#/components/schemas/ProductQuery"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "captured_at": {
+            "type": "string",
+            "title": "Captured At"
+          },
+          "prepared_at": {
+            "type": "string",
+            "title": "Prepared At"
+          },
+          "source_access": {
+            "type": "string",
+            "enum": [
+              "source_response",
+              "retained_capture",
+              "fictional_fixture"
+            ],
+            "title": "Source Access"
+          },
+          "is_synthetic": {
+            "type": "boolean",
+            "title": "Is Synthetic"
+          },
+          "attribution": {
+            "type": "string",
+            "title": "Attribution",
+            "default": "Source: U.S. Bureau of Labor Statistics. Normalized by Atlas Terminal."
+          },
+          "source_terms_url": {
+            "type": "string",
+            "title": "Source Terms Url",
+            "default": "https://www.bls.gov/bls/linksite.htm"
+          },
+          "research": {
+            "$ref": "#/components/schemas/ResearchResult"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "query",
+          "title",
+          "captured_at",
+          "prepared_at",
+          "source_access",
+          "is_synthetic",
+          "research",
+          "limitations"
+        ],
+        "title": "ProductData"
+      },
+      "ProductPurchase": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ProductData"
+          },
+          "receipt": {
+            "$ref": "#/components/schemas/Receipt"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["data", "receipt"],
+        "title": "ProductPurchase"
+      },
+      "ProductQuery": {
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "const": "bls-series-v1",
+            "title": "Product Id",
+            "default": "bls-series-v1"
+          },
+          "series": {
+            "type": "string",
+            "maxLength": 40,
+            "minLength": 1,
+            "title": "Series"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["series"],
+        "title": "ProductQuery"
+      },
+      "ProductQuote": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "seller-1.0",
+            "title": "Schema Version",
+            "default": "seller-1.0"
+          },
+          "quote_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{32}$",
+            "title": "Quote Id"
+          },
+          "query": {
+            "$ref": "#/components/schemas/ProductQuery"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "snapshot_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Snapshot Id"
+          },
+          "result_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Result Sha256"
+          },
+          "record_count": {
+            "type": "integer",
+            "maximum": 130.0,
+            "minimum": 1.0,
+            "title": "Record Count"
+          },
+          "selection": {
+            "$ref": "#/components/schemas/ProductSelection"
+          },
+          "captured_at": {
+            "type": "string",
+            "title": "Captured At"
+          },
+          "source_access": {
+            "type": "string",
+            "enum": [
+              "source_response",
+              "retained_capture",
+              "fictional_fixture"
+            ],
+            "title": "Source Access"
+          },
+          "pricing": {
+            "$ref": "#/components/schemas/Pricing"
+          },
+          "expires_at": {
+            "type": "string",
+            "title": "Expires At"
+          },
+          "resource_path": {
+            "type": "string",
+            "title": "Resource Path"
+          },
+          "is_synthetic": {
+            "type": "boolean",
+            "title": "Is Synthetic"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "quote_id",
+          "query",
+          "title",
+          "snapshot_id",
+          "result_sha256",
+          "record_count",
+          "selection",
+          "captured_at",
+          "source_access",
+          "pricing",
+          "expires_at",
+          "resource_path",
+          "is_synthetic",
+          "limitations"
+        ],
+        "title": "ProductQuote"
+      },
+      "ProductSelection": {
+        "properties": {
+          "source_query": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Source Query"
+          },
+          "first_observation_date": {
+            "type": "string",
+            "title": "First Observation Date"
+          },
+          "last_observation_date": {
+            "type": "string",
+            "title": "Last Observation Date"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit"
+          },
+          "seasonally_adjusted": {
+            "type": "boolean",
+            "title": "Seasonally Adjusted"
+          },
+          "period_kinds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Period Kinds"
+          },
+          "reported_records": {
+            "type": "integer",
+            "maximum": 130.0,
+            "minimum": 1.0,
+            "title": "Reported Records"
+          },
+          "missing_records": {
+            "type": "integer",
+            "maximum": 130.0,
+            "minimum": 0.0,
+            "title": "Missing Records"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "source_query",
+          "first_observation_date",
+          "last_observation_date",
+          "unit",
+          "seasonally_adjusted",
+          "period_kinds",
+          "reported_records",
+          "missing_records"
+        ],
+        "title": "ProductSelection",
+        "description": "Disclose the selected observations before delivering their values."
+      },
+      "PurchasePreflight": {
+        "properties": {
+          "scope": {
+            "type": "string",
+            "enum": ["order", "local_wallet"],
+            "title": "Scope"
+          },
+          "advisory": {
+            "type": "boolean",
+            "const": true,
+            "title": "Advisory",
+            "default": true
+          },
+          "quote_id": {
+            "type": "string",
+            "title": "Quote Id"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "QUOTED",
+              "EXPIRED",
+              "SETTLED",
+              "NOT_REQUIRED",
+              "FAILED",
+              "SETTLEMENT_UNKNOWN"
+            ],
+            "title": "State"
+          },
+          "decision": {
+            "type": "string",
+            "enum": ["ready", "recover", "wait", "blocked"],
+            "title": "Decision"
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "READY",
+              "PAYMENT_NOT_REQUIRED",
+              "ALREADY_SETTLED",
+              "RESULT_EXPIRED",
+              "QUOTE_EXPIRED",
+              "PAYMENT_FAILED",
+              "SETTLEMENT_UNKNOWN",
+              "PURCHASE_ALREADY_STARTED",
+              "PAYMENTS_DISABLED",
+              "POLICY_DENIED",
+              "WALLET_NOT_CONFIGURED",
+              "BUDGET_EXCEEDED"
+            ],
+            "title": "Code"
+          },
+          "pricing": {
+            "$ref": "#/components/schemas/Pricing"
+          },
+          "result_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Result Sha256"
+          },
+          "expires_at": {
+            "type": "string",
+            "title": "Expires At"
+          },
+          "retained_until": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retained Until"
+          },
+          "checked_at": {
+            "type": "string",
+            "title": "Checked At"
+          },
+          "budget": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BudgetStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "scope",
+          "quote_id",
+          "state",
+          "decision",
+          "code",
+          "pricing",
+          "result_sha256",
+          "expires_at",
+          "checked_at"
+        ],
+        "title": "PurchasePreflight",
+        "description": "Advisory only: no reservation, wallet access or payment authorization."
+      },
+      "QualityCheck": {
+        "properties": {
+          "requirement": {
+            "type": "string",
+            "enum": [
+              "max_source_age_seconds",
+              "min_observation_date",
+              "allow_missing",
+              "allow_derived",
+              "allow_truncated"
+            ],
+            "title": "Requirement"
+          },
+          "passed": {
+            "type": "boolean",
+            "title": "Passed"
+          },
+          "required": {
+            "title": "Required"
+          },
+          "actual": {
+            "title": "Actual"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["requirement", "passed", "required", "actual"],
+        "title": "QualityCheck"
+      },
+      "Receipt": {
+        "properties": {
+          "quote_id": {
+            "type": "string",
+            "title": "Quote Id"
+          },
+          "mode": {
+            "type": "string",
+            "enum": ["off", "mock", "testnet", "mainnet"],
+            "title": "Mode"
+          },
+          "simulated": {
+            "type": "boolean",
+            "title": "Simulated"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["NOT_REQUIRED", "SETTLED"],
+            "title": "Status"
+          },
+          "network": {
+            "type": "string",
+            "title": "Network"
+          },
+          "asset": {
+            "type": "string",
+            "title": "Asset"
+          },
+          "amount_atomic": {
+            "type": "string",
+            "maxLength": 40,
+            "pattern": "^(0|[1-9][0-9]*)$",
+            "title": "Amount Atomic"
+          },
+          "transaction": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transaction"
+          },
+          "settled_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Settled At"
+          },
+          "result_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Result Sha256"
+          },
+          "retained_until": {
+            "type": "string",
+            "title": "Retained Until"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "quote_id",
+          "mode",
+          "simulated",
+          "status",
+          "network",
+          "asset",
+          "amount_atomic",
+          "transaction",
+          "settled_at",
+          "result_sha256",
+          "retained_until"
+        ],
+        "title": "Receipt"
+      },
+      "ReconcileRequest": {
+        "properties": {
+          "transaction": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^0x[0-9a-fA-F]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transaction"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ReconcileRequest"
+      },
+      "ReconciliationResult": {
+        "properties": {
+          "quote_id": {
+            "type": "string",
+            "title": "Quote Id"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "QUOTED",
+              "EXPIRED",
+              "SETTLED",
+              "NOT_REQUIRED",
+              "FAILED",
+              "SETTLEMENT_UNKNOWN"
+            ],
+            "title": "State"
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "settled",
+              "failed",
+              "pending",
+              "not_started",
+              "not_required"
+            ],
+            "title": "Outcome"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "checked_at": {
+            "type": "string",
+            "title": "Checked At"
+          },
+          "evidence_sha256": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence Sha256"
+          },
+          "receipt": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Receipt"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["quote_id", "state", "outcome", "reason", "checked_at"],
+        "title": "ReconciliationResult"
+      },
+      "ResearchQuality": {
+        "properties": {
+          "evaluated_at": {
+            "type": "string",
+            "title": "Evaluated At"
+          },
+          "scope": {
+            "type": "string",
+            "const": "complete_selected_result",
+            "title": "Scope",
+            "default": "complete_selected_result"
+          },
+          "oldest_source_retrieved_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Oldest Source Retrieved At"
+          },
+          "newest_source_retrieved_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Newest Source Retrieved At"
+          },
+          "max_source_age_seconds": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Source Age Seconds"
+          },
+          "latest_observation_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latest Observation Date"
+          },
+          "missing_value_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Missing Value Count"
+          },
+          "derived_record_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Derived Record Count"
+          },
+          "partial_coverage": {
+            "type": "boolean",
+            "title": "Partial Coverage"
+          },
+          "truncated": {
+            "type": "boolean",
+            "title": "Truncated"
+          },
+          "meets_requirements": {
+            "type": "boolean",
+            "title": "Meets Requirements"
+          },
+          "checks": {
+            "items": {
+              "$ref": "#/components/schemas/QualityCheck"
+            },
+            "type": "array",
+            "title": "Checks"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "evaluated_at",
+          "oldest_source_retrieved_at",
+          "newest_source_retrieved_at",
+          "max_source_age_seconds",
+          "latest_observation_date",
+          "missing_value_count",
+          "derived_record_count",
+          "partial_coverage",
+          "truncated",
+          "meets_requirements",
+          "checks"
+        ],
+        "title": "ResearchQuality"
+      },
+      "ResearchResult": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "title": "Schema Version"
+          },
+          "dataset": {
+            "type": "string",
+            "enum": [
+              "prediction_markets",
+              "buffett_score",
+              "order_book",
+              "analyst_reports",
+              "analyst_report_text",
+              "news_feed",
+              "news_digest",
+              "interest_spreads",
+              "country_economics",
+              "country_bond_yields",
+              "commodity_prices",
+              "futures_prices",
+              "futures_curve",
+              "credit_ratings",
+              "trailing_financials",
+              "filing_documents",
+              "filing_facts",
+              "segment_financials",
+              "filing_sections",
+              "filing_tables",
+              "policy_rates",
+              "companies",
+              "profile",
+              "statements",
+              "ratios",
+              "financial_analytics",
+              "company_facts",
+              "filings",
+              "insider_transactions",
+              "institutional_holdings",
+              "ownership_filings",
+              "fund_filings",
+              "corporate_action_filings",
+              "economics",
+              "treasury_yields",
+              "federal_debt",
+              "policy_news",
+              "compare",
+              "fx_rates",
+              "reference_rates",
+              "treasury_real_yields",
+              "jgb_yields",
+              "euro_area_yields",
+              "australia_yields",
+              "macro_analytics",
+              "national_accounts",
+              "japan_economics",
+              "europe_economics",
+              "uk_economics",
+              "activity_economics",
+              "global_economics",
+              "sdmx_catalog",
+              "international_economics",
+              "macro_panel",
+              "equity_prices",
+              "intraday_prices",
+              "equity_actions",
+              "japan_disclosures",
+              "japan_filing_facts",
+              "japan_securities",
+              "margin_balances",
+              "source_history",
+              "price_analytics",
+              "price_comparison",
+              "company_screen",
+              "filing_events",
+              "fund_holdings",
+              "fred_series"
+            ],
+            "title": "Dataset"
+          },
+          "query": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Query"
+          },
+          "source_id": {
+            "type": "string",
+            "title": "Source Id"
+          },
+          "source_terms_url": {
+            "type": "string",
+            "title": "Source Terms Url"
+          },
+          "documentation": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Documentation"
+          },
+          "upstream_data_cost": {
+            "type": "string",
+            "const": "0",
+            "title": "Upstream Data Cost"
+          },
+          "is_synthetic": {
+            "type": "boolean",
+            "title": "Is Synthetic"
+          },
+          "source_text_is_untrusted": {
+            "type": "boolean",
+            "const": true,
+            "title": "Source Text Is Untrusted"
+          },
+          "retrieved_at": {
+            "type": "string",
+            "title": "Retrieved At"
+          },
+          "records": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Records"
+          },
+          "sources": {
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/SourceEvidence"
+                },
+                {
+                  "$ref": "#/components/schemas/EvidenceReference"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Sources"
+          },
+          "coverage": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Coverage"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations"
+          },
+          "response": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ResponseMetadata"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "quality": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ResearchQuality"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "schema_version",
+          "dataset",
+          "query",
+          "source_id",
+          "source_terms_url",
+          "upstream_data_cost",
+          "is_synthetic",
+          "source_text_is_untrusted",
+          "retrieved_at",
+          "records",
+          "sources",
+          "coverage",
+          "limitations"
+        ],
+        "title": "ResearchResult",
+        "description": "Common envelope; dataset-specific records and metadata remain extensible."
+      },
+      "ResponseMetadata": {
+        "properties": {
+          "view": {
+            "type": "string",
+            "enum": ["full", "compact"],
+            "title": "View"
+          },
+          "fields": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Fields"
+          },
+          "snapshot_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Snapshot Id"
+          },
+          "result_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Result Sha256"
+          },
+          "expires_at": {
+            "type": "string",
+            "title": "Expires At"
+          },
+          "total_records": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total Records"
+          },
+          "returned_records": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Returned Records"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Offset"
+          },
+          "page_size": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page Size"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "evidence_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Evidence Count"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "view",
+          "fields",
+          "snapshot_id",
+          "result_sha256",
+          "expires_at",
+          "total_records",
+          "returned_records",
+          "offset",
+          "page_size",
+          "next_cursor",
+          "evidence_count"
+        ],
+        "title": "ResponseMetadata"
+      },
+      "SourceEvidence": {
+        "anyOf": [
+          {
+            "properties": {
+              "pdf_page": {
+                "type": "integer",
+                "minimum": 1.0
+              }
+            },
+            "required": ["pdf_page"]
+          },
+          {
+            "required": ["worksheet", "cell_row", "cell_column"]
+          },
+          {
+            "properties": {
+              "json_pointer": {
+                "type": "string"
+              }
+            },
+            "required": ["json_pointer"]
+          },
+          {
+            "properties": {
+              "xml_local_path": {
+                "type": "string"
+              }
+            },
+            "required": ["xml_local_path"]
+          },
+          {
+            "properties": {
+              "csv_row": {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              "csv_column": {
+                "type": "integer",
+                "minimum": 1.0
+              }
+            },
+            "required": ["csv_row", "csv_column"]
+          },
+          {
+            "properties": {
+              "text_line": {
+                "type": "integer",
+                "minimum": 1.0
+              }
+            },
+            "required": ["text_line"]
+          }
+        ],
+        "properties": {
+          "worksheet": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Worksheet"
+          },
+          "pdf_page": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 160.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pdf Page"
+          },
+          "cell_row": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cell Row"
+          },
+          "cell_column": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cell Column"
+          },
+          "raw_source_url": {
+            "type": "string",
+            "format": "uri",
+            "title": "Raw Source Url"
+          },
+          "raw_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Raw Sha256"
+          },
+          "retrieved_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Retrieved At"
+          },
+          "json_pointer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Json Pointer"
+          },
+          "xml_local_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Xml Local Path"
+          },
+          "csv_row": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Csv Row"
+          },
+          "csv_column": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Csv Column"
+          },
+          "text_line": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text Line"
+          },
+          "text_column_start": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text Column Start"
+          },
+          "text_column_end": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text Column End"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": ["raw_source_url", "raw_sha256", "retrieved_at"],
+        "title": "SourceEvidence"
+      }
+    }
+  }
+}

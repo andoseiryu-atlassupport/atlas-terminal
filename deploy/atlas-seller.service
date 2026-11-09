@@ -1,0 +1,36 @@
+[Unit]
+Description=Atlas Terminal isolated BLS seller API
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+DynamicUser=yes
+User=atlas-seller
+StateDirectory=atlas-seller
+StateDirectoryMode=0700
+WorkingDirectory=/var/lib/atlas-seller
+Environment=ATLAS_STATE_DIR=/var/lib/atlas-seller
+Environment=ATLAS_PUBLIC_ORIGIN=__ORIGIN__
+Environment=WEB_CONCURRENCY=1
+Environment=UVICORN_WORKERS=1
+EnvironmentFile=/etc/atlas-terminal/seller.env
+ExecStart=/opt/atlas-terminal/.venv/bin/atlas seller serve --host 127.0.0.1 --port 8002
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=60
+UMask=0077
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+
+[Install]
+WantedBy=multi-user.target

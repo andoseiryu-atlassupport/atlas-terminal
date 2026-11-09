@@ -12,8 +12,8 @@ from x402.http.utils import encode_payment_response_header
 from x402.schemas import SettleResponse
 
 from atlas_terminal.errors import AtlasError
-from atlas_terminal.models import Quote
 from atlas_terminal.payments.common import ASSET, NETWORK, origin, validate_testnet
+from atlas_terminal.payments.common import PaymentQuote as Quote
 from atlas_terminal.security import private_library_logs
 
 TRANSFER = "0x" + keccak(text="Transfer(address,address,uint256)").hex()
@@ -43,7 +43,7 @@ def settlement_header(quote: Quote, payer: str, transaction: str) -> str:
     return encode_payment_response_header(
         SettleResponse(
             success=True,
-            network=NETWORK,
+            network=quote.pricing.network,
             payer=payer,
             transaction=transaction,
             amount=quote.pricing.amount_atomic,
@@ -73,6 +73,14 @@ def address_topic(address: str) -> str:
 
 class BaseSepoliaReconciler:
     """Use one trusted RPC and a bounded nonce-log scan, with optional transaction hint."""
+
+    network = NETWORK
+    asset = ASSET
+    chain_id = 84532
+    mode = "testnet"
+
+    def validate_quote(self, quote: Quote) -> None:
+        validate_testnet(quote.pricing.network, quote.pricing.asset, quote.pricing.pay_to)
 
     def __init__(
         self, rpc_url: str, *, client: httpx.Client | None = None, scan_blocks: int = 10000
@@ -119,9 +127,11 @@ class BaseSepoliaReconciler:
     def check(
         self, quote: Quote, attempt: dict[str, Any], transaction: str | None = None
     ) -> SettlementEvidence:
-        validate_testnet(quote.pricing.network, quote.pricing.asset, quote.pricing.pay_to)
-        if quote.pricing.mode != "testnet" or quote.pricing.scheme != "exact":
-            raise AtlasError("CONFIG_REQUIRED", "Reconciliation requires exact Base Sepolia USDC.")
+        self.validate_quote(quote)
+        if quote.pricing.mode != self.mode or quote.pricing.scheme != "exact":
+            raise AtlasError(
+                "CONFIG_REQUIRED", "Reconciliation requires the configured exact USDC network."
+            )
         if transaction is not None and not HASH.fullmatch(transaction):
             raise AtlasError("INVALID_INPUT", "Transaction must be an EVM transaction hash.")
         try:
@@ -143,8 +153,10 @@ class BaseSepoliaReconciler:
     def _check(
         self, quote: Quote, attempt: dict[str, Any], transaction: str | None
     ) -> SettlementEvidence:
-        if quantity(self.rpc("eth_chainId", [])) != 84532:
-            return SettlementEvidence("SETTLEMENT_UNKNOWN", "RPC did not confirm Base Sepolia.")
+        if quantity(self.rpc("eth_chainId", [])) != self.chain_id:
+            return SettlementEvidence(
+                "SETTLEMENT_UNKNOWN", "RPC did not confirm the configured chain."
+            )
         number, block_hash, timestamp = block_fields(
             self.rpc("eth_getBlockByNumber", ["finalized", False])
         )
@@ -157,7 +169,7 @@ class BaseSepoliaReconciler:
         used = self.rpc(
             "eth_call",
             [
-                {"to": ASSET, "data": calldata},
+                {"to": self.asset, "data": calldata},
                 {"blockHash": block_hash, "requireCanonical": True},
             ],
         )
@@ -165,7 +177,7 @@ class BaseSepoliaReconciler:
             raise ValueError("Invalid authorizationState result")
         used = used.endswith("1")
         details = {
-            "network": NETWORK,
+            "network": self.network,
             "finalized_block": number,
             "finalized_block_hash": block_hash,
             "finalized_timestamp": timestamp,
@@ -177,7 +189,7 @@ class BaseSepoliaReconciler:
                 "eth_getLogs",
                 [
                     {
-                        "address": ASSET,
+                        "address": self.asset,
                         "fromBlock": hex(max(0, number - self.scan_blocks + 1)),
                         "toBlock": hex(number),
                         "topics": [AUTHORIZATION_USED, payer_topic, nonce],
@@ -189,7 +201,7 @@ class BaseSepoliaReconciler:
             if logs:
                 log = logs[0]
                 if (
-                    log.get("address", "").lower() != ASSET.lower()
+                    log.get("address", "").lower() != self.asset.lower()
                     or [v.lower() for v in log.get("topics", [])]
                     != [AUTHORIZATION_USED, payer_topic, nonce.lower()]
                     or log.get("removed") is not False
@@ -268,7 +280,7 @@ class BaseSepoliaReconciler:
         for log in logs:
             if not isinstance(log, dict):
                 raise ValueError("Invalid receipt log")
-            if log.get("address", "").lower() != ASSET.lower():
+            if log.get("address", "").lower() != self.asset.lower():
                 continue
             topics = [v.lower() for v in log.get("topics", [])]
             if (

@@ -12,7 +12,7 @@ Read `README.md`, `docs/project-brief.md`, `CONTRIBUTING.md` and `IMPLEMENTATION
 
 ## Payments and secrets
 
-- Default off. Mock is fictional and offline. Actual integration is official x402 V2 exact/EIP-3009 on Base Sepolia USDC only. Reject mainnet even if environment variables change.
+- Default off. Mock is fictional and offline. The annual reference API and local wallet signer remain Base Sepolia-only. The separately selected BLS seller API can receive exact/EIP-3009 Base mainnet USDC through the official x402 SDK, explicit recipient/CDP/RPC configuration and an external payer wallet. Never enable mainnet in the annual API or local signer by changing environment variables.
 - Policy checks and durable budget reservations precede signing. Tools cannot alter policy, wallet, recipient or origin. Signing consumes a reservation atomically once.
 - Persist a settlement claim before calling the facilitator. Unknown/crashed attempts remain pending; never re-sign or settle again speculatively. Do not invent a facilitator status API.
 - Quote ID is not authorization. Keep recovery capabilities, private keys, signatures, contact settings and purchase databases out of output, logs and source control.

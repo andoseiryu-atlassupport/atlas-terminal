@@ -37,7 +37,7 @@ Python 3.12+, uv, Pydantic, httpx, Typer, FastAPI, the official MCP SDK and SQLi
 
 Research-only stdio and operator-hosted Streamable HTTP share the research contracts. Remote use requires explicit authentication/access configuration and operator-managed HTTPS with persistent private state. No official public remote endpoint or public ChatGPT plugin is operated. PyPI publication and an MCP Registry listing remain external publication steps.
 
-The separate annual-snapshot API supports optional x402 V2 quote/purchase/recovery with payments off by default. Mock payments are fictional; testnet is restricted to Base Sepolia USDC. Mainnet and production custody are unsupported, and ordinary research queries never purchase or sign.
+The separate annual-snapshot API supports optional x402 V2 quote/purchase/recovery with payments off by default. Its local signer and annual endpoint remain restricted to Base Sepolia USDC. The isolated [BLS seller](seller.md) adds a prepared-series product with private publication, immutable purchased results and an optional Base mainnet receiving adapter. The seller requires explicit CDP/recipient/RPC configuration and an external payer wallet. It does not expose free research or upstream refresh routes. Mainnet settlement and public seller hosting remain unverified; production custody is unsupported. Ordinary research queries never purchase or sign.
 
 ## Scope
 

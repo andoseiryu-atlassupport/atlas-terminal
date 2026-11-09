@@ -7,7 +7,7 @@ from tempfile import TemporaryDirectory
 from pydantic import BaseModel
 
 from atlas_terminal.errors import ErrorEnvelope
-from atlas_terminal.models import BudgetStatus, PurchasePreflight
+from atlas_terminal.models import BudgetStatus, PurchasePreflight, PurchaseResult, Quote
 from atlas_terminal.research_batch import ResearchBatchQuery, ResearchBatchResult
 from atlas_terminal.research_diagnostics import ResearchDiagnosticsQuery, ResearchDiagnosticsResult
 from atlas_terminal.research_models import ResearchQuery
@@ -15,6 +15,8 @@ from atlas_terminal.research_presets import ResearchPresetQuery, ResearchPresetR
 from atlas_terminal.research_views import EvidenceResult, ResearchResult, SourceEvidence
 from atlas_terminal.risk_connections import RiskConnectionConfig
 from atlas_terminal.risk_models import RiskPanelInput, RiskQuery, RiskResult, TimeSeriesPanelInput
+from atlas_terminal.seller_models import ProductData, ProductPurchase, ProductQuery, ProductQuote
+from atlas_terminal.seller_server import create_seller_app
 from atlas_terminal.server import create_app
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -64,6 +66,8 @@ def main() -> None:
                 ("Error", ErrorEnvelope),
                 ("BudgetStatus", BudgetStatus),
                 ("PurchasePreflight", PurchasePreflight),
+                ("Quote", Quote),
+                ("PurchaseResult", PurchaseResult),
             ]
         )
     )
@@ -74,6 +78,39 @@ def main() -> None:
             write(ROOT / "schemas/openapi.json", app.openapi())
         finally:
             app.state.orders.close()
+        seller = create_seller_app(directory=Path(directory) / "seller")
+        try:
+            write(ROOT / "schemas/seller.openapi.json", seller.openapi())
+        finally:
+            seller.state.orders.close()
+    write(
+        ROOT / "schemas/seller.schema.json",
+        {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "$id": "https://atlas-terminal.invalid/schemas/seller.schema.json",
+            "title": "Atlas Terminal seller contracts",
+            "$defs": definitions(
+                [
+                    (model.__name__, model)
+                    for model in (
+                        ProductQuery,
+                        ProductData,
+                        ProductQuote,
+                        ProductPurchase,
+                    )
+                ]
+            ),
+            "oneOf": [
+                {"$ref": f"#/$defs/{model.__name__}"}
+                for model in (
+                    ProductQuery,
+                    ProductData,
+                    ProductQuote,
+                    ProductPurchase,
+                )
+            ],
+        },
+    )
 
 
 if __name__ == "__main__":

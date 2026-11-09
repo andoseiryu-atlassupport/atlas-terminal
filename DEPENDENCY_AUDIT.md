@@ -1,5 +1,7 @@
 # Dependency and specification audit
 
+On 2026-11-10 JST, the optional `seller` extra was locked to `cdp-sdk==1.52.0` (MIT). The installed official `JwtOptions`/`generate_jwt` APIs generate short-lived, endpoint-bound facilitator authentication; offline tests verify signatures and request claims with ephemeral keys. The x402 integration remains pinned to 2.25.0 and uses its official `CreateHeadersAuthProvider`, exact EVM schemes, wire models and one-shot low-level settlement. The separate seller profile pins Base mainnet USDC and the `USD Coin`/`2` EIP-712 domain. No live CDP account, RPC or real transfer was verified. The extra's broader wallet/Solana APIs are not used; ordinary research does not require this extra. See [seller configuration](docs/seller.md) and the supplementary dependency inventory below.
+
 On 2026-11-03, pypdf 6.21.4 was checked against PyPI and installed metadata, pinned in the runtime dependencies and locked with uv. Its declared license is BSD-3-Clause. Local tests exercise `PdfReader`, encrypted/image-only rejection and page text extraction in a bounded subprocess. This check does not certify all PDF layouts or constitute a vulnerability-database audit.
 
 Recorded on 2026-10-21 with Python 3.12.14, uv 0.12.23 and Node.js 24.19.0. Python versions were checked against PyPI metadata, the resolver and installed distributions, then locked in `pyproject.toml` and `uv.lock`. TypeScript interoperability dependencies were checked against npm metadata and installed exports, and locked in `package-lock.json`. Package-name availability and publication eligibility have not been checked.
@@ -59,7 +61,7 @@ from x402.extensions.payment_identifier import (
 
 A `payment_flows` annotation mismatch between `ExactEvmServerScheme` and the SDK protocol uses an explicit boundary cast, with real binding covered by offline tests.
 
-`HTTPFacilitatorClientSync` follows redirects by default. Atlas passes a no-redirect httpx client through `FacilitatorConfig`. It bypasses `ResourceServer.settle_payment` pending retries and makes one official low-level settle call after a durable claim. No challenge is issued until the Facilitator's `/supported` response confirms V2 exact Base Sepolia support.
+`HTTPFacilitatorClientSync` follows redirects by default. Atlas passes a no-redirect httpx client through `FacilitatorConfig`. It bypasses `ResourceServer.settle_payment` pending retries and makes one official low-level settle call after a durable claim. No challenge is issued until the Facilitator's `/supported` response confirms V2 exact support for the selected profile: Base Sepolia for the annual API, or Base mainnet for the separate seller.
 
 The selected SDK's `mechanisms/evm/default_assets.py` defines USDC network `eip155:84532`, contract `0x036CbD53842c5426634e7929541eC2318f3dCF7e`, decimals 6, and EIP-712 name `USDC` / version `2`. The current [Circle reference](https://developers.circle.com/stablecoins/usdc-contract-addresses) has not been rechecked; final verification remains necessary before real transfers.
 
@@ -71,7 +73,7 @@ Development-only npm packages `@x402/core`, `@x402/evm`, `@x402/extensions` and 
 
 Reconciliation uses bounded read-only Ethereum JSON-RPC against a separately configured trusted Base Sepolia RPC. It verifies finalized canonical blocks, EIP-1898 authorization state and USDC transfer/authorization events. RPC compatibility and finality are verified with mock transports; a live RPC and real token transfer remain unverified. No Facilitator status endpoint is assumed.
 
-Service-specific AuthProvider integration, live connectivity, real Base Sepolia transfers and public transaction evidence remain unverified. Configuration failures do not fall back to mock mode. Explicit smoke opt-ins distinguish missing settings from actual execution.
+The seller's CDP AuthProvider is covered by offline authentication tests. Live service-specific authentication/connectivity, real Base Sepolia/mainnet transfers and public transaction evidence remain unverified. Configuration failures do not fall back to mock mode. Explicit smoke opt-ins distinguish missing settings from actual execution.
 
 ## Licensing and CI
 

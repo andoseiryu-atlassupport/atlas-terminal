@@ -10,6 +10,8 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
+from pydantic import BaseModel
+
 from atlas_terminal.client import Atlas
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.models import (
@@ -25,6 +27,7 @@ from atlas_terminal.models import (
 )
 from atlas_terminal.payments.common import (
     PaymentAdapter,
+    PaymentQuote,
     Settlement,
     VerifiedPayment,
     fingerprint,
@@ -93,7 +96,7 @@ class OrderService:
 
     def _replay_intent(
         self, conn: sqlite3.Connection, binding: tuple[str, str, str] | None
-    ) -> tuple[Quote, str] | None:
+    ) -> tuple[PaymentQuote, str] | None:
         if binding is None:
             return None
         key_hash, query_hash, token = binding
@@ -115,9 +118,50 @@ class OrderService:
             )
         if not hmac.compare_digest(row["recovery_hash"], digest(token.encode())):
             raise AtlasError("LEDGER_UNAVAILABLE", "Intent recovery binding is inconsistent.")
-        return Quote.model_validate_json(row["metadata"]), token
+        return self.load_quote(row["metadata"]), token
+
+    def load_quote(self, metadata: str) -> PaymentQuote:
+        return Quote.model_validate_json(metadata)
+
+    def read_result(self, query: BaseModel) -> BaseModel:
+        if not isinstance(query, FinancialQuery):
+            raise AtlasError("INVALID_INPUT", "Expected an annual financial query.")
+        return self.atlas.get_financials(query)
+
+    def build_quote(
+        self, query: BaseModel, result: BaseModel, quote_id: str, snapshot_id: str, now: datetime
+    ) -> PaymentQuote:
+        assert isinstance(query, FinancialQuery) and isinstance(result, FinancialResult)
+        missing = [
+            Missing(metric=f.metric, period_end=f.period.end, reason=f.reason or f.status)
+            for f in result.facts
+            if f.status != "reported"
+        ]
+        return Quote(
+            quote_id=quote_id,
+            query=query,
+            company=result.company,
+            snapshot_id=snapshot_id,
+            result_sha256=snapshot_id,
+            period_ends=result.period_ends,
+            coverage=result.coverage,
+            partial=result.partial,
+            missing=missing,
+            pricing=self.pricing,
+            expires_at=stamp(now + timedelta(seconds=self.ttl)),
+            resource_path=f"/v1/quotes/{quote_id}/result",
+            limitations=result.limitations,
+            is_synthetic=result.is_synthetic,
+        )
 
     def prepare(self, query: FinancialQuery, *, intent_key: str | None = None) -> tuple[Quote, str]:
+        quote, token = self.prepare_order(query, intent_key=intent_key)
+        assert isinstance(quote, Quote)
+        return quote, token
+
+    def prepare_order(
+        self, query: BaseModel, *, intent_key: str | None = None
+    ) -> tuple[PaymentQuote, str]:
         binding = (
             intent_binding(intent_key, query, self.base_origin) if intent_key is not None else None
         )
@@ -151,33 +195,13 @@ class OrderService:
             )
             if conn.execute("SELECT count(*) FROM quotes").fetchone()[0] >= self.max_snapshots:
                 raise AtlasError("SOURCE_RATE_LIMITED", "Snapshot quota is full.", status=429)
-        result = self.atlas.get_financials(query)
+        result = self.read_result(query)
         body = canonical(result)
         if len(body) > 2 * 1024 * 1024:
             raise AtlasError("SOURCE_UNAVAILABLE", "Normalized snapshot exceeds size limit.")
         quote_id, snapshot_id = uuid4().hex, digest(body)
         token = binding[2] if binding else secrets.token_urlsafe(32)
-        missing = [
-            Missing(metric=f.metric, period_end=f.period.end, reason=f.reason or f.status)
-            for f in result.facts
-            if f.status != "reported"
-        ]
-        quote = Quote(
-            quote_id=quote_id,
-            query=query,
-            company=result.company,
-            snapshot_id=snapshot_id,
-            result_sha256=snapshot_id,
-            period_ends=result.period_ends,
-            coverage=result.coverage,
-            partial=result.partial,
-            missing=missing,
-            pricing=self.pricing,
-            expires_at=stamp(now + timedelta(seconds=self.ttl)),
-            resource_path=f"/v1/quotes/{quote_id}/result",
-            limitations=result.limitations,
-            is_synthetic=result.is_synthetic,
-        )
+        quote = self.build_quote(query, result, quote_id, snapshot_id, now)
         with self.db.connect(write=True) as conn:
             # Publish one quote even when concurrent requests fetched different source bytes.
             replay = self._replay_intent(conn, binding)
@@ -260,7 +284,7 @@ class OrderService:
         row = self.row(quote_id)
         if not self.authorized(row, bearer):
             raise AtlasError("UNAUTHORIZED", "Recovery capability is required.", status=401)
-        quote = Quote.model_validate_json(row["metadata"])
+        quote = self.load_quote(row["metadata"])
         state = row["state"]
         decision, code = "ready", "PAYMENT_NOT_REQUIRED" if quote.pricing.mode == "off" else "READY"
         now = stamp(self.clock())
@@ -291,7 +315,10 @@ class OrderService:
             }
         )
 
-    def artifact(self, row: dict[str, Any]) -> PurchaseResult:
+    def purchased_data(self, body: bytes, receipt: Receipt) -> BaseModel:
+        return PurchaseResult(data=FinancialResult.model_validate_json(body), receipt=receipt)
+
+    def artifact(self, row: dict[str, Any]) -> BaseModel:
         body = self.snapshot(row)
         if not row["receipt"]:
             raise AtlasError(
@@ -299,10 +326,7 @@ class OrderService:
             )
         if row["retained_until"] and row["retained_until"] <= stamp(self.clock()):
             raise AtlasError("QUOTE_NOT_FOUND", "Purchased snapshot retention ended.", status=410)
-        return PurchaseResult(
-            data=FinancialResult.model_validate_json(body),
-            receipt=Receipt.model_validate_json(row["receipt"]),
-        )
+        return self.purchased_data(body, Receipt.model_validate_json(row["receipt"]))
 
     def snapshot(self, row: dict[str, Any]) -> bytes:
         with self.db.connect() as conn:
@@ -317,9 +341,9 @@ class OrderService:
 
     def result(
         self, quote_id: str, *, bearer: str | None = None, proof: str | None = None
-    ) -> tuple[PurchaseResult | dict[str, Any], int, dict[str, str]]:
+    ) -> tuple[BaseModel | dict[str, Any], int, dict[str, str]]:
         row = self.row(quote_id)
-        quote = Quote.model_validate_json(row["metadata"])
+        quote = self.load_quote(row["metadata"])
         if row["state"] != "QUOTED":
             if not self.authorized(row, bearer, proof):
                 raise AtlasError(
@@ -402,7 +426,7 @@ class OrderService:
             )
         return self.result(quote_id, bearer=bearer, proof=proof)
 
-    def claim(self, quote: Quote, payment: VerifiedPayment) -> bool:
+    def claim(self, quote: PaymentQuote, payment: VerifiedPayment) -> bool:
         try:
             with self.db.connect(write=True) as conn:
                 prior = conn.execute(
@@ -461,14 +485,14 @@ class OrderService:
                 status=409,
             ) from None
 
-    def complete(self, quote: Quote, settlement: Settlement, payment_id: str | None) -> None:
+    def complete(self, quote: PaymentQuote, settlement: Settlement, payment_id: str | None) -> None:
         with self.db.connect(write=True) as conn:
             self._complete(conn, quote, settlement, payment_id)
 
     def _complete(
         self,
         conn: sqlite3.Connection,
-        quote: Quote,
+        quote: PaymentQuote,
         settlement: Settlement,
         payment_id: str | None,
     ) -> None:
@@ -572,8 +596,8 @@ class OrderService:
         if row["state"] not in {"SETTLEMENT_SUBMITTED", "SETTLEMENT_UNKNOWN", "PAYMENT_VERIFIED"}:
             return self.reconciliation_report(quote_id)
         if self.reconciler is None:
-            raise AtlasError("CONFIG_REQUIRED", "Configure a trusted testnet reconciliation RPC.")
-        quote = Quote.model_validate_json(row["metadata"])
+            raise AtlasError("CONFIG_REQUIRED", "Configure a trusted reconciliation RPC.")
+        quote = self.load_quote(row["metadata"])
         self.snapshot(row)
         with self.db.connect() as conn:
             saved = conn.execute(
