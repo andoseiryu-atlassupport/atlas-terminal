@@ -75,12 +75,14 @@ ECB and Treasury snapshots use a six-hour cache TTL; EFFR/SOFR snapshots use one
 
 ## Derived macro indicators
 
-| `series`              | Inputs and formula                                                                          | Unit               |
-| --------------------- | ------------------------------------------------------------------------------------------- | ------------------ |
-| `cpi_yoy`             | BLS CPI-U, not seasonally adjusted: (current − same month last year) / same month last year | `ratio`            |
-| `core_cpi_yoy`        | BLS CPI-U excluding food/energy, not seasonally adjusted; same YoY formula                  | `ratio`            |
-| `payrolls_change_mom` | Seasonally adjusted total nonfarm payroll level − exact previous month's level              | `thousand_persons` |
-| `yield_spread_10y_2y` | (Same-day nominal 10-year yield − nominal 2-year yield) × 100                               | `basis_points`     |
+| `series`                | Inputs and formula                                                                              | Unit               |
+| ----------------------- | ----------------------------------------------------------------------------------------------- | ------------------ |
+| `cpi_yoy`               | BLS CPI-U, not seasonally adjusted: (current − same month last year) / same month last year     | `ratio`            |
+| `core_cpi_yoy`          | BLS CPI-U excluding food/energy, not seasonally adjusted; same YoY formula                      | `ratio`            |
+| `core_goods_cpi_yoy`    | BLS commodities less food/energy commodities, not seasonally adjusted; same YoY formula         | `ratio`            |
+| `core_services_cpi_yoy` | BLS services less energy services, including shelter, not seasonally adjusted; same YoY formula | `ratio`            |
+| `payrolls_change_mom`   | Seasonally adjusted total nonfarm payroll level − exact previous month's level                  | `thousand_persons` |
+| `yield_spread_10y_2y`   | (Same-day nominal 10-year yield − nominal 2-year yield) × 100                                   | `basis_points`     |
 
 A CPI ratio of `"0.03"` means 3%. A payroll change of `"150"` means 150,000 persons. A yield spread of `"25"` means 25 basis points, or 0.25 percentage points. Negative payroll changes and inverted yield spreads are valid. CPI index levels must be positive; negative employment levels are unavailable.
 
@@ -92,7 +94,7 @@ Every derived record retains `formula`, `inputs`, `unit`, `status` and a missing
 
 ## US national accounts
 
-The current source checkout expands BEA to sixteen series, Japanese macro to twenty-nine, and BLS to twenty-two. Eurostat and ONS add European/UK official statistical series and five activity/global presets. [Complete additions, exact definitions and examples](economic-indicators.md). Existing release assets are unchanged.
+The current source checkout expands BEA to sixteen series, Japanese macro to twenty-nine, and BLS to twenty-seven. Eurostat and ONS add European/UK official statistical series and five activity/global presets. [Complete additions, exact definitions and examples](economic-indicators.md). Existing release assets are unchanged.
 
 Use `national_accounts` with one of these curated series:
 

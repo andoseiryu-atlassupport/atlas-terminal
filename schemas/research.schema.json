@@ -4592,8 +4592,13 @@
                 "CIS1010000000000I",
                 "CIS1020000000000I",
                 "CUSR0000SA0",
+                "CUSR0000SA0L1E",
+                "CUSR0000SACL1E",
+                "CUSR0000SASLE",
                 "CUUR0000SA0",
                 "CUUR0000SA0L1E",
+                "CUUR0000SACL1E",
+                "CUUR0000SASLE",
                 "EIUIQ",
                 "EIUIR",
                 "JTS000000000000000HIL",
@@ -4609,6 +4614,11 @@
                 "WPSFD4",
                 "average_weekly_hours",
                 "core_cpi",
+                "core_cpi_sa",
+                "core_goods_cpi",
+                "core_goods_cpi_sa",
+                "core_services_cpi",
+                "core_services_cpi_sa",
                 "cpi",
                 "cpi_sa",
                 "employment_cost_compensation",
@@ -5861,6 +5871,8 @@
                 "australia_yield_change_3y",
                 "australia_yield_change_5y",
                 "core_cpi_yoy",
+                "core_goods_cpi_yoy",
+                "core_services_cpi_yoy",
                 "cpi_yoy",
                 "euro_aaa_butterfly_2y_5y_10y",
                 "euro_aaa_spread_10y_2y",
@@ -8368,6 +8380,116 @@
     "ResearchPresetQuery": {
       "additionalProperties": false,
       "oneOf": [
+        {
+          "additionalProperties": false,
+          "dependentRequired": {
+            "end_date": ["start_date"],
+            "start_date": ["end_date"]
+          },
+          "properties": {
+            "end_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "End Date"
+            },
+            "include": {
+              "anyOf": [
+                {
+                  "items": {
+                    "enum": [
+                      "cpi",
+                      "core_cpi",
+                      "core_goods_cpi",
+                      "core_services_cpi",
+                      "cpi_yoy",
+                      "core_cpi_yoy",
+                      "core_goods_cpi_yoy",
+                      "core_services_cpi_yoy"
+                    ]
+                  },
+                  "maxItems": 10,
+                  "minItems": 1,
+                  "type": "array",
+                  "uniqueItems": true
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Include"
+            },
+            "preset": {
+              "const": "us_cpi_components",
+              "type": "string"
+            },
+            "preview": {
+              "default": false,
+              "title": "Preview",
+              "type": "boolean"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "requirements_by_item": {
+              "additionalProperties": {
+                "$ref": "#/$defs/ResearchRequirements"
+              },
+              "maxProperties": 10,
+              "propertyNames": {
+                "enum": [
+                  "cpi",
+                  "core_cpi",
+                  "core_goods_cpi",
+                  "core_services_cpi",
+                  "cpi_yoy",
+                  "core_cpi_yoy",
+                  "core_goods_cpi_yoy",
+                  "core_services_cpi_yoy"
+                ]
+              },
+              "title": "Requirements By Item",
+              "type": "object"
+            },
+            "start_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Start Date"
+            },
+            "view": {
+              "default": "compact",
+              "enum": ["full", "compact"],
+              "title": "View",
+              "type": "string"
+            }
+          },
+          "required": ["preset"],
+          "type": "object"
+        },
         {
           "additionalProperties": false,
           "dependentRequired": {
@@ -11529,6 +11651,7 @@
             "us_activity_extended",
             "us_trade_overview",
             "us_inflation_costs",
+            "us_cpi_components",
             "japan_external_corporate",
             "australia_macro_overview",
             "canada_macro_overview",
@@ -11936,6 +12059,7 @@
             "us_activity_extended",
             "us_trade_overview",
             "us_inflation_costs",
+            "us_cpi_components",
             "japan_external_corporate",
             "australia_macro_overview",
             "canada_macro_overview",

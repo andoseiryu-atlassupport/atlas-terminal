@@ -157,6 +157,10 @@ CREATE TABLE IF NOT EXISTS research_evidence (
 # Field selection never strips context needed to interpret a selected value.
 # Reported inputs/formulas and per-issuer coverage remain intact too.
 CONTEXT_FIELDS = {
+    "population",
+    "area",
+    "index_scope",
+    "definition_url",
     "markets",
     "event_id",
     "event_slug",

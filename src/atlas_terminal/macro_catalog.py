@@ -140,6 +140,24 @@ MACRO_SERIES: dict[str, MacroSpec] = {
         "formula": "(current - prior_year) / prior_year",
         "unit": "ratio",
     },
+    "core_goods_cpi_yoy": {
+        "source_id": "bls",
+        "source_series": "core_goods_cpi",
+        "lag_months": 12,
+        "formula": "(current - prior_year) / prior_year",
+        "unit": "ratio",
+        "title": "Core goods CPI year-on-year change, not seasonally adjusted",
+    },
+    "core_services_cpi_yoy": {
+        "source_id": "bls",
+        "source_series": "core_services_cpi",
+        "lag_months": 12,
+        "formula": "(current - prior_year) / prior_year",
+        "unit": "ratio",
+        "title": (
+            "Core services CPI year-on-year change, including shelter, not seasonally adjusted"
+        ),
+    },
     "payrolls_change_mom": {
         "source_id": "bls",
         "source_series": "payrolls",

@@ -84,6 +84,31 @@ BLS_SERIES = {
         True,
     ),
     "core_cpi": ("CUUR0000SA0L1E", "CPI excluding food and energy", "index_1982_84_100", False),
+    "core_cpi_sa": ("CUSR0000SA0L1E", "CPI excluding food and energy", "index_1982_84_100", True),
+    "core_goods_cpi": (
+        "CUUR0000SACL1E",
+        "CPI commodities less food and energy commodities (core goods)",
+        "index_1982_84_100",
+        False,
+    ),
+    "core_goods_cpi_sa": (
+        "CUSR0000SACL1E",
+        "CPI commodities less food and energy commodities (core goods)",
+        "index_1982_84_100",
+        True,
+    ),
+    "core_services_cpi": (
+        "CUUR0000SASLE",
+        "CPI services less energy services (core services, including shelter)",
+        "index_1982_84_100",
+        False,
+    ),
+    "core_services_cpi_sa": (
+        "CUSR0000SASLE",
+        "CPI services less energy services (core services, including shelter)",
+        "index_1982_84_100",
+        True,
+    ),
     "unemployment": ("LNS14000000", "Civilian unemployment rate", "percent", True),
     "participation": ("LNS11300000", "Civilian labor force participation rate", "percent", True),
     "payrolls": ("CES0000000001", "Total nonfarm payroll employment", "thousand_persons", True),
@@ -129,9 +154,25 @@ BLS_SERIES = {
     ),
 }
 
-# Additional interpretation fields for the quarterly and trade-price selections.
+# Interpretation fields from official definitions, separate from reported values.
 # The four-field registry remains compatible with existing series-ID consumers.
 BLS_DETAILS: dict[str, dict[str, Any]] = {}
+for _key, _scope in (
+    ("core_cpi", "all_items_less_food_and_energy"),
+    ("core_goods_cpi", "commodities_less_food_and_energy_commodities"),
+    ("core_services_cpi", "services_less_energy_services_including_shelter"),
+):
+    for _variant in (_key, _key + "_sa"):
+        BLS_DETAILS[_variant] = {
+            "frequency": "monthly",
+            "annualized": False,
+            "base_period": "1982-1984",
+            "population": "all_urban_consumers",
+            "area": "US_city_average",
+            "index_scope": _scope,
+            "definition_url": "https://www.bls.gov/cpi/seasonal-adjustment/cpi-seasonal-item-aggregation.htm",
+        }
+
 for _key, _code, _title, _unit, _frequency, _adjusted, _annualized, _base, _kind in (
     (
         "employment_cost_compensation",

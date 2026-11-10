@@ -8,7 +8,7 @@ These additions are available in the latest source checkout. They are not includ
 
 | Dataset              | Registered series | Coverage                                                                                                                                                                 |
 | -------------------- | ----------------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `economics`          |                22 | US BLS price/labour statistics, quarterly employment costs and nonfarm productivity/unit labor cost growth, plus monthly import/export prices                            |
+| `economics`          |                27 | US BLS price/labour statistics, quarterly employment costs and nonfarm productivity/unit labor cost growth, plus monthly import/export prices                            |
 | `national_accounts`  |                16 | US BEA GDP, real expenditure components, PCE prices, nominal/real consumption, personal/disposable income and saving rate                                                |
 | `japan_economics`    |                29 | BOJ rates/FX/Tankan/money/credit plus government GDP, prices, employment, production, consumption, housing, machinery orders, external accounts and corporate statistics |
 | `europe_economics`   |                48 | Eight measures for each of the euro area, EU, Germany, France, Italy and Spain                                                                                           |
@@ -45,6 +45,35 @@ Quarterly Dashboard requests use `Cycle=2` and source periods such as `20263Q00`
 uv run --offline atlas research get japan_economics --series gdp_real --provider fixture --json
 uv run --offline atlas research preset japan_activity_overview --provider fixture --json
 ```
+
+## US CPI components
+
+The `economics` dataset supports eight monthly CPI-U U.S. city-average index selections. `core_cpi` and its year-on-year calculation already cover all items less food and energy; the component selections distinguish core goods and core services. Each index has base **1982–1984=100** and explicit seasonal adjustment. Core and component records also expose `annualized=false`, population, area and `index_scope`; the existing headline response remains unchanged. These are index levels, not inflation percentages or additive contributions.
+
+| Definition                                                | Not seasonally adjusted               | Seasonally adjusted                      |
+| --------------------------------------------------------- | ------------------------------------- | ---------------------------------------- |
+| All items                                                 | `cpi` / `CUUR0000SA0`                 | `cpi_sa` / `CUSR0000SA0`                 |
+| All items less food and energy                            | `core_cpi` / `CUUR0000SA0L1E`         | `core_cpi_sa` / `CUSR0000SA0L1E`         |
+| Commodities less food and energy commodities (core goods) | `core_goods_cpi` / `CUUR0000SACL1E`   | `core_goods_cpi_sa` / `CUSR0000SACL1E`   |
+| Services less energy services (core services)             | `core_services_cpi` / `CUUR0000SASLE` | `core_services_cpi_sa` / `CUSR0000SASLE` |
+
+Core services **includes shelter**. It is not a shelter-excluding “supercore” measure. Atlas retrieves each official aggregate directly; it does not subtract indexes, add core-goods and core-services indexes, estimate contribution weights, or convert an unadjusted series into an adjusted one. US core CPI excludes food and energy; this is distinct from Japan's common fresh-food-excluding core definition.
+
+The [BLS series-ID guide](https://www.bls.gov/cpi/factsheets/cpi-series-ids.htm), [seasonal aggregation definitions](https://www.bls.gov/cpi/seasonal-adjustment/cpi-seasonal-item-aggregation.htm), [published CPI table](https://www.bls.gov/news.release/cpi.t01.htm) and [BLS correction inventory identifying these series](https://www.bls.gov/bls/errata/cpi-price-corrections-10182016.htm) document the identifiers and scopes. Definition review is separate from live API verification. BLS V1 does not embed these unit/scope definitions in each response; `definition_url` identifies the supporting documentation separately from the original value's source evidence.
+
+`macro_analytics` exposes `cpi_yoy`, `core_cpi_yoy`, `core_goods_cpi_yoy` and `core_services_cpi_yoy`. All four use the **unadjusted** index and `(current - prior_year) / prior_year` at the exact twelve-month lag. Values retain `unit="ratio"`: `"0.03"` means **3%**, and `"-0.01"` means **−1%**. Inputs, formula, period, unit and source evidence remain available. Missing or nonpositive baselines remain unavailable; M13 annual averages and neighboring months cannot fill them. Monthly dates are observation-period ends, not publication timestamps, and current revised captures are not historical release vintages.
+
+```sh
+# Fictional offline examples; omit --provider fixture only for authorized source access.
+uv run --offline atlas research get economics --series core_goods_cpi --provider fixture --json
+uv run --offline atlas research get economics --series core_services_cpi_sa --provider fixture --json
+uv run --offline atlas research get macro_analytics --series core_goods_cpi_yoy --provider fixture --json
+uv run --offline atlas research preset us_cpi_components --provider fixture --json
+```
+
+The eight-item `us_cpi_components` preset combines four unadjusted index levels with four separate year-on-year ratios. It supports optional paired dates, item selection, preview and quality requirements. It does not imply synchronized publication dates or complete baselines. The unchanged legacy headline/core fictional fixtures lack prior-year monthly baselines; their example YoY rows stay unavailable. CLI, SDK (`Atlas.get_research` / `get_research_preset`), REST and MCP share these queries. Catalog search recognizes `core goods` / `コア財` and `core services` / `コアサービス`. Compact field selection retains component scope and seasonal adjustment. The separate seller can prepare these index series through the same normalization, subject to its existing source-age and publication controls.
+
+No new BLS API retrieval or quota/cache reset was performed for this addition. New source fixtures are explicitly fictional; [verification](verification.md#us-cpi-components) records the actual checks and their limits.
 
 ## US additions
 

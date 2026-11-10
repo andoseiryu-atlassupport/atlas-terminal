@@ -12,6 +12,8 @@ Three additional government-bond presets, `us_bond_context`, `japan_bond_context
 
 ## Discover and preview
 
+`us_cpi_components` combines eight BLS reads: headline, core, core-goods and core-services unadjusted index levels, plus their separate year-on-year ratios. Core services includes shelter. It accepts optional paired dates and selected items; preview makes no source requests. Missing baselines remain unavailable. [Definitions, exact series IDs and examples](economic-indicators.md#us-cpi-components).
+
 The optional `japan_equity_history` preset combines `prices` and `actions` for an explicit Tokyo Yahoo symbol such as `7203.T`. Both reads share one cached international chart response. Preview requires no source setting or network; execution with the public provider requires `ATLAS_ENABLE_YAHOO_FINANCE=1` in the operator environment for personal use under the separate source terms. Paired inclusive dates, item selection, compact evidence and requirements use the existing contracts. [Price bases, source rights and examples](yahoo-finance.md).
 
 `us_inflation_costs` combines eight registration-free BLS selections: CPI, PPI final demand, civilian compensation/wage ECI, nonfarm productivity/unit labor cost growth, and import/export price indexes. It retains monthly/quarterly frequencies and distinguishes index levels from published annualized changes. See [definitions and examples](economic-indicators.md#us-employment-costs-productivity-and-trade-prices). It accepts paired optional dates and expands into ordinary BLS reads under the shared API quota.

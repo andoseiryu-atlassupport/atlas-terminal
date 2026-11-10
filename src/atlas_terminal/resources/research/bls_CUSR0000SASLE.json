@@ -1,0 +1,65 @@
+{
+  "status": "REQUEST_SUCCEEDED",
+  "responseTime": 1,
+  "message": [
+    "SYNTHETIC DATA"
+  ],
+  "Results": {
+    "series": [
+      {
+        "seriesID": "CUSR0000SASLE",
+        "data": [
+          {
+            "year": "2026",
+            "period": "M09",
+            "periodName": "September",
+            "value": "411.000",
+            "footnotes": [
+              {
+                "code": "F",
+                "text": "SYNTHETIC independent CPI component; not BLS observations."
+              }
+            ],
+            "latest": "true"
+          },
+          {
+            "year": "2026",
+            "period": "M08",
+            "periodName": "August",
+            "value": "410.500",
+            "footnotes": [
+              {
+                "code": "F",
+                "text": "SYNTHETIC independent CPI component; not BLS observations."
+              }
+            ]
+          },
+          {
+            "year": "2025",
+            "period": "M09",
+            "periodName": "September",
+            "value": "402.000",
+            "footnotes": [
+              {
+                "code": "F",
+                "text": "SYNTHETIC independent CPI component; not BLS observations."
+              }
+            ]
+          },
+          {
+            "year": "2025",
+            "period": "M08",
+            "periodName": "August",
+            "value": "180.000",
+            "footnotes": [
+              {
+                "code": "F",
+                "text": "SYNTHETIC independent CPI component; not BLS observations."
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

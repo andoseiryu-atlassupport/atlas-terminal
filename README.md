@@ -12,7 +12,7 @@ Public primary sources are the default. Optional international Yahoo Finance obs
 
 ## What you can do
 
-The current source checkout contains **68 research datasets, 27 upstream source families and 26 presets**. This overview describes `main`; the existing `v0.7.0` release does not include every later addition. Inspect your installed `research catalog` before selecting a dataset.
+The current source checkout contains **68 research datasets, 27 upstream source families and 27 presets**. This overview describes `main`; the existing `v0.7.0` release does not include every later addition. Inspect your installed `research catalog` before selecting a dataset.
 
 | Research task                                     | Available capabilities                                                                                                                                                                         | Scope and guide                                                                                                                                                                                                                                                         |
 | ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
