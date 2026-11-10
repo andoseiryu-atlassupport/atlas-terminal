@@ -18,6 +18,7 @@ SUPPORTED = {
     "country_bond_yields",
     "commodity_prices",
     "policy_rates",
+    "inflation_measures",
     "economics",
     "national_accounts",
     "japan_economics",
@@ -32,6 +33,19 @@ SUPPORTED = {
 }
 MAX_PANEL_BYTES = 4 * 1024 * 1024
 CONTEXT = (
+    "category_path",
+    "survey",
+    "population",
+    "count_basis",
+    "measure",
+    "age_min",
+    "age_max",
+    "occupation",
+    "occupation_name",
+    "region_code",
+    "region_name",
+    "area_type",
+    "area_code",
     "underlying_series",
     "spread_type",
     "curve",

@@ -2,6 +2,8 @@
 
 from typing import Literal, NotRequired, TypedDict, cast, get_args
 
+from atlas_terminal.macro_breakdown_catalog import CPI_COMPONENTS
+
 Currency = Literal[
     "EUR",
     "USD",
@@ -168,6 +170,24 @@ MACRO_SERIES: dict[str, MacroSpec] = {
         "operation": "difference",
     },
 }
+
+for _cpi in ("cpi", "core_cpi", "core_goods_cpi", "core_services_cpi", *CPI_COMPONENTS):
+    for _suffix, _lag, _role in (("mom", 1, "previous_month"), ("yoy", 12, "prior_year")):
+        MACRO_SERIES.setdefault(
+            _cpi + "_" + _suffix,
+            {
+                "source_id": "bls",
+                "source_series": _cpi + ("_sa" if _lag == 1 else ""),
+                "lag_months": _lag,
+                "formula": f"(current - {_role}) / {_role}",
+                "unit": "ratio",
+                "operation": "relative_change",
+                "title": _cpi.replace("_", " ").upper()
+                + " "
+                + _suffix.upper()
+                + (", seasonally adjusted" if _lag == 1 else ", not seasonally adjusted"),
+            },
+        )
 
 for _key, _unit in (
     ("private_payrolls", "thousand_jobs"),

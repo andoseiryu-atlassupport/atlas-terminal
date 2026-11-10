@@ -4,11 +4,14 @@ Atlas retrieves current/revised official economic observations through the same 
 
 These additions are available in the latest source checkout. They are not included in the immutable `v0.7.0` release. Packaged examples are fictional. Dated private live checks, original-cell matches and remaining selector/key failures are recorded in the [validation guide](verification.md#data-integrity-and-japanese-company-extensions).
 
+See [CPI and employment breakdowns](macro-breakdowns.md) for shelter/rent/OER, median and trimmed CPI, all 50 states plus DC, four Census regions, four age groups and five broad occupation groups. The catalog supports `topic` and `breakdown` filters.
+
 ## Coverage
 
 | Dataset              | Registered series | Coverage                                                                                                                                                                 |
 | -------------------- | ----------------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `economics`          |                27 | US BLS price/labour statistics, quarterly employment costs and nonfarm productivity/unit labor cost growth, plus monthly import/export prices                            |
+| `economics`          |               176 | US BLS price/labour statistics, quarterly employment costs and nonfarm productivity/unit labor cost growth, plus monthly import/export prices                            |
+| `inflation_measures` |                 4 | Cleveland Fed median and 16% trimmed-mean CPI monthly ratios and separately published annualized percentages                                                             |
 | `national_accounts`  |                16 | US BEA GDP, real expenditure components, PCE prices, nominal/real consumption, personal/disposable income and saving rate                                                |
 | `japan_economics`    |                29 | BOJ rates/FX/Tankan/money/credit plus government GDP, prices, employment, production, consumption, housing, machinery orders, external accounts and corporate statistics |
 | `europe_economics`   |                48 | Eight measures for each of the euro area, EU, Germany, France, Italy and Spain                                                                                           |

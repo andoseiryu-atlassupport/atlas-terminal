@@ -64,3 +64,7 @@ The required direct-request hosts include `www.ecb.europa.eu`, `markets.newyorkf
 Eurostat HICP and ONS CPI add two fixed observation probes. Select `--sources eurostat,ons` to check their live parsers on a host with permitted network access. These checks are distinct from fictional offline contract tests. [Statistical definitions and current HICP selection](economic-indicators.md).
 
 [Agent requirements](agents.md#require-data-quality-explicitly) · [Source conditions](../DATA_SOURCES.md) · [Validation scope](verification.md)
+
+## Cleveland Fed inflation probes
+
+The optional `cleveland_fed` source is excluded from default probes. Select it explicitly with `atlas research check-sources --sources cleveland_fed --allow-network --json` to check the fixed median and 16% trimmed-mean CPI CSVs. Without `--allow-network`, both report `NOT_RUN`. CSV shape fingerprints distinguish the monthly-ratio and annualized-percent columns. Keep captures and reports private; these observations have [separate reuse conditions and live-access limits](macro-breakdowns.md). No BLS data request is involved in these two probes.

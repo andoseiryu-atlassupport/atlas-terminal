@@ -202,6 +202,24 @@ def bls_economics(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
             "of payroll jobs; private/government payrolls use thousand_jobs. Period-end dates "
             "label observations, not full-month measurement or release timestamps."
         )
+        if details.get("survey") == "LAUS":
+            result["limitations"].append(
+                "LAUS is residence-based, in persons or percent; states and "
+                "Census regions are separate estimates, not additive payroll "
+                "counts."
+            )
+        if "occupation" in details:
+            result["limitations"].append(
+                "Occupation series are not seasonally adjusted. Unemployment "
+                "uses the experienced labor force and last occupation; "
+                "employment uses current occupation. Classification changes "
+                "are not harmonized."
+            )
+        if "age_min" in details:
+            result["limitations"].append(
+                "Age groups are separate CPS estimates; population-control "
+                "revisions and seasonal adjustment may prevent additivity."
+            )
         if key == "unemployment_u6":
             result["limitations"].append(
                 "U-6 includes unemployed people, marginally attached people and people working "

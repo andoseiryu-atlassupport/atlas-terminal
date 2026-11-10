@@ -1464,7 +1464,7 @@
           },
           "series": {
             "type": "string",
-            "maxLength": 40,
+            "maxLength": 80,
             "minLength": 1,
             "title": "Series"
           }
@@ -2074,6 +2074,7 @@
               "ownership_filings",
               "fund_filings",
               "corporate_action_filings",
+              "inflation_measures",
               "economics",
               "treasury_yields",
               "federal_debt",

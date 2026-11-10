@@ -9,6 +9,7 @@ from pydantic import ConfigDict, Field, ValidationError, field_validator, model_
 from atlas_terminal.equity_sources import YAHOO_SYMBOL_PATTERN
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.global_macro_sources import G20_AREAS, GLOBAL_AREAS
+from atlas_terminal.macro_breakdown_catalog import BREAKDOWN_SERIES
 from atlas_terminal.macro_catalog import CURVE_SERIES, MACRO_SERIES, Currency
 from atlas_terminal.models import Model, identifier
 from atlas_terminal.public_sources import SOURCE_CATALOG
@@ -28,6 +29,12 @@ from atlas_terminal.research_quality import (
 from atlas_terminal.util import canonical, stamp, utcnow
 
 PresetName = Literal[
+    "us_cpi_detail",
+    "us_cpi_detail_yoy",
+    "us_inflation_trend",
+    "us_employment_age",
+    "us_employment_occupation",
+    "us_employment_region",
     "country_macro_overview",
     "g20_country_overview",
     "japan_equity_history",
@@ -58,6 +65,84 @@ PresetName = Literal[
     "china_macro_overview",
 ]
 PRESETS: dict[str, dict[str, Any]] = {
+    "us_cpi_detail": {
+        "description": (
+            "US CPI-U components including actual rent, owners' equivalent rent "
+            "and shelter; NSA levels."
+        ),
+        "fields": ["start_date", "end_date"],
+        "required": [],
+        "items": {
+            key: {"dataset": "economics", "series": key, "limit": 1}
+            for key in (
+                "cpi",
+                "core_cpi",
+                "goods_cpi",
+                "core_goods_cpi",
+                "services_cpi",
+                "core_services_cpi",
+                "shelter_cpi",
+                "rent_cpi",
+                "owners_equivalent_rent_cpi",
+                "energy_cpi",
+            )
+        },
+    },
+    "us_cpi_detail_yoy": {
+        "description": (
+            "US CPI-U component year-on-year ratios from exact NSA calendar-month pairs."
+        ),
+        "fields": ["start_date", "end_date"],
+        "required": [],
+        "items": {
+            key + "_yoy": {"dataset": "macro_analytics", "series": key + "_yoy", "limit": 1}
+            for key in (
+                "cpi",
+                "core_cpi",
+                "goods_cpi",
+                "core_goods_cpi",
+                "services_cpi",
+                "core_services_cpi",
+                "shelter_cpi",
+                "rent_cpi",
+                "owners_equivalent_rent_cpi",
+                "energy_cpi",
+            )
+        },
+    },
+    "us_inflation_trend": {
+        "description": (
+            "Seasonally adjusted monthly ratios: headline/core CPI and Cleveland "
+            "Fed trimmed/median CPI."
+        ),
+        "fields": ["start_date", "end_date"],
+        "required": [],
+        "items": {
+            **{
+                key: {"dataset": "macro_analytics", "series": key, "limit": 1}
+                for key in ("cpi_mom", "core_cpi_mom")
+            },
+            **{
+                key: {"dataset": "inflation_measures", "series": key, "limit": 1}
+                for key in ("trimmed_mean_cpi_mom", "median_cpi_mom")
+            },
+        },
+    },
+    **{
+        "us_employment_" + group: {
+            "description": "US employment levels and unemployment rates by "
+            + group
+            + "; separate source-defined marginal series.",
+            "fields": ["start_date", "end_date"],
+            "required": [],
+            "items": {
+                key: {"dataset": "economics", "series": key, "limit": 1}
+                for key in BREAKDOWN_SERIES
+                if "_" + group + "_" in key
+            },
+        }
+        for group in ("age", "occupation", "region")
+    },
     "us_employment_overview": {
         "description": (
             "US Employment Situation: CES payrolls, wage changes and hours with CPS "

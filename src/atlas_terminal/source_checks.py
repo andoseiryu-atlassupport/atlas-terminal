@@ -1,5 +1,7 @@
 """Opt-in source probes with bounded, private last-success baselines."""
 
+import csv
+import io
 import json
 import os
 import time
@@ -13,6 +15,7 @@ from atlas_terminal.client import Atlas
 from atlas_terminal.equity_sources import TOKYO
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.fixed_income_sources import JGB_URLS, parse_jgb_csv
+from atlas_terminal.inflation_sources import INFLATION_URLS
 from atlas_terminal.jpx_workbook import workbook_table
 from atlas_terminal.providers import (
     CachedHTTPTransport,
@@ -32,6 +35,14 @@ from atlas_terminal.research_quality import (
 from atlas_terminal.util import Database, canonical, digest, stamp, state_dir
 
 PROBES: dict[str, tuple[str, dict[str, Any]]] = {
+    "cleveland_median_cpi": (
+        "cleveland_fed",
+        {"dataset": "inflation_measures", "series": "median_cpi_mom", "limit": 5},
+    ),
+    "cleveland_trimmed_cpi": (
+        "cleveland_fed",
+        {"dataset": "inflation_measures", "series": "trimmed_mean_cpi_mom", "limit": 5},
+    ),
     "polymarket_events": (
         "polymarket",
         {"dataset": "prediction_markets", "search": "Anthropic", "limit": 1},
@@ -246,15 +257,26 @@ def source_shapes(snapshots: list[Snapshot]) -> list[dict[str, Any]]:
 
     rows = {}
     for snapshot in snapshots:
+        is_inflation = snapshot.url in INFLATION_URLS.values() or snapshot.url.endswith(
+            ("/median_cpi.csv", "/trimmed_mean_cpi.csv")
+        )
         is_xml = snapshot.body.removeprefix(b"\xef\xbb\xbf").lstrip().startswith(b"<")
-        is_csv = snapshot.url.endswith(".csv") or snapshot.url.startswith(ECB_CURVE_BASE)
+        is_csv = (
+            is_inflation or snapshot.url.endswith(".csv") or snapshot.url.startswith(ECB_CURVE_BASE)
+        )
         is_text = snapshot.url in G17_URLS or snapshot.url.endswith(
             ("g17_ip_sa.txt", "g17_utl_sa.txt")
         )
         is_workbook = snapshot.body.startswith((b"PK", bytes.fromhex("d0cf11e0a1b11ae1")))
         structure: dict[str, Any]
         is_report_directory = snapshot.url == FISCO_URL
-        if is_report_directory:
+        if is_inflation:
+            header = next(csv.reader(io.StringIO(snapshot.body.decode("utf-8-sig"))))
+            structure = {
+                "columns": [value.strip() for value in header],
+                "units": ["month", "ratio", "percent_annualized_monthly"],
+            }
+        elif is_report_directory:
             records = report_links(snapshot)
             structure = {"format": "report_directory", "fields": sorted(records[0])}
         elif is_workbook:

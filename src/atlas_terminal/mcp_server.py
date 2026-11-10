@@ -103,6 +103,8 @@ def create_mcp(
                             "frequency",
                             "source_id",
                             "unit",
+                            "topic",
+                            "breakdown",
                         },
                         "atlas_get_evidence": {"evidence_id"},
                     }.get(name)
@@ -184,6 +186,8 @@ def create_mcp(
         frequency: Literal["daily", "weekly", "monthly", "quarterly", "annual"] | None = None,
         source_id: str | None = None,
         unit: str | None = None,
+        topic: Literal["cpi", "employment"] | None = None,
+        breakdown: str | None = None,
     ) -> CallToolResult:
         """Discover datasets and search macro/FX templates by text, country, frequency or source.
 
@@ -198,6 +202,8 @@ def create_mcp(
                 frequency=frequency,
                 source_id=source_id,
                 unit=unit,
+                topic=topic,
+                breakdown=breakdown,
             )
         )
 

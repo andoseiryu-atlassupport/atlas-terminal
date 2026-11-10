@@ -14,6 +14,7 @@ from mcp.client.stdio import StdioServerParameters, stdio_client
 
 from atlas_terminal.client import Atlas
 from atlas_terminal.errors import AtlasError
+from atlas_terminal.macro_breakdown_catalog import CPI_COMPONENTS
 from atlas_terminal.research_models import parse_research
 from atlas_terminal.research_panel import macro_panel, panel_queries
 from atlas_terminal.research_quality import ResearchRequirements, assess_quality
@@ -297,7 +298,7 @@ def test_all_new_queries_work_through_http_and_cli_with_the_same_contract(tmp_pa
                     "dataset": "economics",
                 },
             )
-            assert catalog.status_code == 200 and catalog.json()["series_search"]["matched"] == 8
+            assert catalog.status_code == 200 and catalog.json()["series_search"]["matched"] == 26
             assert {row["series"] for row in catalog.json()["series_search"]["records"]} == {
                 "cpi",
                 "cpi_sa",
@@ -307,6 +308,7 @@ def test_all_new_queries_work_through_http_and_cli_with_the_same_contract(tmp_pa
                 "core_goods_cpi_sa",
                 "core_services_cpi",
                 "core_services_cpi_sa",
+                *(key + suffix for key in CPI_COMPONENTS for suffix in ("", "_sa")),
             }
         completed = subprocess.run(
             [

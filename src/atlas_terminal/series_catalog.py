@@ -1,5 +1,6 @@
 """Searchable query templates generated from the same registries used by retrieval."""
 
+from collections import Counter
 from typing import Any
 
 from atlas_terminal.activity_catalog import ACTIVITY_SERIES
@@ -12,6 +13,8 @@ from atlas_terminal.global_macro_sources import (
     GLOBAL_INDICATORS,
     MEMBERSHIP_URL,
 )
+from atlas_terminal.inflation_sources import INFLATION_SERIES, INFLATION_URLS
+from atlas_terminal.macro_breakdown_catalog import CATEGORY_PATHS
 from atlas_terminal.macro_catalog import CURVE_SERIES, FX_CURRENCIES, MACRO_SERIES, REFERENCE_SERIES
 from atlas_terminal.policy_sources import POLICY_SERIES
 from atlas_terminal.public_sources import BLS_DETAILS, BLS_SERIES, SOURCE_CATALOG
@@ -35,8 +38,26 @@ def series_catalog(filters: CatalogQuery) -> dict[str, Any]:
         **extra: Any,
     ) -> None:
         aliases = []
+        source_key = MACRO_SERIES[key]["source_series"] if key in MACRO_SERIES else key
+        path = CATEGORY_PATHS.get(source_key, []) if source == "bls" else []
+        if path:
+            extra.setdefault("category_path", path)
         for term, words in {
             "cpi": ["inflation", "物価", "インフレ"],
+            "rent": ["家賃", "住居費"],
+            "owners_equivalent": ["帰属家賃", "OER"],
+            "shelter": ["住居費", "住宅"],
+            "goods_cpi": ["財"],
+            "services_cpi": ["サービス"],
+            "food_cpi": ["食品"],
+            "energy_cpi": ["エネルギー"],
+            "trimmed": ["トリム", "刈込平均", "trimmed mean"],
+            "median_cpi": ["中央値"],
+            "employment": ["雇用統計", "雇用"],
+            "_state_": ["地域", "州"],
+            "_region_": ["地域"],
+            "_age_": ["年齢", "年齢層"],
+            "_occupation_": ["職種", "職業"],
             "core_cpi": ["core inflation", "コアCPI", "コア物価"],
             "core_goods_cpi": ["core goods", "コア財", "コア財CPI"],
             "core_services_cpi": ["core services", "コアサービス", "住居費を含む"],
@@ -157,6 +178,21 @@ def series_catalog(filters: CatalogQuery) -> dict[str, Any]:
             source_series=code,
             seasonally_adjusted=adjusted,
             **{k: v for k, v in BLS_DETAILS.get(key, {}).items() if k != "frequency"},
+        )
+    for key, inflation in INFLATION_SERIES.items():
+        add(
+            "inflation_measures",
+            key,
+            str(inflation["title"]),
+            "cleveland_fed",
+            "US",
+            "monthly",
+            str(inflation["unit"]),
+            {"series": key},
+            seasonally_adjusted=True,
+            annualized=inflation["annualized"],
+            category_path=inflation["category_path"],
+            source_url=INFLATION_URLS[str(inflation["kind"])],
         )
     for key, activity in ACTIVITY_SERIES.items():
         add(
@@ -354,12 +390,21 @@ def series_catalog(filters: CatalogQuery) -> dict[str, Any]:
             and (filters.country is None or filters.country == row["country"])
             and (filters.frequency is None or filters.frequency == row["frequency"])
             and (filters.unit is None or filters.unit == row["unit"])
+            and (filters.topic is None or row.get("category_path", [None])[0] == filters.topic)
+            and (filters.breakdown is None or filters.breakdown in row.get("category_path", [])[1:])
             and (
                 filters.search is None
                 or all(
                     term
                     in " ".join(
-                        [row["id"], row["title"], row.get("source_series", ""), *row["aliases"]]
+                        [
+                            row["id"],
+                            row["title"],
+                            row.get("source_series", ""),
+                            row.get("region_code", ""),
+                            *row.get("category_path", []),
+                            *row["aliases"],
+                        ]
                     ).casefold()
                     for term in filters.search.casefold().split()
                 )
@@ -374,10 +419,22 @@ def series_catalog(filters: CatalogQuery) -> dict[str, Any]:
         "returned": min(maximum, len(matches)),
         "truncated": len(matches) > maximum,
         "records": matches[:maximum],
+        "groups": [
+            {"category_path": list(path), "matched": count}
+            for path, count in sorted(
+                Counter(
+                    tuple(row["category_path"]) for row in matches if row.get("category_path")
+                ).items()
+            )
+        ],
         "limitations": [
             "Templates describe supported queries; availability and publication freshness vary.",
             "Unit/base-year metadata for BEA and Japan is resolved from each source response.",
             "Refine filters when matches exceed the 100 full / 20 compact template limit.",
+            (
+                "Employment region, occupation and age are separate marginal "
+                "series, not joint cross-tabulations."
+            ),
         ],
         "international_discovery": [
             {"dataset": "sdmx_catalog", "source_id": source} for source in ("imf", "oecd")

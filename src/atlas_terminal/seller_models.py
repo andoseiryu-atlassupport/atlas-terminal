@@ -11,7 +11,7 @@ from atlas_terminal.research_views import ResearchResult
 
 class ProductQuery(Model):
     product_id: Literal["bls-series-v1"] = "bls-series-v1"
-    series: str = Field(min_length=1, max_length=40)
+    series: str = Field(min_length=1, max_length=80)
 
     @field_validator("series")
     @classmethod

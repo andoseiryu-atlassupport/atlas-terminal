@@ -4560,6 +4560,77 @@
           },
           "properties": {
             "dataset": {
+              "const": "inflation_measures",
+              "type": "string"
+            },
+            "end_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "End Date"
+            },
+            "limit": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "series": {
+              "enum": [
+                "trimmed_mean_cpi_mom",
+                "trimmed_mean_cpi_annualized",
+                "median_cpi_mom",
+                "median_cpi_annualized"
+              ],
+              "type": "string"
+            },
+            "start_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Start Date"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": ["dataset", "series"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "dependentRequired": {
+            "end_date": ["start_date"],
+            "start_date": ["end_date"]
+          },
+          "properties": {
+            "dataset": {
               "const": "economics",
               "type": "string"
             },
@@ -4594,24 +4665,170 @@
                 "CIS1010000000000I",
                 "CIS1020000000000I",
                 "CUSR0000SA0",
+                "CUSR0000SA0E",
                 "CUSR0000SA0L1E",
+                "CUSR0000SAC",
                 "CUSR0000SACL1E",
+                "CUSR0000SAD",
+                "CUSR0000SAF1",
+                "CUSR0000SAH1",
+                "CUSR0000SAN",
+                "CUSR0000SAS",
                 "CUSR0000SASLE",
+                "CUSR0000SEHA",
+                "CUSR0000SEHC",
                 "CUUR0000SA0",
+                "CUUR0000SA0E",
                 "CUUR0000SA0L1E",
+                "CUUR0000SAC",
                 "CUUR0000SACL1E",
+                "CUUR0000SAD",
+                "CUUR0000SAF1",
+                "CUUR0000SAH1",
+                "CUUR0000SAN",
+                "CUUR0000SAS",
                 "CUUR0000SASLE",
+                "CUUR0000SEHA",
+                "CUUR0000SEHC",
                 "EIUIQ",
                 "EIUIR",
                 "JTS000000000000000HIL",
                 "JTS000000000000000JOL",
                 "JTS000000000000000LDL",
                 "JTS000000000000000QUL",
+                "LASRD910000000000003",
+                "LASRD910000000000005",
+                "LASRD920000000000003",
+                "LASRD920000000000005",
+                "LASRD930000000000003",
+                "LASRD930000000000005",
+                "LASRD940000000000003",
+                "LASRD940000000000005",
+                "LASST010000000000003",
+                "LASST010000000000005",
+                "LASST020000000000003",
+                "LASST020000000000005",
+                "LASST040000000000003",
+                "LASST040000000000005",
+                "LASST050000000000003",
+                "LASST050000000000005",
+                "LASST060000000000003",
+                "LASST060000000000005",
+                "LASST080000000000003",
+                "LASST080000000000005",
+                "LASST090000000000003",
+                "LASST090000000000005",
+                "LASST100000000000003",
+                "LASST100000000000005",
+                "LASST110000000000003",
+                "LASST110000000000005",
+                "LASST120000000000003",
+                "LASST120000000000005",
+                "LASST130000000000003",
+                "LASST130000000000005",
+                "LASST150000000000003",
+                "LASST150000000000005",
+                "LASST160000000000003",
+                "LASST160000000000005",
+                "LASST170000000000003",
+                "LASST170000000000005",
+                "LASST180000000000003",
+                "LASST180000000000005",
+                "LASST190000000000003",
+                "LASST190000000000005",
+                "LASST200000000000003",
+                "LASST200000000000005",
+                "LASST210000000000003",
+                "LASST210000000000005",
+                "LASST220000000000003",
+                "LASST220000000000005",
+                "LASST230000000000003",
+                "LASST230000000000005",
+                "LASST240000000000003",
+                "LASST240000000000005",
+                "LASST250000000000003",
+                "LASST250000000000005",
+                "LASST260000000000003",
+                "LASST260000000000005",
+                "LASST270000000000003",
+                "LASST270000000000005",
+                "LASST280000000000003",
+                "LASST280000000000005",
+                "LASST290000000000003",
+                "LASST290000000000005",
+                "LASST300000000000003",
+                "LASST300000000000005",
+                "LASST310000000000003",
+                "LASST310000000000005",
+                "LASST320000000000003",
+                "LASST320000000000005",
+                "LASST330000000000003",
+                "LASST330000000000005",
+                "LASST340000000000003",
+                "LASST340000000000005",
+                "LASST350000000000003",
+                "LASST350000000000005",
+                "LASST360000000000003",
+                "LASST360000000000005",
+                "LASST370000000000003",
+                "LASST370000000000005",
+                "LASST380000000000003",
+                "LASST380000000000005",
+                "LASST390000000000003",
+                "LASST390000000000005",
+                "LASST400000000000003",
+                "LASST400000000000005",
+                "LASST410000000000003",
+                "LASST410000000000005",
+                "LASST420000000000003",
+                "LASST420000000000005",
+                "LASST440000000000003",
+                "LASST440000000000005",
+                "LASST450000000000003",
+                "LASST450000000000005",
+                "LASST460000000000003",
+                "LASST460000000000005",
+                "LASST470000000000003",
+                "LASST470000000000005",
+                "LASST480000000000003",
+                "LASST480000000000005",
+                "LASST490000000000003",
+                "LASST490000000000005",
+                "LASST500000000000003",
+                "LASST500000000000005",
+                "LASST510000000000003",
+                "LASST510000000000005",
+                "LASST530000000000003",
+                "LASST530000000000005",
+                "LASST540000000000003",
+                "LASST540000000000005",
+                "LASST550000000000003",
+                "LASST550000000000005",
+                "LASST560000000000003",
+                "LASST560000000000005",
                 "LNS11300000",
+                "LNS12000012",
+                "LNS12000036",
+                "LNS12000060",
+                "LNS12024230",
                 "LNS12300000",
                 "LNS13008636",
                 "LNS13327709",
                 "LNS14000000",
+                "LNS14000012",
+                "LNS14000036",
+                "LNS14000060",
+                "LNS14024230",
+                "LNU02032201",
+                "LNU02032204",
+                "LNU02032205",
+                "LNU02032208",
+                "LNU02032212",
+                "LNU04032215",
+                "LNU04032218",
+                "LNU04032219",
+                "LNU04032222",
+                "LNU04032226",
                 "PRS85006092",
                 "PRS85006112",
                 "WPSFD4",
@@ -4624,10 +4841,82 @@
                 "core_services_cpi_sa",
                 "cpi",
                 "cpi_sa",
+                "durables_cpi",
+                "durables_cpi_sa",
+                "employment_age_16_19",
+                "employment_age_20_24",
+                "employment_age_25_54",
+                "employment_age_55_plus",
                 "employment_cost_compensation",
                 "employment_cost_wages",
+                "employment_occupation_management_professional",
+                "employment_occupation_natural_resources_construction",
+                "employment_occupation_production_transportation",
+                "employment_occupation_sales_office",
+                "employment_occupation_service",
                 "employment_population_ratio",
+                "employment_region_midwest",
+                "employment_region_northeast",
+                "employment_region_south",
+                "employment_region_west",
+                "employment_state_ak",
+                "employment_state_al",
+                "employment_state_ar",
+                "employment_state_az",
+                "employment_state_ca",
+                "employment_state_co",
+                "employment_state_ct",
+                "employment_state_dc",
+                "employment_state_de",
+                "employment_state_fl",
+                "employment_state_ga",
+                "employment_state_hi",
+                "employment_state_ia",
+                "employment_state_id",
+                "employment_state_il",
+                "employment_state_in",
+                "employment_state_ks",
+                "employment_state_ky",
+                "employment_state_la",
+                "employment_state_ma",
+                "employment_state_md",
+                "employment_state_me",
+                "employment_state_mi",
+                "employment_state_mn",
+                "employment_state_mo",
+                "employment_state_ms",
+                "employment_state_mt",
+                "employment_state_nc",
+                "employment_state_nd",
+                "employment_state_ne",
+                "employment_state_nh",
+                "employment_state_nj",
+                "employment_state_nm",
+                "employment_state_nv",
+                "employment_state_ny",
+                "employment_state_oh",
+                "employment_state_ok",
+                "employment_state_or",
+                "employment_state_pa",
+                "employment_state_ri",
+                "employment_state_sc",
+                "employment_state_sd",
+                "employment_state_tn",
+                "employment_state_tx",
+                "employment_state_ut",
+                "employment_state_va",
+                "employment_state_vt",
+                "employment_state_wa",
+                "employment_state_wi",
+                "employment_state_wv",
+                "employment_state_wy",
+                "energy_cpi",
+                "energy_cpi_sa",
                 "export_prices",
+                "food_cpi",
+                "food_cpi_sa",
+                "goods_cpi",
+                "goods_cpi_sa",
                 "government_payrolls",
                 "hourly_earnings",
                 "import_prices",
@@ -4637,12 +4926,86 @@
                 "job_quits",
                 "long_term_unemployment",
                 "manufacturing_payrolls",
+                "nondurables_cpi",
+                "nondurables_cpi_sa",
                 "nonfarm_productivity_growth",
+                "owners_equivalent_rent_cpi",
+                "owners_equivalent_rent_cpi_sa",
                 "participation",
                 "payrolls",
                 "ppi_final_demand",
                 "private_payrolls",
+                "rent_cpi",
+                "rent_cpi_sa",
+                "services_cpi",
+                "services_cpi_sa",
+                "shelter_cpi",
+                "shelter_cpi_sa",
                 "unemployment",
+                "unemployment_age_16_19",
+                "unemployment_age_20_24",
+                "unemployment_age_25_54",
+                "unemployment_age_55_plus",
+                "unemployment_occupation_management_professional",
+                "unemployment_occupation_natural_resources_construction",
+                "unemployment_occupation_production_transportation",
+                "unemployment_occupation_sales_office",
+                "unemployment_occupation_service",
+                "unemployment_region_midwest",
+                "unemployment_region_northeast",
+                "unemployment_region_south",
+                "unemployment_region_west",
+                "unemployment_state_ak",
+                "unemployment_state_al",
+                "unemployment_state_ar",
+                "unemployment_state_az",
+                "unemployment_state_ca",
+                "unemployment_state_co",
+                "unemployment_state_ct",
+                "unemployment_state_dc",
+                "unemployment_state_de",
+                "unemployment_state_fl",
+                "unemployment_state_ga",
+                "unemployment_state_hi",
+                "unemployment_state_ia",
+                "unemployment_state_id",
+                "unemployment_state_il",
+                "unemployment_state_in",
+                "unemployment_state_ks",
+                "unemployment_state_ky",
+                "unemployment_state_la",
+                "unemployment_state_ma",
+                "unemployment_state_md",
+                "unemployment_state_me",
+                "unemployment_state_mi",
+                "unemployment_state_mn",
+                "unemployment_state_mo",
+                "unemployment_state_ms",
+                "unemployment_state_mt",
+                "unemployment_state_nc",
+                "unemployment_state_nd",
+                "unemployment_state_ne",
+                "unemployment_state_nh",
+                "unemployment_state_nj",
+                "unemployment_state_nm",
+                "unemployment_state_nv",
+                "unemployment_state_ny",
+                "unemployment_state_oh",
+                "unemployment_state_ok",
+                "unemployment_state_or",
+                "unemployment_state_pa",
+                "unemployment_state_ri",
+                "unemployment_state_sc",
+                "unemployment_state_sd",
+                "unemployment_state_tn",
+                "unemployment_state_tx",
+                "unemployment_state_ut",
+                "unemployment_state_va",
+                "unemployment_state_vt",
+                "unemployment_state_wa",
+                "unemployment_state_wi",
+                "unemployment_state_wv",
+                "unemployment_state_wy",
                 "unemployment_u6",
                 "unit_labor_cost_growth"
               ],
@@ -5876,10 +6239,18 @@
                 "australia_yield_change_2y",
                 "australia_yield_change_3y",
                 "australia_yield_change_5y",
+                "core_cpi_mom",
                 "core_cpi_yoy",
+                "core_goods_cpi_mom",
                 "core_goods_cpi_yoy",
+                "core_services_cpi_mom",
                 "core_services_cpi_yoy",
+                "cpi_mom",
                 "cpi_yoy",
+                "durables_cpi_mom",
+                "durables_cpi_yoy",
+                "energy_cpi_mom",
+                "energy_cpi_yoy",
                 "euro_aaa_butterfly_2y_5y_10y",
                 "euro_aaa_spread_10y_2y",
                 "euro_aaa_spread_30y_10y",
@@ -5896,6 +6267,10 @@
                 "euro_all_yield_change_2y",
                 "euro_all_yield_change_30y",
                 "euro_all_yield_change_5y",
+                "food_cpi_mom",
+                "food_cpi_yoy",
+                "goods_cpi_mom",
+                "goods_cpi_yoy",
                 "government_payrolls_change_mom",
                 "hourly_earnings_mom",
                 "hourly_earnings_yoy",
@@ -5911,6 +6286,10 @@
                 "jgb_yield_change_40y",
                 "jgb_yield_change_5y",
                 "manufacturing_payrolls_change_mom",
+                "nondurables_cpi_mom",
+                "nondurables_cpi_yoy",
+                "owners_equivalent_rent_cpi_mom",
+                "owners_equivalent_rent_cpi_yoy",
                 "par_inflation_compensation_10y",
                 "par_inflation_compensation_20y",
                 "par_inflation_compensation_30y",
@@ -5921,6 +6300,12 @@
                 "real_yield_change_10y",
                 "real_yield_change_30y",
                 "real_yield_change_5y",
+                "rent_cpi_mom",
+                "rent_cpi_yoy",
+                "services_cpi_mom",
+                "services_cpi_yoy",
+                "shelter_cpi_mom",
+                "shelter_cpi_yoy",
                 "yield_butterfly_2y_5y_10y",
                 "yield_change_10y",
                 "yield_change_2y",
@@ -6794,6 +7179,7 @@
             "ownership_filings",
             "fund_filings",
             "corporate_action_filings",
+            "inflation_measures",
             "economics",
             "treasury_yields",
             "federal_debt",
@@ -7863,6 +8249,7 @@
             "ownership_filings",
             "fund_filings",
             "corporate_action_filings",
+            "inflation_measures",
             "economics",
             "treasury_yields",
             "federal_debt",
@@ -8391,6 +8778,670 @@
     "ResearchPresetQuery": {
       "additionalProperties": false,
       "oneOf": [
+        {
+          "additionalProperties": false,
+          "dependentRequired": {
+            "end_date": ["start_date"],
+            "start_date": ["end_date"]
+          },
+          "properties": {
+            "end_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "End Date"
+            },
+            "include": {
+              "anyOf": [
+                {
+                  "items": {
+                    "enum": [
+                      "cpi",
+                      "core_cpi",
+                      "goods_cpi",
+                      "core_goods_cpi",
+                      "services_cpi",
+                      "core_services_cpi",
+                      "shelter_cpi",
+                      "rent_cpi",
+                      "owners_equivalent_rent_cpi",
+                      "energy_cpi"
+                    ]
+                  },
+                  "maxItems": 10,
+                  "minItems": 1,
+                  "type": "array",
+                  "uniqueItems": true
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Include"
+            },
+            "preset": {
+              "const": "us_cpi_detail",
+              "type": "string"
+            },
+            "preview": {
+              "default": false,
+              "title": "Preview",
+              "type": "boolean"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "requirements_by_item": {
+              "additionalProperties": {
+                "$ref": "#/$defs/ResearchRequirements"
+              },
+              "maxProperties": 10,
+              "propertyNames": {
+                "enum": [
+                  "cpi",
+                  "core_cpi",
+                  "goods_cpi",
+                  "core_goods_cpi",
+                  "services_cpi",
+                  "core_services_cpi",
+                  "shelter_cpi",
+                  "rent_cpi",
+                  "owners_equivalent_rent_cpi",
+                  "energy_cpi"
+                ]
+              },
+              "title": "Requirements By Item",
+              "type": "object"
+            },
+            "start_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Start Date"
+            },
+            "view": {
+              "default": "compact",
+              "enum": ["full", "compact"],
+              "title": "View",
+              "type": "string"
+            }
+          },
+          "required": ["preset"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "dependentRequired": {
+            "end_date": ["start_date"],
+            "start_date": ["end_date"]
+          },
+          "properties": {
+            "end_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "End Date"
+            },
+            "include": {
+              "anyOf": [
+                {
+                  "items": {
+                    "enum": [
+                      "cpi_yoy",
+                      "core_cpi_yoy",
+                      "goods_cpi_yoy",
+                      "core_goods_cpi_yoy",
+                      "services_cpi_yoy",
+                      "core_services_cpi_yoy",
+                      "shelter_cpi_yoy",
+                      "rent_cpi_yoy",
+                      "owners_equivalent_rent_cpi_yoy",
+                      "energy_cpi_yoy"
+                    ]
+                  },
+                  "maxItems": 10,
+                  "minItems": 1,
+                  "type": "array",
+                  "uniqueItems": true
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Include"
+            },
+            "preset": {
+              "const": "us_cpi_detail_yoy",
+              "type": "string"
+            },
+            "preview": {
+              "default": false,
+              "title": "Preview",
+              "type": "boolean"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "requirements_by_item": {
+              "additionalProperties": {
+                "$ref": "#/$defs/ResearchRequirements"
+              },
+              "maxProperties": 10,
+              "propertyNames": {
+                "enum": [
+                  "cpi_yoy",
+                  "core_cpi_yoy",
+                  "goods_cpi_yoy",
+                  "core_goods_cpi_yoy",
+                  "services_cpi_yoy",
+                  "core_services_cpi_yoy",
+                  "shelter_cpi_yoy",
+                  "rent_cpi_yoy",
+                  "owners_equivalent_rent_cpi_yoy",
+                  "energy_cpi_yoy"
+                ]
+              },
+              "title": "Requirements By Item",
+              "type": "object"
+            },
+            "start_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Start Date"
+            },
+            "view": {
+              "default": "compact",
+              "enum": ["full", "compact"],
+              "title": "View",
+              "type": "string"
+            }
+          },
+          "required": ["preset"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "dependentRequired": {
+            "end_date": ["start_date"],
+            "start_date": ["end_date"]
+          },
+          "properties": {
+            "end_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "End Date"
+            },
+            "include": {
+              "anyOf": [
+                {
+                  "items": {
+                    "enum": [
+                      "cpi_mom",
+                      "core_cpi_mom",
+                      "trimmed_mean_cpi_mom",
+                      "median_cpi_mom"
+                    ]
+                  },
+                  "maxItems": 10,
+                  "minItems": 1,
+                  "type": "array",
+                  "uniqueItems": true
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Include"
+            },
+            "preset": {
+              "const": "us_inflation_trend",
+              "type": "string"
+            },
+            "preview": {
+              "default": false,
+              "title": "Preview",
+              "type": "boolean"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "requirements_by_item": {
+              "additionalProperties": {
+                "$ref": "#/$defs/ResearchRequirements"
+              },
+              "maxProperties": 10,
+              "propertyNames": {
+                "enum": [
+                  "cpi_mom",
+                  "core_cpi_mom",
+                  "trimmed_mean_cpi_mom",
+                  "median_cpi_mom"
+                ]
+              },
+              "title": "Requirements By Item",
+              "type": "object"
+            },
+            "start_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Start Date"
+            },
+            "view": {
+              "default": "compact",
+              "enum": ["full", "compact"],
+              "title": "View",
+              "type": "string"
+            }
+          },
+          "required": ["preset"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "dependentRequired": {
+            "end_date": ["start_date"],
+            "start_date": ["end_date"]
+          },
+          "properties": {
+            "end_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "End Date"
+            },
+            "include": {
+              "anyOf": [
+                {
+                  "items": {
+                    "enum": [
+                      "employment_age_16_19",
+                      "unemployment_age_16_19",
+                      "employment_age_20_24",
+                      "unemployment_age_20_24",
+                      "employment_age_25_54",
+                      "unemployment_age_25_54",
+                      "employment_age_55_plus",
+                      "unemployment_age_55_plus"
+                    ]
+                  },
+                  "maxItems": 10,
+                  "minItems": 1,
+                  "type": "array",
+                  "uniqueItems": true
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Include"
+            },
+            "preset": {
+              "const": "us_employment_age",
+              "type": "string"
+            },
+            "preview": {
+              "default": false,
+              "title": "Preview",
+              "type": "boolean"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "requirements_by_item": {
+              "additionalProperties": {
+                "$ref": "#/$defs/ResearchRequirements"
+              },
+              "maxProperties": 10,
+              "propertyNames": {
+                "enum": [
+                  "employment_age_16_19",
+                  "unemployment_age_16_19",
+                  "employment_age_20_24",
+                  "unemployment_age_20_24",
+                  "employment_age_25_54",
+                  "unemployment_age_25_54",
+                  "employment_age_55_plus",
+                  "unemployment_age_55_plus"
+                ]
+              },
+              "title": "Requirements By Item",
+              "type": "object"
+            },
+            "start_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Start Date"
+            },
+            "view": {
+              "default": "compact",
+              "enum": ["full", "compact"],
+              "title": "View",
+              "type": "string"
+            }
+          },
+          "required": ["preset"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "dependentRequired": {
+            "end_date": ["start_date"],
+            "start_date": ["end_date"]
+          },
+          "properties": {
+            "end_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "End Date"
+            },
+            "include": {
+              "anyOf": [
+                {
+                  "items": {
+                    "enum": [
+                      "employment_occupation_management_professional",
+                      "unemployment_occupation_management_professional",
+                      "employment_occupation_service",
+                      "unemployment_occupation_service",
+                      "employment_occupation_sales_office",
+                      "unemployment_occupation_sales_office",
+                      "employment_occupation_natural_resources_construction",
+                      "unemployment_occupation_natural_resources_construction",
+                      "employment_occupation_production_transportation",
+                      "unemployment_occupation_production_transportation"
+                    ]
+                  },
+                  "maxItems": 10,
+                  "minItems": 1,
+                  "type": "array",
+                  "uniqueItems": true
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Include"
+            },
+            "preset": {
+              "const": "us_employment_occupation",
+              "type": "string"
+            },
+            "preview": {
+              "default": false,
+              "title": "Preview",
+              "type": "boolean"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "requirements_by_item": {
+              "additionalProperties": {
+                "$ref": "#/$defs/ResearchRequirements"
+              },
+              "maxProperties": 10,
+              "propertyNames": {
+                "enum": [
+                  "employment_occupation_management_professional",
+                  "unemployment_occupation_management_professional",
+                  "employment_occupation_service",
+                  "unemployment_occupation_service",
+                  "employment_occupation_sales_office",
+                  "unemployment_occupation_sales_office",
+                  "employment_occupation_natural_resources_construction",
+                  "unemployment_occupation_natural_resources_construction",
+                  "employment_occupation_production_transportation",
+                  "unemployment_occupation_production_transportation"
+                ]
+              },
+              "title": "Requirements By Item",
+              "type": "object"
+            },
+            "start_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Start Date"
+            },
+            "view": {
+              "default": "compact",
+              "enum": ["full", "compact"],
+              "title": "View",
+              "type": "string"
+            }
+          },
+          "required": ["preset"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "dependentRequired": {
+            "end_date": ["start_date"],
+            "start_date": ["end_date"]
+          },
+          "properties": {
+            "end_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "End Date"
+            },
+            "include": {
+              "anyOf": [
+                {
+                  "items": {
+                    "enum": [
+                      "employment_region_northeast",
+                      "unemployment_region_northeast",
+                      "employment_region_midwest",
+                      "unemployment_region_midwest",
+                      "employment_region_south",
+                      "unemployment_region_south",
+                      "employment_region_west",
+                      "unemployment_region_west"
+                    ]
+                  },
+                  "maxItems": 10,
+                  "minItems": 1,
+                  "type": "array",
+                  "uniqueItems": true
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Include"
+            },
+            "preset": {
+              "const": "us_employment_region",
+              "type": "string"
+            },
+            "preview": {
+              "default": false,
+              "title": "Preview",
+              "type": "boolean"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "requirements_by_item": {
+              "additionalProperties": {
+                "$ref": "#/$defs/ResearchRequirements"
+              },
+              "maxProperties": 10,
+              "propertyNames": {
+                "enum": [
+                  "employment_region_northeast",
+                  "unemployment_region_northeast",
+                  "employment_region_midwest",
+                  "unemployment_region_midwest",
+                  "employment_region_south",
+                  "unemployment_region_south",
+                  "employment_region_west",
+                  "unemployment_region_west"
+                ]
+              },
+              "title": "Requirements By Item",
+              "type": "object"
+            },
+            "start_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Start Date"
+            },
+            "view": {
+              "default": "compact",
+              "enum": ["full", "compact"],
+              "title": "View",
+              "type": "string"
+            }
+          },
+          "required": ["preset"],
+          "type": "object"
+        },
         {
           "additionalProperties": false,
           "dependentRequired": {
@@ -11754,6 +12805,12 @@
       "properties": {
         "preset": {
           "enum": [
+            "us_cpi_detail",
+            "us_cpi_detail_yoy",
+            "us_inflation_trend",
+            "us_employment_age",
+            "us_employment_occupation",
+            "us_employment_region",
             "country_macro_overview",
             "g20_country_overview",
             "japan_equity_history",
@@ -12163,6 +13220,12 @@
       "properties": {
         "preset": {
           "enum": [
+            "us_cpi_detail",
+            "us_cpi_detail_yoy",
+            "us_inflation_trend",
+            "us_employment_age",
+            "us_employment_occupation",
+            "us_employment_region",
             "country_macro_overview",
             "g20_country_overview",
             "japan_equity_history",
