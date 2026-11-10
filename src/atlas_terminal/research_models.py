@@ -40,6 +40,7 @@ from atlas_terminal.futures_catalog import (
     future_identity,
 )
 from atlas_terminal.global_macro_sources import GLOBAL_AREAS, GLOBAL_INDICATORS
+from atlas_terminal.inflation_sources import INFLATION_SERIES
 from atlas_terminal.macro_catalog import (
     CURVE_SERIES,
     FX_CURRENCIES,
@@ -92,6 +93,7 @@ Dataset = Literal[
     "ownership_filings",
     "fund_filings",
     "corporate_action_filings",
+    "inflation_measures",
     "economics",
     "treasury_yields",
     "federal_debt",
@@ -201,6 +203,7 @@ FIELDS = {
     "ownership_filings": {"identifier", "limit"},
     "fund_filings": {"identifier", "limit"},
     "corporate_action_filings": {"identifier", "limit"},
+    "inflation_measures": {"series", "limit", "start_date", "end_date"},
     "economics": {"series", "limit", "start_date", "end_date"},
     "treasury_yields": {"year", "limit"},
     "federal_debt": {"limit"},
@@ -282,6 +285,7 @@ def dataset_required(name: str) -> list[str]:
     if name == "compare":
         return ["identifiers"]
     if name in {
+        "inflation_measures",
         "economics",
         "reference_rates",
         "macro_analytics",
@@ -335,6 +339,8 @@ class ResponseOptions(Model):
 
 
 class CatalogQuery(Model):
+    topic: Literal["cpi", "employment"] | None = None
+    breakdown: str | None = Field(default=None, pattern=r"^[a-z][a-z_]{0,39}$")
     dataset: Dataset | None = None
     view: Literal["full", "compact"] = "full"
     search: str | None = Field(default=None, min_length=1, max_length=100)
@@ -479,6 +485,8 @@ def dataset_schema(schema: dict[str, Any]) -> None:
             if name in {"compare", "company_screen"}:
                 metrics.update(RATIOS)
             properties["metrics"]["items"] = {"type": "string", "enum": sorted(metrics)}
+        if name == "inflation_measures":
+            properties["series"] = {"type": "string", "enum": list(INFLATION_SERIES)}
         if name == "economics":
             properties["series"]["enum"] = sorted(
                 {*BLS_SERIES, *(value[0] for value in BLS_SERIES.values())}
@@ -936,6 +944,10 @@ class ResearchQuery(Model):
                 "INVALID_INPUT",
                 "Provide an explicit universe of at most ten issuers.",
                 fields=["identifiers"],
+            )
+        if self.dataset == "inflation_measures" and self.series not in INFLATION_SERIES:
+            raise AtlasError(
+                "INVALID_INPUT", "Choose a registered inflation measure.", fields=["series"]
             )
         if self.dataset == "economics" and self.series is None:
             raise AtlasError(

@@ -228,6 +228,8 @@ def create_app(
         frequency: Literal["daily", "weekly", "monthly", "quarterly", "annual"] | None = None,
         source_id: str | None = None,
         unit: str | None = None,
+        topic: Literal["cpi", "employment"] | None = None,
+        breakdown: str | None = None,
     ) -> dict[str, Any]:
         return orders.atlas.research_catalog(
             dataset,
@@ -237,6 +239,8 @@ def create_app(
             frequency=frequency,
             source_id=source_id,
             unit=unit,
+            topic=topic,
+            breakdown=breakdown,
         )
 
     @app.get(

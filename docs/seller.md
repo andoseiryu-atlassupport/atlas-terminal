@@ -135,3 +135,7 @@ Before public operation, configure a private security-reporting contact, source-
 `uv run --offline pytest tests/test_seller_products.py tests/test_seller_mainnet.py tests/test_seller_interfaces.py` uses fictional bytes, ephemeral signing keys, mock facilitator/RPC responses and actual in-memory MCP sessions. These exercise real SDK code but no blockchain transfers.
 
 `scripts/verify_seller_captures.py --output build/seller-replay` independently matches previously retained real BLS values, units, periods, hashes and pointers, then exercises mock purchase/recovery. It uses no network, changes no BLS cache/counter and writes private ignored output. The old captures exceed the normal 48-hour policy; the audit deliberately raises its local replay age limit and records default rejection. [Dated results and remaining limits](verification.md).
+
+## Macro breakdown scope
+
+The BLS product selector registry includes the [CPI and employment breakdowns](macro-breakdowns.md). A product still requires explicit operator ingestion before sale; adding a selector does not fetch, publish or charge for it. Cleveland Fed median/trimmed CPI is a separate research source and is excluded from this seller. Its published reuse permission is limited to attributed noncommercial, personal or educational use; commercial redistribution rights have not been established.

@@ -142,6 +142,8 @@ def research_catalog(
     frequency: Literal["daily", "weekly", "monthly", "quarterly", "annual"] | None = None,
     source_id: str | None = None,
     unit: str | None = None,
+    topic: Literal["cpi", "employment"] | None = None,
+    breakdown: str | None = None,
     json_output: bool = typer.Option(False, "--json"),
 ) -> None:
     """List free sources, datasets, units, query schema and unavailable coverage."""
@@ -154,6 +156,8 @@ def research_catalog(
             frequency=frequency,
             source_id=source_id,
             unit=unit,
+            topic=topic,
+            breakdown=breakdown,
         )
     )
 

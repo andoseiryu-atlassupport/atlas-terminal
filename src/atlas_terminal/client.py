@@ -352,6 +352,8 @@ class Atlas:
         frequency: Literal["daily", "weekly", "monthly", "quarterly", "annual"] | None = None,
         source_id: str | None = None,
         unit: str | None = None,
+        topic: Literal["cpi", "employment"] | None = None,
+        breakdown: str | None = None,
     ) -> dict[str, Any]:
         return research_catalog(
             dataset,
@@ -361,6 +363,8 @@ class Atlas:
             frequency=frequency,
             source_id=source_id,
             unit=unit,
+            topic=topic,
+            breakdown=breakdown,
         )
 
     def get_evidence(self, evidence_id: str) -> dict[str, Any]:

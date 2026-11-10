@@ -157,3 +157,7 @@ MCP uses `atlas_research_diagnostics` with `{"query":{"sources":["ecb","new_york
 Opted-in probes reuse [official source checks](source-checks.md), source caches/quotas and private last-success baselines in the configured state directory. Individual failures remain visible with safe next actions. `verified` means all selected fixed probes passed in that run, not that every dataset is available or up to date. Failed probes report `degraded`; fixture diagnostics always report `synthetic` and never probe live sources, even with opt-in. CLI exits 3 for degraded checks and 4 for required configuration; HTTP/MCP return the diagnostic report for inspection.
 
 Live connectivity, source coverage and remaining upstream quotas cannot be established by configuration checks or fixtures. Diagnostic results do not install a release/holiday calendar or continuous monitor. [Validation scope](verification.md).
+
+## US CPI and employment detail
+
+Six [macro breakdown presets](macro-breakdowns.md) add `us_cpi_detail`, `us_cpi_detail_yoy`, `us_inflation_trend`, `us_employment_age`, `us_employment_occupation` and `us_employment_region`. Each runs at most ten existing shared queries. Region means the four Census regions; select individual states from the catalog. Age, occupation and geography are separate marginal series, not combined cross-tabulations. Preset `include` and `preview` work as for existing recipes.

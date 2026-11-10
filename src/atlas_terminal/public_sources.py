@@ -34,11 +34,13 @@ from atlas_terminal.errors import AtlasError
 from atlas_terminal.fixed_income_sources import JGB_BASE, JGB_URLS, parse_jgb_csv
 from atlas_terminal.fred_sources import fred_series_identity
 from atlas_terminal.global_macro_sources import GLOBAL_AREAS, GLOBAL_INDICATORS, global_wdi_identity
+from atlas_terminal.inflation_sources import INFLATION_SOURCE, INFLATION_URLS, parse_inflation_csv
 from atlas_terminal.japan_company_sources import (
     COMPANY_SOURCES,
     company_identity,
     edinet_key,
 )
+from atlas_terminal.macro_breakdown_catalog import BREAKDOWN_DETAILS, BREAKDOWN_SERIES
 from atlas_terminal.margin_sources import MAX_PDF_BYTES, margin_identity, margin_reports
 from atlas_terminal.policy_sources import parse_policy, policy_identity
 from atlas_terminal.prediction_sources import PREDICTION_SOURCE, prediction_identity
@@ -306,7 +308,11 @@ for _key, _code, _title, _unit, _frequency, _adjusted, _annualized, _base, _kind
     if _kind is not None:
         BLS_DETAILS[_key]["reference_period_kind"] = _kind
 
+BLS_SERIES.update(BREAKDOWN_SERIES)
+BLS_DETAILS.update(BREAKDOWN_DETAILS)
+
 SOURCE_CATALOG = {
+    "cleveland_fed": INFLATION_SOURCE,
     "polymarket": PREDICTION_SOURCE,
     **COMPANY_SOURCES,
     "yahoo_finance": YAHOO_SOURCE,
@@ -547,7 +553,7 @@ class PublicTransport(CachedHTTPTransport):
     @staticmethod
     def validate_url(url: str) -> None:
         if (
-            url in {DEBT_URL, FED_NEWS, ECB_FX_URL, RBA_URL, *JGB_URLS}
+            url in {DEBT_URL, FED_NEWS, ECB_FX_URL, RBA_URL, *JGB_URLS, *INFLATION_URLS.values()}
             or nyfed_identity(url) is not None
             or policy_identity(url) is not None
             or ecb_curve_identity(url) is not None
@@ -571,6 +577,10 @@ class PublicTransport(CachedHTTPTransport):
 
     @staticmethod
     def validate_body(url: str, body: bytes) -> None:
+        if url in INFLATION_URLS.values():
+            kind = next(k for k, v in INFLATION_URLS.items() if v == url)
+            parse_inflation_csv(Snapshot(body, url, "2000-01-01T00:00:00Z"), kind)
+            return
         if prediction := prediction_identity(url):
             from atlas_terminal.research_predictions import MAX_BODY_BYTES
 
@@ -1078,6 +1088,8 @@ class PublicFixtures:
                         codes[code.get("code", "")] = key
                 key = codes[p["IndicatorCode"][0]]
                 name = "estat_" + key + ".xml"
+        elif url in INFLATION_URLS.values():
+            name = next(k for k, v in INFLATION_URLS.items() if v == url) + ".csv"
         elif url == ECB_FX_URL:
             name = "fx.xml"
         elif (nyfed := nyfed_identity(url)) is not None:

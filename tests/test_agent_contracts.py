@@ -32,6 +32,8 @@ def private_state(tmp_path, monkeypatch):
 
 
 def query(dataset="statements", **extra):
+    if dataset == "inflation_measures":
+        return {"dataset": dataset, "series": "median_cpi_mom", **extra}
     if dataset == "order_book":
         return {"dataset": dataset, "identifier": "BTC_JPY", **extra}
     if dataset == "analyst_reports":

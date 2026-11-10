@@ -388,8 +388,13 @@ DATASETS = {
         "sec",
         "filing_metadata",
     ),
+    "inflation_measures": (
+        "Cleveland Fed median and 16% trimmed-mean CPI monthly changes",
+        "cleveland_fed",
+        "observations",
+    ),
     "economics": (
-        "Twenty-seven BLS price, labor, employment-cost and productivity series",
+        "BLS CPI components, regional/age/occupation employment, wages and productivity",
         "bls",
         "observations",
     ),
@@ -490,6 +495,8 @@ def research_catalog(
     frequency: Literal["daily", "weekly", "monthly", "quarterly", "annual"] | None = None,
     source_id: str | None = None,
     unit: str | None = None,
+    topic: Literal["cpi", "employment"] | None = None,
+    breakdown: str | None = None,
 ) -> dict[str, Any]:
     from dataclasses import asdict
 
@@ -515,6 +522,8 @@ def research_catalog(
             frequency=frequency,
             source_id=source_id,
             unit=unit,
+            topic=topic,
+            breakdown=breakdown,
         )
     except ValidationError:
         raise AtlasError("INVALID_INPUT", "Invalid catalog filters.") from None
@@ -1144,6 +1153,7 @@ class ResearchService:
             "price_analytics",
             "price_comparison",
             "fred_series",
+            "inflation_measures",
             "economics",
             "treasury_yields",
             "federal_debt",
@@ -1843,6 +1853,10 @@ class ResearchService:
         if q.dataset == "macro_analytics":
             return macro_analytics(self.public, q, self.economics)
         records: list[dict[str, Any]]
+        if q.dataset == "inflation_measures":
+            from atlas_terminal.research_inflation import inflation_measures
+
+            return inflation_measures(self.public, q)
         if q.dataset == "economics":
             return self.economics(q)
         requested_year = q.year or date.today().year
