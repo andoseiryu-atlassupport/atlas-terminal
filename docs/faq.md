@@ -2,7 +2,7 @@
 
 ## What is Atlas Terminal?
 
-Atlas Terminal is an Apache-2.0 financial research toolkit for AI agents and applications. One MCP connection provides company financials and filings, macro/rates/FX, optional market prices, technical indicators, Japanese margin balances, Buffett-inspired scoring and Polymarket outcomes with inspectable sources and calculations. A Python SDK, CLI and HTTP API share the research services; optional native risk models analyze supplied histories. The current source checkout has 68 datasets, 27 upstream source families and 26 presets.
+Atlas Terminal is an Apache-2.0 financial research toolkit for AI agents and applications. One MCP connection provides company financials and filings, macro/rates/FX, optional market prices, technical indicators, Japanese margin balances, Buffett-inspired scoring and Polymarket outcomes with inspectable sources and calculations. A Python SDK, CLI and HTTP API share the research services; optional native risk models analyze supplied histories. The current source checkout has 68 datasets, 27 upstream source families and 27 presets.
 
 ## Are all documented features in the latest release?
 

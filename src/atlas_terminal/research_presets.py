@@ -50,12 +50,36 @@ PresetName = Literal[
     "us_activity_extended",
     "us_trade_overview",
     "us_inflation_costs",
+    "us_cpi_components",
     "japan_external_corporate",
     "australia_macro_overview",
     "canada_macro_overview",
     "china_macro_overview",
 ]
 PRESETS: dict[str, dict[str, Any]] = {
+    "us_cpi_components": {
+        "description": (
+            "US CPI-U headline, core, core goods and core services including shelter: "
+            "unadjusted index levels and separately derived year-on-year ratios."
+        ),
+        "fields": ["start_date", "end_date"],
+        "required": [],
+        "items": {
+            **{
+                key: {"dataset": "economics", "series": key, "limit": 1}
+                for key in ("cpi", "core_cpi", "core_goods_cpi", "core_services_cpi")
+            },
+            **{
+                key: {"dataset": "macro_analytics", "series": key, "limit": 1}
+                for key in (
+                    "cpi_yoy",
+                    "core_cpi_yoy",
+                    "core_goods_cpi_yoy",
+                    "core_services_cpi_yoy",
+                )
+            },
+        },
+    },
     "g20_country_overview": {
         "description": "Annual WDI macro context for one explicit G20 country or the EU aggregate.",
         "fields": ["country", "start_date", "end_date"],

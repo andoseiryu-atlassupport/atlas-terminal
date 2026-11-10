@@ -196,6 +196,13 @@ def bls_economics(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
     )
     if quarterly:
         result["coverage"]["excluded_annual_summary_rows"] = excluded_summaries
+    if "index_scope" in details:
+        result["limitations"].append(
+            "CPI components are separately reported index levels, not additive contributions. "
+            "Seasonally adjusted and unadjusted series are selected explicitly; no conversion "
+            "or component subtraction is performed. Core services includes shelter and is "
+            "not a shelter-excluding supercore measure."
+        )
     return result
 
 

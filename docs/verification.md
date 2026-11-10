@@ -4,6 +4,18 @@ Recorded on 2026-11-10 (JST) for the source checkout following Atlas Terminal 0.
 
 Version 0.7.0 includes the experimental native factor risk extension and installed walkthroughs described below. The prior 0.6.0 release did not include risk estimation. Local wheel checks remain separate evidence from a published GitHub release.
 
+## US CPI components
+
+On **2026-11-10 JST**, official BLS series-ID, CPI table, seasonal aggregation and correction-inventory documentation was reviewed for CPI-U U.S. city-average core, core-goods and core-services definitions. Core goods excludes food and energy commodities; core services excludes energy services and includes shelter. Unadjusted and seasonally adjusted series are separately selected, with 1982–1984=100 index units. Documentation review does not establish successful API access or current observations.
+
+The new public source fixtures contain explicitly fictional, independently invented component indexes. They are not captures or BLS-reported prices. Regression checks cover exact series selection, monthly periods, annual-average exclusion, missing/nonpositive baselines, conflicting identity/duplicate months, unadjusted year-on-year ratios, compact provenance, discovery and preset preview. The new components use the existing source transport and its bounded requests/cache/quota controls.
+
+The final local `uv run --offline pytest` run passed **3,205 tests**, with two opt-in live tests deselected. This adds **35 cases** across the new component tests and existing registry-driven coverage. SDK, CLI and REST responses matched; an actual official stdio MCP session executed the component preset and resolved its evidence. Seller publication tests covered the five additional index selectors with fictional bytes. A full fictional preset retained unavailable headline/core YoY rows where the unchanged legacy fixtures lack monthly baselines.
+
+Ruff check/format (**338 Python files**), mypy (**138 source files**), `npm run check`, regenerated schemas, wheel/sdist validation (**453 / 784 files**), the **71-page** documentation/internal-link build, distribution preparation and public-file/history credential-pattern scanning passed. `scripts/verify_bls_capture.py` still matched **14 retained responses / 168 observations**, and both showcase checksums passed. All **53 existing BLS capture/fixture files** remained byte-identical. Private test logs and separately labeled fictional response/preview examples are under ignored `build/cpi-components-2026-11-10/`. These local results are separate from GitHub Actions and live API verification.
+
+No new BLS API request, source-cache reset, quota reset, real payment, release or deployment was performed. Existing retained-source evidence and pre-existing BLS fixtures remain unchanged. Live API validation of the new selections remains unverified.
+
 ## BLS seller API
 
 On **2026-11-10 JST**, `uv run --offline python scripts/verify_seller_captures.py --output build/seller-2026-11-10/source-replay-final` replayed **12 previously retained real BLS captures and matched 168 records** to the original values, units, years, periods, source hashes, retrieval times and JSON pointers. All **31 retained capture files** remained byte-identical. Each replay prepared an immutable product, quoted it, completed one fictional settlement, verified the result hash and recovered the same paid artifact without another settlement. Unauthenticated recovery and free-research routes were rejected.

@@ -1,6 +1,6 @@
 # Project overview
 
-Atlas Terminal is an Apache-2.0 financial research toolkit for AI agents and applications. It combines data retrieval, research calculations and inspectable source evidence through MCP, a Python SDK, a CLI and an HTTP API. The current source checkout has **68 research datasets, 27 upstream source families and 26 presets**; the existing `v0.7.0` release does not contain every later source addition.
+Atlas Terminal is an Apache-2.0 financial research toolkit for AI agents and applications. It combines data retrieval, research calculations and inspectable source evidence through MCP, a Python SDK, a CLI and an HTTP API. The current source checkout has **68 research datasets, 27 upstream source families and 27 presets**; the existing `v0.7.0` release does not contain every later source addition.
 
 ## Research capabilities
 

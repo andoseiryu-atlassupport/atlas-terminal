@@ -37,6 +37,9 @@ def series_catalog(filters: CatalogQuery) -> dict[str, Any]:
         aliases = []
         for term, words in {
             "cpi": ["inflation", "物価", "インフレ"],
+            "core_cpi": ["core inflation", "コアCPI", "コア物価"],
+            "core_goods_cpi": ["core goods", "コア財", "コア財CPI"],
+            "core_services_cpi": ["core services", "コアサービス", "住居費を含む"],
             "pce": ["inflation", "物価", "インフレ"],
             "unemployment": ["失業", "雇用"],
             "gdp": ["国内総生産", "成長"],

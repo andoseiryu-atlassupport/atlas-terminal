@@ -297,7 +297,17 @@ def test_all_new_queries_work_through_http_and_cli_with_the_same_contract(tmp_pa
                     "dataset": "economics",
                 },
             )
-            assert catalog.status_code == 200 and catalog.json()["series_search"]["matched"] == 3
+            assert catalog.status_code == 200 and catalog.json()["series_search"]["matched"] == 8
+            assert {row["series"] for row in catalog.json()["series_search"]["records"]} == {
+                "cpi",
+                "cpi_sa",
+                "core_cpi",
+                "core_cpi_sa",
+                "core_goods_cpi",
+                "core_goods_cpi_sa",
+                "core_services_cpi",
+                "core_services_cpi_sa",
+            }
         completed = subprocess.run(
             [
                 sys.executable,

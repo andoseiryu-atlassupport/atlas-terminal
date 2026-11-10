@@ -389,7 +389,7 @@ DATASETS = {
         "filing_metadata",
     ),
     "economics": (
-        "Twenty-two BLS price, labor, employment-cost and productivity series",
+        "Twenty-seven BLS price, labor, employment-cost and productivity series",
         "bls",
         "observations",
     ),
