@@ -4586,9 +4586,11 @@
             "series": {
               "enum": [
                 "CES0000000001",
+                "CES0500000001",
                 "CES0500000002",
                 "CES0500000003",
                 "CES3000000001",
+                "CES9000000001",
                 "CIS1010000000000I",
                 "CIS1020000000000I",
                 "CUSR0000SA0",
@@ -4608,6 +4610,7 @@
                 "LNS11300000",
                 "LNS12300000",
                 "LNS13008636",
+                "LNS13327709",
                 "LNS14000000",
                 "PRS85006092",
                 "PRS85006112",
@@ -4625,6 +4628,7 @@
                 "employment_cost_wages",
                 "employment_population_ratio",
                 "export_prices",
+                "government_payrolls",
                 "hourly_earnings",
                 "import_prices",
                 "job_hires",
@@ -4637,7 +4641,9 @@
                 "participation",
                 "payrolls",
                 "ppi_final_demand",
+                "private_payrolls",
                 "unemployment",
+                "unemployment_u6",
                 "unit_labor_cost_growth"
               ],
               "maxLength": 100,
@@ -5890,6 +5896,9 @@
                 "euro_all_yield_change_2y",
                 "euro_all_yield_change_30y",
                 "euro_all_yield_change_5y",
+                "government_payrolls_change_mom",
+                "hourly_earnings_mom",
+                "hourly_earnings_yoy",
                 "jgb_butterfly_2y_5y_10y",
                 "jgb_spread_10y_2y",
                 "jgb_spread_20y_10y",
@@ -5901,12 +5910,14 @@
                 "jgb_yield_change_30y",
                 "jgb_yield_change_40y",
                 "jgb_yield_change_5y",
+                "manufacturing_payrolls_change_mom",
                 "par_inflation_compensation_10y",
                 "par_inflation_compensation_20y",
                 "par_inflation_compensation_30y",
                 "par_inflation_compensation_5y",
                 "par_inflation_compensation_7y",
                 "payrolls_change_mom",
+                "private_payrolls_change_mom",
                 "real_yield_change_10y",
                 "real_yield_change_30y",
                 "real_yield_change_5y",
@@ -8380,6 +8391,120 @@
     "ResearchPresetQuery": {
       "additionalProperties": false,
       "oneOf": [
+        {
+          "additionalProperties": false,
+          "dependentRequired": {
+            "end_date": ["start_date"],
+            "start_date": ["end_date"]
+          },
+          "properties": {
+            "end_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "End Date"
+            },
+            "include": {
+              "anyOf": [
+                {
+                  "items": {
+                    "enum": [
+                      "payrolls",
+                      "unemployment",
+                      "unemployment_u6",
+                      "participation",
+                      "employment_population_ratio",
+                      "hourly_earnings",
+                      "average_weekly_hours",
+                      "payrolls_change_mom",
+                      "hourly_earnings_mom",
+                      "hourly_earnings_yoy"
+                    ]
+                  },
+                  "maxItems": 10,
+                  "minItems": 1,
+                  "type": "array",
+                  "uniqueItems": true
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Include"
+            },
+            "preset": {
+              "const": "us_employment_overview",
+              "type": "string"
+            },
+            "preview": {
+              "default": false,
+              "title": "Preview",
+              "type": "boolean"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "requirements_by_item": {
+              "additionalProperties": {
+                "$ref": "#/$defs/ResearchRequirements"
+              },
+              "maxProperties": 10,
+              "propertyNames": {
+                "enum": [
+                  "payrolls",
+                  "unemployment",
+                  "unemployment_u6",
+                  "participation",
+                  "employment_population_ratio",
+                  "hourly_earnings",
+                  "average_weekly_hours",
+                  "payrolls_change_mom",
+                  "hourly_earnings_mom",
+                  "hourly_earnings_yoy"
+                ]
+              },
+              "title": "Requirements By Item",
+              "type": "object"
+            },
+            "start_date": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Start Date"
+            },
+            "view": {
+              "default": "compact",
+              "enum": ["full", "compact"],
+              "title": "View",
+              "type": "string"
+            }
+          },
+          "required": ["preset"],
+          "type": "object"
+        },
         {
           "additionalProperties": false,
           "dependentRequired": {
@@ -11652,6 +11777,7 @@
             "us_trade_overview",
             "us_inflation_costs",
             "us_cpi_components",
+            "us_employment_overview",
             "japan_external_corporate",
             "australia_macro_overview",
             "canada_macro_overview",
@@ -12060,6 +12186,7 @@
             "us_trade_overview",
             "us_inflation_costs",
             "us_cpi_components",
+            "us_employment_overview",
             "japan_external_corporate",
             "australia_macro_overview",
             "canada_macro_overview",

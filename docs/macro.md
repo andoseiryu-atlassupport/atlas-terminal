@@ -10,7 +10,7 @@ The CLI, Python SDK, MCP and HTTP API share the same macro datasets, date rules 
 | `fx_rates`             | `base_currency`, `quote_currency`                 | Full published ECB history; optional dates                                 | Quote currency per one base currency            |
 | `reference_rates`      | `series`: `effr` or `sofr`; optional paired dates | Latest 90 by default; dated New York Fed history in annual requests        | Percent per annum                               |
 | `treasury_real_yields` | None; optional `year`                             | Treasury selected calendar year, from 2003                                 | Percent per annum                               |
-| `macro_analytics`      | `series`                                          | BLS date window or Treasury selected year                                  | Ratio, thousand persons or basis points         |
+| `macro_analytics`      | `series`                                          | BLS date window or Treasury selected year                                  | Ratio, thousand persons/jobs or basis points    |
 
 All accept `limit` from 1–500 and shared `response` options. A limit selects the newest records after filtering; response pagination traverses that selection, not unlimited source history. Split long daily histories into smaller date queries to retrieve more than 500 records. Source coverage can start later or end earlier than the requested window; dates and limits never invent missing observations.
 
@@ -75,18 +75,23 @@ ECB and Treasury snapshots use a six-hour cache TTL; EFFR/SOFR snapshots use one
 
 ## Derived macro indicators
 
-| `series`                | Inputs and formula                                                                              | Unit               |
-| ----------------------- | ----------------------------------------------------------------------------------------------- | ------------------ |
-| `cpi_yoy`               | BLS CPI-U, not seasonally adjusted: (current − same month last year) / same month last year     | `ratio`            |
-| `core_cpi_yoy`          | BLS CPI-U excluding food/energy, not seasonally adjusted; same YoY formula                      | `ratio`            |
-| `core_goods_cpi_yoy`    | BLS commodities less food/energy commodities, not seasonally adjusted; same YoY formula         | `ratio`            |
-| `core_services_cpi_yoy` | BLS services less energy services, including shelter, not seasonally adjusted; same YoY formula | `ratio`            |
-| `payrolls_change_mom`   | Seasonally adjusted total nonfarm payroll level − exact previous month's level                  | `thousand_persons` |
-| `yield_spread_10y_2y`   | (Same-day nominal 10-year yield − nominal 2-year yield) × 100                                   | `basis_points`     |
+[Employment Situation coverage](economic-indicators.md#us-employment-situation) includes nominal wage MoM/YoY, sector payroll changes and a ten-item overview with separate CES/CPS definitions.
 
-A CPI ratio of `"0.03"` means 3%. A payroll change of `"150"` means 150,000 persons. A yield spread of `"25"` means 25 basis points, or 0.25 percentage points. Negative payroll changes and inverted yield spreads are valid. CPI index levels must be positive; negative employment levels are unavailable.
+| `series`                                                         | Inputs and formula                                                                              | Unit               |
+| ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- | ------------------ |
+| `cpi_yoy`                                                        | BLS CPI-U, not seasonally adjusted: (current − same month last year) / same month last year     | `ratio`            |
+| `core_cpi_yoy`                                                   | BLS CPI-U excluding food/energy, not seasonally adjusted; same YoY formula                      | `ratio`            |
+| `core_goods_cpi_yoy`                                             | BLS commodities less food/energy commodities, not seasonally adjusted; same YoY formula         | `ratio`            |
+| `core_services_cpi_yoy`                                          | BLS services less energy services, including shelter, not seasonally adjusted; same YoY formula | `ratio`            |
+| `payrolls_change_mom`                                            | Seasonally adjusted total nonfarm payroll level − exact previous month's level                  | `thousand_persons` |
+| `private_payrolls_change_mom` / `government_payrolls_change_mom` | Seasonally adjusted sector level − exact previous month                                         | `thousand_jobs`    |
+| `manufacturing_payrolls_change_mom`                              | Seasonally adjusted manufacturing level − exact previous month                                  | `thousand_persons` |
+| `hourly_earnings_mom` / `hourly_earnings_yoy`                    | All-private-employee average hourly earnings: (current − exact 1/12-month lag) / lag            | `ratio`            |
+| `yield_spread_10y_2y`                                            | (Same-day nominal 10-year yield − nominal 2-year yield) × 100                                   | `basis_points`     |
 
-Monthly calculations exclude BLS M13 annual averages. They match the exact calendar lag, including December/January for payrolls; a neighboring month never replaces a missing baseline. `comparison_period` identifies the required prior month even when it is absent. Output limits apply after input matching, so a baseline outside the returned rows can still be used. CPI division uses precision 28 and round-half-even; payroll subtraction preserves source digits.
+A CPI ratio of `"0.03"` means 3%. A payroll change of `"150"` means 150,000 payroll jobs; the legacy `thousand_persons` unit is retained for total/manufacturing employment compatibility. A yield spread of `"25"` means 25 basis points, or 0.25 percentage points. Negative payroll changes and inverted yield spreads are valid. CPI index levels must be positive; negative employment levels are unavailable.
+
+Monthly calculations exclude BLS M13 annual averages. They match the exact calendar lag, including December/January for payrolls; a neighboring month never replaces a missing baseline. `comparison_period` identifies the required prior month even when it is absent. Output limits apply after input matching, so a baseline outside the returned rows can still be used. CPI and wage-growth division use precision 28 and round-half-even; payroll subtraction preserves source digits.
 
 Government-curve analytics now cover US/Japan/euro area/Australia slopes, butterflies, preceding-observation yield changes and same-date US nominal/real par gaps. Calculations use full selected source windows before output filtering and retain negative yields and explicit missing inputs. Par gaps are inflation-compensation proxies, not pure expected inflation or zero-coupon breakevens. [Series, formulas, Japanese CSV evidence and bond presets](fixed-income.md).
 
@@ -94,7 +99,7 @@ Every derived record retains `formula`, `inputs`, `unit`, `status` and a missing
 
 ## US national accounts
 
-The current source checkout expands BEA to sixteen series, Japanese macro to twenty-nine, and BLS to twenty-seven. Eurostat and ONS add European/UK official statistical series and five activity/global presets. [Complete additions, exact definitions and examples](economic-indicators.md). Existing release assets are unchanged.
+The current source checkout expands BEA to sixteen series, Japanese macro to twenty-nine, and BLS to thirty. Eurostat and ONS add European/UK official statistical series and five activity/global presets. [Complete additions, exact definitions and examples](economic-indicators.md). Existing release assets are unchanged.
 
 Use `national_accounts` with one of these curated series:
 

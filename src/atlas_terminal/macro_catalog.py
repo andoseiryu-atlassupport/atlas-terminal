@@ -50,6 +50,7 @@ class MacroSpec(TypedDict):
     unit: str
     title: NotRequired[str]
     country: NotRequired[str]
+    operation: NotRequired[Literal["difference", "relative_change"]]
 
 
 CurveName = Literal["nominal", "real", "jgb", "ecb_aaa", "ecb_all", "rba"]
@@ -164,8 +165,38 @@ MACRO_SERIES: dict[str, MacroSpec] = {
         "lag_months": 1,
         "formula": "current - previous_month",
         "unit": "thousand_persons",
+        "operation": "difference",
     },
 }
+
+for _key, _unit in (
+    ("private_payrolls", "thousand_jobs"),
+    ("government_payrolls", "thousand_jobs"),
+    ("manufacturing_payrolls", "thousand_persons"),
+):
+    MACRO_SERIES[_key + "_change_mom"] = {
+        "source_id": "bls",
+        "source_series": _key,
+        "lag_months": 1,
+        "formula": "current - previous_month",
+        "unit": _unit,
+        "operation": "difference",
+        "title": _key.replace("_", " ").capitalize()
+        + " month-on-month change, seasonally adjusted",
+    }
+for _suffix, _lag, _role in (("mom", 1, "previous_month"), ("yoy", 12, "prior_year")):
+    MACRO_SERIES["hourly_earnings_" + _suffix] = {
+        "source_id": "bls",
+        "source_series": "hourly_earnings",
+        "lag_months": _lag,
+        "formula": f"(current - {_role}) / {_role}",
+        "unit": "ratio",
+        "operation": "relative_change",
+        "title": (
+            f"Average hourly earnings {_suffix.upper()} change, "
+            "all private employees, seasonally adjusted"
+        ),
+    }
 
 
 def register_curve_series(

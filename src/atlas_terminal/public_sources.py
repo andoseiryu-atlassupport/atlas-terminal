@@ -112,6 +112,24 @@ BLS_SERIES = {
     "unemployment": ("LNS14000000", "Civilian unemployment rate", "percent", True),
     "participation": ("LNS11300000", "Civilian labor force participation rate", "percent", True),
     "payrolls": ("CES0000000001", "Total nonfarm payroll employment", "thousand_persons", True),
+    "private_payrolls": (
+        "CES0500000001",
+        "Total private nonfarm payroll employment",
+        "thousand_jobs",
+        True,
+    ),
+    "government_payrolls": (
+        "CES9000000001",
+        "Government payroll employment",
+        "thousand_jobs",
+        True,
+    ),
+    "unemployment_u6": (
+        "LNS13327709",
+        "U-6 broad labor underutilization rate, age 16 and over",
+        "percent",
+        True,
+    ),
     "hourly_earnings": (
         "CES0500000003",
         "Average hourly earnings, private employees",
@@ -157,6 +175,44 @@ BLS_SERIES = {
 # Interpretation fields from official definitions, separate from reported values.
 # The four-field registry remains compatible with existing series-ID consumers.
 BLS_DETAILS: dict[str, dict[str, Any]] = {}
+for _key, _scope, _basis in (
+    ("payrolls", "total_nonfarm", "payroll_jobs"),
+    ("private_payrolls", "total_private_nonfarm", "payroll_jobs"),
+    ("government_payrolls", "government", "payroll_jobs"),
+    ("manufacturing_payrolls", "manufacturing", "payroll_jobs"),
+    ("hourly_earnings", "all_employees_total_private_nonfarm", "average_hourly_earnings"),
+    ("average_weekly_hours", "all_employees_total_private_nonfarm", "average_weekly_hours"),
+):
+    BLS_DETAILS[_key] = {
+        "frequency": "monthly",
+        "annualized": False,
+        "survey": "CES",
+        "base_period": None,
+        "population": _scope,
+        "count_basis": _basis,
+        "reference_period_kind": "pay_period_including_12th",
+        "definition_url": "https://www.bls.gov/news.release/empsit.tn.htm",
+    }
+for _key, _measure in (
+    ("unemployment", "unemployed_as_percent_of_civilian_labor_force_U3"),
+    ("unemployment_u6", "unemployed_marginally_attached_and_involuntary_part_time_U6"),
+    ("participation", "labor_force_as_percent_of_civilian_noninstitutional_population"),
+    ("employment_population_ratio", "employed_as_percent_of_civilian_noninstitutional_population"),
+    ("long_term_unemployment", "unemployed_for_27_weeks_and_over"),
+):
+    BLS_DETAILS[_key] = {
+        "frequency": "monthly",
+        "annualized": False,
+        "survey": "CPS",
+        "base_period": None,
+        "population": "civilian_noninstitutional_population_age_16_and_over",
+        "count_basis": "persons",
+        "measure": _measure,
+        "reference_period_kind": "reference_week_usually_including_12th",
+        "definition_url": "https://www.bls.gov/cps/definitions.htm",
+    }
+BLS_DETAILS["unemployment_u6"]["denominator"] = "civilian_labor_force_plus_marginally_attached"
+
 for _key, _scope in (
     ("core_cpi", "all_items_less_food_and_energy"),
     ("core_goods_cpi", "commodities_less_food_and_energy_commodities"),

@@ -436,6 +436,7 @@ def monthly_analytics(
 ) -> dict[str, Any]:
     assert q.series in MACRO_SERIES
     spec = MACRO_SERIES[q.series]
+    difference_only = spec.get("operation") == "difference"
     months: dict[int, dict[str, Any]] = {}
     for row in data["records"]:
         if row["period_kind"] != "month":
@@ -463,20 +464,37 @@ def monthly_analytics(
             or current["seasonally_adjusted"] != prior["seasonally_adjusted"]
         ):
             reason = "Input units or seasonal adjustment differ."
-        elif q.series == "payrolls_change_mom":
+        elif difference_only:
             if min(Decimal(current["value"]), Decimal(prior["value"])) < 0:
                 reason = "A reported employment level is negative."
             else:
                 value = number(exact_difference(current["value"], prior["value"]))
         elif min(Decimal(current["value"]), Decimal(prior["value"])) <= 0:
-            reason = "CPI change requires positive reported index levels."
+            reason = (
+                "Earnings change requires positive reported wage levels."
+                if spec["source_series"] == "hourly_earnings"
+                else "CPI change requires positive reported index levels."
+            )
         else:
             difference = exact_difference(current["value"], prior["value"])
             with localcontext(Context(prec=28)):
                 value = number(difference / Decimal(prior["value"]))
         expected_year, expected_month = divmod(key - spec["lag_months"], 12)
+        measurement: dict[str, Any] = {
+            field: current[field]
+            for field in (
+                "survey",
+                "population",
+                "count_basis",
+                "reference_period_kind",
+                "definition_url",
+                "annualized",
+            )
+            if current.get("survey") and field in current
+        }
         records.append(
             {
+                **measurement,
                 "series": q.series,
                 "year": current["year"],
                 "date": current["date"],
@@ -496,8 +514,8 @@ def monthly_analytics(
                 "inputs": inputs,
                 "seasonally_adjusted": current["seasonally_adjusted"],
                 "frequency": "monthly",
-                "decimal_precision": 28 if spec["lag_months"] == 12 else None,
-                "rounding": "ROUND_HALF_EVEN" if spec["lag_months"] == 12 else None,
+                "decimal_precision": None if difference_only else 28,
+                "rounding": None if difference_only else "ROUND_HALF_EVEN",
                 "published_at": None,
             }
         )
@@ -517,6 +535,20 @@ def monthly_analytics(
         ],
     )
     result["coverage"].update(window_metadata(records, q.start_date, q.end_date))
+    if spec["source_series"] == "hourly_earnings" or difference_only:
+        result["limitations"][2] = (
+            "Wage growth is a ratio (0.03 means 3%), based on nominal average hourly earnings "
+            "of all private nonfarm employees, not fixed-worker or inflation-adjusted pay. "
+            "Payroll changes are absolute thousands of jobs, not percentages. Legacy total/"
+            "manufacturing series retain unit thousand_persons; "
+            "private/government use thousand_jobs."
+        )
+        result["limitations"].append(
+            "CES establishment employment counts jobs, not distinct people. Household CPS "
+            "rates, JOLTS turnover and weekly unemployment claims are different measures. "
+            "Changes use rounded published levels and may differ from published "
+            "release-table changes."
+        )
     return result
 
 
