@@ -194,6 +194,26 @@ def bls_economics(transport: Transport, q: ResearchQuery) -> dict[str, Any]:
             ),
         ],
     )
+    if details.get("survey"):
+        result["limitations"].append(
+            "CES counts payroll jobs, including multiple jobs held by one person; CPS measures "
+            "people. These surveys have different coverage and cannot be added or substituted. "
+            "The legacy payrolls/manufacturing_payrolls unit thousand_persons denotes thousands "
+            "of payroll jobs; private/government payrolls use thousand_jobs. Period-end dates "
+            "label observations, not full-month measurement or release timestamps."
+        )
+        if key == "unemployment_u6":
+            result["limitations"].append(
+                "U-6 includes unemployed people, marginally attached people and people working "
+                "part time for economic reasons, divided by the civilian labor force plus "
+                "marginally attached people. It is a published percent, distinct from U-3."
+            )
+        if key == "hourly_earnings":
+            result["limitations"].append(
+                "Average hourly earnings cover all private nonfarm employees in nominal USD; "
+                "changes can reflect workforce composition and are not real or fixed-worker "
+                "wage growth."
+            )
     if quarterly:
         result["coverage"]["excluded_annual_summary_rows"] = excluded_summaries
     if "index_scope" in details:

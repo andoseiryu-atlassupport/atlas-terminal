@@ -75,6 +75,48 @@ The eight-item `us_cpi_components` preset combines four unadjusted index levels 
 
 No new BLS API retrieval or quota/cache reset was performed for this addition. New source fixtures are explicitly fictional; [verification](verification.md#us-cpi-components) records the actual checks and their limits.
 
+## US Employment Situation
+
+The `economics` dataset reads the BLS monthly Employment Situation through the existing registration-free V1 service. These selections are **seasonally adjusted**. CES is the establishment survey; CPS is the household survey. They measure different populations and must not be added or substituted.
+
+| Selector                      | BLS series ID   | Definition and unit                                                                  |
+| ----------------------------- | --------------- | ------------------------------------------------------------------------------------ |
+| `payrolls`                    | `CES0000000001` | Total nonfarm payroll jobs, thousands; legacy unit `thousand_persons`                |
+| `private_payrolls`            | `CES0500000001` | Total private nonfarm payroll jobs, `thousand_jobs`                                  |
+| `government_payrolls`         | `CES9000000001` | Federal/state/local government payroll jobs, `thousand_jobs`                         |
+| `manufacturing_payrolls`      | `CES3000000001` | Manufacturing payroll jobs, thousands; legacy unit `thousand_persons`                |
+| `hourly_earnings`             | `CES0500000003` | Nominal average hourly earnings of **all private nonfarm employees**, `USD_per_hour` |
+| `average_weekly_hours`        | `CES0500000002` | Average weekly hours of all private nonfarm employees, `hours_per_week`              |
+| `unemployment`                | `LNS14000000`   | CPS U-3 official unemployment rate, `percent`                                        |
+| `unemployment_u6`             | `LNS13327709`   | CPS U-6 broad labor underutilization rate, `percent`                                 |
+| `participation`               | `LNS11300000`   | CPS civilian labor force participation rate, `percent`                               |
+| `employment_population_ratio` | `LNS12300000`   | CPS employment-population ratio, `percent`                                           |
+
+CPS rates cover the civilian noninstitutional population aged 16 and over. U-3 divides unemployed people by the civilian labor force. U-6 includes unemployed people, people marginally attached to the labor force, and people working part time for economic reasons; its denominator is the civilian labor force **plus marginally attached people**. Atlas reads the reported U-6 rate rather than reconstructing it from rounded components. A reported rate of `7.5` means **7.5%**, not a decimal ratio. [CPS definitions](https://www.bls.gov/cps/definitions.htm).
+
+CES counts each payroll job, so a person with two jobs can be counted twice. The legacy total/manufacturing `thousand_persons` unit is retained for API compatibility and denotes thousands of **jobs**, not distinct people; new private/government selections use `thousand_jobs`. CES reference periods include the 12th day of the month; CPS usually uses the week containing the 12th. Normalized month-end dates label these observations and are neither full-month measurement windows nor publication dates. `survey`, `population`, `count_basis`, `reference_period_kind` and `definition_url` survive compact field selection. U-6 also retains its `measure` and `denominator`. [BLS technical note](https://www.bls.gov/news.release/empsit.tn.htm) and [series-ID conventions](https://www.bls.gov/help/hlpforma.htm).
+
+The common `macro_analytics` service provides:
+
+- `payrolls_change_mom`, `private_payrolls_change_mom`, `government_payrolls_change_mom`, `manufacturing_payrolls_change_mom`: current level minus the **exact previous calendar month's** level, retaining the source's thousand-unit scale. Negative changes and zero employment levels are valid; negative levels are unavailable.
+- `hourly_earnings_mom`, `hourly_earnings_yoy`: `(current - baseline) / baseline`, using exactly one or twelve calendar months earlier from the same seasonally adjusted all-employee series. The output is a `ratio`: `0.03` means **3%**. Decimal division uses precision 28 and round-half-even, with no annualization. Nonpositive wage levels are unavailable.
+
+Every calculation keeps its formula, exact input values, periods, units, seasonal adjustment and original source evidence. Missing or null baselines remain unavailable; M13 annual averages and neighboring months never fill gaps. Wage changes are nominal averages and can reflect changes in workforce composition; they are not fixed-worker wage growth or real wages. Calculations from rounded API levels can differ from percentages printed in release tables. JOLTS, quarterly ECI and weekly unemployment claims remain separate datasets/series. Consensus estimates, surprise calculations and revision deltas are unavailable; current revised histories are not first-release or historical PIT vintages.
+
+The ten-item `us_employment_overview` preset combines payroll level/change, U-3, U-6, participation, employment-population ratio, hourly earnings level/MoM/YoY and weekly hours. Paired date bounds, `include`, preview, full/compact evidence and quality requirements use the existing preset contract. Each item retains its independent date and missingness; the preset is not an atomic release snapshot. Sector payroll levels/changes are available through individual queries or a bounded batch.
+
+```sh
+uv run --offline atlas research preset us_employment_overview --preview --provider fixture --json
+uv run --offline atlas research preset us_employment_overview --provider fixture --json
+uv run --offline atlas research get macro_analytics --series hourly_earnings_mom --provider fixture --json
+uv run --offline atlas research get macro_analytics --series private_payrolls_change_mom --provider fixture --json
+uv run --offline atlas research get economics --series unemployment_u6 --provider fixture --json
+```
+
+These commands use fictional data. The unchanged packaged wage fixture lacks a prior-year monthly baseline, so its YoY result is deliberately null. Separate fictional regression inputs verify successful MoM/YoY calculations. For authorized live reads, select `--provider public`; BLS needs no key, but normal network permissions and shared daily quotas apply. The same query object works with SDK `Atlas.get_research`, MCP `atlas_get_research` (inside `query`) and REST `POST /v1/research`. For the preset, use `Atlas.get_research_preset`, `atlas_get_research_preset` and `POST /v1/research/preset`. Web clients should preserve survey/unit metadata, display published `percent` values directly, multiply `ratio` by 100 for percentage display, and keep nulls as missing.
+
+Official definitions were reviewed separately. No new BLS API request, cache reset or quota reset was performed for this addition; new-series live retrieval remains unverified. [Verification](verification.md#us-employment-situation).
+
 ## US additions
 
 New BLS selectors are `ppi_final_demand`, `manufacturing_payrolls`, `average_weekly_hours`, `employment_population_ratio`, `job_quits`, `job_hires`, `job_layoffs` and `long_term_unemployment`. The catalog gives exact official series IDs and units. `ppi_final_demand` is an index level based on November 2009; a value is not itself an inflation percentage. Employment and JOLTS levels retain their thousand-person/job scales. Existing BLS V1 quotas and dated ten-year request chunks still apply.

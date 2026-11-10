@@ -51,12 +51,39 @@ PresetName = Literal[
     "us_trade_overview",
     "us_inflation_costs",
     "us_cpi_components",
+    "us_employment_overview",
     "japan_external_corporate",
     "australia_macro_overview",
     "canada_macro_overview",
     "china_macro_overview",
 ]
 PRESETS: dict[str, dict[str, Any]] = {
+    "us_employment_overview": {
+        "description": (
+            "US Employment Situation: CES payrolls, wage changes and hours with CPS "
+            "U-3/U-6 unemployment, participation and employment-population rates."
+        ),
+        "fields": ["start_date", "end_date"],
+        "required": [],
+        "items": {
+            **{
+                key: {"dataset": "economics", "series": key, "limit": 1}
+                for key in (
+                    "payrolls",
+                    "unemployment",
+                    "unemployment_u6",
+                    "participation",
+                    "employment_population_ratio",
+                    "hourly_earnings",
+                    "average_weekly_hours",
+                )
+            },
+            **{
+                key: {"dataset": "macro_analytics", "series": key, "limit": 1}
+                for key in ("payrolls_change_mom", "hourly_earnings_mom", "hourly_earnings_yoy")
+            },
+        },
+    },
     "us_cpi_components": {
         "description": (
             "US CPI-U headline, core, core goods and core services including shelter: "

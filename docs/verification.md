@@ -1,8 +1,20 @@
 # Validation scope
 
-Recorded on 2026-11-10 (JST) for the source checkout following Atlas Terminal 0.7.0, with Python 3.12.14 and Node.js 24 on Linux. Local verification, GitHub Actions, public deployment, official-source access and model observations are distinct evidence.
+Recorded on 2026-11-11 (JST) for the source checkout following Atlas Terminal 0.7.0, with Python 3.12.14 and Node.js 24 on Linux. Local verification, GitHub Actions, public deployment, official-source access and model observations are distinct evidence.
 
 Version 0.7.0 includes the experimental native factor risk extension and installed walkthroughs described below. The prior 0.6.0 release did not include risk estimation. Local wheel checks remain separate evidence from a published GitHub release.
+
+## US Employment Situation
+
+On **2026-11-11 JST**, official BLS CES/CPS documentation and exact series identities were reviewed for private payrolls (`CES0500000001`), government payrolls (`CES9000000001`) and U-6 (`LNS13327709`). The review checked seasonality, payroll jobs versus people, all-private-employee hourly earnings, the U-6 denominator and reference-period definitions. Documentation review is separate from a data-API read: **no new BLS API requests, cache resets or quota resets were performed**. No new-series live retrieval is claimed.
+
+Fictional regressions cover the three added reported series, wage MoM/YoY and sector payroll changes; exact year-boundary calendar lags; M13 exclusion; null, missing and nonpositive wage baselines; zero employment levels and negative changes; mismatched series, units and seasonal adjustment; duplicate periods; Decimal precision independent of the caller's context; and source hashes/pointers through compact projection. SDK, CLI, REST and an actual official stdio MCP client session share the normalized outputs. Mock HTTP verifies exact GET/dated POST identity and cache reuse without external requests. The ten-item `us_employment_overview` preview requires no source client or key. Its existing packaged wage fixture deliberately leaves YoY unavailable because no prior-year monthly baseline exists; separate fictional inputs verify successful growth calculations.
+
+The retained actual-source replay still matches **14 responses / 168 records**, including four negative values and four excluded annual summaries; this proves compatibility with those earlier captures, not new employment-series connectivity. Both recorded showcase checksums remain valid. Existing BLS source fixtures, captures and private cache/quota files are preserved. New observations in public fixtures are explicitly fictional. No dependency, public deployment, release or real payment was introduced.
+
+Current revised snapshots remain distinct from release-time vintages. Published U-3/U-6 percentages and derived wage ratios have different display scales. Total/manufacturing payrolls retain their legacy `thousand_persons` unit for compatibility while explicitly declaring payroll-job scope; new private/government counts use `thousand_jobs`. Consensus, surprises, release-table rounding replication and historical revision deltas remain unavailable. [Usage and interpretation](economic-indicators.md#us-employment-situation).
+
+Local `uv run --offline pytest` passed **3,255 tests**, with two live cases deselected (50 additional cases including registry-driven regressions). The focused BLS/employment regression run passed **85 tests**. Ruff, formatting (**339 Python files**), mypy (**138 source files**) and `npm run check` passed. `python -m build --no-isolation`, distribution validation (**456 wheel / 789 sdist files**, no private/runtime paths), the **71-page** documentation/internal-link build, distribution preparation and the public-file/history credential-pattern scan passed. A private hash manifest verified **62 existing files**, including prior BLS fixtures, captures and available cache/quota files, unchanged. These local checks are separate from GitHub CI and live API validation.
 
 ## US CPI components
 

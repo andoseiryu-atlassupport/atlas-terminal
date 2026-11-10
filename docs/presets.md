@@ -49,6 +49,8 @@ uv run --offline atlas research preset fx_context --base-currency USD --quote-cu
 
 Use `include` to select a nonempty list of unique item IDs in the desired execution order. Unselected items make no source requests. Unknown parameters, item IDs, URLs and payment settings are rejected before execution. `preview=true` returns `mode="preview"`, the plan, an empty overview and `batch=null`.
 
+The ten-item `us_employment_overview` preset adds payroll level/change, U-3/U-6, participation, employment-population ratio, average hourly earnings level/MoM/YoY and weekly hours. It accepts optional paired dates, item selection, preview and quality requirements. CES job counts and CPS people/rates remain distinct. [Employment definitions, units and examples](economic-indicators.md#us-employment-situation).
+
 ## Retrieve through one connection
 
 Start the stdio MCP server using the [client configuration](quickstart.md#connect-an-mcp-host). Call `atlas_get_research_preset` with:

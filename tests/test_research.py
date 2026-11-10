@@ -236,7 +236,7 @@ def test_catalog_reports_actual_scope_zero_cost_sources_and_coverage_gaps():
     assert len(catalog["analytics_metrics"]) == 7
     assert len(catalog["sources"]) == 27
     assert len(catalog["statement_metrics"]) == 37
-    assert len(catalog["economic_series"]) == 27
+    assert len(catalog["economic_series"]) == 30
     assert all(s["upstream_price"] == "0" for s in catalog["sources"].values())
     assert {k for k, s in catalog["sources"].items() if s["api_key_required"]} == {
         "bea",

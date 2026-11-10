@@ -1,0 +1,49 @@
+{
+  "status": "REQUEST_SUCCEEDED",
+  "responseTime": 1,
+  "message": [
+    "SYNTHETIC DATA: fictional observations, not a BLS capture."
+  ],
+  "Results": {
+    "series": [
+      {
+        "seriesID": "CES0500000001",
+        "data": [
+          {
+            "year": "2026",
+            "period": "M09",
+            "value": "120012.5",
+            "footnotes": [
+              {
+                "code": "P",
+                "text": "SYNTHETIC preliminary observation."
+              }
+            ]
+          },
+          {
+            "year": "2026",
+            "period": "M08",
+            "value": "120000",
+            "footnotes": [
+              {
+                "code": "P",
+                "text": "SYNTHETIC preliminary observation."
+              }
+            ]
+          },
+          {
+            "year": "2025",
+            "period": "M09",
+            "value": "119000",
+            "footnotes": [
+              {
+                "code": "P",
+                "text": "SYNTHETIC preliminary observation."
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
