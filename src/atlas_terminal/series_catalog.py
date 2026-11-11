@@ -44,7 +44,7 @@ def series_catalog(filters: CatalogQuery) -> dict[str, Any]:
             extra.setdefault("category_path", path)
         for term, words in {
             "cpi": ["inflation", "物価", "インフレ"],
-            "rent": ["家賃", "住居費"],
+            "rent_cpi": ["家賃", "住居費"],
             "owners_equivalent": ["帰属家賃", "OER"],
             "shelter": ["住居費", "住宅"],
             "goods_cpi": ["財"],

@@ -229,6 +229,9 @@ def test_catalog_taxonomy_filtering_is_offline_and_does_not_hide_states():
     assert all(r["country"] == "US" for r in housing["records"])
     trim = Atlas.research_catalog(search="トリム")["series_search"]
     assert trim["matched"] == 2
+    rent = Atlas.research_catalog(search="家賃")["series_search"]
+    assert rent["matched"] == 8
+    assert all("rent_cpi" in row["series"] for row in rent["records"])
 
 
 def test_cleveland_probes_are_explicit_and_csv_shape_preserves_both_scales():
