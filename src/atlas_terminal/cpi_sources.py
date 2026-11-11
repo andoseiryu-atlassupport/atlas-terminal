@@ -60,6 +60,18 @@ def normalized(text: str) -> str:
     return re.sub(r"u\.\s+s\.", "u.s.", " ".join(text.split()).strip().casefold())
 
 
+def decode_html(body: bytes) -> str:
+    """Preserve UTF-8 character offsets; tolerate isolated bad bytes outside tables."""
+    text = body.decode("utf-8-sig", errors="surrogateescape")
+    invalid = re.compile(r"[\udc80-\udcff]")
+    if invalid.search(text):
+        for table in re.finditer(r"<table\b.*?(?:</table\s*>|\Z)", text, re.I | re.S):
+            if invalid.search(table[0]):
+                raise source_error("html_encoding_in_table")
+        text = invalid.sub("\ufffd", text)
+    return text
+
+
 class CPIHTML(HTMLParser):
     """Keep original character offsets; expand spans only when reading table headers."""
 
@@ -67,10 +79,7 @@ class CPIHTML(HTMLParser):
         super().__init__(convert_charrefs=True)
         if len(body) > 8 * 1024 * 1024 or b"\x00" in body:
             raise source_error("html_size_or_encoding")
-        try:
-            self.original = body.decode("utf-8-sig")
-        except UnicodeError:
-            raise source_error("html_encoding") from None
+        self.original = decode_html(body)
         self.starts = [0]
         self.starts.extend(m.end() for m in re.finditer("\n", self.original))
         self.tables: list[dict[str, Any]] = []
@@ -205,11 +214,13 @@ def reference(
         "published_at": published_at,
         "text_line": cell.get("line", 1),
         "html_start_char": cell.get("start", 0),
-        "html_end_char": cell.get("end", len(snapshot.body.decode("utf-8-sig"))),
+        "html_end_char": cell["end"] if "end" in cell else len(decode_html(snapshot.body)),
         "html_table": table,
         "html_row": cell.get("row"),
         "html_column": cell.get("column"),
-        "offset_encoding": "utf-8-sig decoded characters",
+        "offset_encoding": (
+            "utf-8-sig decoded characters; invalid non-table bytes replaced by U+FFFD"
+        ),
     }
 
 

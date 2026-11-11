@@ -13,7 +13,7 @@ from verify_g20_live import DiagnosticTransport, private_write
 
 from atlas_terminal.client import Atlas
 from atlas_terminal.cpi_catalog import ARCHIVE_URL
-from atlas_terminal.cpi_sources import cpi_identity
+from atlas_terminal.cpi_sources import cpi_identity, decode_html
 from atlas_terminal.errors import AtlasError
 from atlas_terminal.util import canonical, digest, stamp, state_dir
 
@@ -50,7 +50,7 @@ def check_cell(cell, capture):
     snapshot = capture.snapshots[evidence["raw_source_url"]]
     assert digest(snapshot.body) == evidence["raw_sha256"]
     assert snapshot.retrieved_at == evidence["retrieved_at"]
-    text = snapshot.body.decode("utf-8-sig")
+    text = decode_html(snapshot.body)
     fragment = text[evidence["html_start_char"] : evidence["html_end_char"]]
     assert re.match(r"<t[dh](?:\s|>)", fragment, re.I)
     plain = "".join(CellText(fragment).parts)
