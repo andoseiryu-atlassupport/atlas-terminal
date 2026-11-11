@@ -6,6 +6,7 @@ from typing import Any
 from atlas_terminal.activity_catalog import ACTIVITY_SERIES
 from atlas_terminal.commodity_catalog import COMMODITIES
 from atlas_terminal.country_macro_catalog import country_series_catalog
+from atlas_terminal.cpi_catalog import COMBINATIONS
 from atlas_terminal.economic_catalog import JAPAN_SERIES, NATIONAL_ACCOUNTS
 from atlas_terminal.global_macro_sources import (
     G20_AREAS,
@@ -127,6 +128,20 @@ def series_catalog(filters: CatalogQuery) -> dict[str, Any]:
             }
         )
 
+    for combo in COMBINATIONS:
+        query = {key: value for key, value in combo.items() if key != "method"}
+        add(
+            "cpi_effects",
+            "cpi_" + "_".join(query.values()),
+            "CPI-U effects and weights: " + " / ".join(query.values()),
+            "bls",
+            "US",
+            "monthly",
+            "percentage_points",
+            query,
+            category_path=["cpi", "effects"],
+            method=combo["method"],
+        )
     for key, (code, title, unit) in COMMODITIES.items():
         add(
             "commodity_prices",

@@ -8,6 +8,13 @@ PROJECT_TAGLINE = (
 
 
 def research_documentation(dataset: str) -> dict[str, str]:
+    if dataset == "cpi_effects":
+        return {
+            "guide": f"{DOCUMENTATION_ORIGIN}/docs/cpi-effects.md",
+            "methodology": f"{DOCUMENTATION_ORIGIN}/docs/cpi-effects.md#calculated-core-effects",
+            "sources_and_terms": f"{DOCUMENTATION_ORIGIN}/DATA_SOURCES.md",
+            "citation_guidance": f"{DOCUMENTATION_ORIGIN}/docs/citations.md",
+        }
     if dataset == "prediction_markets":
         return {
             "guide": f"{DOCUMENTATION_ORIGIN}/docs/prediction-markets.md",

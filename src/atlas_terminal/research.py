@@ -124,6 +124,11 @@ FAMILIES = {
     "institutional_holdings": {"13F-HR", "13F-HR/A"},
 }
 DATASETS = {
+    "cpi_effects": (
+        "CPI-U rates, percentage-point effects, relative importance and stacking coverage",
+        "bls",
+        "expenditure_effects",
+    ),
     "prediction_markets": (
         "Polymarket event discovery and source-addressable market-implied outcome prices",
         "polymarket",
@@ -670,6 +675,9 @@ def research_catalog(
             }
             for name, (title, source, kind) in DATASETS.items()
         ],
+        "cpi_effects": __import__(
+            "atlas_terminal.cpi_catalog", fromlist=["cpi_catalog"]
+        ).cpi_catalog(),
         "statement_metrics": metric_catalog(),
         "country_series": country_series_catalog(),
         "interest_spreads": {
@@ -1139,6 +1147,7 @@ class ResearchService:
 
             result = macro_panel(q, self.get)
         elif q.dataset in {
+            "cpi_effects",
             "prediction_markets",
             "interest_spreads",
             "country_economics",
@@ -1751,6 +1760,10 @@ class ResearchService:
             from atlas_terminal.research_predictions import prediction_markets
 
             return prediction_markets(self.public, q)
+        if q.dataset == "cpi_effects":
+            from atlas_terminal.research_cpi_effects import cpi_effects
+
+            return cpi_effects(self.public, q)
         if q.dataset == "margin_balances":
             from atlas_terminal.research_margin import margin_balances
 

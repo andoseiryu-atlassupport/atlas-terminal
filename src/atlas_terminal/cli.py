@@ -337,6 +337,32 @@ def research_polymarket(
     typer.echo("Gamma market-implied indicators; price time unverified. Use --json for evidence.")
 
 
+@research_app.command("cpi-effects")
+def research_cpi_effects(
+    category: Annotated[list[str] | None, typer.Option("--category")] = None,
+    category_set: str | None = None,
+    start_month: str | None = None,
+    end_month: str | None = None,
+    change: str = "mom",
+    seasonal_adjustment: str = "sa",
+    target: str = "all_items",
+    provider: str = "public",
+) -> None:
+    """Read CPI effects (percentage points) and weights; emit the shared JSON response."""
+    with Atlas(provider) as atlas:
+        output(
+            atlas.get_cpi_effects(
+                categories=category or None,
+                category_set=category_set,
+                start_month=start_month,
+                end_month=end_month,
+                change=change,
+                seasonal_adjustment=seasonal_adjustment,
+                target=target,
+            )
+        )
+
+
 @research_app.command("buffett")
 def research_buffett(
     identifier: str,

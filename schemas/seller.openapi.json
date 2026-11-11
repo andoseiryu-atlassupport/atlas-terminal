@@ -2041,6 +2041,7 @@
           "dataset": {
             "type": "string",
             "enum": [
+              "cpi_effects",
               "prediction_markets",
               "buffett_score",
               "order_book",

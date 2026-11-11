@@ -17,6 +17,7 @@ from atlas_terminal.activity_catalog import ACTIVITY_SERIES
 from atlas_terminal.buffett_models import ScoreFinancials, ScoreValuation
 from atlas_terminal.commodity_catalog import COMMODITIES
 from atlas_terminal.country_macro_catalog import BOND_SERIES, COUNTRIES, ECONOMIC_SERIES
+from atlas_terminal.cpi_catalog import CATEGORIES, MAX_MONTHS, SETS, months_between, valid_month
 from atlas_terminal.economic_catalog import JAPAN_SERIES, NATIONAL_ACCOUNTS
 from atlas_terminal.equity_sources import (
     EQUITY_DATASETS,
@@ -60,6 +61,7 @@ from atlas_terminal.sdmx_sources import CODE_PATTERN, FLOW_PATTERN
 from atlas_terminal.spread_catalog import SPREADS
 
 Dataset = Literal[
+    "cpi_effects",
     "prediction_markets",
     "buffett_score",
     "order_book",
@@ -132,6 +134,15 @@ Dataset = Literal[
 ]
 
 FIELDS = {
+    "cpi_effects": {
+        "categories",
+        "category_set",
+        "start_month",
+        "end_month",
+        "change",
+        "seasonal_adjustment",
+        "target",
+    },
     "prediction_markets": {"search", "event_slug", "include_closed", "limit"},
     "buffett_score": {"identifier", "country", "count", "financial_input", "valuation"},
     "order_book": {"identifier", "book_source", "depth"},
@@ -236,6 +247,8 @@ FIELDS = {
 
 
 def dataset_required(name: str) -> list[str]:
+    if name == "cpi_effects":
+        return []
     if name == "prediction_markets":
         return []
     if name == "analyst_reports":
@@ -371,6 +384,9 @@ def dataset_schema(schema: dict[str, Any]) -> None:
             for key in ["dataset", *sorted(fields), "response", "requirements"]
         }
         properties["dataset"] = {"const": name, "type": "string"}
+        if name == "cpi_effects":
+            properties["categories"]["items"] = {"type": "string", "enum": list(CATEGORIES)}
+            properties["categories"]["uniqueItems"] = True
         for required in dataset_required(name):
             if required in {"identifier", "series"}:
                 properties[required] = {"type": "string", "minLength": 1, "maxLength": 100}
@@ -611,6 +627,11 @@ def dataset_schema(schema: dict[str, Any]) -> None:
             ]
         if "start_date" in fields:
             branch["dependentRequired"] = {"start_date": ["end_date"], "end_date": ["start_date"]}
+        if name == "cpi_effects":
+            branch["dependentRequired"] = {
+                "start_month": ["end_month"],
+                "end_month": ["start_month"],
+            }
         if name == "fx_rates":
             branch["not"] = {
                 "anyOf": [
@@ -631,6 +652,13 @@ def dataset_schema(schema: dict[str, Any]) -> None:
 class ResearchQuery(Model):
     model_config = ConfigDict(extra="forbid", json_schema_extra=dataset_schema)
     dataset: Dataset
+    categories: list[str] = Field(default_factory=list, max_length=16)
+    category_set: Literal["all_items_basic", "core_basic"] | None = None
+    start_month: str | None = Field(default=None, pattern=r"^[0-9]{4}-(0[1-9]|1[0-2])$")
+    end_month: str | None = Field(default=None, pattern=r"^[0-9]{4}-(0[1-9]|1[0-2])$")
+    change: Literal["mom", "yoy"] = "mom"
+    seasonal_adjustment: Literal["sa", "nsa"] = "sa"
+    target: Literal["all_items", "core"] = "all_items"
     book_source: Literal["bitbank", "local"] = "bitbank"
     depth: int = Field(default=10, ge=1, le=200, strict=True)
     report_source: Literal["fisco", "local"] = "fisco"
@@ -728,6 +756,32 @@ class ResearchQuery(Model):
 
     @model_validator(mode="after")
     def check_dataset(self) -> "ResearchQuery":
+        if self.dataset == "cpi_effects":
+            if len(set(self.categories)) != len(self.categories) or any(
+                key not in CATEGORIES for key in self.categories
+            ):
+                raise AtlasError(
+                    "INVALID_INPUT", "Select distinct CPI expenditure categories from the catalog."
+                )
+            if self.categories and self.category_set is not None:
+                raise AtlasError("INVALID_INPUT", "Provide categories or category_set, not both.")
+            if self.category_set is not None and self.category_set not in SETS:
+                raise AtlasError("INVALID_INPUT", "Unknown CPI decomposition set.")
+            if (self.start_month is None) != (self.end_month is None):
+                raise AtlasError(
+                    "INVALID_INPUT", "Provide both start_month and end_month, or neither."
+                )
+            if self.start_month and self.end_month:
+                if (
+                    not valid_month(self.start_month)
+                    or not valid_month(self.end_month)
+                    or self.start_month > self.end_month
+                    or len(months_between(self.start_month, self.end_month)) > MAX_MONTHS
+                ):
+                    raise AtlasError(
+                        "INVALID_INPUT",
+                        "CPI queries accept an ordered window of at most 36 months, from 1994.",
+                    )
         if self.dataset == "prediction_markets":
             from atlas_terminal.prediction_sources import event_slug, search_term
 
