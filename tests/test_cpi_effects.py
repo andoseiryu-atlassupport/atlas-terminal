@@ -340,6 +340,8 @@ def synthetic_chain():
                     del row[name]
             row["index:" + shift_month(month, -1)] = {**operand, "value": f"{100 + offset}.000"}
             row["index:" + month] = {**operand, "value": f"{101 + offset}.000"}
+            if month == "2025-02":
+                row["index:2024-02"] = {**operand, "value": "100.000"}
             weight = (
                 "80.000"
                 if key == "core_cpi"
@@ -378,6 +380,19 @@ def test_yoy_conflicting_index_vintages_and_missing_months_remain_unavailable():
         core_effect("2025-02", "yoy", "core_goods_cpi", releases, weights)["missing_month"]
         == "2024-04"
     )
+
+
+def test_yoy_checks_year_ago_baseline_in_final_release_against_the_monthly_chain():
+    releases, weights = synthetic_chain()
+    row = releases["2025-02"]["tables"][1]["rows"]["core_cpi"]
+    row["index:2024-02"]["value"] = "100.100"
+    result = core_effect("2025-02", "yoy", "core_goods_cpi", releases, weights)
+    assert result["effect_pt"] is None and result["reason"] == "annual_baseline_vintage_conflict"
+    assert result["conflict"]["final_release_baseline"]["source"]["raw_sha256"]
+    row["index:2024-02"]["value"] = None
+    result = core_effect("2025-02", "yoy", "core_goods_cpi", releases, weights)
+    assert result["effect_pt"] is None
+    assert result["reason"] == "annual_baseline_not_verified_in_final_release"
 
 
 def test_missing_archive_months_are_not_inferred_from_advertised_bounds():

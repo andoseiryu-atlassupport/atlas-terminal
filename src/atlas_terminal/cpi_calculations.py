@@ -136,6 +136,7 @@ def _core_effect(
     total = Decimal(0)
     total_band = ZERO
     original_core: str | None = None
+    original_indexes: dict[str, str] = {}
     previous_indexes: dict[str, str] = {}
     for current in needed:
         table = releases.get(current, {}).get("tables", {}).get(1)
@@ -163,6 +164,22 @@ def _core_effect(
             if any(Decimal(c["value"]) <= 0 for c in cells.values()):
                 result["reason"] = "nonpositive_index_or_weight"
                 return result
+            original_indexes.setdefault(key, cells["index_start"]["value"])
+            if change == "yoy" and current == month:
+                endpoint = row.get("index:" + baseline)
+                if endpoint is None or endpoint["value"] is None:
+                    result["reason"] = "annual_baseline_not_verified_in_final_release"
+                    return result
+                if Decimal(endpoint["value"]) != Decimal(original_indexes[key]):
+                    result["reason"] = "annual_baseline_vintage_conflict"
+                    result["conflict"] = {
+                        "category": key,
+                        "baseline_month": baseline,
+                        "monthly_chain_baseline": original_indexes[key],
+                        "final_release_baseline": endpoint,
+                    }
+                    return result
+                cells["period_baseline_index"] = endpoint
             if key in previous_indexes and Decimal(previous_indexes[key]) != Decimal(
                 cells["index_start"]["value"]
             ):
