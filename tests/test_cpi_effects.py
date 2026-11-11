@@ -297,6 +297,8 @@ def test_old_annual_weight_vintage_is_not_selected_by_order():
     with pytest.raises(AtlasError) as caught:
         annual_weights(snapshot(body=old), 2024)
     assert caught.value.details["reason"] == "new_annual_weight_vintage_not_identified"
+    with pytest.raises(AtlasError):
+        annual_weights(snapshot(body=b"<h2>Table 1 (2023 Weights).</h2>" + old), 2024)
 
 
 def test_january_unverified_vintage_keeps_effect_missing():
@@ -505,6 +507,26 @@ def test_malformed_html_and_grid_bounds():
     ]:
         with pytest.raises(AtlasError):
             CPIHTML(body)
+
+
+@pytest.mark.parametrize(
+    "old,new",
+    [
+        (b"(CPI-U)", b"(CPI-W)"),
+        (b"U.S. city average", b"Los Angeles-Long Beach-Anaheim"),
+        (b"Table 1.", b"Table 3."),
+    ],
+)
+def test_caption_scope_and_table_number_cannot_inherit_a_preceding_heading(old, new):
+    original = snapshot().body
+    first_end = original.index(b"</table>") + len(b"</table>")
+    first_table = original[original.index(b"<table>") : first_end]
+    foreign = first_table.replace(old, new)
+    preceding = b"<h2>Table 1. CPI-U (CPI-U): U.S. city average</h2>"
+    # Keep the valid Table 1 followed by an unrelated table under a stale heading.
+    body = original[:first_end] + preceding + foreign + original[first_end:]
+    result = release_tables(snapshot(body=body), "2025-01", "2025-02-12")
+    assert set(result["tables"]) == {1, 6, 7}
 
 
 def test_core_zero_aggregate_keeps_positive_and_negative_effects():

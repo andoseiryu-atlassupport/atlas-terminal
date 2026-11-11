@@ -314,9 +314,18 @@ def release_tables(snapshot: Snapshot, month: str, published_at: str) -> dict[st
     labels = {normalized(spec["label"]): key for key, spec in CATEGORIES.items()}
     for table in html.tables:
         title = table["caption"] or table["heading"]
-        name = normalized(title + " " + table["heading"])
-        match = re.search(r"\btable\s+([167])\.", name)
-        if not match or "(cpi-u)" not in name or "u.s. city average" not in name:
+        name = normalized(title)
+        # A caption's explicit number/scope wins over a stale preceding heading.
+        # In particular, a CPI-W or regional table must never inherit CPI-U scope.
+        match = re.search(r"\btable\s+([0-9]+)\.", name)
+        if match is None:
+            match = re.search(r"\btable\s+([0-9]+)\.", normalized(table["heading"]))
+        if (
+            not match
+            or match[1] not in {"1", "6", "7"}
+            or "(cpi-u)" not in name
+            or "u.s. city average" not in name
+        ):
             continue
         number = int(match[1])
         if text_months(title) != [month]:
@@ -415,10 +424,17 @@ def annual_weights(snapshot: Snapshot, pivot_year: int) -> dict[str, Any]:
     candidates = []
     for table in html.tables:
         title = table["caption"] or table["heading"]
-        clean = normalized(table["heading"] + " " + title)
+        clean = normalized(title)
+        number = re.search(r"\btable\s+([0-9]+)\b", clean)
+        if number is None:
+            number = re.search(r"\btable\s+([0-9]+)\b", normalized(table["heading"]))
+        vintages = re.findall(r"\(([0-9]{4}) weights\)", clean)
+        if not vintages:
+            vintages = re.findall(r"\(([0-9]{4}) weights\)", normalized(table["heading"]))
         if (
-            f"({pivot_year - 1} weights)" in clean
-            and "table 1" in clean
+            vintages == [str(pivot_year - 1)]
+            and number is not None
+            and number[1] == "1"
             and "u.s. city average" in clean
             and text_months(title) == [f"{pivot_year}-12"]
         ):
