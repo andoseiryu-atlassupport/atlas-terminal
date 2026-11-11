@@ -116,6 +116,8 @@ These document reads do not call BLS API V1, spend its daily request allowance, 
 
 Every numerical source cell includes its URL, original release date (from the dated archive link), retrieval timestamp, raw SHA-256, table caption, row/column and decoded-HTML character offsets. Annual RI publication dates are null when absent from the parsed metadata. Retrieval time is not the observation month or release date. Archived copies may contain corrections; original-release fidelity and subsequent revision history are unverified. SA values are not silently mixed with the BLS API's later revised history.
 
+The character view preserves valid UTF-8 and replaces isolated invalid bytes outside tables with U+FFFD. Invalid bytes inside any table still reject the document. `offset_encoding` describes this decoding policy; `decode_html` reconstructs the same character view for evidence checks. Source bytes and SHA-256 are unchanged.
+
 ## Web integration
 
 Keep the service on the server and call the existing REST research endpoint; no browser BLS scraping or second scoring/calculation implementation is needed. Render the outer `records[].rate_pct` as the target line, and each nested `records[].records[].effect_pt` as a bar only after checking `stacking`. Use a shared percentage-point/percent-change scale, with separate negative and positive stacks. Show `relative_importance_pct`, `weight_base_month`, `weight_target`, and the reported/calculated status in the table.
