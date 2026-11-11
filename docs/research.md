@@ -56,7 +56,7 @@ Results include missing-data status, periods, coverage and source terms. Discove
 
 [Prediction markets](prediction-markets.md) accept exactly one of `search` and `event_slug`, optional `include_closed`, and `limit` of one to five events (default three). `atlas research polymarket Anthropic` fetches current event details and market-implied outcome-price indicators.
 
-The catalog contains 69 datasets, including seven optional Yahoo selections, generic FRED and local source history. [Japanese company queries](japan-companies.md) add `japan_disclosures` (`filing_date`), `japan_filing_facts` (`filing_date`, `document_id`, optional `concept`) and `japan_securities` (optional JPX `.T` identifier). [Source history](source-history.md) accepts an approved `source_url`, `history_action` and action-specific hashes or a timezone-aware local-observation `as_of`. These query fields work through `research get` flags or `research run --input`.
+The catalog contains 70 datasets, including seven optional Yahoo selections, generic FRED and local source history. [Japanese company queries](japan-companies.md) add `japan_disclosures` (`filing_date`), `japan_filing_facts` (`filing_date`, `document_id`, optional `concept`) and `japan_securities` (optional JPX `.T` identifier). [Source history](source-history.md) accepts an approved `source_url`, `history_action` and action-specific hashes or a timezone-aware local-observation `as_of`. These query fields work through `research get` flags or `research run --input`.
 
 `identifier` accepts a ticker, CIK or company name. For 13F, use the **reporting manager's CIK**. An issuer CIK does not reverse-search every manager holding that issuer. Insider reports are likewise limited to the resolved filing history. For `insider_transactions` and `institutional_holdings`, omitting `accession` selects the latest matching filing. Original-document datasets require an explicit accession. Original filings and amendments are not merged automatically.
 
@@ -194,6 +194,8 @@ Form 3/4/5 preserves transaction codes, acquisition/disposition codes, direct/in
 XML discovery uses filing history and safe directory filenames, examining at most six candidates. Unsupported XML forms do not count as successful extraction. The service does not redistribute whole documents, images or attachments.
 
 ## Economics and policy
+
+[CPI effects and weights](cpi-effects.md) use `cpi_effects` with `categories` or `category_set`, paired `start_month`/`end_month`, `change`, `seasonal_adjustment` and `target`. The catalog exposes supported combinations; `atlas research cpi-effects` and the generic query interfaces share the response.
 
 [Macro breakdowns](macro-breakdowns.md) add CPI shelter/rent/OER and employment geography, age and occupation selectors, plus the separate `inflation_measures` dataset for Cleveland Fed median and trimmed CPI. Catalog filters `topic=cpi|employment` and `breakdown` return category paths and counts without network access.
 

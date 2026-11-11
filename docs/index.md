@@ -2,7 +2,7 @@
 
 Atlas Terminal is an Apache-2.0 toolkit for retrieving financial data, calculating research indicators and checking original evidence through one MCP connection. A Python SDK, CLI and HTTP API share the research services. Company financials, macro/rates/FX, optional stock and futures prices, technical indicators, Japanese margin balances, Buffett-inspired scoring and Polymarket outcomes are available in the current source checkout.
 
-The source checkout contains **69 datasets, 28 upstream source families and 34 presets**. These guides describe `main`; installed versions may expose a smaller catalog, and the existing `v0.7.0` release does not include every later feature. Start with `atlas research catalog --json` to inspect your installation.
+The source checkout contains **70 datasets, 28 upstream source families and 34 presets**. These guides describe `main`; installed versions may expose a smaller catalog, and the existing `v0.7.0` release does not include every later feature. Start with `atlas research catalog --json` to inspect your installation.
 
 ## Choose a research task
 
@@ -64,3 +64,5 @@ Results retain source URLs, raw-response hashes, retrieval times and original fi
 Missing values remain unavailable. Retrieval time is not publication or observation time, current/revised history is not point-in-time history, and market-implied percentages are not calibrated forecasts. Atlas does not provide consolidated real-time quotes, analyst consensus, complete news coverage or trading. [Sources and terms](../DATA_SOURCES.md) · [Coverage](../IMPLEMENTATION_STATUS.md) · [FAQ](faq.md).
 
 [GitHub repository](https://github.com/andoseiryu-atlassupport/atlas-terminal) · [Atlas and OpenBB](atlas-and-openbb.md) · [Release notes](../CHANGELOG.md) · [Support](support.md) · [Privacy](privacy.md) · [Terms](terms.md)
+
+[CPI effects and relative importance](cpi-effects.md) documents percentage-point stacks, weight vintages, source evidence and Web integration.

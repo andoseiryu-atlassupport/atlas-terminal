@@ -1253,6 +1253,116 @@
       "oneOf": [
         {
           "additionalProperties": false,
+          "dependentRequired": {
+            "end_month": ["start_month"],
+            "start_month": ["end_month"]
+          },
+          "properties": {
+            "dataset": {
+              "const": "cpi_effects",
+              "type": "string"
+            },
+            "categories": {
+              "items": {
+                "enum": [
+                  "cpi",
+                  "food_cpi",
+                  "energy_cpi",
+                  "core_cpi",
+                  "core_goods_cpi",
+                  "core_services_cpi",
+                  "food_at_home_cpi",
+                  "food_away_from_home_cpi",
+                  "gasoline_cpi",
+                  "shelter_cpi",
+                  "rent_cpi",
+                  "owners_equivalent_rent_cpi",
+                  "education_cpi"
+                ],
+                "type": "string"
+              },
+              "maxItems": 16,
+              "title": "Categories",
+              "type": "array",
+              "uniqueItems": true
+            },
+            "category_set": {
+              "anyOf": [
+                {
+                  "enum": ["all_items_basic", "core_basic"],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Category Set"
+            },
+            "change": {
+              "default": "mom",
+              "enum": ["mom", "yoy"],
+              "title": "Change",
+              "type": "string"
+            },
+            "end_month": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "End Month"
+            },
+            "seasonal_adjustment": {
+              "default": "sa",
+              "enum": ["sa", "nsa"],
+              "title": "Seasonal Adjustment",
+              "type": "string"
+            },
+            "start_month": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Start Month"
+            },
+            "target": {
+              "default": "all_items",
+              "enum": ["all_items", "core"],
+              "title": "Target",
+              "type": "string"
+            },
+            "response": {
+              "$ref": "#/$defs/ResponseOptions"
+            },
+            "requirements": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ResearchRequirements"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": ["dataset"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
           "oneOf": [
             {
               "properties": {
@@ -7146,6 +7256,7 @@
       "properties": {
         "dataset": {
           "enum": [
+            "cpi_effects",
             "prediction_markets",
             "buffett_score",
             "order_book",
@@ -7217,6 +7328,71 @@
             "fred_series"
           ],
           "title": "Dataset",
+          "type": "string"
+        },
+        "categories": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 16,
+          "title": "Categories",
+          "type": "array"
+        },
+        "category_set": {
+          "anyOf": [
+            {
+              "enum": ["all_items_basic", "core_basic"],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Category Set"
+        },
+        "start_month": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Start Month"
+        },
+        "end_month": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End Month"
+        },
+        "change": {
+          "default": "mom",
+          "enum": ["mom", "yoy"],
+          "title": "Change",
+          "type": "string"
+        },
+        "seasonal_adjustment": {
+          "default": "sa",
+          "enum": ["sa", "nsa"],
+          "title": "Seasonal Adjustment",
+          "type": "string"
+        },
+        "target": {
+          "default": "all_items",
+          "enum": ["all_items", "core"],
+          "title": "Target",
           "type": "string"
         },
         "book_source": {
@@ -8216,6 +8392,7 @@
         },
         "dataset": {
           "enum": [
+            "cpi_effects",
             "prediction_markets",
             "buffett_score",
             "order_book",

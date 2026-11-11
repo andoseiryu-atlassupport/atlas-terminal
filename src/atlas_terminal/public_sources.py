@@ -19,6 +19,7 @@ from atlas_terminal.activity_sources import (
     activity_identity,
     activity_key,
 )
+from atlas_terminal.cpi_sources import CPIHTML, archive_releases, cpi_identity
 from atlas_terminal.economic_catalog import JAPAN_SERIES
 from atlas_terminal.economic_sources import (
     BEA_BASE,
@@ -558,6 +559,7 @@ class PublicTransport(CachedHTTPTransport):
             or policy_identity(url) is not None
             or ecb_curve_identity(url) is not None
             or valid_bls_url(url)
+            or cpi_identity(url) is not None
             or validate_economic_url(url)
             or valid_sdmx_url(url)
             or regional_economic_identity(url) is not None
@@ -577,6 +579,12 @@ class PublicTransport(CachedHTTPTransport):
 
     @staticmethod
     def validate_body(url: str, body: bytes) -> None:
+        if identity := cpi_identity(url):
+            if identity == "archive":
+                archive_releases(Snapshot(body, url, "2000-01-01T00:00:00Z"))
+            elif not CPIHTML(body).tables:
+                raise ValueError("No CPI tables in response")
+            return
         if url in INFLATION_URLS.values():
             kind = next(k for k, v in INFLATION_URLS.items() if v == url)
             parse_inflation_csv(Snapshot(body, url, "2000-01-01T00:00:00Z"), kind)
@@ -856,6 +864,16 @@ class PublicFixtures:
     synthetic = True
 
     def get(self, url: str, ttl: int) -> Snapshot:
+        if identity := cpi_identity(url):
+            name = "archive.html" if identity == "archive" else url.rsplit("/", 1)[-1]
+            path = files("atlas_terminal").joinpath("resources", "research", "cpi", name)
+            if not path.is_file():
+                raise AtlasError("SOURCE_UNAVAILABLE", "No such fictional CPI release.")
+            return Snapshot(
+                path.read_bytes(),
+                "https://fixtures.atlas.invalid/cpi/" + name,
+                "2026-11-11T00:00:00Z",
+            )
         if prediction := prediction_identity(url):
             name = (
                 "prediction_search.json" if prediction[0] == "search" else "prediction_event.json"

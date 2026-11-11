@@ -96,6 +96,31 @@ class Atlas:
                 status=502,
             ) from None
 
+    def get_cpi_effects(
+        self,
+        *,
+        categories: list[str] | None = None,
+        category_set: str | None = None,
+        start_month: str | None = None,
+        end_month: str | None = None,
+        change: str = "mom",
+        seasonal_adjustment: str = "sa",
+        target: str = "all_items",
+    ) -> dict[str, Any]:
+        """Read BLS CPI-U effects and weights, with explicit scope and monthly coverage."""
+        return self.get_research(
+            {
+                "dataset": "cpi_effects",
+                "change": change,
+                "seasonal_adjustment": seasonal_adjustment,
+                "target": target,
+                **({"categories": categories} if categories is not None else {}),
+                **({"category_set": category_set} if category_set is not None else {}),
+                **({"start_month": start_month} if start_month is not None else {}),
+                **({"end_month": end_month} if end_month is not None else {}),
+            }
+        )
+
     def get_prediction_markets(
         self,
         search: str | None = None,
