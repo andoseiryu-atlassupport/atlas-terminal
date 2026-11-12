@@ -32,6 +32,13 @@ def private_state(tmp_path, monkeypatch):
 
 
 def query(dataset="statements", **extra):
+    if dataset == "benchmark_prices":
+        return {
+            "dataset": dataset,
+            "start_date": "2026-10-13",
+            "end_date": "2026-10-19",
+            **extra,
+        }
     if dataset == "inflation_measures":
         return {"dataset": dataset, "series": "median_cpi_mom", **extra}
     if dataset == "order_book":
@@ -248,6 +255,14 @@ def test_compact_provenance_reconstructs_every_dataset_without_losing_values(dat
         if dataset == "source_history":
             assert full["records"] == compact["records"] == []
             assert metadata["evidence_count"] == 0
+            return
+        if dataset == "benchmark_catalog":
+            # Static registry metadata has no upstream retrieval/evidence. Response
+            # creation times differ across calls; all semantic metadata is identical.
+            assert metadata["evidence_count"] == 0
+            assert metadata["total_records"] == len(full["records"]) == 6
+            assert {**full, "retrieved_at": compact["retrieved_at"]} == compact
+            assert metadata["result_sha256"] == digest(canonical(compact))
             return
         assert metadata["result_sha256"] == digest(canonical(full))
         assert metadata["evidence_count"] > 0

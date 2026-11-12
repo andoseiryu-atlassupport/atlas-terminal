@@ -178,6 +178,8 @@
         },
         "dataset": {
           "enum": [
+            "benchmark_catalog",
+            "benchmark_prices",
             "cpi_effects",
             "prediction_markets",
             "buffett_score",

@@ -14,6 +14,13 @@ from pydantic import (
 )
 
 from atlas_terminal.activity_catalog import ACTIVITY_SERIES
+from atlas_terminal.benchmark_catalog import (
+    BENCHMARKS,
+    BenchmarkCurrency,
+    BenchmarkId,
+    DividendTreatment,
+)
+from atlas_terminal.benchmark_models import BenchmarkPortfolio, BenchmarkSettings
 from atlas_terminal.buffett_models import ScoreFinancials, ScoreValuation
 from atlas_terminal.commodity_catalog import COMMODITIES
 from atlas_terminal.country_macro_catalog import BOND_SERIES, COUNTRIES, ECONOMIC_SERIES
@@ -61,6 +68,8 @@ from atlas_terminal.sdmx_sources import CODE_PATTERN, FLOW_PATTERN
 from atlas_terminal.spread_catalog import SPREADS
 
 Dataset = Literal[
+    "benchmark_catalog",
+    "benchmark_prices",
     "cpi_effects",
     "prediction_markets",
     "buffett_score",
@@ -134,6 +143,17 @@ Dataset = Literal[
 ]
 
 FIELDS = {
+    "benchmark_catalog": set(),
+    "benchmark_prices": {
+        "benchmark_id",
+        "benchmark_currency",
+        "dividend_treatment",
+        "alignment",
+        "start_date",
+        "end_date",
+        "limit",
+        "portfolio",
+    },
     "cpi_effects": {
         "categories",
         "category_set",
@@ -247,6 +267,10 @@ FIELDS = {
 
 
 def dataset_required(name: str) -> list[str]:
+    if name == "benchmark_catalog":
+        return []
+    if name == "benchmark_prices":
+        return ["start_date", "end_date"]
     if name == "cpi_effects":
         return []
     if name == "prediction_markets":
@@ -384,6 +408,9 @@ def dataset_schema(schema: dict[str, Any]) -> None:
             for key in ["dataset", *sorted(fields), "response", "requirements"]
         }
         properties["dataset"] = {"const": name, "type": "string"}
+        if name == "benchmark_prices":
+            properties["benchmark_id"]["enum"] = list(BENCHMARKS)
+            properties["dividend_treatment"]["enum"] = ["price_return"]
         if name == "cpi_effects":
             properties["categories"]["items"] = {"type": "string", "enum": list(CATEGORIES)}
             properties["categories"]["uniqueItems"] = True
@@ -652,6 +679,11 @@ def dataset_schema(schema: dict[str, Any]) -> None:
 class ResearchQuery(Model):
     model_config = ConfigDict(extra="forbid", json_schema_extra=dataset_schema)
     dataset: Dataset
+    benchmark_id: BenchmarkId = "topix"
+    benchmark_currency: BenchmarkCurrency = "JPY"
+    dividend_treatment: DividendTreatment = "price_return"
+    alignment: Literal["utc_day_end"] = "utc_day_end"
+    portfolio: BenchmarkPortfolio | None = None
     categories: list[str] = Field(default_factory=list, max_length=16)
     category_set: Literal["all_items_basic", "core_basic"] | None = None
     start_month: str | None = Field(default=None, pattern=r"^[0-9]{4}-(0[1-9]|1[0-2])$")
@@ -756,6 +788,45 @@ class ResearchQuery(Model):
 
     @model_validator(mode="after")
     def check_dataset(self) -> "ResearchQuery":
+        if self.dataset == "benchmark_prices":
+            if self.start_date is None or self.end_date is None:
+                raise AtlasError(
+                    "INVALID_INPUT", "Benchmark prices require both observation dates."
+                )
+            if (
+                self.start_date > self.end_date
+                or int(self.end_date[:4]) - int(self.start_date[:4]) > 9
+            ):
+                raise AtlasError(
+                    "INVALID_INPUT", "Benchmark windows span at most ten ordered calendar years."
+                )
+            if self.dividend_treatment != "price_return":
+                raise AtlasError(
+                    "INVALID_INPUT",
+                    "This dividend treatment has no verified adapter; no price-return substitute.",
+                    fields=["dividend_treatment"],
+                )
+            if self.portfolio is not None:
+                if (
+                    self.portfolio.currency != self.benchmark_currency
+                    or self.portfolio.dividend_treatment != self.dividend_treatment
+                ):
+                    raise AtlasError(
+                        "INVALID_INPUT",
+                        "Portfolio and benchmark currency/dividend treatment must match.",
+                    )
+                if any(
+                    not self.start_date <= row.date <= self.end_date
+                    for row in self.portfolio.observations
+                ):
+                    raise AtlasError(
+                        "INVALID_INPUT",
+                        "Portfolio observations must lie within the requested window.",
+                    )
+            # Persist defaults explicitly in saved query envelopes, including legacy selections.
+            for key in BenchmarkSettings.model_fields:
+                setattr(self, key, getattr(self, key))
+
         if self.dataset == "cpi_effects":
             if len(set(self.categories)) != len(self.categories) or any(
                 key not in CATEGORIES for key in self.categories
