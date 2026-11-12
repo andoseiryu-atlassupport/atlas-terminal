@@ -1,0 +1,19 @@
+{
+  "notice": "FICTIONAL TEST DATA; NOT JPX OBSERVATIONS",
+  "MainStockIndex": {
+    "Topix": {
+      "marketName": "TOPIX (東証株価指数)",
+      "currentPrice": "104.25"
+    },
+    "TopixTotalReturnIndex": {
+      "marketName": "配当込みTOPIX",
+      "currentPrice": "999.99"
+    }
+  },
+  "Topix": {
+    "Topix": {
+      "marketName": "TOPIX (東証株価指数)",
+      "currentPrice": "104.25"
+    }
+  }
+}

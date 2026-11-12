@@ -188,3 +188,11 @@ Companies, CIKs, amounts and observations under `resources/sec_like`, `resources
 ## Optional Polymarket event data
 
 The public [Gamma API](https://docs.polymarket.com/market-data/discover-markets) provides publisher-owned event and market records without an API key. Atlas selects fixed read-only search/event endpoints and retains original outcome-price evidence; it does not trade or supply verified live quotes. [Polymarket terms](https://polymarket.com/tos) restrict Capital Market Clients and market-data distributors without a written agreement and restrict commercial redistribution. Public access does not grant an open-data license. Actual data stays private; fixtures are fictional. [Semantics, access and current verification limits](docs/prediction-markets.md).
+
+## Common index benchmarks
+
+`benchmark_prices` reuses the existing optional international Yahoo index reader and official ECB reference FX. Yahoo symbol identities include separate `^IXIC` (NASDAQ Composite) and `^NDX` (NASDAQ-100); ordinary close is never relabeled as total return. Yahoo personal-use enablement and existing terms still apply to cached results.
+
+TOPIX uses the five historical slots linked by the [JPX index-value page](https://www.jpx.co.jp/markets/indices/realvalues/01.html): fixed `indices_stock_price3.1.txt` through `indices_stock_price3.5.txt` files and their `.time.txt` markers under `https://www.jpx.co.jp/market/indices/`. This is a limited rotating recent history, not a historical market-data license. Exact identity, after-close markers, repeated cells and acquisition rotation are checked. JPX index/data rights and the applicable permission for commercial display or redistribution remain separate from the code license. No purchase or license agreement is established by this adapter.
+
+Conversions retain original index and ECB values, source hashes and locators. Calendar dates align exactly without filling missing prices or rates. [Benchmark definitions and limitations](docs/benchmarks.md).

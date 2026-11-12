@@ -1,0 +1,78 @@
+{
+  "notice": "FICTIONAL TEST DATA; NOT MARKET OBSERVATIONS",
+  "chart": {
+    "result": [
+      {
+        "meta": {
+          "symbol": "^NDX",
+          "currency": "USD",
+          "exchangeName": "NIM",
+          "exchangeTimezoneName": "America/New_York",
+          "instrumentType": "INDEX",
+          "dataGranularity": "1d",
+          "shortName": "Fictional index fixture"
+        },
+        "timestamp": [
+          1791898200,
+          1791984600,
+          1792071000,
+          1792157400,
+          1792416600
+        ],
+        "indicators": {
+          "quote": [
+            {
+              "open": [
+                "400",
+                "402",
+                "401",
+                "405",
+                "409"
+              ],
+              "close": [
+                "400",
+                "402",
+                "401",
+                "405",
+                "409"
+              ],
+              "low": [
+                "400",
+                "402",
+                "401",
+                "405",
+                "409"
+              ],
+              "high": [
+                "400",
+                "402",
+                "401",
+                "405",
+                "409"
+              ],
+              "volume": [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ],
+          "adjclose": [
+            {
+              "adjclose": [
+                "999",
+                "999",
+                "999",
+                "999",
+                "999"
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "error": null
+  }
+}

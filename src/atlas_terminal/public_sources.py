@@ -19,6 +19,7 @@ from atlas_terminal.activity_sources import (
     activity_identity,
     activity_key,
 )
+from atlas_terminal.benchmark_sources import topix_cell, topix_identity, topix_time
 from atlas_terminal.cpi_sources import CPIHTML, archive_releases, cpi_identity
 from atlas_terminal.economic_catalog import JAPAN_SERIES
 from atlas_terminal.economic_sources import (
@@ -569,6 +570,7 @@ class PublicTransport(CachedHTTPTransport):
             or company_identity(url) is not None
             or margin_identity(url) is not None
             or prediction_identity(url) is not None
+            or topix_identity(url) is not None
             or yahoo_identity(url) is not None
             or intraday_identity(url) is not None
             or re.fullmatch(re.escape(TREASURY_BASE) + r"(?:199[0-9]|20[0-9]{2}|2100)", url)
@@ -579,6 +581,10 @@ class PublicTransport(CachedHTTPTransport):
 
     @staticmethod
     def validate_body(url: str, body: bytes) -> None:
+        if topix := topix_identity(url):
+            snapshot = Snapshot(body, url, stamp())
+            (topix_time if topix[1] else topix_cell)(snapshot)
+            return
         if identity := cpi_identity(url):
             if identity == "archive":
                 archive_releases(Snapshot(body, url, "2000-01-01T00:00:00Z"))
@@ -1018,6 +1024,14 @@ class PublicFixtures:
                 resource.read_bytes(),
                 "https://fixtures.atlas.invalid/research/" + name,
                 "2026-10-29T21:00:00Z",
+            )
+        if topix := topix_identity(url):
+            slot, is_time = topix
+            name = f"benchmark_topix_{slot}" + (".time.txt" if is_time else ".json")
+            return Snapshot(
+                files("atlas_terminal").joinpath("resources", "research", name).read_bytes(),
+                "https://fixtures.atlas.invalid/research/" + name,
+                "2026-10-27T02:00:00Z",
             )
         if yahoo := yahoo_identity(url):
             name = "yahoo_chart_" + yahoo[0] + ".json"

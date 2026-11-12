@@ -1,0 +1,78 @@
+{
+  "notice": "FICTIONAL TEST DATA; NOT MARKET OBSERVATIONS",
+  "chart": {
+    "result": [
+      {
+        "meta": {
+          "symbol": "^DJI",
+          "currency": "USD",
+          "exchangeName": "DJI",
+          "exchangeTimezoneName": "America/New_York",
+          "instrumentType": "INDEX",
+          "dataGranularity": "1d",
+          "shortName": "Fictional index fixture"
+        },
+        "timestamp": [
+          1791898200,
+          1791984600,
+          1792071000,
+          1792157400,
+          1792416600
+        ],
+        "indicators": {
+          "quote": [
+            {
+              "open": [
+                "200",
+                "201",
+                "200",
+                "203",
+                "208"
+              ],
+              "close": [
+                "200",
+                "201",
+                "200",
+                "203",
+                "208"
+              ],
+              "low": [
+                "200",
+                "201",
+                "200",
+                "203",
+                "208"
+              ],
+              "high": [
+                "200",
+                "201",
+                "200",
+                "203",
+                "208"
+              ],
+              "volume": [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ],
+          "adjclose": [
+            {
+              "adjclose": [
+                "999",
+                "999",
+                "999",
+                "999",
+                "999"
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "error": null
+  }
+}

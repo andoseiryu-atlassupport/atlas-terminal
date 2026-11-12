@@ -13,6 +13,7 @@ from urllib.parse import urlsplit
 from xml.etree.ElementTree import Element
 
 from atlas_terminal.activity_catalog import ACTIVITY_SERIES
+from atlas_terminal.benchmark_catalog import BENCHMARKS, benchmark_catalog
 from atlas_terminal.buffett_catalog import buffett_catalog
 from atlas_terminal.documentation import DOCUMENTATION_ORIGIN, research_documentation
 from atlas_terminal.economic_catalog import JAPAN_SERIES, NATIONAL_ACCOUNTS
@@ -124,6 +125,16 @@ FAMILIES = {
     "institutional_holdings": {"13F-HR", "13F-HR/A"},
 }
 DATASETS = {
+    "benchmark_catalog": (
+        "Registered index identities, dividend variants, currencies and date conventions",
+        "multiple",
+        "benchmark_metadata",
+    ),
+    "benchmark_prices": (
+        "Source-addressable index levels, exact-date currency conversion and portfolio comparison",
+        "multiple",
+        "benchmark_observations",
+    ),
     "cpi_effects": (
         "CPI-U rates, percentage-point effects, relative importance and stacking coverage",
         "bls",
@@ -675,6 +686,7 @@ def research_catalog(
             }
             for name, (title, source, kind) in DATASETS.items()
         ],
+        "benchmarks": benchmark_catalog(),
         "cpi_effects": __import__(
             "atlas_terminal.cpi_catalog", fromlist=["cpi_catalog"]
         ).cpi_catalog(),
@@ -1033,6 +1045,12 @@ class ResearchService:
             and not self.synthetic
         ):
             require_yahoo_enabled()
+        if (
+            q.dataset == "benchmark_prices"
+            and BENCHMARKS[q.benchmark_id]["source_id"] == "yahoo_finance"
+            and not self.synthetic
+        ):
+            require_yahoo_enabled()
         if q.dataset == "fred_series" and not self.synthetic:
             from atlas_terminal.activity_sources import activity_key
 
@@ -1142,11 +1160,21 @@ class ResearchService:
             from atlas_terminal.research_credit import credit_ratings
 
             result = credit_ratings(q, self.view_path.parent, synthetic=self.synthetic)
+        elif q.dataset == "benchmark_catalog":
+            result = {
+                **benchmark_catalog(),
+                "sources": [],
+                "limitations": [
+                    "Catalog availability describes implemented adapters, "
+                    "not a successful live read or redistribution license."
+                ],
+            }
         elif q.dataset == "macro_panel":
             from atlas_terminal.research_panel import macro_panel
 
             result = macro_panel(q, self.get)
         elif q.dataset in {
+            "benchmark_prices",
             "cpi_effects",
             "prediction_markets",
             "interest_spreads",
@@ -1755,6 +1783,11 @@ class ResearchService:
         }
 
     def public_data(self, q: ResearchQuery) -> dict[str, Any]:
+        if q.dataset == "benchmark_prices":
+            from atlas_terminal.research_benchmarks import benchmark_prices
+
+            assert self.public is not None
+            return benchmark_prices(self.public, q)
         assert self.public is not None
         if q.dataset == "prediction_markets":
             from atlas_terminal.research_predictions import prediction_markets

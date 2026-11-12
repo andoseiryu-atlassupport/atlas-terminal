@@ -562,6 +562,11 @@ def research_price_history(
 @research_app.command("get")
 def research_get(
     dataset: str,
+    benchmark_id: str | None = None,
+    benchmark_currency: str | None = None,
+    dividend_treatment: str | None = None,
+    alignment: str | None = None,
+    portfolio: str | None = None,
     event_slug: str | None = None,
     include_closed: bool = False,
     book_source: str | None = None,
@@ -626,6 +631,10 @@ def research_get(
     """Fetch free public research. Dataset-specific options are in research catalog."""
     data: dict[str, Any] = {"dataset": dataset}
     options = {
+        "benchmark_id": benchmark_id,
+        "benchmark_currency": benchmark_currency,
+        "dividend_treatment": dividend_treatment,
+        "alignment": alignment,
         "event_slug": event_slug,
         "book_source": book_source,
         "depth": depth,
@@ -670,6 +679,15 @@ def research_get(
         "dimension": dimension,
     }
     data.update({k: v for k, v in options.items() if v is not None})
+    if portfolio is not None:
+        try:
+            if len(portfolio) > 65536:
+                raise ValueError("Portfolio exceeds bounds")
+            data["portfolio"] = json.loads(portfolio)
+        except ValueError:
+            raise AtlasError(
+                "INVALID_INPUT", "Provide portfolio as a bounded JSON object."
+            ) from None
     if filters is not None:
         try:
             if len(filters) > 8192:

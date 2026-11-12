@@ -29,6 +29,7 @@ YAHOO_BASE = "https://query1.finance.yahoo.com/v8/finance/chart/"
 # Only the explicitly identified reference instruments below are accepted outside
 # registered stocks and ETFs. A symbol spelling alone never establishes identity.
 REFERENCE_INSTRUMENTS: dict[str, tuple[str, str, str, str, str, str]] = {
+    "^NDX": ("INDEX", "USD", "America/New_York", "NIM", "index_points", "source_reported_volume"),
     "^GSPC": ("INDEX", "USD", "America/New_York", "SNP", "index_points", "source_reported_volume"),
     "^DJI": ("INDEX", "USD", "America/New_York", "DJI", "index_points", "source_reported_volume"),
     "^IXIC": ("INDEX", "USD", "America/New_York", "NIM", "index_points", "source_reported_volume"),

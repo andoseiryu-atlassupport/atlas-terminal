@@ -451,6 +451,8 @@
               "anyOf": [
                 {
                   "enum": [
+                    "benchmark_catalog",
+                    "benchmark_prices",
                     "cpi_effects",
                     "prediction_markets",
                     "buffett_score",
@@ -4580,6 +4582,8 @@
           "dataset": {
             "type": "string",
             "enum": [
+              "benchmark_catalog",
+              "benchmark_prices",
               "cpi_effects",
               "prediction_markets",
               "buffett_score",
@@ -5311,6 +5315,70 @@
         "required": ["code", "message"],
         "title": "Warning"
       },
+      "BenchmarkPortfolio": {
+        "additionalProperties": false,
+        "properties": {
+          "currency": {
+            "enum": ["JPY", "USD"],
+            "title": "Currency",
+            "type": "string"
+          },
+          "dividend_treatment": {
+            "enum": ["price_return", "gross_total_return", "net_total_return"],
+            "title": "Dividend Treatment",
+            "type": "string"
+          },
+          "valuation_basis": {
+            "const": "utc_day_end",
+            "title": "Valuation Basis",
+            "type": "string"
+          },
+          "value_basis": {
+            "const": "unitized_nav_external_flows_removed",
+            "title": "Value Basis",
+            "type": "string"
+          },
+          "observations": {
+            "items": {
+              "$ref": "#/components/schemas/PortfolioObservation"
+            },
+            "maxItems": 500,
+            "minItems": 2,
+            "title": "Observations",
+            "type": "array"
+          },
+          "risk_free_rate_annual": {
+            "anyOf": [
+              {
+                "maxLength": 40,
+                "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Risk Free Rate Annual"
+          },
+          "sessions_per_year": {
+            "default": 252,
+            "maximum": 366,
+            "minimum": 1,
+            "title": "Sessions Per Year",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "currency",
+          "dividend_treatment",
+          "valuation_basis",
+          "value_basis",
+          "observations"
+        ],
+        "title": "BenchmarkPortfolio",
+        "type": "object"
+      },
       "PanelItem": {
         "additionalProperties": false,
         "properties": {
@@ -5334,6 +5402,33 @@
         },
         "required": ["id", "query", "aggregation"],
         "title": "PanelItem",
+        "type": "object"
+      },
+      "PortfolioObservation": {
+        "additionalProperties": false,
+        "properties": {
+          "date": {
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+            "title": "Date",
+            "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "maxLength": 80,
+                "pattern": "^[0-9]+(?:\\.[0-9]+)?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Value"
+          }
+        },
+        "required": ["date"],
+        "title": "PortfolioObservation",
         "type": "object"
       },
       "ResearchRequirements": {
@@ -6559,6 +6654,117 @@
       "ResearchQuery": {
         "additionalProperties": false,
         "oneOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "dataset": {
+                "const": "benchmark_catalog",
+                "type": "string"
+              },
+              "response": {
+                "$ref": "#/components/schemas/ResponseOptions"
+              },
+              "requirements": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ResearchRequirements"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              }
+            },
+            "required": ["dataset"],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "dependentRequired": {
+              "end_date": ["start_date"],
+              "start_date": ["end_date"]
+            },
+            "properties": {
+              "dataset": {
+                "const": "benchmark_prices",
+                "type": "string"
+              },
+              "alignment": {
+                "const": "utc_day_end",
+                "default": "utc_day_end",
+                "title": "Alignment",
+                "type": "string"
+              },
+              "benchmark_currency": {
+                "default": "JPY",
+                "enum": ["JPY", "USD"],
+                "title": "Benchmark Currency",
+                "type": "string"
+              },
+              "benchmark_id": {
+                "default": "topix",
+                "enum": [
+                  "topix",
+                  "nikkei225",
+                  "sp500",
+                  "nasdaq_composite",
+                  "dow_jones",
+                  "nasdaq100"
+                ],
+                "title": "Benchmark Id",
+                "type": "string"
+              },
+              "dividend_treatment": {
+                "default": "price_return",
+                "enum": ["price_return"],
+                "title": "Dividend Treatment",
+                "type": "string"
+              },
+              "end_date": {
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                "type": "string"
+              },
+              "limit": {
+                "default": 100,
+                "maximum": 500,
+                "minimum": 1,
+                "title": "Limit",
+                "type": "integer"
+              },
+              "portfolio": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/BenchmarkPortfolio"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              },
+              "start_date": {
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                "type": "string"
+              },
+              "response": {
+                "$ref": "#/components/schemas/ResponseOptions"
+              },
+              "requirements": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ResearchRequirements"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              }
+            },
+            "required": ["dataset", "start_date", "end_date"],
+            "type": "object"
+          },
           {
             "additionalProperties": false,
             "dependentRequired": {
@@ -8427,7 +8633,7 @@
               },
               "identifier": {
                 "description": "Explicit supported Yahoo symbol; source metadata validates its market.",
-                "pattern": "^(?:(?:[A-Z][A-Z0-9]{0,5}(?:-[A-Z])?|[0-9][0-9A-Z]{3}\\.T|[0-9A-Z]{6}\\.KS|[0-9A-Z]{6}\\.KQ|[A-Z0-9][A-Z0-9-]{0,19}\\.L|[A-Z0-9][A-Z0-9-]{0,19}\\.DE|[A-Z0-9][A-Z0-9-]{0,19}\\.PA|[A-Z0-9][A-Z0-9-]{0,19}\\.AS|[A-Z0-9][A-Z0-9-]{0,19}\\.MI|[A-Z0-9][A-Z0-9-]{0,19}\\.MC|[A-Z0-9][A-Z0-9-]{0,19}\\.SW|[A-Z0-9][A-Z0-9-]{0,19}\\.ST|[A-Z0-9][A-Z0-9-]{0,19}\\.CO|[A-Z0-9][A-Z0-9-]{0,19}\\.OL|[A-Z0-9][A-Z0-9-]{0,19}\\.HE|[A-Z0-9][A-Z0-9-]{0,19}\\.BR|[A-Z0-9][A-Z0-9-]{0,19}\\.VI|[A-Z0-9][A-Z0-9-]{0,19}\\.IR|[A-Z0-9][A-Z0-9-]{0,19}\\.LS|[A-Z0-9][A-Z0-9-]{0,19}\\.WA)|(?:GC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|SI(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|HG(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|PL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|PA(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|CL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|BZ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|NG(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|RB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|HO(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|ZC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZW(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZS(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZM(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|KC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|SB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|CC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|OJ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|LE(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|HE(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|GF(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|ES(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|NQ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|YM(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|RTY(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|ZB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZN(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZF(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZT(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT))|\\^GSPC|\\^DJI|\\^IXIC|\\^RUT|\\^VIX|\\^N225|EURUSD=X|GBPUSD=X|AUDUSD=X|NZDUSD=X|USDJPY=X|USDCHF=X|USDCAD=X|BTC\\-USD|ETH\\-USD|GC=F|SI=F|CL=F|NG=F|ES=F|NQ=F)$",
+                "pattern": "^(?:(?:[A-Z][A-Z0-9]{0,5}(?:-[A-Z])?|[0-9][0-9A-Z]{3}\\.T|[0-9A-Z]{6}\\.KS|[0-9A-Z]{6}\\.KQ|[A-Z0-9][A-Z0-9-]{0,19}\\.L|[A-Z0-9][A-Z0-9-]{0,19}\\.DE|[A-Z0-9][A-Z0-9-]{0,19}\\.PA|[A-Z0-9][A-Z0-9-]{0,19}\\.AS|[A-Z0-9][A-Z0-9-]{0,19}\\.MI|[A-Z0-9][A-Z0-9-]{0,19}\\.MC|[A-Z0-9][A-Z0-9-]{0,19}\\.SW|[A-Z0-9][A-Z0-9-]{0,19}\\.ST|[A-Z0-9][A-Z0-9-]{0,19}\\.CO|[A-Z0-9][A-Z0-9-]{0,19}\\.OL|[A-Z0-9][A-Z0-9-]{0,19}\\.HE|[A-Z0-9][A-Z0-9-]{0,19}\\.BR|[A-Z0-9][A-Z0-9-]{0,19}\\.VI|[A-Z0-9][A-Z0-9-]{0,19}\\.IR|[A-Z0-9][A-Z0-9-]{0,19}\\.LS|[A-Z0-9][A-Z0-9-]{0,19}\\.WA)|(?:GC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|SI(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|HG(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|PL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|PA(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|CL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|BZ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|NG(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|RB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|HO(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|ZC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZW(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZS(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZM(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|KC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|SB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|CC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|OJ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|LE(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|HE(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|GF(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|ES(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|NQ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|YM(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|RTY(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|ZB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZN(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZF(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZT(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT))|\\^NDX|\\^GSPC|\\^DJI|\\^IXIC|\\^RUT|\\^VIX|\\^N225|EURUSD=X|GBPUSD=X|AUDUSD=X|NZDUSD=X|USDJPY=X|USDCHF=X|USDCAD=X|BTC\\-USD|ETH\\-USD|GC=F|SI=F|CL=F|NG=F|ES=F|NQ=F)$",
                 "type": "string"
               },
               "interval": {
@@ -8550,7 +8756,7 @@
               },
               "identifier": {
                 "description": "Explicit supported Yahoo symbol; source metadata validates its market.",
-                "pattern": "^(?:(?:[A-Z][A-Z0-9]{0,5}(?:-[A-Z])?|[0-9][0-9A-Z]{3}\\.T|[0-9A-Z]{6}\\.KS|[0-9A-Z]{6}\\.KQ|[A-Z0-9][A-Z0-9-]{0,19}\\.L|[A-Z0-9][A-Z0-9-]{0,19}\\.DE|[A-Z0-9][A-Z0-9-]{0,19}\\.PA|[A-Z0-9][A-Z0-9-]{0,19}\\.AS|[A-Z0-9][A-Z0-9-]{0,19}\\.MI|[A-Z0-9][A-Z0-9-]{0,19}\\.MC|[A-Z0-9][A-Z0-9-]{0,19}\\.SW|[A-Z0-9][A-Z0-9-]{0,19}\\.ST|[A-Z0-9][A-Z0-9-]{0,19}\\.CO|[A-Z0-9][A-Z0-9-]{0,19}\\.OL|[A-Z0-9][A-Z0-9-]{0,19}\\.HE|[A-Z0-9][A-Z0-9-]{0,19}\\.BR|[A-Z0-9][A-Z0-9-]{0,19}\\.VI|[A-Z0-9][A-Z0-9-]{0,19}\\.IR|[A-Z0-9][A-Z0-9-]{0,19}\\.LS|[A-Z0-9][A-Z0-9-]{0,19}\\.WA)|(?:GC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|SI(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|HG(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|PL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|PA(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|CL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|BZ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|NG(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|RB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|HO(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|ZC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZW(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZS(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZM(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|KC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|SB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|CC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|OJ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|LE(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|HE(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|GF(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|ES(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|NQ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|YM(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|RTY(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|ZB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZN(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZF(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZT(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT))|\\^GSPC|\\^DJI|\\^IXIC|\\^RUT|\\^VIX|\\^N225|EURUSD=X|GBPUSD=X|AUDUSD=X|NZDUSD=X|USDJPY=X|USDCHF=X|USDCAD=X|BTC\\-USD|ETH\\-USD|GC=F|SI=F|CL=F|NG=F|ES=F|NQ=F)$",
+                "pattern": "^(?:(?:[A-Z][A-Z0-9]{0,5}(?:-[A-Z])?|[0-9][0-9A-Z]{3}\\.T|[0-9A-Z]{6}\\.KS|[0-9A-Z]{6}\\.KQ|[A-Z0-9][A-Z0-9-]{0,19}\\.L|[A-Z0-9][A-Z0-9-]{0,19}\\.DE|[A-Z0-9][A-Z0-9-]{0,19}\\.PA|[A-Z0-9][A-Z0-9-]{0,19}\\.AS|[A-Z0-9][A-Z0-9-]{0,19}\\.MI|[A-Z0-9][A-Z0-9-]{0,19}\\.MC|[A-Z0-9][A-Z0-9-]{0,19}\\.SW|[A-Z0-9][A-Z0-9-]{0,19}\\.ST|[A-Z0-9][A-Z0-9-]{0,19}\\.CO|[A-Z0-9][A-Z0-9-]{0,19}\\.OL|[A-Z0-9][A-Z0-9-]{0,19}\\.HE|[A-Z0-9][A-Z0-9-]{0,19}\\.BR|[A-Z0-9][A-Z0-9-]{0,19}\\.VI|[A-Z0-9][A-Z0-9-]{0,19}\\.IR|[A-Z0-9][A-Z0-9-]{0,19}\\.LS|[A-Z0-9][A-Z0-9-]{0,19}\\.WA)|(?:GC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|SI(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|HG(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|PL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|PA(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|CL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|BZ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|NG(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|RB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|HO(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|ZC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZW(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZS(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZM(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|KC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|SB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|CC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|OJ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|LE(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|HE(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|GF(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|ES(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|NQ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|YM(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|RTY(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|ZB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZN(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZF(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZT(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT))|\\^NDX|\\^GSPC|\\^DJI|\\^IXIC|\\^RUT|\\^VIX|\\^N225|EURUSD=X|GBPUSD=X|AUDUSD=X|NZDUSD=X|USDJPY=X|USDCHF=X|USDCAD=X|BTC\\-USD|ETH\\-USD|GC=F|SI=F|CL=F|NG=F|ES=F|NQ=F)$",
                 "type": "string"
               },
               "limit": {
@@ -9257,7 +9463,7 @@
               },
               "identifier": {
                 "description": "Explicit supported Yahoo symbol; source metadata validates its market.",
-                "pattern": "^(?:(?:[A-Z][A-Z0-9]{0,5}(?:-[A-Z])?|[0-9][0-9A-Z]{3}\\.T|[0-9A-Z]{6}\\.KS|[0-9A-Z]{6}\\.KQ|[A-Z0-9][A-Z0-9-]{0,19}\\.L|[A-Z0-9][A-Z0-9-]{0,19}\\.DE|[A-Z0-9][A-Z0-9-]{0,19}\\.PA|[A-Z0-9][A-Z0-9-]{0,19}\\.AS|[A-Z0-9][A-Z0-9-]{0,19}\\.MI|[A-Z0-9][A-Z0-9-]{0,19}\\.MC|[A-Z0-9][A-Z0-9-]{0,19}\\.SW|[A-Z0-9][A-Z0-9-]{0,19}\\.ST|[A-Z0-9][A-Z0-9-]{0,19}\\.CO|[A-Z0-9][A-Z0-9-]{0,19}\\.OL|[A-Z0-9][A-Z0-9-]{0,19}\\.HE|[A-Z0-9][A-Z0-9-]{0,19}\\.BR|[A-Z0-9][A-Z0-9-]{0,19}\\.VI|[A-Z0-9][A-Z0-9-]{0,19}\\.IR|[A-Z0-9][A-Z0-9-]{0,19}\\.LS|[A-Z0-9][A-Z0-9-]{0,19}\\.WA)|(?:GC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|SI(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|HG(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|PL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|PA(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|CL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|BZ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|NG(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|RB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|HO(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|ZC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZW(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZS(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZM(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|KC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|SB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|CC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|OJ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|LE(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|HE(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|GF(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|ES(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|NQ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|YM(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|RTY(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|ZB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZN(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZF(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZT(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT))|\\^GSPC|\\^DJI|\\^IXIC|\\^RUT|\\^VIX|\\^N225|EURUSD=X|GBPUSD=X|AUDUSD=X|NZDUSD=X|USDJPY=X|USDCHF=X|USDCAD=X|BTC\\-USD|ETH\\-USD|GC=F|SI=F|CL=F|NG=F|ES=F|NQ=F)$",
+                "pattern": "^(?:(?:[A-Z][A-Z0-9]{0,5}(?:-[A-Z])?|[0-9][0-9A-Z]{3}\\.T|[0-9A-Z]{6}\\.KS|[0-9A-Z]{6}\\.KQ|[A-Z0-9][A-Z0-9-]{0,19}\\.L|[A-Z0-9][A-Z0-9-]{0,19}\\.DE|[A-Z0-9][A-Z0-9-]{0,19}\\.PA|[A-Z0-9][A-Z0-9-]{0,19}\\.AS|[A-Z0-9][A-Z0-9-]{0,19}\\.MI|[A-Z0-9][A-Z0-9-]{0,19}\\.MC|[A-Z0-9][A-Z0-9-]{0,19}\\.SW|[A-Z0-9][A-Z0-9-]{0,19}\\.ST|[A-Z0-9][A-Z0-9-]{0,19}\\.CO|[A-Z0-9][A-Z0-9-]{0,19}\\.OL|[A-Z0-9][A-Z0-9-]{0,19}\\.HE|[A-Z0-9][A-Z0-9-]{0,19}\\.BR|[A-Z0-9][A-Z0-9-]{0,19}\\.VI|[A-Z0-9][A-Z0-9-]{0,19}\\.IR|[A-Z0-9][A-Z0-9-]{0,19}\\.LS|[A-Z0-9][A-Z0-9-]{0,19}\\.WA)|(?:GC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|SI(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|HG(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|PL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|PA(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|CL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|BZ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|NG(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|RB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|HO(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|ZC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZW(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZS(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZM(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|KC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|SB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|CC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|OJ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|LE(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|HE(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|GF(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|ES(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|NQ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|YM(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|RTY(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|ZB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZN(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZF(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZT(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT))|\\^NDX|\\^GSPC|\\^DJI|\\^IXIC|\\^RUT|\\^VIX|\\^N225|EURUSD=X|GBPUSD=X|AUDUSD=X|NZDUSD=X|USDJPY=X|USDCHF=X|USDCAD=X|BTC\\-USD|ETH\\-USD|GC=F|SI=F|CL=F|NG=F|ES=F|NQ=F)$",
                 "type": "string"
               },
               "limit": {
@@ -12564,6 +12770,8 @@
         "properties": {
           "dataset": {
             "enum": [
+              "benchmark_catalog",
+              "benchmark_prices",
               "cpi_effects",
               "prediction_markets",
               "buffett_score",
@@ -12637,6 +12845,48 @@
             ],
             "title": "Dataset",
             "type": "string"
+          },
+          "benchmark_id": {
+            "default": "topix",
+            "enum": [
+              "topix",
+              "nikkei225",
+              "sp500",
+              "nasdaq_composite",
+              "dow_jones",
+              "nasdaq100"
+            ],
+            "title": "Benchmark Id",
+            "type": "string"
+          },
+          "benchmark_currency": {
+            "default": "JPY",
+            "enum": ["JPY", "USD"],
+            "title": "Benchmark Currency",
+            "type": "string"
+          },
+          "dividend_treatment": {
+            "default": "price_return",
+            "enum": ["price_return", "gross_total_return", "net_total_return"],
+            "title": "Dividend Treatment",
+            "type": "string"
+          },
+          "alignment": {
+            "const": "utc_day_end",
+            "default": "utc_day_end",
+            "title": "Alignment",
+            "type": "string"
+          },
+          "portfolio": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BenchmarkPortfolio"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
           },
           "categories": {
             "items": {
@@ -14425,7 +14675,7 @@
               "identifier": {
                 "maxLength": 100,
                 "minLength": 1,
-                "pattern": "^(?:(?:[A-Z][A-Z0-9]{0,5}(?:-[A-Z])?|[0-9][0-9A-Z]{3}\\.T|[0-9A-Z]{6}\\.KS|[0-9A-Z]{6}\\.KQ|[A-Z0-9][A-Z0-9-]{0,19}\\.L|[A-Z0-9][A-Z0-9-]{0,19}\\.DE|[A-Z0-9][A-Z0-9-]{0,19}\\.PA|[A-Z0-9][A-Z0-9-]{0,19}\\.AS|[A-Z0-9][A-Z0-9-]{0,19}\\.MI|[A-Z0-9][A-Z0-9-]{0,19}\\.MC|[A-Z0-9][A-Z0-9-]{0,19}\\.SW|[A-Z0-9][A-Z0-9-]{0,19}\\.ST|[A-Z0-9][A-Z0-9-]{0,19}\\.CO|[A-Z0-9][A-Z0-9-]{0,19}\\.OL|[A-Z0-9][A-Z0-9-]{0,19}\\.HE|[A-Z0-9][A-Z0-9-]{0,19}\\.BR|[A-Z0-9][A-Z0-9-]{0,19}\\.VI|[A-Z0-9][A-Z0-9-]{0,19}\\.IR|[A-Z0-9][A-Z0-9-]{0,19}\\.LS|[A-Z0-9][A-Z0-9-]{0,19}\\.WA)|(?:GC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|SI(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|HG(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|PL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|PA(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|CL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|BZ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|NG(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|RB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|HO(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|ZC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZW(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZS(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZM(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|KC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|SB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|CC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|OJ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|LE(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|HE(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|GF(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|ES(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|NQ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|YM(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|RTY(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|ZB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZN(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZF(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZT(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT))|\\^GSPC|\\^DJI|\\^IXIC|\\^RUT|\\^VIX|\\^N225|EURUSD=X|GBPUSD=X|AUDUSD=X|NZDUSD=X|USDJPY=X|USDCHF=X|USDCAD=X|BTC\\-USD|ETH\\-USD|GC=F|SI=F|CL=F|NG=F|ES=F|NQ=F)$",
+                "pattern": "^(?:(?:[A-Z][A-Z0-9]{0,5}(?:-[A-Z])?|[0-9][0-9A-Z]{3}\\.T|[0-9A-Z]{6}\\.KS|[0-9A-Z]{6}\\.KQ|[A-Z0-9][A-Z0-9-]{0,19}\\.L|[A-Z0-9][A-Z0-9-]{0,19}\\.DE|[A-Z0-9][A-Z0-9-]{0,19}\\.PA|[A-Z0-9][A-Z0-9-]{0,19}\\.AS|[A-Z0-9][A-Z0-9-]{0,19}\\.MI|[A-Z0-9][A-Z0-9-]{0,19}\\.MC|[A-Z0-9][A-Z0-9-]{0,19}\\.SW|[A-Z0-9][A-Z0-9-]{0,19}\\.ST|[A-Z0-9][A-Z0-9-]{0,19}\\.CO|[A-Z0-9][A-Z0-9-]{0,19}\\.OL|[A-Z0-9][A-Z0-9-]{0,19}\\.HE|[A-Z0-9][A-Z0-9-]{0,19}\\.BR|[A-Z0-9][A-Z0-9-]{0,19}\\.VI|[A-Z0-9][A-Z0-9-]{0,19}\\.IR|[A-Z0-9][A-Z0-9-]{0,19}\\.LS|[A-Z0-9][A-Z0-9-]{0,19}\\.WA)|(?:GC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|SI(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|HG(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CMX)|PL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|PA(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|CL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|BZ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|NG(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|RB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|HO(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYM)|ZC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZW(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZS(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZM(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZL(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|KC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|SB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|CC(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|OJ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.NYB)|LE(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|HE(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|GF(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|ES(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|NQ(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|YM(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|RTY(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CME)|ZB(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZN(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZF(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT)|ZT(?:=F|[FGHJKMNQUVXZ][2-4][0-9]\\.CBT))|\\^NDX|\\^GSPC|\\^DJI|\\^IXIC|\\^RUT|\\^VIX|\\^N225|EURUSD=X|GBPUSD=X|AUDUSD=X|NZDUSD=X|USDJPY=X|USDCHF=X|USDCAD=X|BTC\\-USD|ETH\\-USD|GC=F|SI=F|CL=F|NG=F|ES=F|NQ=F)$",
                 "type": "string"
               },
               "include": {

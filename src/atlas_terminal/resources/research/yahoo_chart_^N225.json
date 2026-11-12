@@ -1,0 +1,78 @@
+{
+  "notice": "FICTIONAL TEST DATA; NOT MARKET OBSERVATIONS",
+  "chart": {
+    "result": [
+      {
+        "meta": {
+          "symbol": "^N225",
+          "currency": "JPY",
+          "exchangeName": "OSA",
+          "exchangeTimezoneName": "Asia/Tokyo",
+          "instrumentType": "INDEX",
+          "dataGranularity": "1d",
+          "shortName": "Fictional index fixture"
+        },
+        "timestamp": [
+          1791851400,
+          1791937800,
+          1792024200,
+          1792110600,
+          1792369800
+        ],
+        "indicators": {
+          "quote": [
+            {
+              "open": [
+                "500",
+                "505",
+                "506",
+                "502",
+                "508"
+              ],
+              "close": [
+                "500",
+                "505",
+                "506",
+                "502",
+                "508"
+              ],
+              "low": [
+                "500",
+                "505",
+                "506",
+                "502",
+                "508"
+              ],
+              "high": [
+                "500",
+                "505",
+                "506",
+                "502",
+                "508"
+              ],
+              "volume": [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ],
+          "adjclose": [
+            {
+              "adjclose": [
+                "999",
+                "999",
+                "999",
+                "999",
+                "999"
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "error": null
+  }
+}

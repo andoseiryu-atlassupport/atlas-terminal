@@ -96,6 +96,37 @@ class Atlas:
                 status=502,
             ) from None
 
+    def benchmark_catalog(self) -> dict[str, Any]:
+        """Discover exact index identities and supported dividend/currency conditions offline."""
+        return self.get_research({"dataset": "benchmark_catalog"})
+
+    def benchmark_prices(
+        self,
+        benchmark_id: str = "topix",
+        *,
+        start_date: str,
+        end_date: str,
+        benchmark_currency: str = "JPY",
+        dividend_treatment: str = "price_return",
+        alignment: str = "utc_day_end",
+        limit: int = 500,
+        portfolio: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Retrieve benchmark levels and optional explicitly supplied daily NAV comparison."""
+        return self.get_research(
+            {
+                "dataset": "benchmark_prices",
+                "benchmark_id": benchmark_id,
+                "start_date": start_date,
+                "end_date": end_date,
+                "benchmark_currency": benchmark_currency,
+                "dividend_treatment": dividend_treatment,
+                "alignment": alignment,
+                "limit": limit,
+                **({"portfolio": portfolio} if portfolio is not None else {}),
+            }
+        )
+
     def get_cpi_effects(
         self,
         *,
